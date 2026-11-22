@@ -10,6 +10,7 @@ Source: Tanger and Helgeson (1988); Shock et al. (1992).
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | aqueous_solute |
 | Needs | the solvent |
 | Temperature segments | no |
@@ -25,17 +26,17 @@ Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
 | Name | Unit of the source | SI unit | Required | Default | Description |
 |---|---|---|---|---|---|
-| a1 | cal/(mol.bar) | J/(mol.Pa) | yes |  | pressure coefficient a1 |
-| a2 | cal/mol | J/mol | yes |  | pressure coefficient a2 |
-| a3 | cal.K/(mol.bar) | J.K/(mol.Pa) | yes |  | pressure coefficient a3 |
-| a4 | cal.K/mol | J.K/mol | yes |  | pressure coefficient a4 |
-| c1 | cal/(mol.K) | J/(mol.K) | yes |  | temperature coefficient c1 |
-| c2 | cal.K/mol | J.K/mol | yes |  | temperature coefficient c2 |
+| a1 | cal/(mol.bar) | J/(mol.Pa) | yes |  | parameter a1 (pressure term) |
+| a2 | cal/mol | J/mol | yes |  | parameter a2 (pressure term) |
+| a3 | cal.K/(mol.bar) | J.K/(mol.Pa) | yes |  | parameter a3 (pressure term) |
+| a4 | cal.K/mol | J.K/mol | yes |  | parameter a4 (pressure term) |
+| c1 | cal/(mol.K) | J/(mol.K) | yes |  | parameter c1 (temperature term) |
+| c2 | cal.K/mol | J.K/mol | yes |  | parameter c2 (temperature term) |
 | omega | cal/mol | J/mol | yes |  | conventional Born coefficient |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Implementation `reaktoro`.
 

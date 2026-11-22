@@ -113,9 +113,9 @@ int main(int argc, char** argv)
             FluidRecord record;
             record.lower_T = 200.0;
             record.formula = formula;
-            if (const auto* set = builtinConstants(id))
+            if (const auto* set = builtinModelParameters(id))
                 for (const auto& p : MethodCatalog::instance().find(id, OperatesOn::Substance)->parameters)
-                    if (p.constant)
+                    if (p.model_parameter)
                         record.constants.push_back(set->parameters.at(p.name).value);
             return fluidMethod(id, std::move(parameters), record);
         };

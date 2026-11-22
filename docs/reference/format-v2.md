@@ -43,8 +43,11 @@ A key that starts with `_` is ignored. A file with one record has `record_type`,
 
 ## A parameter set
 
-`method`, `implementation`, `default`, `formula_units`, `description`, `reference`, `parameters`, `units`.
+`method`, `implementation`, `default`, `formula_units`, `description`, `data_sources`, `parameters`, `units`.
 
 ## A Method record
 
-`kind`, `operates_on`, `applies_to_classes`, `contributes_to`, `parameter_definitions`, `implementation_id`, `formula`, `expression`, `generator`, `source_hash`, `tests`, `effects`, `citation`. See [Add a method as data](../how-to/add-a-method-as-data.md).
+`kind`, `operates_on`, `applies_to_classes`, `contributes_to`, `parameter_definitions`, `implementation_id`, `formula`, `expression`, `generator`, `formula_hash`, `tests`, `data_sources`.
+`contributes_to` maps each property to `sets` (the whole value), `adds` (an increment) or `uses` (an input only), for example
+`{G: sets, H: sets, S: sets, Cp: sets}`; a property not listed is not touched. A list of properties is the short form, in which
+each adds. See [Add a method as data](../how-to/add-a-method-as-data.md).

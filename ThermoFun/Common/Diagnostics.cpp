@@ -160,7 +160,7 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
         {"V2-MTH-010", S::Error, "The parameters of a Method record are not the same as those of the built-in method.",
          "Use the parameter names and units of the built-in method, or give the Method record another id."},
         {"V2-MTH-011", S::Error, "What a Method record changes is not the same as for the built-in method.",
-         "Remove `effects` from the Method record, or give it another id."},
+         "Correct `contributes_to` of the Method record (property: sets, adds or uses, as the page of the method says), or give it another id."},
         {"V2-MTH-012", S::Error, "The record does not have exactly one base method.",
          "Give one method that sets G, H, S, Cp and V; the other methods can only correct them."},
         {"V2-MTH-013", S::Error, "Two methods set the same property.", "Remove one of the two methods."},

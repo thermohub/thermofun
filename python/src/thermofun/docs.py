@@ -251,6 +251,7 @@ def method_page(spec, example, same=(), published=None, data=DATA):
     lines += ["| | |", "|---|---|",
               "| Works on | %s |" % spec["operates_on"],
               "| Kind | %s |" % ("base method" if spec["base"] else "increment"),
+              "| Contributes to | %s |" % (", ".join("%s %s" % (k, v) for k, v in spec["contributes_to"].items()) or "nothing"),
               "| Classes | %s |" % (", ".join(spec["classes"]) or "any"),
               "| Needs | %s |" % needs,
               "| Temperature segments | %s |" % ("yes" if spec["piecewise"] else "no"),
@@ -268,9 +269,9 @@ def method_page(spec, example, same=(), published=None, data=DATA):
         lines += ["## Implementations", "",
                   "%s. The default is `%s`. Use another only to reproduce the results of that code." %
                   (", ".join("`%s`" % i for i in spec["implementations"]), spec["implementations"][0]), ""]
-    own = [p for p in spec["parameters"] if not p["constant"] and p["used"]]
-    unused = [p["name"] for p in spec["parameters"] if not p["constant"] and not p["used"]]
-    built_in = [p["name"] for p in spec["parameters"] if p["constant"]]
+    own = [p for p in spec["parameters"] if not p["model_parameter"] and p["used"]]
+    unused = [p["name"] for p in spec["parameters"] if not p["model_parameter"] and not p["used"]]
+    built_in = [p["name"] for p in spec["parameters"] if p["model_parameter"]]
     if own:
         lines += ["## Parameters", "", "| Name | Unit of the source | SI unit | Required | Default | Description |", "|---|---|---|---|---|---|"]
         for p in own:
@@ -283,9 +284,9 @@ def method_page(spec, example, same=(), published=None, data=DATA):
                   "Not read: %s. Legacy files write these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated "
                   "them; a file can keep them, and they change nothing." % ", ".join(_ranges(unused)), ""]
     if built_in:
-        lines += ["## Built-in coefficients", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
+        lines += ["## Model parameters", "", "Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
                   "A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.", ""]
-        for s in spec["constant_sets"]:
+        for s in spec["model_parameter_sets"]:
             if s["implementation"]:
                 lines += ["Implementation `%s`." % s["implementation"], ""]
             if not s["default"]:

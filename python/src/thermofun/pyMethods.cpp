@@ -140,15 +140,12 @@ void exportMethods(py::module& parent)
         return out;
     }, "The constants of physics of this build");
 
-    m.def("catalog", [] {
-        py::list out;
-        for (const auto& spec : MethodCatalog::instance().specs())
-        {
+    const auto rowOf = [](const MethodSpec& spec) -> py::dict {
             py::dict row;
             row["id"] = spec.id; row["aliases"] = spec.aliases; row["title"] = spec.title; row["summary"] = spec.summary;
             row["citation"] = spec.citation; row["operates_on"] = toString(spec.operates_on); row["group"] = spec.group; row["same_as"] = spec.same_as;
             row["depends_on"] = spec.depends_on == Dependence::None ? "none" : spec.depends_on == Dependence::T ? "T" : spec.depends_on == Dependence::P ? "P" : spec.depends_on == Dependence::TP ? "T, P" : "";
-            row["base"] = spec.operates_on == OperatesOn::Substance ? spec.effects.base : spec.reaction_effects.base;
+            row["base"] = spec.operates_on == OperatesOn::Substance ? spec.contributes_to.base : spec.reaction_contributes_to.base;
             row["piecewise"] = spec.piecewise; row["implemented"] = spec.implemented;
             row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
             row["implementations"] = spec.implementations;
@@ -176,15 +173,24 @@ void exportMethods(py::module& parent)
             }
             row["needs_solvent"] = spec.needs.solvent;
             {
-                // what the method does to each property of a substance: set, add, read or none
-                const auto word = [](Effect e) { return e == Effect::Set ? "set" : e == Effect::Add ? "add" : e == Effect::Read ? "read" : "none"; };
-                const auto& e = spec.effects;
-                py::dict effects;
+                // what the method contributes to each property (decision 0031, row 11): sets, adds or uses; a property it does
+                // not touch is absent
+                py::dict contributes;
+                const auto add = [&](const char* name, Contribution c) {
+                    if (c != Contribution::None)
+                        contributes[name] = c == Contribution::Sets ? "sets" : c == Contribution::Adds ? "adds" : "uses";
+                };
                 if (spec.operates_on == OperatesOn::Substance)
                 {
-                    effects["G"] = word(e.G); effects["H"] = word(e.H); effects["S"] = word(e.S); effects["Cp"] = word(e.Cp); effects["V"] = word(e.V);
+                    const auto& e = spec.contributes_to;
+                    add("G", e.G); add("H", e.H); add("S", e.S); add("Cp", e.Cp); add("V", e.V);
                 }
-                row["effects"] = effects;
+                else
+                {
+                    const auto& r = spec.reaction_contributes_to;
+                    add("logK", r.logK); add("dG", r.dG); add("dH", r.dH); add("dS", r.dS); add("dCp", r.dCp); add("dV", r.dV);
+                }
+                row["contributes_to"] = contributes;
             }
             std::vector<std::string> classes, legacy_names;
             for (const auto c : spec.applies_to_classes)
@@ -201,29 +207,41 @@ void exportMethods(py::module& parent)
                 py::dict one;
                 one["name"] = p.name; one["si_unit"] = p.si_unit; one["source_unit"] = p.source_unit; one["required"] = p.required;
                 one["description"] = p.description;
-                one["constant"] = p.constant; one["used"] = p.used;
+                one["model_parameter"] = p.model_parameter; one["used"] = p.used;
                 one["default"] = p.default_si ? py::cast(*p.default_si) : py::none();
                 parameters.append(one);
             }
             row["parameters"] = parameters;
-            py::list constantSets;
+            py::list modelParameterSets;
             auto addSets = [&](const std::string& method) {
                 for (const auto& set : model::builtinSetsOf(method))
                 {
                     py::dict one;
                     one["symbol"] = set.symbol; one["implementation"] = set.implementation; one["default"] = set.is_default;
                     one["description"] = set.description; one["data_sources"] = set.data_sources; one["formula_units"] = set.formula_units;
-                    constantSets.append(one);
+                    modelParameterSets.append(one);
                 }
             };
             addSets(spec.id);
             if (spec.id == "WaterHGK84" || spec.id == "WaterIAPWS95")
                 addSets("WaterSaturation");
-            row["constant_sets"] = constantSets;
-            out.append(row);
+            row["model_parameter_sets"] = modelParameterSets;
+            return row;
+    };
+    m.def("catalog", [rowOf](const std::string& id) -> py::object {
+        if (!id.empty())
+        {
+            const auto* spec = MethodCatalog::instance().find(id);
+            if (!spec)
+                throw py::value_error("There is no method " + id + ".");
+            return rowOf(*spec);
         }
+        py::list out;
+        for (const auto& spec : MethodCatalog::instance().specs())
+            out.append(rowOf(spec));
         return out;
-    }, "All built-in methods: id, title, what they need and their parameters");
+    }, "All built-in methods (a list), or with an id one method: id, title, what it contributes to, what it needs, its parameters and "
+       "model parameters", py::arg("id") = "");
 
     m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference, int lagrangeOrder) {
             auto a = makeApplication(id, "", parameters);

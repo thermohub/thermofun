@@ -189,8 +189,23 @@ auto methodRecordJson(const MethodDefinition& m) -> json
             classes.push_back(toString(c));
         out["applies_to_classes"] = classes;
     }
-    if (!m.contributes_to.empty()) out["contributes_to"] = m.contributes_to;
-    if (!m.effects_json.empty()) out["effects"] = json::parse(m.effects_json, nullptr, false);
+    if (!m.contributes_to.empty())
+    {
+        if (m.contributes_to_list)
+        {
+            json names = json::array();
+            for (const auto& [name, word] : m.contributes_to)
+                names.push_back(name);
+            out["contributes_to"] = names;
+        }
+        else
+        {
+            json map = json::object();   // nlohmann sorts keys; the order of a map does not count
+            for (const auto& [name, word] : m.contributes_to)
+                map[name] = word;
+            out["contributes_to"] = map;
+        }
+    }
     if (!m.parameter_definitions.empty())
     {
         json defs = json::object();

@@ -8,6 +8,7 @@ Adds dV dP to dG and dH, and the same term to log K.
 |---|---|
 | Works on | reaction |
 | Kind | increment |
+| Contributes to | logK adds, dG adds, dH adds, dV sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

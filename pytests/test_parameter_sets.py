@@ -135,18 +135,18 @@ def test_a_constant_is_not_a_parameter_to_fit():
 
 
 def test_each_built_in_set_says_what_it_holds_and_where_it_comes_from():
-    sets = [(spec["id"], s) for spec in tf.methods.catalog() for s in spec["constant_sets"]]
+    sets = [(spec["id"], s) for spec in tf.methods.catalog() for s in spec["model_parameter_sets"]]
     assert len(sets) >= 9
     for method, s in sets:
         assert len(s["description"]) > 40, method
         assert s["data_sources"], method
 
 
-def test_the_page_of_a_method_gives_its_constants_in_one_place():
+def test_the_page_of_a_method_gives_its_model_parameters_in_one_place():
     from thermofun import docs
-    spec = next(s for s in tf.methods.catalog() if s["id"] == "SverjenskyEtAl14")
+    spec = tf.methods.catalog("SverjenskyEtAl14")
     page = docs.method_page(spec, None)
-    assert "## Built-in coefficients" in page and spec["constant_sets"][0]["description"] in page
+    assert "## Model parameters" in page and spec["model_parameter_sets"][0]["description"] in page
     assert "| a1 |" not in page
 
 

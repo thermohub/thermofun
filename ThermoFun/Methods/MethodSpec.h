@@ -21,13 +21,13 @@ enum class MethodRole
     ReactionProperties    ///< logK, dG, dH, dS, dCp, dV of a reaction
 };
 
-/// What a method does to one property of the result that it receives.
-enum class Effect
+/// What a method contributes to one property of the result that it receives (decision 0031, row 11: `contributes_to`).
+enum class Contribution
 {
     None,  ///< does not touch the property
-    Set,   ///< replaces the property
-    Add,   ///< adds an increment to the property
-    Read   ///< uses the property of the incoming result as an input
+    Sets,  ///< gives the whole value: replaces the property
+    Adds,  ///< adds an increment to the value before it
+    Uses   ///< uses the property of the incoming result as an input only
 };
 
 /// One named parameter of a method.
@@ -40,20 +40,20 @@ struct ParameterSpec
     bool required = true;
     std::optional<double> default_si;
     bool fittable = true;     ///< false for integers and switches, for example a number of atoms
-    bool constant = false;    ///< a constant of the model, built in (Methods/ParameterSets): not a value of each record
+    bool model_parameter = false;  ///< a parameter of the model, the same for every record, built in (Methods/ParameterSets)
     bool used = true;         ///< false: a record can give it (legacy files do), but the formulas do not read it
 };
 
-/// The effects of a substance method on G, H, S, Cp and V. U, A and Cv are always computed at the end.
-struct MethodEffects
+/// What a substance method contributes to G, H, S, Cp and V. U, A and Cv are always computed at the end.
+struct SubstanceContributions
 {
-    Effect G = Effect::None, H = Effect::None, S = Effect::None, Cp = Effect::None, V = Effect::None;
+    Contribution G = Contribution::None, H = Contribution::None, S = Contribution::None, Cp = Contribution::None, V = Contribution::None;
     bool base = false;       ///< makes the complete set of properties
-    bool transform = false;  ///< uses the incoming result as input (any Read effect)
+    bool transform = false;  ///< uses the incoming result as input (any Uses)
     int rank = 0;            ///< order among the methods of the same group; the lowest runs first
 };
 
-/// The effects of a reaction method on logK, dG, dH, dS, dCp and dV.
+/// What a reaction method contributes to logK, dG, dH, dS, dCp and dV.
 /// What the result of a method depends on, beside its parameters. A correction for pressure is what P says.
 enum class Dependence
 {
@@ -64,10 +64,10 @@ enum class Dependence
     TP
 };
 
-struct ReactionEffects
+struct ReactionContributions
 {
-    Effect logK = Effect::None, dG = Effect::None, dH = Effect::None, dS = Effect::None, dCp = Effect::None,
-           dV = Effect::None;
+    Contribution logK = Contribution::None, dG = Contribution::None, dH = Contribution::None, dS = Contribution::None, dCp = Contribution::None,
+           dV = Contribution::None;
     bool base = false;
     bool final = false;  ///< no step runs after this method
     int rank = 0;
@@ -119,8 +119,8 @@ struct MethodSpec
     std::vector<SubstanceClass> applies_to_classes;   ///< empty: any class
     MethodRole role = MethodRole::SubstanceProperties;
     Dependence depends_on = Dependence::Unset;
-    MethodEffects effects;                       ///< substances
-    ReactionEffects reaction_effects;            ///< reactions
+    SubstanceContributions contributes_to;          ///< substances
+    ReactionContributions reaction_contributes_to;            ///< reactions
     MethodNeeds needs;
     std::optional<EnergyReference> native_convention; ///< empty: that of the reference values
     bool piecewise = false;                      ///< the parameters come in temperature segments

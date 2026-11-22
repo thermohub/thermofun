@@ -106,7 +106,7 @@ auto fluidMethod(const std::string& id, std::vector<double> parameters, FluidRec
     std::size_t expected = 0;
     if (const auto* spec = MethodCatalog::instance().find(id, OperatesOn::Substance))
         for (const auto& p : spec->parameters)
-            expected += p.constant ? 1 : 0;
+            expected += p.model_parameter ? 1 : 0;
     if (record.constants.size() != expected)
         funError("Cannot make the method " + id, "It needs " + std::to_string(expected) + " constants and has " + std::to_string(record.constants.size()) + ".", __LINE__, __FILE__);
     return makeMethod(id.c_str(), Parameters{std::move(parameters), {std::move(record), &rowOf(id)}},

@@ -23,8 +23,8 @@ constexpr double fh = 4.305816e0;  // kJ/kg to cal/mol (the unit factor of the G
 
 struct LVSContext
 {
-    std::shared_ptr<const WaterLVS83Constants> lvs;
-    WaterTransportGemsConstants transport;
+    std::shared_ptr<const WaterLVS83ModelParameters> lvs;
+    WaterTransportGemsModelParameters transport;
     double Ttr = 273.16;  // K
 };
 
@@ -197,8 +197,8 @@ private:
 auto waterLVS83Method(const std::map<std::string, Quantity>& values, const std::map<std::string, Quantity>& transport) -> std::shared_ptr<const SolventMethod>
 {
     LVSContext c;
-    c.lvs = makeWaterLVS83Constants(values);
-    c.transport = readWaterTransportGemsConstants(transport);
+    c.lvs = makeWaterLVS83ModelParameters(values);
+    c.transport = readWaterTransportGemsModelParameters(transport);
     c.Ttr = values.at("Ttr").value;
     return std::make_shared<const WaterLVS83Method>(std::move(c));
 }

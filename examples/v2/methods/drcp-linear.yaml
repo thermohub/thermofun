@@ -2,11 +2,11 @@
 kind: symbolic
 operates_on: reaction
 contributes_to:
-- logK
-- dG
-- dH
-- dS
-- dCp
+  logK: sets
+  dG: sets
+  dH: sets
+  dS: sets
+  dCp: sets
 parameter_definitions:
   a:
     unit: J/(mol.K)

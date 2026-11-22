@@ -46,7 +46,11 @@ struct MethodDefinition
     MethodKind kind = MethodKind::Reference;
     OperatesOn operates_on = OperatesOn::Substance;
     std::vector<SubstanceClass> applies_to_classes;
-    std::vector<std::string> contributes_to;     ///< words of PropertyName or ReactionPropertyName
+    /// What the method contributes to (decision 0031, row 11), in the order of the file: a word of PropertyName or
+    /// ReactionPropertyName -> sets (the whole value), adds (an increment) or uses (an input only). A property not listed is not
+    /// touched. Written as a short list when contributes_to_list is true: each property then adds.
+    std::vector<std::pair<std::string, std::string>> contributes_to;
+    bool contributes_to_list = false;
     std::vector<ParameterDefinition> parameter_definitions;
     std::string implementation_id;               ///< for reference methods
     // Symbolic methods: the formula as the author wrote it, and the expressions generated from it
@@ -59,7 +63,6 @@ struct MethodDefinition
     std::string formula_json;                     ///< the formula block as compact JSON text with sorted keys, for the hash
     std::string formula_hash;                     ///< sha256 of the formula block when `expression` was made
     std::vector<ReferenceTestCase> tests;
-    std::string effects_json;                    ///< the block `effects` of the file as JSON text
     std::vector<std::string> data_sources;       ///< NEA reference codes (TDB-5 1.11), or free text
     std::string extra_json;                      ///< unknown fields, as JSON text
 

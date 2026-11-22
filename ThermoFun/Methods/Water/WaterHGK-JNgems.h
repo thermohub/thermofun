@@ -14,18 +14,18 @@
 
 namespace ThermoFun {
 
-struct WaterHGKgemsConstants;
+struct WaterHGKgemsModelParameters;
 
 /// The constants from the values of the method of water and of the dielectric constant, both with all their names.
-auto makeWaterHGKgemsConstants(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>;
+auto makeWaterHGKgemsModelParameters(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsModelParameters>;
 
 class WaterHGKgems
 {
 public:
-    explicit WaterHGKgems(const WaterHGKgemsConstants& constants);
+    explicit WaterHGKgems(const WaterHGKgemsModelParameters& constants);
 
 private:
-    const WaterHGKgemsConstants* k_;
+    const WaterHGKgemsModelParameters* k_;
 
     HGK_SPECS aSpc; HGK_STATES aSta;
 

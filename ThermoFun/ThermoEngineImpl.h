@@ -353,7 +353,7 @@ struct ThermoEngine::Impl
     auto pressureAtDensity(double T, double rho, double P) const -> double;
     static auto waterCriticalT() -> double
     {
-        static const double T = model::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
+        static const double T = model::builtinModelParameters("WaterSaturation")->parameters.at("Tcr").value;
         return T;
     }
     /// Refuses a state point that has no meaning: T or P not finite, T <= 0, P < 0, and P = 0 (the saturation pressure of
@@ -372,7 +372,7 @@ struct ThermoEngine::Impl
     }
     static auto waterCriticalP() -> double
     {
-        static const double P = model::builtinConstants("WaterSaturation")->parameters.at("Pcr").value;
+        static const double P = model::builtinModelParameters("WaterSaturation")->parameters.at("Pcr").value;
         return P;
     }
 

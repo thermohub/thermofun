@@ -772,9 +772,9 @@ methods:
 
 The tables of all methods, with their parameters and units, are on their own page: [Parameters of all methods](../reference/method-parameters.md). Each method also has its page in the [list of methods](../reference/methods/index.md).
 
-### Built-in coefficients
+### Model parameters
 
-Some methods have coefficients that do not belong to one substance, for example the coefficients of a water model. They are not in the record but in default YAML files, one for each set, in the folder `ThermoFun/Methods/ParameterSets/` of the source (a copy is in `include/ThermoFun/Methods/ParameterSets/` of an installation). Each file has a description and its source, written like a `parameter_sets` section. The page of the method lists them.
+Some methods have model parameters: values of the model that do not belong to one substance, for example the coefficients of a water equation. They are not in the record but in default YAML files, one for each set, in the folder `ThermoFun/Methods/ParameterSets/` of the source (a copy is in `include/ThermoFun/Methods/ParameterSets/` of an installation). Each file has a description and its source, written like a `parameter_sets` section. The page of the method lists them.
 
 A record does not give them. To use another value, give it inline in the `parameters` of the method, or in a `parameter_set` of the same method. The value then holds only for that record. Where this is not possible, the page of the method says so.
 

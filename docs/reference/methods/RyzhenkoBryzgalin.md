@@ -10,6 +10,7 @@ Source: Ryzhenko and Bryzgalin.
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | the solvent |
 | Temperature segments | no |
@@ -24,9 +25,9 @@ Source: Ryzhenko and Bryzgalin.
 | A | 1 | 1 | yes |  | coefficient A |
 | B | 1 | 1 | yes |  | coefficient B |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, rho: g/cm3. They are not converted.
 

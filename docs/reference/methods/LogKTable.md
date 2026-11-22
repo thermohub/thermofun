@@ -8,6 +8,7 @@ Interpolates a table of log K(T), with Lagrange polynomials or a cubic spline.
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

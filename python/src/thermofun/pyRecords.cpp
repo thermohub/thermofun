@@ -222,7 +222,20 @@ void exportRecords(py::module& m)
         .def_readwrite("symbol", &MethodDefinition::symbol)
         .def_property_readonly("kind", [wordOf](const MethodDefinition& x) { return wordOf(x.kind); })
         .def_property_readonly("operates_on", [wordOf](const MethodDefinition& x) { return wordOf(x.operates_on); })
-        .def_readwrite("contributes_to", &MethodDefinition::contributes_to)
+        .def_property("contributes_to",
+            [](const MethodDefinition& m) { py::dict out; for (const auto& [name, word] : m.contributes_to) out[py::str(name)] = word; return out; },
+            [](MethodDefinition& m, const py::object& value) {
+                m.contributes_to.clear();
+                m.contributes_to_list = !py::isinstance<py::dict>(value);
+                if (m.contributes_to_list)
+                    for (const auto& name : value)
+                        m.contributes_to.emplace_back(py::str(name), "adds");
+                else
+                    for (const auto& [name, word] : value.cast<py::dict>())
+                        m.contributes_to.emplace_back(py::str(name), py::str(word));
+            },
+            "property -> sets, adds or uses (decision 0031); set a list of properties for the short form (each adds)")
+        .def_readwrite("contributes_to_list", &MethodDefinition::contributes_to_list, "True if written as a short list")
         .def_readwrite("parameter_definitions", &MethodDefinition::parameter_definitions)
         .def_readwrite("implementation_id", &MethodDefinition::implementation_id)
         .def_readwrite("formula_form", &MethodDefinition::formula_form)
@@ -233,7 +246,6 @@ void exportRecords(py::module& m)
         .def_readwrite("generator", &MethodDefinition::generator)
         .def_readwrite("formula_hash", &MethodDefinition::formula_hash)
         .def_readwrite("tests", &MethodDefinition::tests)
-        .def_readwrite("effects_json", &MethodDefinition::effects_json)
         .def_readwrite("data_sources", &MethodDefinition::data_sources)
         .def_readwrite("extra_json", &MethodDefinition::extra_json)
         .def(py::self == py::self);

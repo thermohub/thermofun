@@ -8,6 +8,7 @@ Gives dCp = a + b T + c/T2 + d/sqrt(T) + e T2; the log K methods use it.
 |---|---|
 | Works on | reaction |
 | Kind | increment |
+| Contributes to | nothing |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

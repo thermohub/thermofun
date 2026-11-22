@@ -2,12 +2,12 @@
 kind: symbolic
 operates_on: reaction
 contributes_to:
-- logK
-- dG
-- dH
-- dS
-- dCp
-- dV
+  logK: sets
+  dG: sets
+  dH: sets
+  dS: sets
+  dCp: sets
+  dV: sets
 parameter_definitions:
   A0:
     unit: '1'

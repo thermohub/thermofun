@@ -8,6 +8,7 @@ Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change wit
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

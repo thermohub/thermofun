@@ -126,7 +126,7 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst,
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFModelParameters& constants) -> FunctionG
 {
     real a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,

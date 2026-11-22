@@ -72,12 +72,12 @@ auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double
     }
 }
 // The limits of Zhang and Duan (2005): from 100 MPa and 273.15 K up to about 20-30 GPa and 2000 K.
-auto checkZhangDuan(double T, double P, const ZhangDuanConstants& c) -> void
+auto checkZhangDuan(double T, double P, const ZhangDuanModelParameters& c) -> void
 {
     checkModelValidity(T, P, c.Tmax, 273.15, c.Pmax, c.Pmin, "Zhang and Duan (2005) H2O model.");
 }
 
-auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> ThermoPropertiesSubstance
+auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsModelParameters& constants) -> ThermoPropertiesSubstance
 {
     WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
 
@@ -95,7 +95,7 @@ auto hgk84GemsSubstance(double T, double& P, int state, const std::string& tripl
     return tps;
 }
 
-auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants& constants) -> PropertiesSolvent
+auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKModelParameters& constants) -> PropertiesSolvent
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -103,7 +103,7 @@ auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants&
     });
 }
 
-auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKConstants& constants) -> ThermoPropertiesSubstance
+auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKModelParameters& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
@@ -112,7 +112,7 @@ auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& t
     });
 }
 
-auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPrussConstants& constants) -> PropertiesSolvent
+auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPrussModelParameters& constants) -> PropertiesSolvent
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -120,7 +120,7 @@ auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPruss
     });
 }
 
-auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
+auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussModelParameters& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterIAPWS95");
@@ -130,7 +130,7 @@ auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string&
 }
 
 /// The vapour from the gas equation: the density at T, P (not 0). The caller checks with gasEquationCovers first.
-auto gasEquationDensity(real T, real P, const WagnerPrussConstants& constants, bool& ok) -> real
+auto gasEquationDensity(real T, real P, const WagnerPrussModelParameters& constants, bool& ok) -> real
 {
     return waterDensityGasEquation(T, P, constants, 55.0, ok);
 }
@@ -138,7 +138,7 @@ auto gasEquationDensity(real T, real P, const WagnerPrussConstants& constants, b
 /// The region of the gas equation (Wagner and Pruss 2002, Sects. 3, 6.3.1 and 7.3.2.3): the vapour that is metastable (P above
 /// the saturation pressure) at T from 200 K to the critical point and P up to 10 MPa, where the density is up to 55 kg/m3.
 /// Stable vapour and the saturated vapour line stay with IAPWS-95, which is very accurate there.
-auto gasEquationCovers(double T, double P, int state, const WagnerPrussConstants& constants) -> bool
+auto gasEquationCovers(double T, double P, int state, const WagnerPrussModelParameters& constants) -> bool
 {
     if (state != 1 || P <= 0.0 || P > 1.0e7 || T < 200.0 || T >= constants.saturation.Tcr)
         return false;
@@ -149,7 +149,7 @@ auto gasEquationCovers(double T, double P, int state, const WagnerPrussConstants
     return ok;
 }
 
-auto iapws95GasProperties(double T, double& P, int, const WagnerPrussConstants& constants) -> PropertiesSolvent
+auto iapws95GasProperties(double T, double& P, int, const WagnerPrussModelParameters& constants) -> PropertiesSolvent
 {
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         bool ok = false;
@@ -158,7 +158,7 @@ auto iapws95GasProperties(double T, double& P, int, const WagnerPrussConstants& 
     });
 }
 
-auto iapws95GasSubstance(double T, double& P, int, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
+auto iapws95GasSubstance(double T, double& P, int, const std::string& triple, const WagnerPrussModelParameters& constants) -> ThermoPropertiesSubstance
 {
     WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterIAPWS95Gas");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -168,7 +168,7 @@ auto iapws95GasSubstance(double T, double& P, int, const std::string& triple, co
     });
 }
 
-auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& constants) -> PropertiesSolvent
+auto zhangDuan05Properties(double T, double& P, const ZhangDuanModelParameters& constants) -> PropertiesSolvent
 {
     checkZhangDuan(T, P, constants);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -176,7 +176,7 @@ auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& consta
     });
 }
 
-auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const ZhangDuanConstants& constants) -> ThermoPropertiesSubstance
+auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const ZhangDuanModelParameters& constants) -> ThermoPropertiesSubstance
 {
     checkZhangDuan(T, P, constants);
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -228,7 +228,7 @@ auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, in
     return eps;
 }
 
-auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const WaterHGKgemsConstants& constants) -> ElectroPropertiesSolvent
+auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const WaterHGKgemsModelParameters& constants) -> ElectroPropertiesSolvent
 {
     auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         WaterHGKgems water_hgk(constants);
@@ -298,7 +298,7 @@ private:
 
 } // namespace
 
-auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> PropertiesSolvent
+auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple, const WaterHGKgemsModelParameters& constants) -> PropertiesSolvent
 {
     WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
 
@@ -327,11 +327,11 @@ auto waterHGK84GemsProperties(double T, double& P, int state, const std::string&
 
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent
 {
-    static const auto constants = makeWaterHGKgemsConstants(builtinConstants("WaterHGK84", "gems")->parameters, builtinConstants("JohnsonNorton91")->parameters);
+    static const auto constants = makeWaterHGKgemsModelParameters(builtinModelParameters("WaterHGK84", "gems")->parameters, builtinModelParameters("JohnsonNorton91")->parameters);
     return waterHGK84GemsProperties(T, P, state, triple, *constants);
 }
 
-auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const SolventMethod>
+auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsModelParameters> constants) -> std::shared_ptr<const SolventMethod>
 {
     return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "gems",
         [constants](double T, double& P, int state, const std::string& triple) { return waterHGK84GemsProperties(T, P, state, triple, *constants); },
@@ -369,9 +369,9 @@ auto valueOf(const MethodApplication& a, const char* name) -> double
 
 namespace {
 
-auto saturationOf(const MethodApplication& a) -> WaterSaturationConstants
+auto saturationOf(const MethodApplication& a) -> WaterSaturationModelParameters
 {
-    WaterSaturationConstants s;
+    WaterSaturationModelParameters s;
     for (int i = 1; i <= 6; ++i)
     {
         s.a.push_back(valueOf(a, ("sat_a" + std::to_string(i)).c_str()));
@@ -386,7 +386,7 @@ auto saturationOf(const MethodApplication& a) -> WaterSaturationConstants
 
 auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
 {
-    HGKConstants k;
+    HGKModelParameters k;
     k.saturation = saturationOf(a); k.Ttr = valueOf(a, "Ttr");
     k.A0 = listOf(a, "A0"); k.A1 = listOf(a, "A1"); k.yc = listOf(a, "yc"); k.A3 = listOf(a, "A3"); k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta");
     k.ri = listOf(a, "ri"); k.ti = listOf(a, "ti"); k.A4 = listOf(a, "A4");
@@ -401,7 +401,7 @@ auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<con
 
 auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
 {
-    WagnerPrussConstants k;
+    WagnerPrussModelParameters k;
     k.saturation = saturationOf(a); k.Ttr = valueOf(a, "Ttr");
     k.no = listOf(a, "no"); k.gammao = listOf(a, "gammao"); k.c = listOf(a, "c"); k.d = listOf(a, "d"); k.t = listOf(a, "t"); k.n = listOf(a, "n");
     k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta"); k.gamma = listOf(a, "gamma"); k.epsilon = listOf(a, "epsilon");
@@ -417,10 +417,10 @@ auto waterIAPWS95GasMethod(const MethodApplication& a) -> std::shared_ptr<const 
     // the ideal-gas part, the critical point and the saturation are those of IAPWS-95; the 7 terms replace its residual part
     MethodApplication b;
     b.method = "WaterIAPWS95";
-    b.parameters = builtinConstants("WaterIAPWS95", "reaktoro")->parameters;
-    for (const auto& [name, value] : builtinConstants("WaterSaturation")->parameters)
+    b.parameters = builtinModelParameters("WaterIAPWS95", "reaktoro")->parameters;
+    for (const auto& [name, value] : builtinModelParameters("WaterSaturation")->parameters)
         b.parameters.emplace(name, value);
-    WagnerPrussConstants k;
+    WagnerPrussModelParameters k;
     k.saturation = saturationOf(b); k.Ttr = valueOf(b, "Ttr");
     k.no = listOf(b, "no"); k.gammao = listOf(b, "gammao"); k.c = listOf(b, "c"); k.d = listOf(b, "d"); k.t = listOf(b, "t"); k.n = listOf(b, "n");
     k.alpha = listOf(b, "alpha"); k.beta = listOf(b, "beta"); k.gamma = listOf(b, "gamma"); k.epsilon = listOf(b, "epsilon");
@@ -444,7 +444,7 @@ auto waterIAPWS95GasMethod(const MethodApplication& a) -> std::shared_ptr<const 
         [k](double T, double P, int state) { return gasEquationCovers(T, P, state, k); });
 }
 
-auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>
+auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanModelParameters constants) -> std::shared_ptr<const SolventMethod>
 {
     return std::make_shared<const FunctionSolventMethod>("WaterZhangDuan05", "",
         [constants](double T, double& P, int, const std::string&) { return zhangDuan05Properties(T, P, constants); },
@@ -459,7 +459,7 @@ auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared
     });
 }
 
-auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const DielectricMethod>
+auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsModelParameters> constants) -> std::shared_ptr<const DielectricMethod>
 {
     return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", [constants](double T, double P, const PropertiesSolvent& solvent, int) {
         return johnsonNorton91Gems(T, P, solvent, *constants);

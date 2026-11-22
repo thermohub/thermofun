@@ -117,9 +117,10 @@ def definitions():
                               sourcetdb={"oneOf": [STRING, STRINGS]}, deprecated=BOOLEAN, units=REF("units"),
                               covariances=REF("covariances")))
     d["method_definition"] = _obj(dict(symbol=STRING, record_type=STRING, kind=STRING, operates_on=STRING, applies_to_classes=STRINGS,
-                                       contributes_to=STRINGS, parameter_definitions={"type": ["object", "array"]},
+                                       contributes_to={"oneOf": [STRINGS, {"type": "object", "additionalProperties": {"enum": ["sets", "adds", "uses"]}}],
+                                                       "description": "What the method contributes to: a mapping property -> sets (the whole value), adds (an increment) or uses (an input only); a property not listed is not touched. A list of properties is the short form: each adds."}, parameter_definitions={"type": ["object", "array"]},
                                        implementation_id=STRING, formula={"type": ["string", "object"], "description": "The formula of a symbolic method as the author writes it: form and expression."}, expression={"type": ["string", "object"]},
-                                       generator=STRING, formula_hash=STRING, tests={"type": "array"}, effects={"type": "object"},
+                                       generator=STRING, formula_hash=STRING, tests={"type": "array"},
                                        data_sources={"oneOf": [STRING, STRINGS]}))
     d["parameter_set"] = _obj(dict(symbol=STRING, record_type=STRING, method=STRING, implementation=STRING, default=BOOLEAN,
                                    formula_units={"type": "object"}, description=STRING, parameters=REF("parameters"),

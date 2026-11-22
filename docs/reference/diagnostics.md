@@ -42,7 +42,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | V2-MTH-009 | Error | The method has no implementation with this name. | Use one of the implementations of the method, or remove the key `implementation`. |
 | V2-MTH-008 | Error | The method is known but not implemented. | Use another method for the record, or give its properties as constant values. |
 | V2-MTH-010 | Error | The parameters of a Method record are not the same as those of the built-in method. | Use the parameter names and units of the built-in method, or give the Method record another id. |
-| V2-MTH-011 | Error | What a Method record changes is not the same as for the built-in method. | Remove `effects` from the Method record, or give it another id. |
+| V2-MTH-011 | Error | What a Method record changes is not the same as for the built-in method. | Correct `contributes_to` of the Method record (property: sets, adds or uses, as the page of the method says), or give it another id. |
 | V2-MTH-012 | Error | The record does not have exactly one base method. | Give one method that sets G, H, S, Cp and V; the other methods can only correct them. |
 | V2-MTH-013 | Error | Two methods set the same property. | Remove one of the two methods. |
 | V2-MTH-014 | Warning | A method adds to the volume, but no method before it sets the volume. | Give the volume at the reference state, or add a method that sets it. |

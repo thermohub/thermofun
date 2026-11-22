@@ -91,7 +91,7 @@ auto ThermoEngine::Impl::checkRequestedWater() const -> void
 auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign, const WaterTripleProperties& wat) const -> void
 {
     // the entropy has a constant added, so G and A have also a term linear in T: G = G(steam) + Gtr - Str (T - Ttr). The error and status are not changed
-    const double Ttr = model::builtinConstants("WaterHGK84", "reaktoro")->parameters.at("Ttr").value;
+    const double Ttr = model::builtinModelParameters("WaterHGK84", "reaktoro")->parameters.at("Ttr").value;
     const double linear = wat.Str * (T - Ttr);
     tps.gibbs_energy.val += sign * (wat.Gtr - linear);
     tps.gibbs_energy.ddt -= sign * wat.Str;

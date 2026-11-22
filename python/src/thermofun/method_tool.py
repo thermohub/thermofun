@@ -331,12 +331,14 @@ def new(form):
         raise BuildError(f"the form '{form}' is not supported. Use one of: {', '.join(FORMS + REACTION_FORMS)}")
     expression, parameters = _TEMPLATES[form]
     if form in REACTION_FORMS:
-        return {"kind": "symbolic", "operates_on": "reaction", "contributes_to": ["logK", "dG", "dH", "dS", "dCp", "dV"],
+        return {"kind": "symbolic", "operates_on": "reaction", "contributes_to": {p: "sets" for p in ("logK", "dG", "dH", "dS", "dCp", "dV")},
                 "parameter_definitions": {k: {"unit": v} for k, v in parameters.items()},
                 "formula": {"form": form, "expression": expression} if expression else {"form": form}}
     formula = {"form": form} if form in ("shomate", "nasa7", "sgte", "magnetic_ihj") else {"form": form, "expression": expression}
+    # a base form gives the whole value (sets), an increment adds to the value before it (decision 0031, row 11)
+    word = "adds" if form in ("cp_increment", "volume", "gibbs_increment", "magnetic_ihj") else "sets"
     return {"kind": "symbolic", "operates_on": "substance",
-            "contributes_to": ["G", "H", "S", "Cp"] + (["V"] if form in ("volume", "gibbs_increment") else []),
+            "contributes_to": {p: word for p in ["G", "H", "S", "Cp"] + (["V"] if form in ("volume", "gibbs_increment") else [])},
             "parameter_definitions": {k: {"unit": v} for k, v in parameters.items()},
             "formula": formula}
 

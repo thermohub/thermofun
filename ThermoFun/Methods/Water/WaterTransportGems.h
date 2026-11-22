@@ -17,7 +17,7 @@
 namespace ThermoFun {
 
 /// The constants of the transport properties (names visc_, cond_, trans_, surf_ of the GEMS water parameter set)
-struct WaterTransportGemsConstants
+struct WaterTransportGemsModelParameters
 {
     double visc_a[4] = {};
     double visc_b[7][6] = {};
@@ -32,16 +32,16 @@ struct WaterTransportGemsConstants
 };
 
 /// The constants from the values of a parameter set, by name
-auto readWaterTransportGemsConstants(const std::map<std::string, model::Quantity>& values) -> WaterTransportGemsConstants;
+auto readWaterTransportGemsModelParameters(const std::map<std::string, model::Quantity>& values) -> WaterTransportGemsModelParameters;
 
 /// Dynamic viscosity in Pa s at T (K), P (bar), density (kg/m3), compressibility (1/Pa). 0 outside the range of the model.
-auto waterViscosityGems(const WaterTransportGemsConstants& k, real Tk, real Pbars, real Dkgm3, real betaPa) -> real;
+auto waterViscosityGems(const WaterTransportGemsModelParameters& k, real Tk, real Pbars, real Dkgm3, real betaPa) -> real;
 
 /// Thermal conductivity in W/(m K), arguments as waterViscosityGems and the expansion (1/K). 0 outside the range.
-auto waterThermalConductivityGems(const WaterTransportGemsConstants& k, real Tk, real Pbars, real Dkgm3, real alpha, real betaPa) -> real;
+auto waterThermalConductivityGems(const WaterTransportGemsModelParameters& k, real Tk, real Pbars, real Dkgm3, real alpha, real betaPa) -> real;
 
 /// Surface tension in N/m at the saturation temperature (K). 0 outside the triple and critical points.
-auto waterSurfaceTensionGems(const WaterTransportGemsConstants& k, real Tsat) -> real;
+auto waterSurfaceTensionGems(const WaterTransportGemsModelParameters& k, real Tsat) -> real;
 
 } // namespace ThermoFun
 

@@ -8,6 +8,7 @@ Gives the reference reaction properties at every T and P.
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets, dV sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

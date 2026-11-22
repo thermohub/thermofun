@@ -2,10 +2,10 @@
 kind: symbolic
 operates_on: reaction
 contributes_to:
-- logK
-- dG
-- dH
-- dS
+  logK: sets
+  dG: sets
+  dH: sets
+  dS: sets
 parameter_definitions: {}
 formula:
   form: vant_hoff

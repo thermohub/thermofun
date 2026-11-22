@@ -10,6 +10,7 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | nothing |
 | Classes | water_solvent |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -18,9 +19,9 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 | Legacy names | `water_diel_fern97` |
 | Other names | `Fernandez97Diel` |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, rho: kg/m3. They are not converted.
 

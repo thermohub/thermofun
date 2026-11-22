@@ -9,9 +9,9 @@
 
 namespace ThermoFun {
 
-auto makeWaterLVS83Constants(const std::map<std::string, model::Quantity>& values) -> std::shared_ptr<const WaterLVS83Constants>
+auto makeWaterLVS83ModelParameters(const std::map<std::string, model::Quantity>& values) -> std::shared_ptr<const WaterLVS83ModelParameters>
 {
-    auto out = std::make_shared<WaterLVS83Constants>();
+    auto out = std::make_shared<WaterLVS83ModelParameters>();
     auto number = [&](const std::string& name) { return values.at(name).value; };
     for (int i = 0; i < 20; ++i)
     {
@@ -47,7 +47,7 @@ auto makeWaterLVS83Constants(const std::map<std::string, model::Quantity>& value
     return out;
 }
 
-WaterLVS83::WaterLVS83(std::shared_ptr<const WaterLVS83Constants> constants) : keep_(std::move(constants)), k_(keep_.get()), co(&keep_->co), cr(&keep_->cr) {}
+WaterLVS83::WaterLVS83(std::shared_ptr<const WaterLVS83ModelParameters> constants) : keep_(std::move(constants)), k_(keep_.get()), co(&keep_->co), cr(&keep_->cr) {}
 
 auto WaterLVS83::coversSaturation(double T) const -> bool
 {

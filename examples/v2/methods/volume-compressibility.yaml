@@ -1,11 +1,11 @@
 kind: symbolic
 operates_on: substance
 contributes_to:
-- G
-- H
-- S
-- Cp
-- V
+  G: adds
+  H: adds
+  S: adds
+  Cp: adds
+  V: adds
 parameter_definitions:
   v0:
     unit: m3/mol

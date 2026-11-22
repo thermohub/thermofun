@@ -100,7 +100,7 @@ auto builtinSetsOf(const std::string& method) -> const std::vector<MethodParamet
     return it != read.end() ? it->second : read.emplace(method, readMethod(method)).first->second;
 }
 
-auto builtinConstants(const std::string& method, const std::string& implementation) -> const MethodParameterSet*
+auto builtinModelParameters(const std::string& method, const std::string& implementation) -> const MethodParameterSet*
 {
     const auto& sets = builtinSetsOf(method);
     for (const auto* wanted : {&implementation, static_cast<const std::string*>(nullptr)})

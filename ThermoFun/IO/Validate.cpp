@@ -44,10 +44,10 @@ void checkTransformations(Diagnostics& diag, const std::vector<MethodApplication
     for (size_t i = 0; i < methods.size(); ++i)
     {
         const auto* spec = MethodCatalog::instance().find(methods[i].method, OperatesOn::Substance);
-        if (!spec || spec->effects.base)
+        if (!spec || spec->contributes_to.base)
             continue;
         const std::string where = path + "/methods/" + std::to_string(i);
-        if (spec->effects.transform)
+        if (spec->contributes_to.transform)
         {
             if (found)
                 report(diag, "V2-MTH-017", record, where, "There is more than one transformation method.");

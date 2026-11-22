@@ -8,6 +8,7 @@ Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

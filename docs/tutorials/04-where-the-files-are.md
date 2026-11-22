@@ -16,7 +16,7 @@ kernelspec:
 
 This page is the Jupyter notebook [`04-where-the-files-are.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/04-where-the-files-are.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
 
-You learn where ThermoFun finds databases, the coefficients of the models and the templates, and how to see which data a calculation used.
+You learn where ThermoFun finds databases, the model parameters and the templates, and how to see which data a calculation used.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
@@ -26,7 +26,7 @@ You learn where ThermoFun finds databases, the coefficients of the models and th
 |---|---|---|
 | Your data | Any file. You give the path to `tf.Database`. | Edit the file, or `appendData` another file. |
 | Databases of ThermoFun | `Resources/databases/` of the [ThermoFun repository](https://github.com/thermohub/thermofun/tree/v2/Resources/databases) | |
-| Coefficients of the models | Built into the library. A copy to read is in `include/ThermoFun/Methods/ParameterSets/` of your installation. | A value in a record, or a file in a folder of `THERMOFUN_PARAMETER_PATH`. |
+| Model parameters | Built into the library. A copy to read is in `include/ThermoFun/Methods/ParameterSets/` of your installation. | A value in a record, or a file in a folder of `THERMOFUN_PARAMETER_PATH`. |
 | Templates of tables | Built into the library. A copy to read is in `include/ThermoFun/Batch/Templates/` of your installation. | A file in a folder of `THERMOFUN_TEMPLATE_PATH`. |
 | Log | `thermofun.log` in the current folder. | |
 
@@ -37,17 +37,13 @@ import os
 import thermofun as tf
 ```
 
-## Coefficients of the models
+## Model parameters
 
-Many models have coefficients that belong to the model and not to one substance, such as the coefficients of a water equation. They are not parameters of a record. Each set has its file, with a description and its source. The catalog says which files a method reads.
-
-```{code-cell} ipython3
-print([method["id"] for method in tf.methods.catalog() if method["constant_sets"]])
-```
+Many models have model parameters: values that belong to the model and not to one substance, such as the coefficients of a water equation. They are not parameters of a record. Each set has its file, with a description and its source. The catalog entry of a method says which sets it reads.
 
 ```{code-cell} ipython3
-hk = next(m for m in tf.methods.catalog() if m["id"] == "HelgesonKirkham74")
-s = hk["constant_sets"][0]
+hk = tf.methods.catalog("HelgesonKirkham74")
+s = hk["model_parameter_sets"][0]
 print(s["symbol"], "\n\n", s["description"], "\n\n", "; ".join(s["data_sources"]), "\n\n", s["formula_units"])
 ```
 
@@ -63,7 +59,7 @@ tf.methods.physicalConstants()
 
 Two environment variables name your folders. Separate several folders with `:`, or with `;` on Windows.
 
-- `THERMOFUN_PARAMETER_PATH`: variants of the coefficients of a model. A record uses a variant with `parameter_set`. A file here changes nothing until a record names it.
+- `THERMOFUN_PARAMETER_PATH`: variants of the model parameters of a method. A record uses a variant with `parameter_set`. A file here changes nothing until a record names it.
 - `THERMOFUN_TEMPLATE_PATH`: your templates. See [5. Templates](05-templates.md).
 
 ```{code-cell} ipython3

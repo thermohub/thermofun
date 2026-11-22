@@ -122,7 +122,7 @@ auto WaterHGKgems::electroPropertiesWaterJNgems(real T, real Pbars, real density
  /* aad[4]  */
 
 /// The constants of the model: from Methods/ParameterSets/WaterHGK84-gems.yaml and JohnsonNorton91.yaml, or the record. A calculation copies those of the structs, which it also writes to.
-struct WaterHGKgemsConstants
+struct WaterHGKgemsModelParameters
 {
     ACONST ac{};
     NCONST nc{};
@@ -136,7 +136,7 @@ struct WaterHGKgemsConstants
     CRITS cr{};
     double psat_a[8] = {};
     double ideal_c[18] = {};
-    WaterTransportGemsConstants transport;
+    WaterTransportGemsModelParameters transport;
     double jn_a[10] = {};
     double jn_Tr = 0.0;
     double born_TMAX = 0.0, born_PMAX = 0.0;
@@ -145,9 +145,9 @@ struct WaterHGKgemsConstants
 
 namespace {
 
-auto readConstants(const std::map<std::string, model::Quantity>& values, const std::map<std::string, model::Quantity>& dielectric) -> WaterHGKgemsConstants
+auto readModelParameters(const std::map<std::string, model::Quantity>& values, const std::map<std::string, model::Quantity>& dielectric) -> WaterHGKgemsModelParameters
 {
-    WaterHGKgemsConstants out;
+    WaterHGKgemsModelParameters out;
     auto number = [&](const std::string& name) { return values.at(name).value; };
     auto one = [&](auto& to, const std::string& name) { to = static_cast<std::decay_t<decltype(to)>>(number(name)); };
     // an array of one or two dimensions, as many values as the file has
@@ -236,7 +236,7 @@ auto readConstants(const std::map<std::string, model::Quantity>& values, const s
         out.jn_a[i] = dielectric.at("a" + std::to_string(i + 1)).value;
     one(out.born_TMAX, "born_TMAX");
     one(out.born_PMAX, "born_PMAX");
-    out.transport = readWaterTransportGemsConstants(values);
+    out.transport = readWaterTransportGemsModelParameters(values);
     out.jn_Tr = dielectric.at("Tr").value;
     out.jn_Dr = dielectric.at("Dr").value;
     return out;
@@ -244,9 +244,9 @@ auto readConstants(const std::map<std::string, model::Quantity>& values, const s
 
 } // namespace
 
-auto makeWaterHGKgemsConstants(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsConstants>
+auto makeWaterHGKgemsModelParameters(const std::map<std::string, model::Quantity>& water, const std::map<std::string, model::Quantity>& dielectric) -> std::shared_ptr<const WaterHGKgemsModelParameters>
 {
-    return std::make_shared<const WaterHGKgemsConstants>(readConstants(water, dielectric));
+    return std::make_shared<const WaterHGKgemsModelParameters>(readModelParameters(water, dielectric));
 }
 
 TOLERS  to_ = { /* TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL */
@@ -284,7 +284,7 @@ auto  WaterHGKgems::TdegK(int it, real t) -> real
     return(TdegK);
 }
 
-WaterHGKgems::WaterHGKgems(const WaterHGKgemsConstants& constants) : k_(&constants)
+WaterHGKgems::WaterHGKgems(const WaterHGKgemsModelParameters& constants) : k_(&constants)
 {
     // set global constant
     //  npH2O++;

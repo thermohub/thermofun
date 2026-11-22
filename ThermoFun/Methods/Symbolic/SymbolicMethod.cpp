@@ -67,10 +67,10 @@ auto specOf(const MethodDefinition& definition) -> MethodSpec
     spec.implemented = true;
     spec.depends_on = Dependence::TP;
     const bool base = isSymbolicBase(definition);
-    const Effect effect = base ? Effect::Set : Effect::Add;
-    spec.effects.G = spec.effects.H = spec.effects.S = spec.effects.Cp = spec.effects.V = effect;
-    spec.effects.base = base;
-    spec.effects.rank = base ? 0 : 250;
+    const Contribution effect = base ? Contribution::Sets : Contribution::Adds;
+    spec.contributes_to.G = spec.contributes_to.H = spec.contributes_to.S = spec.contributes_to.Cp = spec.contributes_to.V = effect;
+    spec.contributes_to.base = base;
+    spec.contributes_to.rank = base ? 0 : 250;
     return spec;
 }
 
@@ -182,8 +182,8 @@ public:
         spec_.operates_on = OperatesOn::Reaction;
         spec_.implemented = true;
         spec_.depends_on = Dependence::TP;
-        spec_.reaction_effects.base = true;
-        spec_.reaction_effects.logK = spec_.reaction_effects.dG = spec_.reaction_effects.dH = spec_.reaction_effects.dS = spec_.reaction_effects.dCp = spec_.reaction_effects.dV = Effect::Set;
+        spec_.reaction_contributes_to.base = true;
+        spec_.reaction_contributes_to.logK = spec_.reaction_contributes_to.dG = spec_.reaction_contributes_to.dH = spec_.reaction_contributes_to.dS = spec_.reaction_contributes_to.dCp = spec_.reaction_contributes_to.dV = Contribution::Sets;
         Tr_ = record.reference_conditions.T;
         Pr_ = record.reference_conditions.P;
         const auto valueOf = [&](ReactionPropertyName name) { const auto it = record.reaction_properties.find(name); return it == record.reaction_properties.end() ? std::optional<double>{} : std::optional<double>(it->second.value); };

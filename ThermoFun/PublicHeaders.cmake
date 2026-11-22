@@ -41,6 +41,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Model/SubstanceRecord.h
     Model/ThermoDataSetInfo.h
     Model/Vocabulary.h
+    Model/WaterAnchor.h
     Reaction.h
     RecordBuilder.h
     Substance.h

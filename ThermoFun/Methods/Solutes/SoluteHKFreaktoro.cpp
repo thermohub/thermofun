@@ -149,7 +149,7 @@ auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> Ele
 // (Shock et al. 1992). Below it g is held at its value at this density (owner, 2026-11-17).
 constexpr double kGDensityMin = 0.35;
 
-auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants& constants) -> FunctionG
+auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFModelParameters& constants) -> FunctionG
 {
     // The function G
     FunctionG funcG;

@@ -701,3 +701,10 @@ def test_ions_is_read_and_written_and_checked():
     doc["substances"]["e-"]["energy_reference"] = {"ions": "hydrogen"}
     with pytest.raises(RuntimeError, match="hydrogen_ion"):
         tf.Database(json.dumps(doc))
+
+
+def test_an_electron_without_hydrogen_gas_and_without_values_is_an_error():
+    db = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  e-: {formula: \"-\", class: aqueous_solute, aggregate_state: aqueous}\n")
+    assert "CNV-011" in {d.code for d in db.validate().all()}
+    with pytest.raises(RuntimeError, match="no H2\\(g\\)"):
+        tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "e-")

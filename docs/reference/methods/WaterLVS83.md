@@ -10,6 +10,7 @@ Source: Levelt Sengers J.M.H., Kamgar-Parsi B., Balfour F.W., Sengers J.V. (1983
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | water_solvent, gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -21,9 +22,9 @@ Source: Levelt Sengers J.M.H., Kamgar-Parsi B., Balfour F.W., Sengers J.V. (1983
 |---|---|---|---|---|---|
 | state | 1 | 1 | no | 0 | 0: liquid, 1: gas |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, P: MPa, rho: kg/m3. They are not converted.
 

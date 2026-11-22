@@ -7,7 +7,7 @@
 
 A record has one base method and any number of increments. A base method gives all the properties. An increment changes what comes before it.
 
-**The order comes from the effects.** Each method says what it does to G, H, S, Cp and V: nothing, set, add, or read. The engine sorts the methods from this. So the order in a file does not count, and two files with the same methods give the same result.
+**The order comes from what each method contributes to.** Each method says, for G, H, S, Cp and V, whether it `sets` the whole value, `adds` an increment, `uses` the value as an input, or does not touch it (`contributes_to` on its page). The engine sorts the methods from this. So the order in a file does not count, and two files with the same methods give the same result.
 
 **A conflict is reported.** Two methods that set the same property of one record are a conflict. `validate` reports it with what to do.
 

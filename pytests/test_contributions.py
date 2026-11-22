@@ -49,10 +49,10 @@ def test_lists_of_t_and_p_go_together_and_a_wrong_length_is_an_error(engine):
 
 
 def test_the_catalog_says_which_methods_set_and_which_add():
-    effects = {m["id"]: m["effects"] for m in tf.methods.catalog()}
-    assert effects["CpPolynomial"]["G"] == "set"
-    assert effects["LandauHP98"]["Cp"] == "add" and effects["LandauHP98"]["V"] == "set"
-    assert effects["LogKPolynomial"] == {}
+    contributes = {m["id"]: m["contributes_to"] for m in tf.methods.catalog()}
+    assert contributes["CpPolynomial"] == {"G": "sets", "H": "sets", "S": "sets", "Cp": "sets", "V": "sets"}
+    assert contributes["LandauHP98"]["Cp"] == "adds" and contributes["LandauHP98"]["V"] == "sets"
+    assert contributes["LogKPolynomial"]["logK"] == "sets"
 
 
 def test_a_substance_without_methods_of_its_own_has_the_totals_in_other():

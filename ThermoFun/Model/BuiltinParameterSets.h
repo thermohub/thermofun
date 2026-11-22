@@ -16,7 +16,7 @@ namespace ThermoFun::model {
 // after its method, Method.yaml or Method-variant.yaml, and is read the first time that method needs it.
 
 /// The default set of a method and implementation, else the default set of the method for all its implementations. nullptr if it has none.
-auto builtinConstants(const std::string& method, const std::string& implementation = "") -> const MethodParameterSet*;
+auto builtinModelParameters(const std::string& method, const std::string& implementation = "") -> const MethodParameterSet*;
 
 /// All the sets in the files of a method.
 auto builtinSetsOf(const std::string& method) -> const std::vector<MethodParameterSet>&;

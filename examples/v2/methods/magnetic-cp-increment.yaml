@@ -1,10 +1,10 @@
 kind: symbolic
 operates_on: substance
 contributes_to:
-- G
-- H
-- S
-- Cp
+  G: adds
+  H: adds
+  S: adds
+  Cp: adds
 parameter_definitions:
   a:
     unit: J/(mol.K)

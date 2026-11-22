@@ -61,7 +61,7 @@ Output:
 ```
 
    A method that sets a property replaces what came before it, so its column also removes the earlier value. The catalog
-   says which methods set and which add: `{m["id"]: m["effects"] for m in tf.methods.catalog()}`. In C++ the same is
+   says which methods set and which add: `tf.methods.catalog("LandauHP98")["contributes_to"]`. In C++ the same is
    `ThermoEngine::contributions(symbol, T, P)`, a `MethodContributions` for each point.
 
 ```python

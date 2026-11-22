@@ -10,6 +10,7 @@ Source: Marshall and Franck (1981).
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | the solvent |
 | Temperature segments | no |

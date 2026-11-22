@@ -76,7 +76,7 @@ Here `b3` belongs to the dielectric model of `H2O@`. `Na+` is in the call becaus
 | The derivative | exact, with autodiff | a central difference of the whole calculation: less exact, and slower |
 | Which records it reaches | those that depend on the record | those that depend on the record, also a solute through the water |
 
-Constants are not listed because a model can have hundreds of them, and a fit that goes over `engine.parameters(symbol)` should not change the table of a water model. An integer of a table, such as an exponent of the water code, has no derivative.
+Model parameters are not listed because a model can have hundreds of them, and a fit that goes over `engine.parameters(symbol)` should not change the table of a water model. An integer of a table, such as an exponent of the water code, has no derivative.
 
 ## 3. Change a parameter
 

@@ -272,11 +272,6 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
     return r;
 }
 
-auto effectsText(const json& node) -> std::string
-{
-    return node.contains("effects") ? node["effects"].dump() : std::string();
-}
-
 auto readMethodRecord(Context& c, const json& node, const std::string& key, const UnitScope&, const std::string& path) -> MethodDefinition
 {
     MethodDefinition m;
@@ -287,7 +282,7 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
     }
     static const std::set<std::string> known = {"symbol", "kind", "operates_on", "applies_to_classes", "contributes_to",
                                                 "parameter_definitions", "implementation_id", "formula", "expression", "generator",
-                                                "formula_hash", "tests", "effects", "data_sources"};
+                                                "formula_hash", "tests", "data_sources"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return m;
@@ -299,7 +294,30 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
     for (const auto& word : stringList(node, "applies_to_classes"))
         if (const auto cls = vocabulary<SubstanceClass>(c, word, symbol, path + "/applies_to_classes"))
             m.applies_to_classes.push_back(*cls);
-    m.contributes_to = stringList(node, "contributes_to");
+    // contributes_to: a map property -> sets / adds / uses, or a short list of properties that each add
+    if (node.contains("contributes_to"))
+    {
+        const json& block = node["contributes_to"];
+        const std::string where = path + "/contributes_to";
+        if (block.is_array() || block.is_string())
+        {
+            m.contributes_to_list = true;
+            for (const auto& name : stringList(node, "contributes_to"))
+                m.contributes_to.emplace_back(name, "adds");
+        }
+        else if (block.is_object())
+            for (const auto& item : block.items())
+            {
+                const std::string word = item.value().is_string() ? item.value().get<std::string>() : std::string();
+                if (word != "sets" && word != "adds" && word != "uses")
+                    report(c, Severity::Error, "V2-VOC-001", symbol, where + "/" + item.key(),
+                           "\"" + word + "\" is not a value of contributes_to. Allowed: sets, adds, uses.");
+                else
+                    m.contributes_to.emplace_back(item.key(), word);
+            }
+        else
+            report(c, Severity::Error, "V2-VOC-001", symbol, where, "contributes_to is a mapping (property: sets, adds or uses) or a list of properties.");
+    }
     if (node.contains("parameter_definitions") && node["parameter_definitions"].is_object())
         for (const auto& item : node["parameter_definitions"].items())
         {
@@ -360,7 +378,6 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
                             (std::string(block) == "parameters" ? test.parameters : test.expected)[item.key()] = item.value().get<double>();
             m.tests.push_back(test);
         }
-    m.effects_json = effectsText(node);
     m.data_sources = stringList(node, "data_sources");
     m.extra_json = extraKeys(c, node, known, symbol, path);
     return m;

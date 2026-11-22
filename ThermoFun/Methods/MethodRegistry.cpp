@@ -28,24 +28,24 @@ namespace {
 
 /// The names of the parameters of a method, in the order of the catalog. alpha0 and kappa0 of a mineral are apart: its formulas get them on their own.
 /// The application with the built-in constants of its method, for each value that it does not give itself. An implementation can have its own.
-auto withConstants(MethodApplication application) -> MethodApplication
+auto withModelParameters(MethodApplication application) -> MethodApplication
 {
     std::string implementation = application.implementation;
     if (implementation.empty())
         if (const auto* spec = MethodCatalog::instance().find(application.method); spec && !spec->implementations.empty())
             implementation = spec->implementations.front();
-    if (const auto* set = builtinConstants(application.method, implementation))
+    if (const auto* set = builtinModelParameters(application.method, implementation))
     {
         // a constant the record gives must belong to this implementation, or nothing would read it
         auto values = set->parameters;
         if (implementation == "reaktoro" && (application.method == "WaterHGK84" || application.method == "WaterIAPWS95"))
         {
-            const auto& saturation = builtinConstants("WaterSaturation")->parameters;
+            const auto& saturation = builtinModelParameters("WaterSaturation")->parameters;
             values.insert(saturation.begin(), saturation.end());
         }
         if (const auto* spec = MethodCatalog::instance().find(application.method))
             for (const auto& p : spec->parameters)
-                if (p.constant && application.parameters.count(p.name) && !values.count(p.name))
+                if (p.model_parameter && application.parameters.count(p.name) && !values.count(p.name))
                     funError("Cannot make the method " + application.method, "The constant " + p.name + " does not belong to the implementation " + implementation + ".", __LINE__, __FILE__);
         application.parameters.insert(values.begin(), values.end());
     }
@@ -54,9 +54,9 @@ auto withConstants(MethodApplication application) -> MethodApplication
 
 } // namespace
 
-auto withBuiltinConstants(const MethodApplication& application) -> MethodApplication
+auto withBuiltinModelParameters(const MethodApplication& application) -> MethodApplication
 {
-    return withConstants(application);
+    return withModelParameters(application);
 }
 
 namespace {
@@ -65,17 +65,17 @@ auto catalogNames(const char* id, bool withModuli = true) -> std::vector<std::st
 {
     std::vector<std::string> names;
     for (const auto& p : MethodCatalog::instance().find(id, OperatesOn::Substance)->parameters)
-        if (!p.constant && (withModuli || (p.name != "alpha0" && p.name != "kappa0")))
+        if (!p.model_parameter && (withModuli || (p.name != "alpha0" && p.name != "kappa0")))
             names.push_back(p.name);
     return names;
 }
 
 /// The values of the constants of a method, in the order of the catalog.
-auto constantsOf(const MethodApplication& application, OperatesOn on = OperatesOn::Substance) -> std::vector<double>
+auto modelParametersOf(const MethodApplication& application, OperatesOn on = OperatesOn::Substance) -> std::vector<double>
 {
     std::vector<double> values;
     for (const auto& p : MethodCatalog::instance().find(application.method, on)->parameters)
-        if (p.constant)
+        if (p.model_parameter)
         {
             const auto it = application.parameters.find(p.name);
             if (it == application.parameters.end())
@@ -194,7 +194,7 @@ MethodRegistry::MethodRegistry()
     };
     reaction_["DolejsManning10"] = [reactionInputs](A a, RR r) { return makeDolejsManning10(reactionInputs(a, r, {{"a", 1e-3}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}})); };
     reaction_["MarshallFranck81"] = [reactionInputs](A a, RR r) { return makeMarshallFranck81(reactionInputs(a, r, {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}, {"f", 1}, {"g", 1}})); };
-    reaction_["RyzhenkoBryzgalin"] = [reactionInputs](A a, RR r) { auto inputs = reactionInputs(a, r, {{"pK298", 1}, {"A", 1}, {"B", 1}}); inputs.constants = constantsOf(a, OperatesOn::Reaction); return makeRyzhenkoBryzgalin(std::move(inputs)); };
+    reaction_["RyzhenkoBryzgalin"] = [reactionInputs](A a, RR r) { auto inputs = reactionInputs(a, r, {{"pK298", 1}, {"A", 1}, {"B", 1}}); inputs.constants = modelParametersOf(a, OperatesOn::Reaction); return makeRyzhenkoBryzgalin(std::move(inputs)); };
     reaction_["ReactionVolumePolynomial"] = [reactionInputs](A a, RR r) { return makeReactionVolumePolynomial(reactionInputs(a, r, {{"a1", 1}, {"a2", 1}, {"a3", 1}, {"b1", 1e5}, {"b2", 1e10}})); };
     reaction_["ReactionConstantVolume"] = [reactionInputs](A a, RR r) { return makeReactionConstantVolume(reactionInputs(a, r, {})); };
 
@@ -209,7 +209,7 @@ MethodRegistry::MethodRegistry()
                 const auto it = a.parameters.find(n);
                 values.push_back(it == a.parameters.end() ? 0.0 : it->second.value);
             }
-            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability, constantsOf(a), gems};
+            FluidRecord record{r.reference_conditions.T, r.formula, r.applicability, modelParametersOf(a), gems};
             bool found = false;
             for (const auto& other : r.methods)
                 if (other.method == "CpPolynomial" && !found)
@@ -249,23 +249,23 @@ MethodRegistry::MethodRegistry()
         return any ? values : std::vector<double>{};
     };
     auto hkfSpecies = [](R r) { return HKFSpecies{r.symbol, static_cast<double>(r.charge.value_or(0)), isHydrogenIon(r), r.applicability}; };
-    auto hkfConstants = [](A a) {
-        const auto c = constantsOf(a);
-        return HKFConstants{c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17], c[18]};
+    auto hkfModelParameters = [](A a) {
+        const auto c = modelParametersOf(a);
+        return HKFModelParameters{c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17], c[18]};
     };
-    auto hkfReaktoro = [parametersOf, hkfSpecies, hkfConstants](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return hkf88ReaktoroMethod(parametersOf(a), hkfSpecies(r), hkfConstants(a));
+    auto hkfReaktoro = [parametersOf, hkfSpecies, hkfModelParameters](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+        return hkf88ReaktoroMethod(parametersOf(a), hkfSpecies(r), hkfModelParameters(a));
     };
     add("HKF88", "", hkfReaktoro);
     add("HKF88", "reaktoro", hkfReaktoro);
-    add("HKF88", "gems", [parametersOf, hkfSpecies, hkfConstants](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
-        return hkf88GemsMethod(parametersOf(a), hkfSpecies(r), hkfConstants(a));
+    add("HKF88", "gems", [parametersOf, hkfSpecies, hkfModelParameters](A a, R r) -> std::shared_ptr<const SubstanceMethod> {
+        return hkf88GemsMethod(parametersOf(a), hkfSpecies(r), hkfModelParameters(a));
     });
     add("SoluteHP98", "", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
     add("SoluteHP98", "consistent", [parametersOf](A a, R r) { return soluteHP98Method(parametersOf(a), r.symbol); });
     add("SoluteHP98", "published", [parametersOf](A a, R r) { return soluteHP98PublishedMethod(parametersOf(a), r.symbol); });
     add("AndersonEtAl91", "", [](A, R) { return andersonEtAl91Method(); });
-    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a), r.symbol, constantsOf(a).front()); });
+    add("AkinfievDiamond03", "", [parametersOf](A a, R r) { return akinfievDiamond03Method(parametersOf(a), r.symbol, modelParametersOf(a).front()); });
 
     // "" is the default implementation, the first one of the catalog
     auto solvent = [this](const char* id, const char* implementation, SolventFactory f) {
@@ -279,27 +279,27 @@ MethodRegistry::MethodRegistry()
     solvent("WaterHGK84", "", hgkReaktoro);
     solvent("WaterHGK84", "reaktoro", hgkReaktoro);
     solvent("WaterHGK84", "gems", [](A a) {
-        return waterHGK84GemsMethod(makeWaterHGKgemsConstants(a.parameters, builtinConstants("JohnsonNorton91")->parameters));
+        return waterHGK84GemsMethod(makeWaterHGKgemsModelParameters(a.parameters, builtinModelParameters("JohnsonNorton91")->parameters));
     });
     // the transport properties of the GEMS water code are in its HGK parameter set
-    solvent("WaterLVS83", "", [](A a) { return waterLVS83Method(a.parameters, builtinConstants("WaterHGK84", "gems")->parameters); });
+    solvent("WaterLVS83", "", [](A a) { return waterLVS83Method(a.parameters, builtinModelParameters("WaterHGK84", "gems")->parameters); });
     solvent("WaterIAPWS95Gas", "", [](A a) { return waterIAPWS95GasMethod(a); });
     solvent("WaterIAPWS95", "", iapws);
     solvent("WaterIAPWS95", "reaktoro", iapws);
     solvent("WaterZhangDuan05", "", [](A a) {
         const auto dew = a.parameters.find("dew_gibbs");
-        return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, ZhangDuanConstants(constantsOf(a)));
+        return waterZhangDuan05Method(dew != a.parameters.end() && dew->second.value != 0.0, ZhangDuanModelParameters(modelParametersOf(a)));
     });
-    DielectricFactory jnReaktoro = [](A a) { return johnsonNorton91ReaktoroMethod(constantsOf(a)); };
+    DielectricFactory jnReaktoro = [](A a) { return johnsonNorton91ReaktoroMethod(modelParametersOf(a)); };
     dielectric("JohnsonNorton91", "", jnReaktoro);
     dielectric("JohnsonNorton91", "reaktoro", jnReaktoro);
     dielectric("JohnsonNorton91", "gems", [](A a) {
-        return johnsonNorton91GemsMethod(makeWaterHGKgemsConstants(builtinConstants("WaterHGK84", "gems")->parameters, a.parameters));
+        return johnsonNorton91GemsMethod(makeWaterHGKgemsModelParameters(builtinModelParameters("WaterHGK84", "gems")->parameters, a.parameters));
     });
-    dielectric("BradleyPitzer79", "", [](A a) { return bradleyPitzer79Method(constantsOf(a)); });
-    dielectric("HelgesonKirkham74", "", [](A a) { return helgesonKirkham74Method(constantsOf(a)); });
-    dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(constantsOf(a)); });
-    dielectric("FernandezEtAl97", "", [](A a) { return fernandezEtAl97Method(constantsOf(a)); });
+    dielectric("BradleyPitzer79", "", [](A a) { return bradleyPitzer79Method(modelParametersOf(a)); });
+    dielectric("HelgesonKirkham74", "", [](A a) { return helgesonKirkham74Method(modelParametersOf(a)); });
+    dielectric("SverjenskyEtAl14", "", [](A a) { return sverjenskyEtAl14Method(modelParametersOf(a)); });
+    dielectric("FernandezEtAl97", "", [](A a) { return fernandezEtAl97Method(modelParametersOf(a)); });
 }
 
 auto MethodRegistry::instance() -> MethodRegistry&
@@ -345,7 +345,7 @@ auto MethodRegistry::create(const MethodApplication& application, const Substanc
         it = substance_.find({application.method, ""});
     if (it == substance_.end())
         funError("Cannot make the method " + application.method, "There is no code for this method and implementation \"" + application.implementation + "\".", __LINE__, __FILE__);
-    return it->second(withConstants(application), record);
+    return it->second(withModelParameters(application), record);
 }
 
 auto MethodRegistry::hasSolventMethod(const std::string& id) const -> bool
@@ -378,17 +378,17 @@ auto MethodRegistry::createReaction(const MethodApplication& application, const 
     const auto it = reaction_.find(application.method);
     if (it == reaction_.end())
         funError("Cannot make the method " + application.method, "There is no code for this method of a reaction.", __LINE__, __FILE__);
-    return it->second(withConstants(application), record);
+    return it->second(withModelParameters(application), record);
 }
 
 auto MethodRegistry::createSolvent(const MethodApplication& application) const -> std::shared_ptr<const SolventMethod>
 {
-    return makeFrom(solvent_, application, withConstants(application));
+    return makeFrom(solvent_, application, withModelParameters(application));
 }
 
 auto MethodRegistry::createDielectric(const MethodApplication& application) const -> std::shared_ptr<const DielectricMethod>
 {
-    return makeFrom(dielectric_, application, withConstants(application));
+    return makeFrom(dielectric_, application, withModelParameters(application));
 }
 
 } // namespace ThermoFun::model

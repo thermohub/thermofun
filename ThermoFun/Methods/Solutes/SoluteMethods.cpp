@@ -249,7 +249,7 @@ auto hkf88Auxiliary(const SubstanceInputs<TPReal>& in, const HKFParameters& p, b
             {"born_G", val(G) * cal_to_J}, {"born_H", val(H) * cal_to_J}, {"born_S", val(S) * cal_to_J}, {"born_Cp", val(Cp) * cal_to_J}, {"born_V", val(V)}};
 }
 
-auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species, HKFConstants constants) -> std::shared_ptr<const SubstanceMethod>
+auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species, HKFModelParameters constants) -> std::shared_ptr<const SubstanceMethod>
 {
     species.constants = constants;
     return makeMethod("HKF88", HKFParameters{std::move(parameters), std::move(species)},
@@ -258,7 +258,7 @@ auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species, HKF
                       [](const SubstanceInputs<TPReal>& in, const HKFParameters& p) { return hkf88Auxiliary(in, p, false); });
 }
 
-auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFConstants constants) -> std::shared_ptr<const SubstanceMethod>
+auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFModelParameters constants) -> std::shared_ptr<const SubstanceMethod>
 {
     species.constants = constants;
     return makeMethod("HKF88", HKFParameters{std::move(parameters), std::move(species)},

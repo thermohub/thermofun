@@ -89,7 +89,7 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
         const model::Convention own = r.convention.value_or(model::Convention{});
         std::optional<model::EnergyReference> native;
         for (const auto& a : r.methods)
-            if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); spec && spec->effects.base && spec->native_convention)
+            if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); spec && spec->contributes_to.base && spec->native_convention)
                 native = spec->native_convention;
         if (native && !own.energy_reference.elements && *native != datasetReference)
             add(Severity::Warning, "CNV-003", r.symbol, "/substances/" + r.symbol + "/methods",

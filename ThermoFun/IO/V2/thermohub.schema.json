@@ -803,10 +803,25 @@
      }
     },
     "contributes_to": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "type": "object",
+       "additionalProperties": {
+        "enum": [
+         "sets",
+         "adds",
+         "uses"
+        ]
+       }
+      }
+     ],
+     "description": "What the method contributes to: a mapping property -> sets (the whole value), adds (an increment) or uses (an input only); a property not listed is not touched. A list of properties is the short form: each adds."
     },
     "parameter_definitions": {
      "type": [
@@ -838,9 +853,6 @@
     },
     "tests": {
      "type": "array"
-    },
-    "effects": {
-     "type": "object"
     },
     "data_sources": {
      "oneOf": [

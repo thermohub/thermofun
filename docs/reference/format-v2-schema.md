@@ -215,7 +215,7 @@ Type: mapping to [quantity](#quantity) or array
 | `kind` | string |  |  |
 | `operates_on` | string |  |  |
 | `applies_to_classes` | list of string |  |  |
-| `contributes_to` | list of string |  |  |
+| `contributes_to` | list of string or mapping to `sets`, `adds`, `uses` |  | What the method contributes to: a mapping property -> sets (the whole value), adds (an increment) or uses (an input only); a property not listed is not touched. A list of properties is the short form: each adds. |
 | `parameter_definitions` | object or array |  |  |
 | `implementation_id` | string |  |  |
 | `formula` | string or object |  | The formula of a symbolic method as the author writes it: form and expression. |
@@ -223,7 +223,6 @@ Type: mapping to [quantity](#quantity) or array
 | `generator` | string |  |  |
 | `formula_hash` | string |  |  |
 | `tests` | array |  |  |
-| `effects` | object |  |  |
 | `data_sources` | string or list of string |  |  |
 
 ## parameter_set

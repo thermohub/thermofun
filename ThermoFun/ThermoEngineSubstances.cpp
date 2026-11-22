@@ -6,7 +6,7 @@
 #include "ThermoEngineImpl.h"
 #include <ThermoFun/Common/OutsideRange.h>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterUtils.hpp>
-#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzConstants.hpp>
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzModelParameters.hpp>
 
 namespace ThermoFun
 {
@@ -276,6 +276,9 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
 
     // the electron of the hydrogen electrode; without H2(g), the values of its record (CNV-011)
     const std::string gas = kind.isElectron ? hydrogenGas() : std::string();
+    if (kind.isElectron && gas.empty() && substance.record()->standard_state_properties.empty() && substance.record()->methods.empty())
+        throw std::runtime_error("CNV-011: the electron " + substance.symbol() + " is from the standard hydrogen electrode, 1/2 G(H2, g) - G(H+), and the database has "
+                                 "no H2(g); its record has no values either. Add H2(g) to the database, or values to the record with energy_reference: {ions: none}.");
     if (!gas.empty())
     {
         tps = hydrogenElectrode(T, P, gas);
@@ -440,7 +443,7 @@ auto ThermoEngine::Impl::reactionCarriesPressure(const Reaction& reaction) const
         if (!spec || (spec->depends_on != model::Dependence::P && spec->depends_on != model::Dependence::TP))
             continue;
         // a model of log K has P in it; a method of the volume works on the reference volume of the reaction
-        if (spec->reaction_effects.base || hasVolume)
+        if (spec->reaction_contributes_to.base || hasVolume)
             return true;
     }
     return false;
@@ -456,7 +459,7 @@ auto ThermoEngine::Impl::dataPressure(double T, const Substance& substance) cons
     else
         Psat = waterCriticalP();  // where the saturation curve ends
     const double P = std::max(substance.referenceP(), Psat);
-    static const double rho_min = model::builtinConstants("DataPressure")->parameters.at("rho_min").value;  // kg/m3
+    static const double rho_min = model::builtinModelParameters("DataPressure")->parameters.at("rho_min").value;  // kg/m3
     return rho_min > 0.0 ? pressureAtDensity(T, rho_min, P) : P;
 }
 
@@ -469,8 +472,8 @@ auto ThermoEngine::Impl::saturationPressure(double T) const -> double
         return P;
     }
     static const auto curve = [] {
-        const auto& c = model::builtinConstants("WaterSaturation")->parameters;
-        WaterSaturationConstants s;
+        const auto& c = model::builtinModelParameters("WaterSaturation")->parameters;
+        WaterSaturationModelParameters s;
         for (int i = 1; i <= 6; ++i)
         {
             s.a.push_back(c.at("sat_a" + std::to_string(i)).value);
@@ -491,7 +494,7 @@ auto ThermoEngine::Impl::pressureAtDensity(double T, double rho, double P) const
     auto density = [&](double p) { return static_cast<double>(bound->equation_of_state->properties(T, p, 0).density.val); };  // p is a copy: a model writes P
     // Below Tcr P is the saturation pressure: dense enough as long as the saturated liquid is. Above Tcr P is the critical
     // pressure, where the density is the critical one: an iteration for the density may not converge there, so it is not asked.
-    static const double Dcr = model::builtinConstants("WaterSaturation")->parameters.at("Dcr").value;
+    static const double Dcr = model::builtinModelParameters("WaterSaturation")->parameters.at("Dcr").value;
     if ((T < waterCriticalT() || rho <= Dcr) && density(P) >= rho)
         return P;
     // a Helmholtz model gives P at (T, rho) directly; here rho is in the one-phase region
@@ -518,7 +521,7 @@ auto ThermoEngine::Impl::hasBaseMethod(const model::SubstanceRecord& record) -> 
 {
     return std::any_of(record.methods.begin(), record.methods.end(), [](const auto& a) {
         const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
-        return spec && spec->effects.base;
+        return spec && spec->contributes_to.base;
     });
 }
 
@@ -527,7 +530,7 @@ auto ThermoEngine::Impl::pressureFromRecord(const Substance& substance, const Re
     const auto& methods = substance.record()->methods;
     const bool own = std::any_of(methods.begin(), methods.end(), [](const auto& a) {
         const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
-        return spec && !spec->effects.base && (spec->depends_on == model::Dependence::P || spec->depends_on == model::Dependence::TP);
+        return spec && !spec->contributes_to.base && (spec->depends_on == model::Dependence::P || spec->depends_on == model::Dependence::TP);
     });
     return own && !reactionCarriesPressure(reaction);
 }
@@ -543,7 +546,7 @@ auto ThermoEngine::Impl::pressureCorrections(const Substance& substance) const -
     auto only = std::make_shared<model::SubstanceRecord>(*withImplementations(record));
     only->methods.erase(std::remove_if(only->methods.begin(), only->methods.end(), [](const auto& a) {
         const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance);
-        return !spec || spec->effects.base || a.method == "ConstantVolume" || !model::MethodRegistry::instance().hasSubstanceMethod(a.method) ||
+        return !spec || spec->contributes_to.base || a.method == "ConstantVolume" || !model::MethodRegistry::instance().hasSubstanceMethod(a.method) ||
                (spec->depends_on != model::Dependence::P && spec->depends_on != model::Dependence::TP);
     }), only->methods.end());
     auto bound = model::bindSubstance(only);

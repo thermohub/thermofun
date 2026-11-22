@@ -45,10 +45,10 @@ $ cat maier-kelley.yaml
 kind: symbolic
 operates_on: substance
 contributes_to:
-- G
-- H
-- S
-- Cp
+  G: sets
+  H: sets
+  S: sets
+  Cp: sets
 parameter_definitions:
   a:
     unit: J/(mol.K)
@@ -65,7 +65,7 @@ formula:
 |---|---|
 | `kind: symbolic` | The method is a formula, not code. |
 | `operates_on` | `substance` or `reaction`. |
-| `contributes_to` | The properties that the method gives. |
+| `contributes_to` | What the method contributes to each property: `sets` the whole value (a base method, as here) or `adds` an increment. |
 | `parameter_definitions` | Each parameter with its SI unit. Change the names and units to those of your paper. |
 | `formula.form` | What the expression is: here Cp. |
 | `formula.expression` | The formula of the paper. The names T, P, Tr, Pr, R, Gr, Hr, Sr, Cpr and Vr are known: Gr, Hr, Sr, Cpr and Vr are the reference values of the record that uses the method. |
@@ -78,7 +78,7 @@ In Python the record is the same, as a dict:
 from thermofun import method_tool as methods
 
 record = {
-    "kind": "symbolic", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
+    "kind": "symbolic", "operates_on": "substance", "contributes_to": {"G": "sets", "H": "sets", "S": "sets", "Cp": "sets"},
     "parameter_definitions": {"a": {"unit": "J/(mol.K)"}, "b": {"unit": "J/(mol.K2)"}, "c": {"unit": "J.K/mol"}},
     "formula": {"form": "cp", "expression": "a + b*T + c/T**2"},
 }
@@ -99,10 +99,10 @@ $ cat maier-kelley.yaml
 kind: symbolic
 operates_on: substance
 contributes_to:
-- G
-- H
-- S
-- Cp
+  G: sets
+  H: sets
+  S: sets
+  Cp: sets
 parameter_definitions:
   a:
     unit: J/(mol.K)

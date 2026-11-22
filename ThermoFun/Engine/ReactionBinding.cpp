@@ -23,7 +23,7 @@ auto canBindReaction(const ReactionRecord& record, const std::map<std::string, M
         const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Reaction);
         if (!spec || !MethodRegistry::instance().hasReactionMethod(a.method))
             return false;
-        bases += spec->reaction_effects.base;
+        bases += spec->reaction_contributes_to.base;
     }
     return bases == 1;
 }
@@ -36,7 +36,7 @@ auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<s
     {
         const bool symbolic = definitions && !MethodCatalog::instance().find(a.method, OperatesOn::Reaction) && definitions->count(a.method);
         auto method = symbolic ? symbolicReactionMethod(definitions->at(a.method), a, *record) : registry.createReaction(a, *record);
-        if (method->spec().reaction_effects.base)
+        if (method->spec().reaction_contributes_to.base)
             bound->base = method;
         else
             bound->volume = method;

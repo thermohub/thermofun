@@ -21,7 +21,7 @@
 // Reaktoro includes (modified DM 11.05.2016)
 #include <ThermoFun/Common/Real.hpp>
 
-#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzConstants.hpp>
+#include <ThermoFun/Methods/Water/Reaktoro/WaterHelmholtzModelParameters.hpp>
 
 namespace ThermoFun {
 
@@ -33,6 +33,6 @@ struct WaterHelmholtzState;
 /// @param D The density of water (in units of kg/m3)
 /// @return The Helmholtz free energy state of water
 /// @see WaterHelmholtzState
-auto waterHelmholtzStateWagnerPruss(real T, real D, const WagnerPrussConstants& constants) -> WaterHelmholtzState;
+auto waterHelmholtzStateWagnerPruss(real T, real D, const WagnerPrussModelParameters& constants) -> WaterHelmholtzState;
 
 } // namespace Reaktoro

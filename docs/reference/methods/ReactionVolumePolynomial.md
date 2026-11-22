@@ -8,6 +8,7 @@ Calculates dV(T, P) from expansion and compressibility terms, and adds the terms
 |---|---|
 | Works on | reaction |
 | Kind | increment |
+| Contributes to | logK adds, dG adds, dH adds, dV sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

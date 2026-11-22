@@ -304,18 +304,33 @@ auto checkMethodDefinition(const MethodDefinition& method, Diagnostics& diagnost
                "The method " + spec->id + " operates on " + toString(spec->operates_on) + ", not on " + toString(method.operates_on));
     if (!method.contributes_to.empty())
     {
-        std::set<std::string> contributes;
-        auto add = [&](Effect effect, const char* name) {
-            if (effect == Effect::Set || effect == Effect::Add)
-                contributes.insert(name);
+        // the built-in method: property -> sets, adds or uses
+        std::map<std::string, std::string> builtin;
+        auto add = [&](Contribution contribution, const char* name) {
+            if (contribution != Contribution::None)
+                builtin[name] = contribution == Contribution::Sets ? "sets" : contribution == Contribution::Adds ? "adds" : "uses";
         };
-        const auto& e = spec->effects;
-        const auto& r = spec->reaction_effects;
+        const auto& e = spec->contributes_to;
+        const auto& r = spec->reaction_contributes_to;
         add(e.G, "G"), add(e.H, "H"), add(e.S, "S"), add(e.Cp, "Cp"), add(e.V, "V");
         add(r.logK, "logK"), add(r.dG, "dG"), add(r.dH, "dH"), add(r.dS, "dS"), add(r.dCp, "dCp"), add(r.dV, "dV");
-        if (std::set<std::string>(method.contributes_to.begin(), method.contributes_to.end()) != contributes)
+        bool same = true;
+        if (method.contributes_to_list)
+        {
+            // the short list names the properties that the method gives (sets or adds)
+            std::set<std::string> given, listed;
+            for (const auto& [name, word] : builtin)
+                if (word != "uses")
+                    given.insert(name);
+            for (const auto& [name, word] : method.contributes_to)
+                listed.insert(name);
+            same = given == listed;
+        }
+        else
+            same = std::map<std::string, std::string>(method.contributes_to.begin(), method.contributes_to.end()) == builtin;
+        if (!same)
             report(c, Severity::Error, "V2-MTH-011", method.symbol, path + "/contributes_to",
-                   "The method " + spec->id + " does not contribute to the same properties.");
+                   "The method " + spec->id + " does not contribute to the same properties in the same way.");
     }
 }
 
