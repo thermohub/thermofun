@@ -40,7 +40,7 @@ def test_a_setting_takes_the_enum_or_a_word_in_any_case():
     c.energy_reference.elements = tf.EnergyReference.BermanBrown
     assert c.energy_reference.elements == tf.EnergyReference.BermanBrown
     c.standard_state.pressure = "1atm"
-    assert c.standard_state.pressure == tf.StandardPressure.OneAtm
+    assert c.standard_state.pressure == 101325.0
 
 
 # --- old fields ----------------------------------------------------------------------------------

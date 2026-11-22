@@ -274,7 +274,7 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
     return out;
 }
 
-auto readConvention(Context& c, const json& node, const std::string& record, const std::string& path) -> std::optional<Convention>
+auto readConvention(Context& c, const json& node, const UnitScope& scope, const std::string& record, const std::string& path) -> std::optional<Convention>
 {
     // the blocks standard_state and energy_reference of a record, a dataset or a method (decision 0031, row 6)
     const bool state = node.contains("standard_state"), energy = node.contains("energy_reference");
@@ -296,12 +296,24 @@ auto readConvention(Context& c, const json& node, const std::string& record, con
         const std::string where = path + "/standard_state";
         const json& block = node["standard_state"];
         if (!block.is_object())
-            report(c, Severity::Error, "CNV-005", record, where, "standard_state is a mapping: {pressure, concentration_scale}.");
+            report(c, Severity::Error, "CNV-005", record, where, "standard_state is a mapping: {pressure, concentration_scale}; pressure is 1bar, 1atm or a pressure.");
         else
         {
             static const std::set<std::string> known = {"pressure", "concentration_scale"};
             extraKeys(c, block, known, record, where);
-            conv.standard_state.pressure = word(std::type_identity<StandardPressure>{}, block, "pressure", where);
+            // p°: the words 1bar and 1atm, or any pressure (GB4 4.11.1 (v)), a number in Pa or with a unit
+            if (block.contains("pressure") && block["pressure"].is_string())
+            {
+                if (const auto p = word(std::type_identity<StandardPressure>{}, block, "pressure", where))
+                    conv.standard_state.pressure = pascals(*p);
+            }
+            else if (const auto q = quantity(c, block, "pressure", "Pa", scope, record, where))
+            {
+                if (q->value > 0.0)
+                    conv.standard_state.pressure = q->value;
+                else
+                    report(c, Severity::Error, "CNV-005", record, where + "/pressure", "The standard pressure must be above 0.");
+            }
             conv.standard_state.concentration_scale = word(std::type_identity<ConcentrationScale>{}, block, "concentration_scale", where);
         }
     }
@@ -337,7 +349,7 @@ auto standardStateLabel(Context& c, const json& node, std::optional<Convention>&
         if (!convention)
             convention = Convention{};
         if (!convention->standard_state.pressure)
-            convention->standard_state.pressure = StandardPressure::OneAtm;
+            convention->standard_state.pressure = 101325.0;
     }
 }
 

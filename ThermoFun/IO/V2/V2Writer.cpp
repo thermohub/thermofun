@@ -28,7 +28,11 @@ auto applicabilityJson(const Applicability& a, const V2WriterOptions& options) -
 void addConvention(json& out, const Convention& c)
 {
     json state = json::object(), energy = json::object();
-    if (c.standard_state.pressure) state["pressure"] = toString(*c.standard_state.pressure);
+    if (c.standard_state.pressure)   // the word, or the pressure in Pa
+    {
+        const auto text = standardPressureText(*c.standard_state.pressure);
+        state["pressure"] = text.find(" Pa") == std::string::npos ? json(text) : json(*c.standard_state.pressure);
+    }
     if (c.standard_state.concentration_scale) state["concentration_scale"] = toString(*c.standard_state.concentration_scale);
     if (c.energy_reference.elements) energy["elements"] = toString(*c.energy_reference.elements);
     if (c.energy_reference.water) energy["water"] = toString(*c.energy_reference.water);
@@ -49,9 +53,10 @@ void addExtra(json& out, const std::string& extra)
             out[item.key()] = item.value();
 }
 
+// the reference temperature; the reference pressure is the standard pressure p°, written in standard_state (decision 0031, row 7)
 auto referenceJson(const ReferenceConditions& rc) -> json
 {
-    return json{{"T", rc.T}, {"P", rc.P}};
+    return json{{"T", rc.T}};
 }
 
 auto covariancesJson(const std::vector<CovarianceBlock>& blocks) -> json
@@ -115,7 +120,7 @@ auto substanceJson(const SubstanceRecord& r, const ThermoDataSetInfo& dataset, c
     if (!r.sourcetdb.empty()) out["sourcetdb"] = r.sourcetdb;
     if (r.molar_mass) out["molar_mass"] = molarMassJson(*r.molar_mass, options);
     if (r.convention) addConvention(out, *r.convention);
-    if (!(r.reference_conditions == dataset.reference_conditions)) out["reference_conditions"] = referenceJson(r.reference_conditions);
+    if (r.reference_conditions.T != dataset.reference_conditions.T) out["reference_conditions"] = referenceJson(r.reference_conditions);
     if (!r.standard_state_properties.empty())
     {
         json props = json::object();
@@ -162,7 +167,7 @@ auto reactionJson(const ReactionRecord& r, const ThermoDataSetInfo& dataset, con
             s[item.first] = item.second;
         out["stoichiometry"] = s;
     }
-    if (!(r.reference_conditions == dataset.reference_conditions)) out["reference_conditions"] = referenceJson(r.reference_conditions);
+    if (r.reference_conditions.T != dataset.reference_conditions.T) out["reference_conditions"] = referenceJson(r.reference_conditions);
     if (!r.reaction_properties.empty())
     {
         json props = json::object();
@@ -206,7 +211,7 @@ auto datasetJson(const ThermoDataSetInfo& d) -> json
     if (!d.name.empty()) out["name"] = d.name;
     if (!d.version.empty()) out["version"] = d.version;
     if (d.status != defaults.status) out["status"] = toString(d.status);
-    if (!(d.reference_conditions == defaults.reference_conditions)) out["reference_conditions"] = referenceJson(d.reference_conditions);
+    if (d.reference_conditions.T != defaults.reference_conditions.T) out["reference_conditions"] = referenceJson(d.reference_conditions);
     if (!d.sourcetdb.empty()) out["sourcetdb"] = d.sourcetdb;
     if (!d.solvent.empty()) out["solvent"] = d.solvent;
     if (!d.data_sources.empty()) out["data_sources"] = d.data_sources;

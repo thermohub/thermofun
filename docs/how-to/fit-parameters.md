@@ -36,7 +36,7 @@ A parameter is three words: the symbol of the record, the method, and the name o
 import thermofun as tf
 
 mineral = {"class": "component", "aggregate_state": "crystal", "formula": "SiO2", "charge": 0,
-           "reference_conditions": {"T": 298.15, "P": 1e5},
+           "reference_conditions": {"T": 298.15},
            "standard_state_properties": {"G": -856000.0, "H": -910830.0, "S": 50.0, "Cp": 44.9, "V": 2.27e-5},
            "methods": [{"method": "CpPolynomial", "segments": [{"t_min": 273.15, "t_max": 2273.15, "parameters": {
                "a0": 100.0, "a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0, "a5": 0.0, "a6": 0.0, "a7": 0.0, "a8": 0.0, "a9": 0.0}}]}]}

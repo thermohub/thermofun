@@ -73,14 +73,14 @@ def definitions():
                       description="Default units of everything inside the level where it is.")
     d["units"]["additionalProperties"] = STRING
     # a value is defined by its standard state, its reference temperature and its energy reference (decision 0031, row 6)
-    d["standard_state"] = _obj({"pressure": {"enum": ["1bar", "1atm"]},
+    d["standard_state"] = _obj({"pressure": {"oneOf": [{"enum": ["1bar", "1atm"]}, QUANTITY], "description": "p°: 1bar, 1atm, or any pressure (a number in Pa, or with a unit)"},
                                 "concentration_scale": {"enum": ["molality", "mole_fraction", "molarity", "amount_fraction", "amount_concentration"]}},
                                description="The standard state of the values: the standard pressure p° and, for solutes, the concentration scale.")
     d["energy_reference"] = _obj({"elements": {"enum": ["benson_helgeson", "berman_brown", "ser", "assigned_enthalpy",
                                                         "gibbs_helmholtz_formation", "dft_formation_0K"]},
                                   "water": {"enum": ["geochemical", "steam_tables"]}},
                                  description="From what zero G, H and S are counted: of the elements and of water.")
-    d["reference_conditions"] = _obj({"T": QUANTITY, "P": QUANTITY})
+    d["reference_conditions"] = _obj({"T": QUANTITY}, description="The reference temperature Tr. The reference pressure is the standard pressure p° of standard_state.")
     d["applicability"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
     d["region"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
     d["covariances"] = {"type": "array", "items": _obj({"paths": STRINGS, "matrix": {"type": "array", "items": {"type": "array", "items": NUMBER}}},

@@ -229,6 +229,13 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
         s.reference_conditions.T = j[legacy::Tst].get<double>();
     if (isPresent(j, legacy::Pst) && j[legacy::Pst].is_number())
         s.reference_conditions.P = j[legacy::Pst].get<double>();
+    // the reference pressure is the standard pressure p° (decision 0031, row 7): a legacy record at another pressure says so
+    if (s.reference_conditions.P != 1e5)
+    {
+        if (!s.convention)
+            s.convention = Convention{};
+        s.convention->standard_state.pressure = s.reference_conditions.P;
+    }
 
     struct Slot
     {
@@ -293,6 +300,13 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
         r.reference_conditions.T = j[legacy::Tst].get<double>();
     if (isPresent(j, legacy::Pst) && j[legacy::Pst].is_number())
         r.reference_conditions.P = j[legacy::Pst].get<double>();
+    // the reference pressure is the standard pressure p° (decision 0031, row 7): a legacy record at another pressure says so
+    if (r.reference_conditions.P != 1e5)
+    {
+        if (!r.convention)
+            r.convention = Convention{};
+        r.convention->standard_state.pressure = r.reference_conditions.P;
+    }
 
     struct Slot
     {

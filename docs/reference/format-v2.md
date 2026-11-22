@@ -25,11 +25,11 @@ A key that starts with `_` is ignored. A file with one record has `record_type`,
 
 ## A substance
 
-`name`, `formula`, `charge`, `class`, `aggregate_state`, `molar_mass`, `sourcetdb`, `convention`, `reference_conditions`, `standard_state_properties`, `methods`, `defining_reaction`, `preferred_property_source`, `applicability`, `data_source`, `data_sources`, `structural`, `deprecated`, `deprecated_in_favour_of`, `units`, `covariances`.
+`name`, `formula`, `charge`, `class`, `aggregate_state`, `molar_mass`, `sourcetdb`, `standard_state`, `energy_reference`, `reference_conditions`, `standard_state_properties`, `methods`, `defining_reaction`, `preferred_property_source`, `applicability`, `data_sources`, `structural`, `deprecated`, `deprecated_in_favour_of`, `units`, `covariances`.
 
 ## A reaction
 
-`name`, `equation`, `stoichiometry`, `reference_conditions`, `reaction_properties`, `methods`, `level`, `data_source`, `data_sources`, `applicability`, `convention`, `preferred_property_source`, `sourcetdb`, `deprecated`, `units`, `covariances`.
+`name`, `equation`, `stoichiometry`, `reference_conditions`, `reaction_properties`, `methods`, `level`, `data_sources`, `applicability`, `standard_state`, `energy_reference`, `preferred_property_source`, `sourcetdb`, `deprecated`, `units`, `covariances`.
 
 ## An element
 

@@ -195,10 +195,18 @@
    "type": "object",
    "properties": {
     "pressure": {
-     "enum": [
-      "1bar",
-      "1atm"
-     ]
+     "oneOf": [
+      {
+       "enum": [
+        "1bar",
+        "1atm"
+       ]
+      },
+      {
+       "$ref": "#/$defs/quantity"
+      }
+     ],
+     "description": "p\u00b0: 1bar, 1atm, or any pressure (a number in Pa, or with a unit)"
     },
     "concentration_scale": {
      "enum": [
@@ -247,15 +255,13 @@
    "properties": {
     "T": {
      "$ref": "#/$defs/quantity"
-    },
-    "P": {
-     "$ref": "#/$defs/quantity"
     }
    },
    "patternProperties": {
     "^_": {}
    },
-   "additionalProperties": false
+   "additionalProperties": false,
+   "description": "The reference temperature Tr. The reference pressure is the standard pressure p\u00b0 of standard_state."
   },
   "applicability": {
    "type": "object",

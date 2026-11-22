@@ -11,7 +11,7 @@ namespace ThermoFun::model {
 /// The convention that the engine uses inside: 1bar, molality, benson_helgeson, geochemical.
 inline auto canonicalConvention() -> Convention
 {
-    return {{StandardPressure::OneBar, ConcentrationScale::Molality}, {EnergyReference::BensonHelgeson, WaterReference::Geochemical}};
+    return {{1e5, ConcentrationScale::Molality}, {EnergyReference::BensonHelgeson, WaterReference::Geochemical}};
 }
 
 /// The fields of `specific` that have a value, completed with those of `general`.

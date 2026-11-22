@@ -388,7 +388,8 @@ auto setConvention(EngineConventions& c, const std::string& key, const json& val
     for (const auto& item : value.items())
     {
         const auto& name = item.key();
-        if (key == "standard_state" && name == "pressure") c.standard_state.pressure = wordOf<model::StandardPressure>(item.value());
+        if (key == "standard_state" && name == "pressure")
+            c.standard_state.pressure = item.value().is_number() ? item.value().get<double>() : model::pascals(wordOf<model::StandardPressure>(item.value()));
         else if (key == "standard_state" && name == "concentration_scale") c.standard_state.concentration_scale = wordOf<model::ConcentrationScale>(item.value());
         else if (key == "energy_reference" && name == "elements") c.energy_reference.elements = wordOf<model::EnergyReference>(item.value());
         else if (key == "energy_reference" && name == "water") c.energy_reference.water = wordOf<model::WaterReference>(item.value());

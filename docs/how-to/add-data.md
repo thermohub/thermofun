@@ -224,7 +224,7 @@ A molar volume can also be in J/bar. That is the unit of the legacy data: 1 J/ba
 | `class` | `component`, `gas_fluid`, `aqueous_solute`, `water_solvent`, `surface_species`, `site_moiety` or `other` (the default). All words: [Allowed words](../reference/vocabulary.md). |
 | `aggregate_state` | `gas`, `liquid`, `crystal`, `aqueous`, `solid` and more; `other` is the default. All words: [Allowed words](../reference/vocabulary.md). An unknown word gives a warning with the nearest word. |
 | `molar_mass` | The molar mass. |
-| `reference_conditions` | `{T: 298.15, P: 1.0e5}`. The default comes from the dataset, else it is 298.15 K and 1e5 Pa. |
+| `reference_conditions` | `{T: 298.15}`: the reference temperature. The default comes from the dataset, else it is 298.15 K. The values are at this T and at the standard pressure p° of `standard_state` (1 bar unless given). |
 | `standard_state_properties` | `G`, `H`, `S`, `Cp`, `V` at the reference conditions. |
 | `methods` | The list of methods. |
 | `defining_reaction` | The symbol of a reaction that gives the properties. |
@@ -545,7 +545,7 @@ assert abs(t.gibbs_energy.val + 1100) < 1e-6
 | `stoichiometry` | `{Calcite: 1, Ca+2: -1, CO3-2: -1}`: below 0 for a reactant. Optional if `equation` is there. If both are there, they must agree. |
 | `reaction_properties` | `logK`, `dG`, `dH`, `dS`, `dCp`, `dV` at the reference conditions. |
 | `methods` | One base method for log K, and optionally one volume method. |
-| `reference_conditions`, `applicability`, `level`, `data_source`, `data_sources`, `covariances` | As for a substance. |
+| `reference_conditions`, `applicability`, `level`, `data_sources`, `covariances` | As for a substance. |
 
 | You have | Base method |
 |---|---|
@@ -612,7 +612,7 @@ thermodataset:
   version: 1.0.0
   status: published            # a published dataset must have a version
   solvent: WATER               # the default is the record H2O@
-  reference_conditions: {T: 298.15, P: 1.0e5}
+  reference_conditions: {T: 298.15}
   conventions: {water_triple_point_reference: HKF_HGK_1974}
 elements:
   Ca: {number: 20, molar_mass: 40.078, standard_entropy: 41.59}      # g/mol, J/(mol K)

@@ -30,8 +30,13 @@ void exportRecords(py::module& m)
 
     py::class_<StandardState>(m, "StandardState", "The standard state of values: the standard pressure and the concentration scale of solutes. None: the default or a more general level")
         .def(py::init<>())
-        .def_property("pressure", [](const StandardState& x) { return x.pressure; }, [](StandardState& x, py::object v) { x.pressure = optionalValueOf<StandardPressure>(v); },
-                      "the standard pressure p°: 1bar or 1atm (StandardPressure or the word)")
+        .def_property("pressure", [](const StandardState& x) { return x.pressure; },
+                      [](StandardState& x, py::object v) {
+                          if (v.is_none()) x.pressure.reset();
+                          else if (py::isinstance<py::float_>(v) || py::isinstance<py::int_>(v)) x.pressure = v.cast<double>();
+                          else x.pressure = pascals(valueOf<StandardPressure>(v));
+                      },
+                      "the standard pressure p° in Pa; set it with 1bar, 1atm (a word or StandardPressure) or any pressure in Pa")
         .def_property("concentration_scale", [](const StandardState& x) { return x.concentration_scale; },
                       [](StandardState& x, py::object v) { x.concentration_scale = optionalValueOf<ConcentrationScale>(v); },
                       "the concentration scale of solutes: molality, molarity or mole_fraction (ConcentrationScale or the word)")

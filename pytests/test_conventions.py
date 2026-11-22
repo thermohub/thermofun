@@ -90,6 +90,32 @@ def test_a_mineral_in_each_energy_reference_gives_the_same_result(reference, T, 
     same(got, want)
 
 
+@pytest.mark.parametrize("pressure, ln", [({"value": 1000, "unit": "bar"}, math.log(1000.0)), (1e8, math.log(1000.0)), (5e4, math.log(0.5))])
+def test_any_standard_pressure_of_a_gas(pressure, ln):
+    # GB4 4.11.1 (v): p° can be chosen freely; a gas tabulated at p° gives the same result in 1 bar (decision 0031, row 7)
+    gas = dict(formula="CO2", state="gas", cls="gas_fluid")
+    want = props(engine({"X": substance(**gas)}), T=400.0)
+    there = dict(BASE, G=BASE["G"] + R * Tr * ln, S=BASE["S"] - R * ln)
+    same(props(engine({"X": substance(there, standard_state={"pressure": pressure}, **gas)}), T=400.0), want, rel=1e-11)
+    # and asked for: from 1 bar to p°, and back
+    got = props(output(engine({"X": substance(**gas)}), pressure=pressure if isinstance(pressure, float) else 1e8), T=400.0)
+    assert got["G"] == pytest.approx(want["G"] + R * 400.0 * (ln if isinstance(pressure, float) else math.log(1000.0)), rel=1e-12)
+
+
+def test_the_reference_pressure_is_the_standard_pressure():
+    # reference_conditions keeps only T; a P equal to p° is accepted, another P is an error (CNV-010)
+    same_p = substance(reference_conditions={"T": 298.15, "P": 101325}, standard_state={"pressure": "1atm"})
+    assert tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"X": same_p}))).getSubstance("X").record().reference_conditions.P == 101325.0
+    other = substance(reference_conditions={"T": 298.15, "P": 2e5})
+    with pytest.raises(RuntimeError, match="CNV-010"):
+        tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"X": other})))
+    # the reference pressure of a record follows its standard pressure, written once, in standard_state
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"X": substance(standard_state={"pressure": 1e8})})))
+    assert db.getSubstance("X").record().reference_conditions.P == 1e8
+    written = json.loads(db.toJson(False))["substances"]["X"]
+    assert written["standard_state"]["pressure"] == 1e8 and "P" not in written.get("reference_conditions", {})
+
+
 @pytest.mark.parametrize("T", [Tr, 400.0, 1000.0])
 def test_a_gas_in_one_atmosphere_gives_the_result_in_one_bar(T):
     gas = dict(formula="CO2", state="gas", cls="gas_fluid")

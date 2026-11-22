@@ -140,6 +140,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Add the parameter, or give a `parameter_set` that has it."},
         {"V2-MTH-005", S::Error, "The method cannot be used for this class of substance.",
          "Use a method for the class of the record (see `Suits` in the method reference)."},
+        {"CNV-010", S::Error, "reference_conditions.P is not the standard pressure p°: the values of a record are at its reference temperature and p°.",
+         "Give the pressure in standard_state: {pressure: ...} (1bar, 1atm or any pressure), and leave out reference_conditions.P."},
         {"CNV-009", S::Warning, "A record gives dfG (the Gibbs energy of formation) but declares an energy reference in which G is not the Gibbs energy of formation (berman_brown, ser, assigned_enthalpy, dft_formation_0K).",
          "Write G, or declare benson_helgeson (dfG and dfH are the NEA names of G and H in it)."},
         {"CNV-007", S::Warning, "The hydrogen ion has values other than 0 in the geochemical convention.", "Set the values to 0, or declare the convention of the record."},

@@ -138,8 +138,8 @@ auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, doubl
     convert(tps, shift, T, P, record->symbol);
     if (out.energy_reference.elements != model::EnergyReference::BensonHelgeson)
         label(model::toString(*out.energy_reference.elements));
-    if (subjectOf(*record).gas && out.standard_state.pressure != model::StandardPressure::OneBar)
-        label(model::toString(*out.standard_state.pressure));
+    if (subjectOf(*record).gas && out.standard_state.pressure != 1e5)
+        label(model::standardPressureText(*out.standard_state.pressure));
     if (subjectOf(*record).solute && out.standard_state.concentration_scale != model::ConcentrationScale::Molality)
         label(model::toString(*out.standard_state.concentration_scale));
     return tps;
@@ -175,7 +175,7 @@ auto ThermoEngine::Impl::reactionShift(const Reaction& reaction, const model::Co
     model::Convention state = convention;
     state.energy_reference.elements.reset();
     model::ConventionShift sum;
-    if ((!state.standard_state.pressure || *state.standard_state.pressure == model::StandardPressure::OneBar) &&
+    if ((!state.standard_state.pressure || *state.standard_state.pressure == 1e5) &&
         (!state.standard_state.concentration_scale || *state.standard_state.concentration_scale == model::ConcentrationScale::Molality))
         return sum;
     for (const auto& [symbol, coefficient] : reaction.reactants())

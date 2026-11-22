@@ -56,7 +56,7 @@ struct EnginePreferences
 
 struct EngineConventions {
     /// The standard state of the results: the standard pressure and the concentration scale of solutes (decision 0031)
-    model::StandardState standard_state{model::StandardPressure::OneBar, model::ConcentrationScale::Molality};
+    model::StandardState standard_state{1e5, model::ConcentrationScale::Molality};
     /// From what zero G, H and S of the results are counted: of the elements and of water
     model::EnergyReferences energy_reference{model::EnergyReference::BensonHelgeson, model::WaterReference::Geochemical};
 

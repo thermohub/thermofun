@@ -132,7 +132,7 @@ void exportThermoEngine(py::module& m)
     m.def("optionWords", [] {
         std::map<std::string, std::vector<std::string>> out;
         out["property_source"] = model::words<model::PropertySource>();
-        out["standard_state.pressure"] = model::words<model::StandardPressure>();
+        out["standard_state.pressure"] = {"1bar", "1atm", "any pressure in Pa"};
         out["standard_state.concentration_scale"] = model::words<model::ConcentrationScale>();
         out["energy_reference.elements"] = model::words<model::EnergyReference>();
         out["energy_reference.water"] = model::words<model::WaterReference>();

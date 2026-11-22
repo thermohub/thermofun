@@ -65,7 +65,7 @@ def substance(db, symbol):
         out["charge"] = r.charge
     out["class"] = r.class_
     out["aggregate_state"] = r.aggregate_state
-    out["reference_conditions"] = {"T": r.reference_conditions.T, "P": r.reference_conditions.P}
+    out["reference_conditions"] = {"T": r.reference_conditions.T}   # the reference pressure is p° (decision 0031, row 7)
     props = {}
     for name, q in r.standard_state_properties.items():
         props[str(name).split(".")[-1]] = quantity(q)
@@ -90,7 +90,7 @@ def reaction(db, symbol):
     r = db.getReaction(symbol).record()
     # the equation of a legacy record may name the substances by their formulas; the stoichiometry has the symbols
     out = {"name": r.name, "stoichiometry": {k: v for k, v in r.stoichiometry}}
-    out["reference_conditions"] = {"T": r.reference_conditions.T, "P": r.reference_conditions.P}
+    out["reference_conditions"] = {"T": r.reference_conditions.T}   # the reference pressure is p° (decision 0031, row 7)
     props = {}
     for name, q in r.reaction_properties.items():
         props[str(name).split(".")[-1]] = quantity(q)

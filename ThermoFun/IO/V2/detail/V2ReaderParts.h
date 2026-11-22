@@ -72,7 +72,7 @@ auto readTable(Context& c, const json& node, const UnitScope& scope, const std::
 auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const UnitScope& parent, const std::string& record,
                  const std::string& path) -> std::vector<MethodApplication>;
 
-auto readConvention(Context& c, const json& node, const std::string& record, const std::string& path) -> std::optional<Convention>;
+auto readConvention(Context& c, const json& node, const UnitScope& scope, const std::string& record, const std::string& path) -> std::optional<Convention>;
 /// standard_state_convention is not part of format 2.0: a warning, and a label with 1atm sets standard_pressure if the convention has none
 auto standardStateLabel(Context& c, const json& node, std::optional<Convention>& convention, const std::string& record, const std::string& path) -> void;
 

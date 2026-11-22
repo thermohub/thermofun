@@ -266,7 +266,7 @@ def test_standard_state_convention_is_not_read_and_a_label_with_1atm_sets_the_pr
               "standard_state_properties": {"G": 1}}
     db = tf.Database(json.dumps({"thermohub": "2.0.0-draft.1", "substances": {"A": record}}))
     assert "V2-KEY-003" in {d.code for d in db.loadDiagnostics().all()}
-    assert db.getSubstance("A").record().convention.standard_state.pressure == tf.StandardPressure.OneAtm
+    assert db.getSubstance("A").record().convention.standard_state.pressure == 101325.0
     assert "standard_state_convention" not in db.toJson(False)
 
 

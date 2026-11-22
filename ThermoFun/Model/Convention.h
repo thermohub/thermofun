@@ -4,7 +4,9 @@
 #ifndef THERMOFUN_CONVENTIONS_CONVENTION_H
 #define THERMOFUN_CONVENTIONS_CONVENTION_H
 
+#include <cstdio>
 #include <optional>
+#include <string>
 
 #include <ThermoFun/Model/Vocabulary.h>
 
@@ -14,9 +16,27 @@ namespace ThermoFun::model {
 /// Merging and conversion are in the layer Conventions/.
 /// The standard state of the values (decision 0031, row 6): the standard pressure p° and, for solutes, the concentration
 /// scale. A field without a value is the default (1 bar, molality), or the value of a more general level.
+/// The pressure of a word of the standard pressure, in Pa
+inline auto pascals(StandardPressure p) -> double
+{
+    return p == StandardPressure::OneAtm ? 101325.0 : 1e5;
+}
+
+/// A standard pressure as written: 1bar, 1atm, or the pressure in Pa
+inline auto standardPressureText(double p) -> std::string
+{
+    if (p == 1e5)
+        return "1bar";
+    if (p == 101325.0)
+        return "1atm";
+    char text[32];
+    std::snprintf(text, sizeof text, "%.10g Pa", p);
+    return text;
+}
+
 struct StandardState
 {
-    std::optional<StandardPressure> pressure;
+    std::optional<double> pressure;               ///< p° in Pa: the words 1bar (1e5) and 1atm (101325), or any pressure
     std::optional<ConcentrationScale> concentration_scale;
 
     auto operator==(const StandardState&) const -> bool = default;

@@ -38,8 +38,9 @@ auto energyShift(EnergyReference from, EnergyReference to, const ConversionSubje
 auto standardStateShift(const Convention& c, const ConversionSubject& subject) -> ConventionShift
 {
     ConventionShift shift;
-    if (subject.gas && c.standard_state.pressure == StandardPressure::OneAtm)
-        shift.G_per_K = R_CONSTANT * std::log(1.01325);   // G(1 atm) = G(1 bar) + R T ln(1.01325)
+    // G(p°) = G(1 bar) + R T ln(p° / 1 bar) for a gas, any p° (GB4 4.11.1 (v)); 1 atm gives R T ln(1.01325)
+    if (subject.gas && c.standard_state.pressure && *c.standard_state.pressure != 1e5)
+        shift.G_per_K = R_CONSTANT * std::log(*c.standard_state.pressure / 1e5);
     if (subject.solute && c.standard_state.concentration_scale == ConcentrationScale::MoleFraction)
         shift.G_per_K = R_CONSTANT * std::log(1000.0 / kMolarMassWater);   // G(x) = G(m) + R T ln(1000/Mw)
     if (subject.solute && c.standard_state.concentration_scale == ConcentrationScale::Molarity)

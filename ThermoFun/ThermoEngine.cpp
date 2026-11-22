@@ -430,7 +430,7 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     if (p.property_source != defaults.property_source) s.options["property_source"] = model::toString(p.property_source);
     const auto& c = pimpl->conventions;
     const auto out = model::mergeConvention({c.standard_state, c.energy_reference}, model::canonicalConvention());
-    s.conventions["standard_state.pressure"] = model::toString(*out.standard_state.pressure);
+    s.conventions["standard_state.pressure"] = model::standardPressureText(*out.standard_state.pressure);
     s.conventions["standard_state.concentration_scale"] = model::toString(*out.standard_state.concentration_scale);
     s.conventions["energy_reference.elements"] = model::toString(*out.energy_reference.elements);
     s.conventions["energy_reference.water"] = model::toString(*out.energy_reference.water);

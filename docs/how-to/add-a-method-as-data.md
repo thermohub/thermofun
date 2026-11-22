@@ -199,7 +199,7 @@ A substance names the method and gives the parameters. The Method record goes in
 ```python
 substance = {
     "formula": "CaCO3", "charge": 0, "class": "component", "aggregate_state": "crystal",
-    "reference_conditions": {"T": 298.15, "P": 1e5},
+    "reference_conditions": {"T": 298.15},
     "standard_state_properties": {"G": -1.2e6, "H": -1.1731665e6, "S": 90.0, "Cp": 80.0, "V": 3e-5},
     "methods": [{"method": "MaierKelleyCp", "parameters": {"a": 80.0, "b": 0.012, "c": -1.1e6}}],
 }

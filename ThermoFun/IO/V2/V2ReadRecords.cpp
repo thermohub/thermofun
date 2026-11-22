@@ -3,23 +3,40 @@
 
 // Reads one record of each kind from a v2 file.
 
+#include <cmath>
 #include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
 namespace ThermoFun::model::v2reader {
 
+// The reference temperature, and the reference pressure, which is the standard pressure p° (decision 0031, row 7): a P that a
+// file gives is checked against p°, never read as another pressure
 auto readReferenceConditions(Context& c, const json& node, const UnitScope& scope, const std::string& record,
-                             const std::string& path, ReferenceConditions fallback) -> ReferenceConditions
+                             const std::string& path, ReferenceConditions fallback, double standardPressure) -> ReferenceConditions
 {
+    fallback.P = standardPressure;
     if (node.contains("reference_conditions") && node["reference_conditions"].is_object())
     {
         const json& rc = node["reference_conditions"];
         if (auto q = quantity(c, rc, "T", "K", scope, record, path + "/reference_conditions"))
             fallback.T = q->value;
         if (auto q = quantity(c, rc, "P", "Pa", scope, record, path + "/reference_conditions"))
-            fallback.P = q->value;
+            if (std::fabs(q->value - standardPressure) > 1e-9 * standardPressure)
+                report(c, Severity::Error, "CNV-010", record, path + "/reference_conditions/P",
+                       "The reference pressure " + std::to_string(q->value) + " Pa is not the standard pressure " + standardPressureText(standardPressure) +
+                           ": the values are at p°. Give the pressure in standard_state: {pressure: ...}, and leave out reference_conditions.P.");
     }
     return fallback;
+}
+
+// The standard pressure of a record: its own, else that of the dataset, else 1 bar
+auto standardPressureOf(const Context& c, const std::optional<Convention>& own) -> double
+{
+    if (own && own->standard_state.pressure)
+        return *own->standard_state.pressure;
+    if (c.dataset && c.dataset->convention.standard_state.pressure)
+        return *c.dataset->convention.standard_state.pressure;
+    return 1e5;
 }
 
 auto symbolOf(Context& c, const json& node, const std::string& key, const std::string& path) -> std::string
@@ -110,10 +127,10 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     r.aggregate_state = vocabulary<AggregateState>(c, optionalString(node, "aggregate_state"), symbol, path + "/aggregate_state").value_or(AggregateState::Other);
     r.sourcetdb = optionalString(node, "sourcetdb");
     r.molar_mass = quantity(c, node, "molar_mass", "kg/mol", mass, symbol, path);
-    r.convention = readConvention(c, node, symbol, path);
+    r.convention = readConvention(c, node, scope, symbol, path);
     standardStateLabel(c, node, r.convention, symbol, path);
     r.reference_conditions = readReferenceConditions(c, node, scope, symbol, path,
-                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{});
+                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{}, standardPressureOf(c, r.convention));
     bool formationG = false;   // dfG: the NEA name of G in benson_helgeson (decision 0031, row 5)
     if (node.contains("standard_state_properties") && node["standard_state_properties"].is_object())
         for (const auto& item : node["standard_state_properties"].items())
@@ -215,8 +232,9 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
             }
         }
     }
+    r.convention = readConvention(c, node, scope, symbol, path);
     r.reference_conditions = readReferenceConditions(c, node, scope, symbol, path,
-                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{});
+                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{}, standardPressureOf(c, r.convention));
     if (node.contains("reaction_properties") && node["reaction_properties"].is_object())
         for (const auto& item : node["reaction_properties"].items())
         {
@@ -244,7 +262,6 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
         r.level = *level;
     if (node.contains("applicability"))
         r.applicability = readApplicability(c, node["applicability"], scope, symbol, path + "/applicability");
-    r.convention = readConvention(c, node, symbol, path);
     r.preferred_property_source = readPropertySource(c, node, symbol, path);
     r.data_sources = stringList(node, "data_sources");
     r.deprecated = node.contains("deprecated") && node["deprecated"].is_boolean() && node["deprecated"].get<bool>();
@@ -444,7 +461,15 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
         info.status = vocabulary<DatasetStatus>(c, node["status"].get<std::string>(), info.symbol, "/thermodataset/status").value_or(info.status);
     if (info.status == DatasetStatus::Published && info.version.empty())
         report(c, Severity::Error, "V2-DS-001", info.symbol, "/thermodataset", "A published dataset needs a version.");
-    info.reference_conditions = readReferenceConditions(c, node, scope, info.symbol, "/thermodataset", ReferenceConditions{});
+    if (auto conv = readConvention(c, node, scope, info.symbol, "/thermodataset"))
+        info.convention = *conv;
+    {
+        std::optional<Convention> conv = info.convention;
+        standardStateLabel(c, node, conv, info.symbol, "/thermodataset");
+        info.convention = *conv;
+    }
+    info.reference_conditions = readReferenceConditions(c, node, scope, info.symbol, "/thermodataset", ReferenceConditions{},
+                                                        info.convention.standard_state.pressure.value_or(1e5));
     info.sourcetdb = stringList(node, "sourcetdb");
     info.solvent = optionalString(node, "solvent");
     info.data_sources = stringList(node, "data_sources");
@@ -458,13 +483,6 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
         const std::string w = optionalString(node["conventions"], "water_triple_point_reference");
         if (!w.empty())
             info.water_triple_point_reference = w;
-    }
-    if (auto conv = readConvention(c, node, info.symbol, "/thermodataset"))
-        info.convention = *conv;
-    {
-        std::optional<Convention> conv = info.convention;
-        standardStateLabel(c, node, conv, info.symbol, "/thermodataset");
-        info.convention = *conv;
     }
     info.extra_json = extraKeys(c, node, known, info.symbol, "/thermodataset");
     return info;

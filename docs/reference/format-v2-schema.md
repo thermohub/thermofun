@@ -151,7 +151,7 @@ The standard state of the values: the standard pressure p° and, for solutes, th
 
 | Key | Type | Required | Note |
 |---|---|---|---|
-| `pressure` | `1bar`, `1atm` |  |  |
+| `pressure` | `1bar`, `1atm` or [quantity](#quantity) |  | p°: 1bar, 1atm, or any pressure (a number in Pa, or with a unit) |
 | `concentration_scale` | `molality`, `mole_fraction`, `molarity`, `amount_fraction`, `amount_concentration` |  |  |
 
 ## energy_reference
@@ -165,10 +165,11 @@ From what zero G, H and S are counted: of the elements and of water.
 
 ## reference_conditions
 
+The reference temperature Tr. The reference pressure is the standard pressure p° of standard_state.
+
 | Key | Type | Required | Note |
 |---|---|---|---|
 | `T` | [quantity](#quantity) |  |  |
-| `P` | [quantity](#quantity) |  |  |
 
 ## applicability
 
