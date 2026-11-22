@@ -7,6 +7,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Batch/ThermoBatch.h
     Common/Constants.h
     Common/Diagnostics.h
+    Common/Notes.h
     Common/Real.hpp
     Common/ThermoProperties.h
     Common/ThermoProperty.hpp

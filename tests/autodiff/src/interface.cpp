@@ -63,7 +63,8 @@ int main(int argc, char** argv)
         ref = 7.0;
         check(plain == 5.0 && z.val() == 7.0, "conversion to double and to double&");
         check(std::sqrt(z.val) == std::sqrt(7.0), "val as a double argument");
-        check(sizeof(Reaktoro_::ThermoScalar) == sizeof(double) * 4 + sizeof(Reaktoro_::StatusMessage), "layout");
+        // val, ddt, ddp, err, the status and the info of the value (decision 0029); no code copies the layout
+        check(sizeof(Reaktoro_::ThermoScalar) == sizeof(double) * 4 + sizeof(Reaktoro_::StatusMessage) + sizeof(Reaktoro_::Info), "layout");
         const Reaktoro_::ThermoScalar c = z;
         check(c.val() == 7.0 && c.val == 7.0, "val and val() of a const instance");
     }

@@ -154,8 +154,8 @@ void testCpPolynomial()
     CHECK(evaluate(m, 500.0, 1e5, r).V.val == 0.0);
     CHECK(near(evaluate(m, 900.0, 1e5, r).V.val, 1e-6, 1e-12));
     // outside the intervals: the nearest one, and it says so
-    CHECK(evaluate(m, 3000.0, 1e5, r).outside_range);
-    CHECK(!evaluate(m, 500.0, 1e5, r).outside_range);
+    CHECK(evaluate(m, 3000.0, 1e5, r).extrapolated);
+    CHECK(!evaluate(m, 500.0, 1e5, r).extrapolated);
     // without coefficients: Cp is the constant reference value, without a coefficient to fit
     const auto noneMethod = cpPolynomialMethod(std::vector<std::pair<double, double>>{}, std::vector<double>{});
     const auto& none = *noneMethod;
