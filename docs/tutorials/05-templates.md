@@ -14,6 +14,8 @@ kernelspec:
 
 # 5. Templates
 
+This page is the Jupyter notebook [`05-templates.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/05-templates.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn to make a table from a template, to change it, and to make your own template.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.

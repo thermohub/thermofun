@@ -14,6 +14,8 @@ kernelspec:
 
 # 2. Load data
 
+This page is the Jupyter notebook [`02-load-data.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/02-load-data.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn to load a database, look at its records, check them, and write your own data.
 
 **You need:** ThermoFun, and the files `aq17-thermofun.json` from `Resources/databases/` and `minimal.yaml` from `examples/v2/` of the repository, in your folder.
@@ -48,10 +50,13 @@ print(database.getSubstancesList()[:10])
 print(database.containsSubstance("Calcite"), database.containsSubstance("Quartzz"))
 ```
 
+A record stores the standard properties of the substance at its reference temperature and the standard pressure, usually
+25 °C and 1 bar. From them and the methods of the record, the engine calculates the standard properties at any T and P.
+
 ```{code-cell} ipython3
 calcite = database.getSubstance("Calcite")
 print(calcite.name(), calcite.formula())
-print("G at the reference conditions:", calcite.thermoReferenceProperties().gibbs_energy.val, "J/mol")
+print("G in the record, at 25 degC and 1 bar:", database.get("/substances/Calcite/standard_state_properties/G"), "J/mol")
 ```
 
 `get` reads any value of a record by its path, as Python objects: a number, a text, a list or a dict.
@@ -116,12 +121,16 @@ The reaction has no methods, so its properties come from its reactants.
 ```{code-cell} ipython3
 reaction = engine.thermoPropertiesReaction(298.15, 1e5, "Halite-dissolution")
 print(reaction.reaction_gibbs_energy.val, "J/mol, from", engine.calculationPath("Halite-dissolution")["source"])
-print(-256142.0 - 131290.0 + 384212.0, "J/mol, from the values in the file")
+G_halite = my_data.get("/substances/Halite/standard_state_properties/G")
+G_sodium = my_data.get("/substances/Na+/standard_state_properties/G")
+G_chloride = my_data.get("/substances/Cl-/standard_state_properties/G")
+print(G_sodium + G_chloride - G_halite, "J/mol, from the values in the file")
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-assert abs(reaction.reaction_gibbs_energy.val - (-256142.0 - 131290.0 + 384212.0)) < 0.01
+assert abs(reaction.reaction_gibbs_energy.val - (G_sodium + G_chloride - G_halite)) < 0.01
+assert abs(G_sodium + G_chloride - G_halite - (-256142.0 - 131290.0 + 384212.0)) < 0.01
 ```
 
 All fields are in [Add data](../how-to/add-data.md).
@@ -135,7 +144,7 @@ print("problems in minimal.yaml:", len(my_data.validate()))
 print(database.validate())
 ```
 
-Here two records of aq17 use a volume method (`V2-MTH-004`, a parameter that the method needs is missing) and give no `alpha0` and `kappa0`. These are the thermal expansion and the bulk modulus. The method cannot calculate V at another T and P without them, so the volume of these two minerals does not change with T and P.
+Here two minerals of aq17, Boehmite and Gibbsite, use the volume method MurnaghanHP98 without `alpha0` and `kappa0`, the thermal expansion and the bulk modulus (`V2-MTH-028`, a warning). Without them the method keeps the reference volume at every T and P: V does not change, and G changes by V (P - 1 bar). The method still contributes, and the results of these minerals have a note that says so.
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
@@ -169,7 +178,7 @@ Change a value with a parameter handle. The change holds for this engine only.
 ```{code-cell} ipython3
 omega = engine.parameter("Na+", "HKF88", "omega")
 before = engine.thermoPropertiesSubstance(373.15, 1e7, "Na+").gibbs_energy.val
-omega.setValue(omega.value() * 1.01)
+omega.setValue(omega.value() * 1.1)
 after = engine.thermoPropertiesSubstance(373.15, 1e7, "Na+").gibbs_energy.val
 print(before, "->", after, "J/mol")
 ```

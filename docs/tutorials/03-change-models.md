@@ -14,6 +14,8 @@ kernelspec:
 
 # 3. Change the models
 
+This page is the Jupyter notebook [`03-change-models.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/03-change-models.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn which models there are, how a record combines them, and how to change the model of a record and the options of the engine.
 
 **You need:** ThermoFun, and the files `aq17-thermofun.json` from `Resources/databases/` and `mineral-methods.yaml` from `examples/v2/` of the repository, in your folder.
@@ -212,7 +214,7 @@ Calcite has no uncertainty in aq17, so give one in the record:
 ```{code-cell} ipython3
 database = tf.Database(AQ)
 database.set("/substances/Calcite/standard_state_properties/G", {"value": database.get("/substances/Calcite/standard_state_properties/G"), "uncertainty": 1500.0})
-database.set("/substances/Calcite/standard_state_properties/S", {"value": database.get("/substances/Calcite/standard_state_properties/S"), "uncertainty": 0.5})
+database.set("/substances/Calcite/standard_state_properties/S/uncertainty", 15.0)
 engine = tf.ThermoEngine(database)
 
 G = engine.thermoPropertiesSubstance(373.15, 1e8, "Calcite").gibbs_energy

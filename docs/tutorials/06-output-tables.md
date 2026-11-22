@@ -14,6 +14,8 @@ kernelspec:
 
 # 6. Output tables
 
+This page is the Jupyter notebook [`06-output-tables.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/06-output-tables.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn to write a table with your units, digits and layout, and to see how a table was made.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.

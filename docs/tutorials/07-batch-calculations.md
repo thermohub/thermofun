@@ -14,6 +14,8 @@ kernelspec:
 
 # 7. Batch calculations
 
+This page is the Jupyter notebook [`07-batch-calculations.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/07-batch-calculations.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn to calculate many records at many temperatures and pressures with `ThermoBatch`, directly or from a template or a YAML setup.
 
 **You need:** ThermoFun, matplotlib, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.

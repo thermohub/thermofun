@@ -14,6 +14,8 @@ kernelspec:
 
 # 8. Fit parameters
 
+This page is the Jupyter notebook [`08-fit-parameters.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/08-fit-parameters.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn to fit a parameter of a mineral to measured heat capacities.
 
 ```{admonition} Under development

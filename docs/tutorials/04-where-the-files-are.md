@@ -14,6 +14,8 @@ kernelspec:
 
 # 4. Where the files are
 
+This page is the Jupyter notebook [`04-where-the-files-are.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/04-where-the-files-are.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn where ThermoFun finds databases, the coefficients of the models and the templates, and how to see which data a calculation used.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
