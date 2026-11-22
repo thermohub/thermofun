@@ -43,6 +43,7 @@ auto ThermoEngine::Impl::subjectOf(const model::SubstanceRecord& record) const -
     subject.solute = record.class_ == model::SubstanceClass::AqueousSolute;
     const auto formula = record.formula;
     subject.element_entropy = [this, formula] { return elementEntropy(formula); };
+    subject.R = physics().R;
     return subject;
 }
 
@@ -111,7 +112,7 @@ auto ThermoEngine::Impl::molarityTermsAt(double T, double& P, const std::string&
     const auto s = cachedSolvent(T, P, symbol, -1);
     Reaktoro_::ThermoScalar Ts(T);
     Ts.ddt = 1.0;
-    auto m = model::molarityTerms(Ts, s.density, s.densityT, s.densityP, s.densityTT);
+    auto m = model::molarityTerms(Ts, s.density, s.densityT, s.densityP, s.densityTT, physics().R);
     m.V *= 1e5;
     return m;
 }
@@ -232,17 +233,17 @@ auto ThermoEngine::Impl::convert(ThermoPropertiesReaction &tpr, const model::Con
         tpr.reaction_helmholtz_energy.ddt += shift.G_per_K;
     }
     if (defined(tpr.ln_equilibrium_constant))
-        tpr.ln_equilibrium_constant.val -= shift.G_per_K / R_CONSTANT;
+        tpr.ln_equilibrium_constant.val -= shift.G_per_K / physics().R;
     if (defined(tpr.log_equilibrium_constant))
-        tpr.log_equilibrium_constant.val -= shift.G_per_K / (R_CONSTANT * lg_to_ln);
+        tpr.log_equilibrium_constant.val -= shift.G_per_K / (physics().R * lg_to_ln);
     if (!shift.needsSolvent())
         return;
     const auto m = molarityTermsAt(T, P, symbol);
     const double Pbar = P / bar_to_Pa;
     const auto U = m.H - Pbar * m.V;
     const auto A = U - T * m.S;
-    Reaktoro_::ThermoScalar RT(R_CONSTANT * T);
-    RT.ddt = R_CONSTANT;
+    Reaktoro_::ThermoScalar RT(physics().R * T);
+    RT.ddt = physics().R;
     const auto lnK = -(m.G / RT);
     add(tpr.reaction_gibbs_energy, shift.molarity, m.G);
     add(tpr.reaction_enthalpy, shift.molarity, m.H);

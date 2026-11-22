@@ -41,6 +41,7 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `defaults` | object |  |  |
 | `standard_state` | [standard_state](#standard_state) |  |  |
 | `energy_reference` | [energy_reference](#energy_reference) |  |  |
+| `physical_constants` | `codata1986`, `codata2018` |  | The constants of physics the values were derived with. An engine with another set warns (CNV-012). |
 
 ## element
 

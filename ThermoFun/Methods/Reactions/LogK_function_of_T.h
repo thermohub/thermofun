@@ -15,6 +15,7 @@ struct LogKInputs
 {
     Reaktoro_::ThermoProperty dVr, dHr, dSr, dCpr, dGr, lgK;
     LogKForm method;
+    double R = R_CONSTANT;   ///< the gas constant of the calculation
 };
 
 /// Prepare the calculation of the properties of a reaction from the reference properties: the enthalpy or entropy

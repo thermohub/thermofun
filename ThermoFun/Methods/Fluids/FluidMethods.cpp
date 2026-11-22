@@ -63,8 +63,8 @@ auto fluid(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, con
         if (in.options.apply_pressure_correction && p > 0.0)
         {
             const Scalar lnP = log(p / (in.reference.P / bar_to_Pa));
-            out.gibbs_energy += R_CONSTANT * in.T * lnP;
-            out.entropy -= R_CONSTANT * lnP;
+            out.gibbs_energy += in.options.R * in.T * lnP;
+            out.entropy -= in.options.R * lnP;
         }
         setFromModel(state, out);
     }

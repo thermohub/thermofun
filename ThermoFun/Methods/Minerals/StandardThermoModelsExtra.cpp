@@ -44,9 +44,9 @@ auto thermoPropertiesExtendedUNIQUAC(real T, real Pbar, const MineralInputs& sub
     if (alpha != 0.0 || beta != 0.0)
     {
         // G = G(T) + R T (alpha + beta dP) dP, so that S = -dG/dT, V = dG/dP; H is not changed
-        out.gibbs_energy += R_CONSTANT * T * (alpha + beta * dP) * dP;
-        out.entropy      -= R_CONSTANT * (alpha + beta * dP) * dP;
-        out.volume        = R_CONSTANT * T * (alpha + 2 * beta * dP);
+        out.gibbs_energy += R_CODATA1986 * T * (alpha + beta * dP) * dP;
+        out.entropy      -= R_CODATA1986 * (alpha + beta * dP) * dP;
+        out.volume        = R_CODATA1986 * T * (alpha + 2 * beta * dP);
     }
 
     out.internal_energy  = out.enthalpy - Pbar * out.volume;
@@ -93,7 +93,7 @@ auto thermoPropertiesNasaPolynomials(real T, real Pbar, const NasaInputs& subst,
     const double a1 = p[0], a2 = p[1], a3 = p[2], a4 = p[3], a5 = p[4], a6 = p[5], a7 = p[6], b1 = p[7], b2 = p[8];
 
     const real T2 = T * T, T3 = T * T2, T4 = T * T3, lnT = log(T);
-    const double R = R_CONSTANT;
+    const double R = R_CODATA1986;
 
     ThermoPropertiesSubstanceAD out;
     out.heat_capacity_cp = (a1 / T2 + a2 / T + a3 + a4 * T + a5 * T2 + a6 * T3 + a7 * T4) * R;

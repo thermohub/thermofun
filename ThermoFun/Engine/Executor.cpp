@@ -48,7 +48,7 @@ auto convert(SubstanceState<TPReal>& state, const ConventionShift& shift, const 
     if (shift.needsSolvent())
     {
         const auto& s = in.solvent->properties;
-        const auto m = molarityTerms(in.T, s.density, s.densityT, s.densityP, s.densityTT);
+        const auto m = molarityTerms(in.T, s.density, s.densityT, s.densityP, s.densityTT, in.options.R);
         state.G += shift.molarity * m.G;
         state.H += shift.molarity * m.H;
         state.S += shift.molarity * m.S;

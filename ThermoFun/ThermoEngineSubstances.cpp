@@ -46,7 +46,7 @@ auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::
     if (it != bound_cache->substances.end())
         return it->second;
     const auto formula = record->formula;
-    const model::BindConventions bind{database.thermoDataSet().convention, &database.methods(), [this, formula] { return elementEntropy(formula); }};
+    const model::BindConventions bind{database.thermoDataSet().convention, &database.methods(), [this, formula] { return elementEntropy(formula); }, physics().R};
     auto bound = model::canBind(*record, &database.methods()) ? model::bindSubstance(withImplementations(record), bind) : nullptr;
     bound_cache->substances[record.get()] = bound;
     bound_cache->records.push_back(record);
@@ -99,7 +99,7 @@ auto ThermoEngine::Impl::boundSolvent(const Substance& substance) const -> std::
 
 auto ThermoEngine::Impl::substanceOptions() const -> model::SubstanceOptions
 {
-    return {preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props};
+    return {preferences.apply_pressure_correction_to_gas_props, preferences.cancel_fugacity_coefficient_in_gas_props, physics().R};
 }
 
 /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
@@ -349,9 +349,10 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             substance.aggregateState() == AggregateState::type::GAS && P > 0.0)
         {
             const double Pb = P / bar_to_Pa;
-            tps.gibbs_energy.val -= R_CONSTANT * T * std::log(Pb);
-            tps.gibbs_energy.ddt -= R_CONSTANT * std::log(Pb);
-            tps.gibbs_energy.ddp -= R_CONSTANT * T / P;
+            const double R = physics().R;
+            tps.gibbs_energy.val -= R * T * std::log(Pb);
+            tps.gibbs_energy.ddt -= R * std::log(Pb);
+            tps.gibbs_energy.ddp -= R * T / P;
         }
 
         // the properties that follow from the others (U, A, Cv), in the convention of the models

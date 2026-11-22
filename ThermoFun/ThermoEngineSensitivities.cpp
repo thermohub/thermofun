@@ -288,7 +288,7 @@ auto ThermoEngine::Impl::reactionDerivative(double T, double& P, const Reaction&
             d.reaction_heat_capacity_cp.val += coefficient * o.Cp;
             d.reaction_volume.val += coefficient * o.V;
         }
-        d.ln_equilibrium_constant = d.reaction_gibbs_energy.val / -(R_CONSTANT * T);
+        d.ln_equilibrium_constant = d.reaction_gibbs_energy.val / -(physics().R * T);
         d.log_equilibrium_constant = d.ln_equilibrium_constant.val * ln_to_lg;
         return d;
     }

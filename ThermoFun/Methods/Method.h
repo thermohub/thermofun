@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <ThermoFun/Common/Notes.h>
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <ThermoFun/Common/Real.hpp>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
@@ -100,6 +101,7 @@ struct SubstanceOptions
 {
     bool apply_pressure_correction = true;   ///< a method for the pressure of a gas: G has RT ln(P/Pr), and S has -R ln(P/Pr)
     bool cancel_fugacity_coefficient = false; ///< fluids: G does not have RT ln(phi)
+    double R = R_CONSTANT;                    ///< the gas constant of the calculation, J/(mol K): of the engine option physical_constants
 };
 
 /// What a substance method gets at each call.

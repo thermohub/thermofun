@@ -216,6 +216,7 @@ auto datasetJson(const ThermoDataSetInfo& d) -> json
     if (!d.sourcetdb.empty()) out["sourcetdb"] = d.sourcetdb;
     if (!d.solvent.empty()) out["solvent"] = d.solvent;
     if (!d.data_sources.empty()) out["data_sources"] = d.data_sources;
+    if (!d.physical_constants.empty()) out["physical_constants"] = d.physical_constants;
     json values = json::object();
     if (!d.defaults.quality.empty()) values["quality"] = d.defaults.quality;
     if (d.defaults.origin) values["origin"] = toString(*d.defaults.origin);

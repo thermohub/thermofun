@@ -39,6 +39,7 @@ struct EnginePreferences
     int uncertainty_significant_digits = 2; // significant digits of the rounded uncertainties (to the nearest, a half up: NEA TDB-3 sect. 4), used if round_to_uncertainty is true (NEA TDB tables give one or two)
     model::PropertySource property_source = model::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
     std::map<std::string, std::string> method_implementation; // method id -> implementation, for example {"HKF88": "reaktoro"}; it replaces the implementation of the records
+    std::string physical_constants = "codata1986"; // the constants of physics of the calculation: codata1986 (the default: most stored G and log K values were derived with its R) or codata2018, a set of Methods/ParameterSets/PhysicalConstants*.yaml. Fitted equations keep the R of their fit. A change drops the cached results
     bool propagate_parameter_errors = false; // also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances of the records (u^2 = J S J^T). Without it, only the uncertainties of the reference values propagate. Costs two extra calculations per uncertain value
 
     /// G(T, Pr) for a gas: no RT ln(P/Pr) and no RT ln(phi) in G. For a code that adds these terms itself.

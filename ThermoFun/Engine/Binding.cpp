@@ -191,6 +191,7 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConv
     subject.gas = record->aggregate_state == AggregateState::Gas;
     subject.solute = record->class_ == SubstanceClass::AqueousSolute;
     subject.element_entropy = conventions.element_entropy;
+    subject.R = conventions.R;
     const Convention inherited = mergeConvention(record->convention.value_or(Convention{}), conventions.dataset);
     for (const auto& method : bound->order)
     {

@@ -147,7 +147,7 @@ def test_the_top_of_a_file_says_how_it_was_made(tmp_path):
     joined = "\n".join(lines)
     assert "ThermoFun " in joined and "physical constants " in joined and "sha256 " in joined and "water: H2O@:" in joined and "conventions: " in joined
     snapshot = table.provenance.calculations[0][1]
-    assert snapshot.physical_constants == tf.methods.physicalConstants()["name"]
+    assert snapshot.physical_constants == "codata1986"
     assert snapshot.water_methods and snapshot.content_hash == tf.ThermoEngine(AQ).snapshot().content_hash
 
     for name, start, end in [("a.csv", "# database", None), ("a.md", "<!--", "-->"), ("a.tex", "% database", None)]:

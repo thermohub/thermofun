@@ -332,15 +332,21 @@ def test_a_record_can_replace_the_range_of_a_model():
     assert tf.ThermoEngine(tf.Database(json.dumps(doc))).propertiesSolvent(473.15, 1e7, solvent_symbol(doc)).dynamic_viscosity == 0.0
 
 
-def test_this_build_has_the_constants_of_one_file():
+@pytest.mark.parametrize("name,file", [("codata1986", "PhysicalConstants.yaml"), ("codata2018", "PhysicalConstants-codata2018.yaml")])
+def test_each_set_of_constants_of_physics_is_its_file(name, file):
     import pathlib
     import re
-    values = tf.methods.physicalConstants()
+    values = tf.methods.physicalConstants(name)
     folder = pathlib.Path(__file__).resolve().parent.parent / "ThermoFun" / "Methods" / "ParameterSets"
-    name = {"codata1986": "PhysicalConstants.yaml", "codata2018": "PhysicalConstants-codata2018.yaml"}[values["name"]]
-    text = (folder / name).read_text()
+    text = (folder / file).read_text()
     for symbol in ("R", "NA", "F", "e", "k"):
         assert values[symbol] == float(re.search(r"^      %s: (\S+)$" % symbol, text, re.M).group(1)), symbol
+
+
+def test_the_0x_names_are_the_default_set():
+    default = tf.methods.physicalConstants()
+    assert default["name"] == "codata1986" and tf.EnginePreferences().physical_constants == "codata1986"
+    assert (tf.R_CONSTANT, tf.NA_CONSTANT, tf.F_CONSTANT, tf.e_CONSTANT, tf.k_CONSTANT) == tuple(default[k] for k in ("R", "NA", "F", "e", "k"))
 
 
 @pytest.mark.parametrize("method_id,implementation,label", [("WaterHGK84", "reaktoro", "NEA_HGK"), ("WaterHGK84", "gems", "NEA_HGK"), ("WaterIAPWS95", "reaktoro", "NEA_IAPWS")])

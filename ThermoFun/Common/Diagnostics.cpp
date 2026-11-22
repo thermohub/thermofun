@@ -146,6 +146,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Write G, or declare benson_helgeson (dfG and dfH are the NEA names of G and H in it)."},
         {"CNV-007", S::Warning, "The hydrogen ion has values other than 0, and ions: hydrogen_ion (the default) defines it as 0. The values are not used.",
          "Remove the values, or declare energy_reference: {ions: none} on the record or the dataset."},
+        {"CNV-012", S::Warning, "The engine calculates with other constants of physics than the dataset says its values were derived with.",
+         "Set the engine option physical_constants to the set of the dataset, or accept differences of about 6e-6 relative in log K and G."},
         {"CNV-011", S::Warning, "The electron is from the standard hydrogen electrode (ions: hydrogen_ion), and the database has no H2(g). The values of its record are used.",
          "Add H2(g) to the database, or declare energy_reference: {ions: none} for the electron."},
         {"CNV-008", S::Warning, "The energy reference dft_formation_0K is an estimate: the formation energy at 0 K is taken as the enthalpy of formation at 298.15 K (Berman-Brown), with no zero-point or thermal term.",

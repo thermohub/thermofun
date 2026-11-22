@@ -1025,6 +1025,13 @@
     },
     "energy_reference": {
      "$ref": "#/$defs/energy_reference"
+    },
+    "physical_constants": {
+     "enum": [
+      "codata1986",
+      "codata2018"
+     ],
+     "description": "The constants of physics the values were derived with. An engine with another set warns (CNV-012)."
     }
    },
    "patternProperties": {

@@ -12,6 +12,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | fallback_to_reference_properties | False |  | use reference properties if no calculation functions are available True/False (default: False) |
 | max_cache_size | 100000 |  | results kept in all the caches together, default 100000 (about 0.7 kB each); 0: no limit |
 | method_implementation | {} |  | method id -> implementation, for example {'HKF88': 'reaktoro'}; it replaces the implementation of the records |
+| physical_constants | codata1986 | codata2018, codata1986 | the constants of physics of the calculation: codata1986 (the default: most stored G and log K values were derived with its R) or codata2018 (tf.methods.physicalConstantsNames()). Fitted equations keep the R of their fit. A change drops the cached results |
 | propagate_parameter_errors | False |  | also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False) |
 | property_source | Record | direct, reaction, reactants, record | where the properties of a record come from: PropertySource or the words record (default), direct, reaction, reactants |
 | round_to_uncertainty | False |  | round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded |

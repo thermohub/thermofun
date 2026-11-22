@@ -12,7 +12,7 @@ namespace ThermoFun {
 
 namespace {
 
-const real R_CONST = R_CONSTANT;
+const real R_CONST = R_CODATA1986;
 
 /// The places of the constants of the model: the order of the catalog, and of its file in Methods/ParameterSets.
 enum Constant
@@ -200,7 +200,7 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
         for (int i = 1; i < 6; i++)
             out[i] = 0.;
         out[0] = 1.;
-        out[4] = R_CONSTANT*Tk/Pbar;
+        out[4] = R_CODATA1986*Tk/Pbar;
     }
 }
 
@@ -221,7 +221,7 @@ auto thermoPropertiesFluidPRSV(real TK, real Pbar, const FluidInputs& subst, The
     fugacityProperties(TK, Pbar, TClow, CPg, subst.constants.data(), FugProps, subst.gems);
 
     // increment thermodynamic properties
-    tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
+    tps.gibbs_energy += R_CODATA1986 * (TK) * log( FugProps[0] );
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
     if (!subst.gems)
@@ -230,7 +230,7 @@ auto thermoPropertiesFluidPRSV(real TK, real Pbar, const FluidInputs& subst, The
     auto Fug = FugProps[0] * (Pbar);
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
     if (cancel_fugacity)
-        tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
+        tps.gibbs_energy -= R_CODATA1986 * (TK) * log(Fug/Pbar);
 
     return tps;
 }

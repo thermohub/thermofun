@@ -3,6 +3,8 @@
 
 // Reads one record of each kind from a v2 file.
 
+#include <algorithm>
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <cmath>
 #include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
@@ -469,7 +471,7 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
     if (!node.is_object())
         return info;
     static const std::set<std::string> known = {"symbol", "name", "version", "status", "standard_state_convention", "reference_conditions",
-                                                "sourcetdb", "solvent", "data_sources", "defaults", "standard_state", "energy_reference"};
+                                                "sourcetdb", "solvent", "data_sources", "defaults", "standard_state", "energy_reference", "physical_constants"};
     info.symbol = optionalString(node, "symbol");
     info.name = optionalString(node, "name");
     info.version = optionalString(node, "version");
@@ -489,6 +491,19 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
     info.sourcetdb = stringList(node, "sourcetdb");
     info.solvent = optionalString(node, "solvent");
     info.data_sources = stringList(node, "data_sources");
+    info.physical_constants = optionalString(node, "physical_constants");
+    if (!info.physical_constants.empty())
+    {
+        const auto names = physicalConstantsNames();
+        if (std::find(names.begin(), names.end(), info.physical_constants) == names.end())
+        {
+            std::string allowed;
+            for (const auto& n : names)
+                allowed += (allowed.empty() ? "" : ", ") + n;
+            report(c, Severity::Error, "V2-VOC-001", info.symbol, "/thermodataset/physical_constants",
+                   "\"" + info.physical_constants + "\" is not a set of constants of physics. Allowed: " + allowed + ".");
+        }
+    }
     if (node.contains("defaults") && node["defaults"].is_object())
     {
         info.defaults.quality = optionalString(node["defaults"], "quality");

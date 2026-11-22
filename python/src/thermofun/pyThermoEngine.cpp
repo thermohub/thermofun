@@ -135,6 +135,7 @@ void exportThermoEngine(py::module& m)
     m.def("optionWords", [] {
         std::map<std::string, std::vector<std::string>> out;
         out["property_source"] = model::words<model::PropertySource>();
+        out["physical_constants"] = physicalConstantsNames();
         out["standard_state.pressure"] = {"1bar", "1atm", "any pressure in Pa"};
         out["standard_state.concentration_scale"] = model::words<model::ConcentrationScale>();
         out["energy_reference.elements"] = model::words<model::EnergyReference>();
@@ -356,6 +357,9 @@ void exportThermoEngine(py::module& m)
     .def_readwrite("uncertainty_significant_digits",
                    &EnginePreferences::uncertainty_significant_digits,
                    "number of significant digits of the rounded uncertainties if round_to_uncertainty is True (default: 2): to the nearest, a half up (NEA TDB-3 sect. 4)")
+    .def_readwrite("physical_constants", &EnginePreferences::physical_constants,
+                   "the constants of physics of the calculation: codata1986 (the default: most stored G and log K values were derived with its R) or "
+                   "codata2018 (tf.methods.physicalConstantsNames()). Fitted equations keep the R of their fit. A change drops the cached results")
     .def_readwrite("propagate_parameter_errors",
                    &EnginePreferences::propagate_parameter_errors,
                    "also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False)");

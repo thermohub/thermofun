@@ -42,10 +42,10 @@ auto thermoPropertiesFrantzMarshall(real TK, real Pbar, const ReactionInputs& re
                - ( e + f/TK + g/pow(TK,2.) ) * 1./(pow(RHO,2.)*log(10.)) * pow (dRHOdT,2.)
                + ( e + f/TK + g/pow(TK,2.) ) * 1./(RHO*log(10.)) * d2RHOdT2;
 
-    auto dGr  = - R_CONSTANT*TK*log(10.)*logK;
-    auto dSr  = R_CONSTANT*log(10.)*( J + dJ*TK );
-    auto dCPr = R_CONSTANT*log(10.)*TK*( 2.*dJ + d2J*TK );
-    auto dVr  = - R_CONSTANT*log(10.)*TK*( ( e + f/TK + g/pow(TK,2.) ) * 1./(RHO*log(10.)) * dRHOdP );
+    auto dGr  = - reaction.R*TK*log(10.)*logK;
+    auto dSr  = reaction.R*log(10.)*( J + dJ*TK );
+    auto dCPr = reaction.R*log(10.)*TK*( 2.*dJ + d2J*TK );
+    auto dVr  = - reaction.R*log(10.)*TK*( ( e + f/TK + g/pow(TK,2.) ) * 1./(RHO*log(10.)) * dRHOdP );
     auto dHr  = dGr + dSr*TK;
     auto dUr  = dHr - Pbar*dVr;
     auto dAr  = dUr - TK*dSr;

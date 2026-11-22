@@ -8,6 +8,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Common/Constants.h
     Common/Diagnostics.h
     Common/Notes.h
+    Common/PhysicalConstants.h
     Common/Real.hpp
     Common/ThermoProperties.h
     Common/ThermoProperty.hpp

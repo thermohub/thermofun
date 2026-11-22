@@ -134,11 +134,14 @@ void exportMethods(py::module& parent)
 
     m.def("symbolicAvailable", [] { return SymbolicExpression::available(); }, "True if this build runs symbolic methods");
 
-    m.def("physicalConstants", [] {
+    m.def("physicalConstants", [](const std::string& name) {
+        const auto& c = ThermoFun::physicalConstants(name);
         py::dict out;
-        out["name"] = ThermoFun::PHYSICAL_CONSTANTS_NAME; out["R"] = ThermoFun::R_CONSTANT; out["NA"] = ThermoFun::NA_CONSTANT; out["F"] = ThermoFun::F_CONSTANT; out["e"] = ThermoFun::e_CONSTANT; out["k"] = ThermoFun::k_CONSTANT;
+        out["name"] = c.name; out["R"] = c.R; out["NA"] = c.NA; out["F"] = c.F; out["e"] = c.e; out["k"] = c.k;
         return out;
-    }, "The constants of physics of this build");
+    }, "A set of constants of physics (Methods/ParameterSets/PhysicalConstants*.yaml): codata1986, the default, or codata2018. "
+       "An engine uses the set of its option physical_constants", py::arg("name") = "codata1986");
+    m.def("physicalConstantsNames", &ThermoFun::physicalConstantsNames, "The names of the sets of constants of physics");
 
     const auto rowOf = [](const MethodSpec& spec) -> py::dict {
             py::dict row;

@@ -112,6 +112,7 @@ struct ThermoEngine::Impl
         // the solvent of the dataset
         if (const auto& dataset_solvent = this->database.thermoDataSet().solvent; !dataset_solvent.empty())
             preferences.solvent_symbol = dataset_solvent;
+        warnOtherPhysicalConstants();
         resultsAreCurrent();
     }
 
@@ -227,6 +228,19 @@ struct ThermoEngine::Impl
     auto boundSolvent(const Substance& substance) const -> std::shared_ptr<const model::BoundSolvent>;
 
     auto substanceOptions() const -> model::SubstanceOptions;
+
+    /// The constants of physics of the calculation (option physical_constants)
+    auto physics() const -> const PhysicalConstants& { return physicalConstants(preferences.physical_constants); }
+
+    /// A warning (CNV-012) if the dataset says its values were derived with another set of constants of physics
+    auto warnOtherPhysicalConstants() const -> void
+    {
+        const auto& declared = database.thermoDataSet().physical_constants;
+        if (!declared.empty() && declared != preferences.physical_constants)
+            thfun_logger->warn("CNV-012: the engine calculates with the constants of physics {}, and the dataset {} says its values were derived with {}: "
+                               "log K and G differ by about 6e-6 relative. Set the option physical_constants to {}.",
+                               preferences.physical_constants, database.thermoDataSet().symbol, declared, declared);
+    }
 
     /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
     static auto toThermoProperties(const model::SubstanceResult& r) -> ThermoPropertiesSubstance;

@@ -130,7 +130,8 @@ def definitions():
     d["thermodataset"] = _obj(dict(symbol=STRING, name=STRING, version=STRING, status=STRING,
                                    reference_conditions=REF("reference_conditions"), sourcetdb={"oneOf": [STRING, STRINGS]},
                                    solvent=STRING, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."}, defaults={"type": "object"},
-                                   standard_state=REF("standard_state"), energy_reference=REF("energy_reference")))
+                                   standard_state=REF("standard_state"), energy_reference=REF("energy_reference"),
+                                   physical_constants={"enum": ["codata1986", "codata2018"], "description": "The constants of physics the values were derived with. An engine with another set warns (CNV-012)."}))
     return d
 
 

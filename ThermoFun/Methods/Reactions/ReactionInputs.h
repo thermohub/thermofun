@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 
 namespace ThermoFun {
@@ -47,6 +48,7 @@ struct ReactionInputs
     std::vector<real> cp_coefficients;   ///< of dCp(T), for the polynomial of log K
     std::vector<CoefficientUnit> coefficient_units, cp_coefficient_units;  ///< of the two lists; set if a record made them
     ReferenceSeed seed;                  ///< set only in a pass by a parameter
+    double R = R_CONSTANT;               ///< the gas constant of the calculation, J/(mol K): of the engine option physical_constants
 };
 
 /// The forms of log K(T).

@@ -239,7 +239,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Built-in constants of the methods in `ThermoFun/Methods/ParameterSets/`, each with a description, its units and its source. A record can replace a value for itself, and a model can have variants (`default: false`, chosen with `parameter_set`).
 - `THERMOFUN_PARAMETER_PATH`: a folder with more variants, read with no rebuild.
-- The CMake option `THERMOFUN_PHYSICAL_CONSTANTS`: `codata1986` (the default) or `codata2018`.
+- The constants of physics are chosen at run time: the engine option `physical_constants`, `codata1986` (the default, as 0.x:
+  most stored G and log K values were derived with its R) or `codata2018` (R about 6e-6 lower). It is the R of the
+  calculation (G and log K of a reaction, RT ln(P/p°) of a gas, the conversions of conventions, the log K methods); fitted
+  equations (NASA9, the fluid equations of state, Akinfiev-Diamond, Zhang-Duan, the ideal gas of water) keep the R of their fit.
+  A dataset can say which set its values were derived with (`physical_constants`); an engine with another set warns (CNV-012).
+  `tf.methods.physicalConstants(name)` gives a set. `R_CONSTANT` and the other 0.x names keep the CODATA 1986 values.
 - The dielectric models `HelgesonKirkham74` and `BradleyPitzer79` (issue 82). The HKF coefficients of Tanger and Helgeson (1988) now give their published volume and heat capacity.
 - Symbolic methods of substances and reactions, with the CMake option `TFUN_USE_SYMENGINE`, and `python -m thermofun.method_tool` with its source forms.
 - `ThermoEngine::calculationPath`: how a record is calculated. It calculates nothing.

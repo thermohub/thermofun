@@ -40,6 +40,7 @@ void checkPreferences(const EnginePreferences& p)
 {
     if (p.solvent_state != 0 && p.solvent_state != 1)
         throw std::invalid_argument("The solvent state is " + std::to_string(p.solvent_state) + ": it must be 0 (liquid) or 1 (vapour).");
+    physicalConstants(p.physical_constants);   // throws for an unknown set
     if (p.uncertainty_significant_digits < 1)
         throw std::invalid_argument("The number of significant digits of an uncertainty is " + std::to_string(p.uncertainty_significant_digits) + ": it must be 1 or more.");
     for (const auto& [id, implementation] : p.method_implementation)
@@ -113,6 +114,8 @@ void ThermoEngine::Impl::dropStaleResults()
         return;
     checkPreferences(preferences);
     checkRequestedWater();
+    if (preferences.physical_constants != cached_for.preferences.physical_constants)
+        warnOtherPhysicalConstants();
     clearResults();
 }
 
@@ -267,7 +270,10 @@ auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, co
 auto ThermoEngine::setPreferences(const EnginePreferences preferences) -> void
 {
     checkPreferences(preferences);
+    const bool otherConstants = preferences.physical_constants != pimpl->preferences.physical_constants;
     pimpl->preferences = preferences;
+    if (otherConstants)
+        pimpl->warnOtherPhysicalConstants();
     pimpl->clearResults();
 }
 
@@ -431,7 +437,7 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     s.dataset_version = info.version;
     s.content_hash = sha256(database.toJson(false));
     s.implementations = pimpl->preferences.method_implementation;
-    s.physical_constants = PHYSICAL_CONSTANTS_NAME;
+    s.physical_constants = pimpl->preferences.physical_constants;
     const auto& p = pimpl->preferences;
     pimpl->dropStaleResults();  // the solvent in use is chosen there
     if (const auto& water = pimpl->solvent_in_use; database.containsSubstance(water))

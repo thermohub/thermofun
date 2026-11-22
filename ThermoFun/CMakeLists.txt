@@ -27,52 +27,7 @@ foreach(file ${PARAMETER_SET_FILES})
     math(EXPR PARAMETER_SET_COUNT "${PARAMETER_SET_COUNT} + 1")
 endforeach()
 
-# The constants of physics are fixed at build, from one of two files
-set(THERMOFUN_PHYSICAL_CONSTANTS "codata1986" CACHE STRING "The constants of physics: codata1986 or codata2018")
-set_property(CACHE THERMOFUN_PHYSICAL_CONSTANTS PROPERTY STRINGS codata1986 codata2018)
-if(THERMOFUN_PHYSICAL_CONSTANTS STREQUAL "codata1986")
-    set(PHYSICAL_CONSTANTS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Methods/ParameterSets/PhysicalConstants.yaml)
-elseif(THERMOFUN_PHYSICAL_CONSTANTS STREQUAL "codata2018")
-    set(PHYSICAL_CONSTANTS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Methods/ParameterSets/PhysicalConstants-codata2018.yaml)
-else()
-    message(FATAL_ERROR "THERMOFUN_PHYSICAL_CONSTANTS must be codata1986 or codata2018, not ${THERMOFUN_PHYSICAL_CONSTANTS}")
-endif()
-# The values are read from the `parameters:` block of the file, with any indentation; a value is a number, or
-# {value: number, ...}. A comment after # is ignored. The library reads the same file at run time, and
-# pytests/test_parameter_sets.py checks that both agree.
-file(READ ${PHYSICAL_CONSTANTS_FILE} PHYSICAL_CONSTANTS_TEXT)
-string(FIND "${PHYSICAL_CONSTANTS_TEXT}" "parameters:" PHYSICAL_CONSTANTS_AT)
-if(PHYSICAL_CONSTANTS_AT EQUAL -1)
-    message(FATAL_ERROR "${PHYSICAL_CONSTANTS_FILE} has no parameters block")
-endif()
-string(SUBSTRING "${PHYSICAL_CONSTANTS_TEXT}" ${PHYSICAL_CONSTANTS_AT} -1 PHYSICAL_CONSTANTS_TEXT)
-string(REPLACE "\r" "" PHYSICAL_CONSTANTS_TEXT "${PHYSICAL_CONSTANTS_TEXT}")
-foreach(name R NA F e k)
-    if(PHYSICAL_CONSTANTS_TEXT MATCHES "\n[ \t]+${name}[ \t]*:[ \t]*([^\n#]*)")
-        string(STRIP "${CMAKE_MATCH_1}" value)
-        if(value MATCHES "^{.*value[ \t]*:[ \t]*([^,} \t]+)")
-            set(value "${CMAKE_MATCH_1}")
-        endif()
-    else()
-        set(value "")
-    endif()
-    if(NOT value MATCHES "^[-+]?[0-9.]+([eE][-+]?[0-9]+)?$")
-        message(FATAL_ERROR "${PHYSICAL_CONSTANTS_FILE}: no number for ${name} (found \"${value}\")")
-    endif()
-    set(PHYSICAL_CONSTANT_${name} ${value})
-endforeach()
-set(PHYSICAL_CONSTANTS_HEADER ${CMAKE_CURRENT_BINARY_DIR}/generated/ThermoFun/Common/PhysicalConstants.h)
-file(CONFIGURE OUTPUT ${PHYSICAL_CONSTANTS_HEADER} CONTENT "// Generated from Methods/ParameterSets/PhysicalConstants*.yaml: do not edit.
-#ifndef THERMOFUN_COMMON_PHYSICALCONSTANTS_H
-#define THERMOFUN_COMMON_PHYSICALCONSTANTS_H
-namespace ThermoFun {
-inline constexpr const char* PHYSICAL_CONSTANTS_NAME = \"@THERMOFUN_PHYSICAL_CONSTANTS@\";
-inline constexpr double R_CONSTANT = @PHYSICAL_CONSTANT_R@, NA_CONSTANT = @PHYSICAL_CONSTANT_NA@, F_CONSTANT = @PHYSICAL_CONSTANT_F@,
-                        e_CONSTANT = @PHYSICAL_CONSTANT_e@, k_CONSTANT = @PHYSICAL_CONSTANT_k@;
-}
-#endif
-")
-install(FILES ${PHYSICAL_CONSTANTS_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ThermoFun/Common)
+# The constants of physics are chosen at run time (engine option physical_constants), from the parameter sets above
 
 # The templates of tables go into the library in the same way
 file(GLOB TABLE_TEMPLATE_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Batch/Templates/*.yaml)

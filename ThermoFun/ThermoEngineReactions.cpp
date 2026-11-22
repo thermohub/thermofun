@@ -19,7 +19,7 @@ auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::s
     const auto it = bound_cache->reactions.find(record.get());
     if (it != bound_cache->reactions.end())
         return it->second;
-    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods()) : nullptr;
+    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods(), physics().R) : nullptr;
     bound_cache->reactions[record.get()] = bound;
     bound_cache->reaction_records.push_back(record);
     return bound;
@@ -50,7 +50,7 @@ auto ThermoEngine::Impl::warnIfLogKFunctionDisagrees(const Reaction &reaction) c
     if (ref.log_equilibrium_constant.sta.first != Reaktoro_::Status::notdefined)
         lgK_ref = ref.log_equilibrium_constant.val;
     else if (ref.reaction_gibbs_energy.sta.first != Reaktoro_::Status::notdefined)
-        lgK_ref = -ref.reaction_gibbs_energy.val / (R_CONSTANT * Tr * lg_to_ln);
+        lgK_ref = -ref.reaction_gibbs_energy.val / (physics().R * Tr * lg_to_ln);
     else
         return;
     ReactionInputs inputs;
@@ -166,7 +166,7 @@ auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double 
         symbols.push_back(substance);
     }
 
-    tpr = model::reactionFromReactants(T, P, reaction.symbol(), components, symbols);
+    tpr = model::reactionFromReactants(T, P, reaction.symbol(), components, symbols, physics().R);
 
     return tpr;
 }

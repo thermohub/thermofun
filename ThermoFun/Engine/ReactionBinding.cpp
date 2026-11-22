@@ -28,14 +28,14 @@ auto canBindReaction(const ReactionRecord& record, const std::map<std::string, M
     return bases == 1;
 }
 
-auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<std::string, MethodDefinition>* definitions) -> std::shared_ptr<const BoundReaction>
+auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<std::string, MethodDefinition>* definitions, double R) -> std::shared_ptr<const BoundReaction>
 {
     auto bound = std::make_shared<BoundReaction>();
     const auto& registry = MethodRegistry::instance();
     for (const auto& a : record->methods)
     {
         const bool symbolic = definitions && !MethodCatalog::instance().find(a.method, OperatesOn::Reaction) && definitions->count(a.method);
-        auto method = symbolic ? symbolicReactionMethod(definitions->at(a.method), a, *record) : registry.createReaction(a, *record);
+        auto method = symbolic ? symbolicReactionMethod(definitions->at(a.method), a, *record, R) : registry.createReaction(a, *record, R);
         if (method->spec().reaction_contributes_to.base)
             bound->base = method;
         else

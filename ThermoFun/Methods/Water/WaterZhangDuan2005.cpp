@@ -172,7 +172,7 @@ auto thermoPropertiesWaterZhangDuan2005(real T, real P, const ZhangDuanModelPara
     const auto V = Vr * c.Vc;
     FugCoef = exp(waterFugacityCoeff(T, P, Vr, V, c));
 
-    auto Gres = log(FugCoef)*R_CONSTANT * (T);
+    auto Gres = log(FugCoef)*R_CODATA1986 * (T);
 
     tps.volume = V / 10;
 
