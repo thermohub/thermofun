@@ -27,7 +27,7 @@ def method(form, expression=None, parameters=None):
     source = {"form": form}
     if expression:
         source["expression"] = expression
-    return tool.build({"kind": "symbolic", "tier": 1, "operates_on": "reaction", "parameter_definitions": {k: {"unit": v} for k, v in (parameters or {}).items()}, "source": source})
+    return tool.build({"kind": "symbolic", "operates_on": "reaction", "parameter_definitions": {k: {"unit": v} for k, v in (parameters or {}).items()}, "source": source})
 
 
 def reaction(definition, values=None, properties=None):
@@ -89,9 +89,9 @@ def test_a_value_that_the_record_cannot_give_is_an_error():
 
 def test_a_form_of_a_reaction_on_a_substance_and_the_other_way_are_errors():
     with pytest.raises(tool.BuildError):
-        tool.build({"kind": "symbolic", "operates_on": "reaction", "source": {"form": "cp", "expression": "a"}, "parameter_definitions": {"a": {"unit": "1"}}})
+        tool.build({"kind": "symbolic", "operates_on": "reaction", "formula": {"form": "cp", "expression": "a"}, "parameter_definitions": {"a": {"unit": "1"}}})
     with pytest.raises(tool.BuildError):
-        tool.build({"kind": "symbolic", "operates_on": "substance", "source": {"form": "logk", "expression": "a"}, "parameter_definitions": {"a": {"unit": "1"}}})
+        tool.build({"kind": "symbolic", "operates_on": "substance", "formula": {"form": "logk", "expression": "a"}, "parameter_definitions": {"a": {"unit": "1"}}})
 
 
 @pytest.mark.parametrize("form", tool.REACTION_FORMS)
@@ -117,7 +117,7 @@ def test_the_examples_are_in_order(file):
 
 
 def test_a_large_coefficient_does_not_overflow():
-    built = tool.build({"kind": "symbolic", "operates_on": "substance", "parameter_definitions": {"a": {"unit": "J/(mol.K)"}}, "source": {"form": "cp", "expression": "a"}})
+    built = tool.build({"kind": "symbolic", "operates_on": "substance", "parameter_definitions": {"a": {"unit": "J/(mol.K)"}}, "formula": {"form": "cp", "expression": "a"}})
     assert "**a" not in built["expression"]["G"]
     a, T2 = 500.0, 1500.0
     point = {"T": T2, "P": 1e5, "parameters": {"a": a}, "reference": {"Gr": 0.0, "Sr": 0.0}}

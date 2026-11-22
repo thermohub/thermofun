@@ -128,14 +128,15 @@
        "$ref": "#/$defs/uncertainty"
       },
       "quality": {
-       "type": "string"
+       "type": "string",
+       "description": "Free text: how far the data author trusts the value. Suggested words: core, recommended, supplemental; the word of the source compilation is fine (NEA: selected, auxiliary)."
       },
       "origin": {
        "type": "string"
       },
-      "calculation_path": {
+      "derivation": {
        "type": "string",
-       "description": "A note on how the value was made; no calculation reads it."
+       "description": "How the value was obtained, for any origin (calculated, estimated, converted, ...): free text, kept and written back; no calculation reads it."
       },
       "source": {
        "type": "string"
@@ -408,7 +409,7 @@
     "interpolation": {
      "type": "string"
     },
-    "order": {
+    "interpolation_order": {
      "type": "integer"
     }
    },
@@ -462,14 +463,23 @@
     "volume": {
      "$ref": "#/$defs/quantity"
     },
-    "reference_form": {
-     "type": "string"
+    "reference_state": {
+     "type": "string",
+     "description": "The reference state of the element at the reference temperature and the standard pressure (NEA TDB-5, Table 7): formula unit and state, for example O2(g), C(cr, graphite), Fe(cr, bcc)."
     },
     "data_sources": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "sourcetdb": {
      "oneOf": [
@@ -590,14 +600,19 @@
     "applicability": {
      "$ref": "#/$defs/applicability"
     },
-    "data_source": {
-     "type": "string"
-    },
     "data_sources": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "structural": {
      "type": "object"
@@ -680,14 +695,19 @@
     "level": {
      "type": "integer"
     },
-    "data_source": {
-     "type": "string"
-    },
     "data_sources": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "applicability": {
      "$ref": "#/$defs/applicability"
@@ -738,9 +758,6 @@
     "kind": {
      "type": "string"
     },
-    "tier": {
-     "type": "integer"
-    },
     "operates_on": {
      "type": "string"
     },
@@ -765,11 +782,12 @@
     "implementation_id": {
      "type": "string"
     },
-    "source": {
+    "formula": {
      "type": [
       "string",
       "object"
-     ]
+     ],
+     "description": "The formula of a symbolic method as the author writes it: form and expression."
     },
     "expression": {
      "type": [
@@ -780,7 +798,7 @@
     "generator": {
      "type": "string"
     },
-    "source_hash": {
+    "formula_hash": {
      "type": "string"
     },
     "tests": {
@@ -789,8 +807,18 @@
     "effects": {
      "type": "object"
     },
-    "citation": {
-     "type": "string"
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
     }
    },
    "patternProperties": {
@@ -825,11 +853,18 @@
     "parameters": {
      "$ref": "#/$defs/parameters"
     },
-    "auxiliary": {
-     "type": "object"
-    },
-    "reference": {
-     "type": "string"
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
     },
     "units": {
      "$ref": "#/$defs/units"
@@ -921,8 +956,19 @@
     "solvent": {
      "type": "string"
     },
-    "data_source": {
-     "type": "string"
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "defaults": {
      "type": "object"

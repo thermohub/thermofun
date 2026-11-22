@@ -17,12 +17,12 @@ doc = {
     },
     "methods": {
         "CpPolynomial": {
-            "kind": "reference", "tier": 2, "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp", "V"],
-            "citation": "1998HOL/POW",
+            "kind": "reference", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp", "V"],
+            "data_sources": ["1998HOL/POW"],
         },
     },
     "parameter_sets": {
-        "hkf_na": {"method": "HKF88", "parameters": {"a1": 1.0e-6, "a2": 100.0}, "reference": "1998HOL/POW"},
+        "hkf_na": {"method": "HKF88", "parameters": {"a1": 1.0e-6, "a2": 100.0}, "data_sources": ["1998HOL/POW"]},
     },
     "elements": {"H": {"number": 1, "molar_mass": 1.00794}},
     "substances": {
@@ -30,7 +30,7 @@ doc = {
             "name": "Water", "formula": "H2O@", "charge": 0, "class": "water_solvent", "aggregate_state": "aqueous",
             "standard_state_properties": {"G": -237183, "H": -285881, "S": 69.923, "Cp": 75.36, "V": 1.80684e-5},
             "methods": [{"method": "WaterIAPWS95"}, {"method": "JohnsonNorton91", "implementation": "reaktoro"}],
-            "data_source": "1998HOL/POW",
+            "data_sources": ["1998HOL/POW"],
         },
     },
 }

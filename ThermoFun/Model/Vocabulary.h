@@ -22,7 +22,6 @@ enum class PropertyName { G, H, S, Cp, V, U, A, Cv };
 enum class ReactionPropertyName { logK, lnK, dG, dH, dS, dCp, dV, dU, dA };
 
 /// How much a value is trusted
-enum class Quality { Core, Recommended, Supplemental };
 
 /// How a value was obtained
 enum class Origin { Measured, Entered, Calculated, Estimated, Converted };

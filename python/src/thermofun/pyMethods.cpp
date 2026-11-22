@@ -210,7 +210,7 @@ void exportMethods(py::module& parent)
                 {
                     py::dict one;
                     one["symbol"] = set.symbol; one["implementation"] = set.implementation; one["default"] = set.is_default;
-                    one["description"] = set.description; one["reference"] = set.reference; one["formula_units"] = set.formula_units;
+                    one["description"] = set.description; one["data_sources"] = set.data_sources; one["formula_units"] = set.formula_units;
                     constantSets.append(one);
                 }
             };

@@ -48,7 +48,7 @@ print([method["id"] for method in tf.methods.catalog() if method["constant_sets"
 ```{code-cell} ipython3
 hk = next(m for m in tf.methods.catalog() if m["id"] == "HelgesonKirkham74")
 s = hk["constant_sets"][0]
-print(s["symbol"], "\n\n", s["description"], "\n\n", s["reference"], "\n\n", s["formula_units"])
+print(s["symbol"], "\n\n", s["description"], "\n\n", "; ".join(s["data_sources"]), "\n\n", s["formula_units"])
 ```
 
 ## Physical constants

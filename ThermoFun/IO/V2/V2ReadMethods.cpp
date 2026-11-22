@@ -181,7 +181,7 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
     if (!list.is_array())
         return out;
     static const std::set<std::string> known = {"method", "parameters", "parameter_set", "segments", "transitions", "applicability",
-                                                "region", "table", "units", "implementation", "interpolation", "order"};
+                                                "region", "table", "units", "implementation", "interpolation", "interpolation_order"};
     int index = 0;
     for (const auto& node : list)
     {
@@ -219,7 +219,7 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
             continue;
         }
         app.interpolation = vocabulary<Interpolation>(c, optionalString(node, "interpolation"), record, where + "/interpolation");
-        if (auto order = optionalInt(node, "order"))
+        if (auto order = optionalInt(node, "interpolation_order"))
             app.interpolation_order = *order;
 
         const bool hasParameters = node.contains("parameters"), hasSegments = node.contains("segments"),

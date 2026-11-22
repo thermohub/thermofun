@@ -35,9 +35,9 @@ void testQuantity()
     q.meta.source = "1995ROB/HEM";
     CHECK(!q.isBare());
     q.meta.source.clear();
-    q.meta.quality = model::Quality::Core;
+    q.meta.quality = "core";
     CHECK(!q.isBare());
-    q.meta.quality.reset();
+    q.meta.quality.clear();
     q.meta.origin = model::Origin::Measured;
     CHECK(!q.isBare());
 }
@@ -67,7 +67,6 @@ void testLists()
     using RP = ReactionPropertyName;
     roundTrip<RP>({RP::logK, RP::lnK, RP::dG, RP::dH, RP::dS, RP::dCp, RP::dV, RP::dU, RP::dA},
                   {"logK", "lnK", "dG", "dH", "dS", "dCp", "dV", "dU", "dA"});
-    roundTrip<Quality>({Quality::Core, Quality::Recommended, Quality::Supplemental}, {"core", "recommended", "supplemental"});
     roundTrip<Origin>({Origin::Measured, Origin::Entered, Origin::Calculated, Origin::Estimated, Origin::Converted},
                       {"measured", "entered", "calculated", "estimated", "converted"});
     roundTrip<PropertySource>({PropertySource::Direct, PropertySource::Reaction, PropertySource::Reactants, PropertySource::Record},

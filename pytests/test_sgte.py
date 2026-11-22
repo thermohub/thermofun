@@ -18,11 +18,11 @@ DATA = json.loads((pathlib.Path(__file__).resolve().parent / "data" / "sources" 
 LETTERS = "abcdefgh"
 MAG = DATA["magnetic"]
 
-BASE = methods.build({"kind": "symbolic", "tier": 1, "operates_on": "substance",
-                      "parameter_definitions": {n: {"unit": "1"} for n in LETTERS}, "source": {"form": "sgte"}})
-MAGNETIC = methods.build({"kind": "symbolic", "tier": 1, "operates_on": "substance",
+BASE = methods.build({"kind": "symbolic", "operates_on": "substance",
+                      "parameter_definitions": {n: {"unit": "1"} for n in LETTERS}, "formula": {"form": "sgte"}})
+MAGNETIC = methods.build({"kind": "symbolic", "operates_on": "substance",
                           "parameter_definitions": {"Tc": {"unit": "K"}, "beta": {"unit": "1"}, "p": {"unit": "1"}},
-                          "source": {"form": "magnetic_ihj"}})
+                          "formula": {"form": "magnetic_ihj"}})
 
 
 def by_hand(T):

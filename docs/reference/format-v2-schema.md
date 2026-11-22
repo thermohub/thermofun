@@ -37,7 +37,7 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `reference_conditions` | [reference_conditions](#reference_conditions) |  |  |
 | `sourcetdb` | string or list of string |  |  |
 | `solvent` | string |  |  |
-| `data_source` | string |  |  |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `defaults` | object |  |  |
 | `conventions` | object |  |  |
 | `convention` | [convention](#convention) |  |  |
@@ -57,8 +57,8 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `standard_entropy` | [quantity](#quantity) |  |  |
 | `heat_capacity` | [quantity](#quantity) |  |  |
 | `volume` | [quantity](#quantity) |  |  |
-| `reference_form` | string |  |  |
-| `data_sources` | list of string |  |  |
+| `reference_state` | string |  | The reference state of the element at the reference temperature and the standard pressure (NEA TDB-5, Table 7): formula unit and state, for example O2(g), C(cr, graphite), Fe(cr, bcc). |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `sourcetdb` | string or list of string |  |  |
 | `structural` | object |  |  |
 | `units` | [units](#units) |  |  |
@@ -84,8 +84,7 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `defining_reaction` | string |  |  |
 | `preferred_property_source` | string |  |  |
 | `applicability` | [applicability](#applicability) |  |  |
-| `data_source` | string |  |  |
-| `data_sources` | list of string |  |  |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `structural` | object |  |  |
 | `deprecated` | boolean |  |  |
 | `deprecated_in_favour_of` | string |  |  |
@@ -105,8 +104,7 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `reaction_properties` | object |  |  |
 | `methods` | [methods_of_a_record](#methods_of_a_record) |  |  |
 | `level` | integer |  |  |
-| `data_source` | string |  |  |
-| `data_sources` | list of string |  |  |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `applicability` | [applicability](#applicability) |  |  |
 | `convention` | [convention](#convention) |  |  |
 | `preferred_property_source` | string |  |  |
@@ -130,13 +128,13 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `units` | [units](#units) |  |  |
 | `implementation` | string |  |  |
 | `interpolation` | string |  |  |
-| `order` | integer |  |  |
+| `interpolation_order` | integer |  |  |
 
 ## quantity
 
 A value: a number in the default unit of its field, a text "value unit", or an object.
 
-One of: number; string; an object with `value`, `unit`, `uncertainty`, `quality`, `origin`, `calculation_path`, `source`
+One of: number; string; an object with `value`, `unit`, `uncertainty`, `quality`, `origin`, `derivation`, `source`
 
 ## uncertainty
 
@@ -202,19 +200,18 @@ Type: mapping to [quantity](#quantity) or array
 | `symbol` | string |  |  |
 | `record_type` | string |  |  |
 | `kind` | string |  |  |
-| `tier` | integer |  |  |
 | `operates_on` | string |  |  |
 | `applies_to_classes` | list of string |  |  |
 | `contributes_to` | list of string |  |  |
 | `parameter_definitions` | object or array |  |  |
 | `implementation_id` | string |  |  |
-| `source` | string or object |  |  |
+| `formula` | string or object |  | The formula of a symbolic method as the author writes it: form and expression. |
 | `expression` | string or object |  |  |
 | `generator` | string |  |  |
-| `source_hash` | string |  |  |
+| `formula_hash` | string |  |  |
 | `tests` | array |  |  |
 | `effects` | object |  |  |
-| `citation` | string |  |  |
+| `data_sources` | string or list of string |  |  |
 
 ## parameter_set
 
@@ -228,8 +225,7 @@ Type: mapping to [quantity](#quantity) or array
 | `formula_units` | object |  |  |
 | `description` | string |  |  |
 | `parameters` | [parameters](#parameters) | yes |  |
-| `auxiliary` | object |  |  |
-| `reference` | string |  |  |
+| `data_sources` | string or list of string |  |  |
 | `units` | [units](#units) |  |  |
 
 ## data_source

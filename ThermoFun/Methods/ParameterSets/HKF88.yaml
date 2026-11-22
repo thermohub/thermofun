@@ -5,7 +5,7 @@ parameter_sets:
     implementation: reaktoro
     formula_units: {T: K, P: bar, rho: g/cm3, energy: cal/mol}
     description: "Universal constants of the HKF equation of state of aqueous species and of its g function, Reaktoro digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: the difference function f of the g function, used at 155-355 C below 1000 bar (region II). Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code."
-    reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
+    data_sources: ["Tanger and Helgeson (1988); Shock et al. (1992)"]
     parameters:
       eta: 1.66027e+05
       theta: 228.0
@@ -31,7 +31,7 @@ parameter_sets:
     implementation: gems
     formula_units: {T: K, P: bar, rho: g/cm3, energy: cal/mol}
     description: "Universal constants of the HKF equation of state of aqueous species and of its g function, GEMS digits. eta in A cal/mol; theta in K; psi and Pr in bar; Tr in K; zeta in A; Zr, Yr: Born functions at Tr, Pr; ag, bg: g function in the units of the paper; af: the difference function f of the g function, used at 155-355 C below 1000 bar (region II). Dmax in g/cm3: above this density of water the model warns that it is out of its range. The two implementations have different digits of these numbers, both kept to reproduce each code."
-    reference: "Tanger and Helgeson (1988); Shock et al. (1992)"
+    data_sources: ["Tanger and Helgeson (1988); Shock et al. (1992)"]
     parameters:
       eta: 0.166027e6
       theta: 0.228e3

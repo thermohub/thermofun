@@ -38,12 +38,22 @@ def test_a_good_database_has_no_problems():
     assert codes(tf.Database(document(substances={"A": mineral()}))) == []
 
 
+def test_data_sources_are_codes_or_free_text():
+    # an entry that looks like an NEA reference code must be in the data sources of the database; free text is not checked
+    extra = {"data_sources": {"1998HOL/POW": {"title": "t"}}}
+    db = tf.Database(document(substances={"A": mineral(data_sources=["1998HOL/POW", "Robie and Hemingway (1995)", "1999NOP/NOP"])}, **extra))
+    found = [d for d in db.validate().all() if d.code == "V2-REF-005"]
+    assert [d.path for d in found] == ["/substances/A/data_sources/2"]
+    one = tf.Database(document(substances={"A": mineral(data_sources="1998HOL/POW")}, **extra))   # a text is a list of one
+    assert one.getSubstance("A").record().data_sources == ["1998HOL/POW"]
+
+
 @pytest.mark.parametrize("record, code", [
     (mineral(defining_reaction="R", methods=[]), "V2-REF-001"),
     (mineral(applicability={"t_min": 500, "t_max": 300}), "V2-APP-001"),
     (mineral(methods=[{"method": "ConstantCp", "applicability": {"p_min": 5, "p_max": 1}}]), "V2-APP-001"),
     (mineral(methods=[{"method": "ConstantCp", "parameter_set": "nope"}]), "V2-REF-004"),
-    (mineral(data_source="nope"), "V2-REF-005"),
+    (mineral(data_sources=["1999NOP/NOP"]), "V2-REF-005"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [1.0, 0.5, 0.2, 1.0]}]), "V2-COV-001"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [1.0, 2.0, 2.0, 1.0]}]), "V2-COV-002"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/U"], "matrix": [1.0, 0.0, 0.0, 1.0]}]), "V2-COV-004"),
@@ -229,11 +239,11 @@ def test_a_v2_file_written_as_legacy_gives_the_same_results(name):
 
 
 def test_what_the_legacy_format_cannot_hold_is_named():
-    record = mineral(data_source="x", methods=[{"method": "ConstantProperties"}], covariances=[{"paths": ["/standard_state_properties/G"], "matrix": [1.0]}])
+    record = mineral(methods=[{"method": "ConstantProperties"}], covariances=[{"paths": ["/standard_state_properties/G"], "matrix": [1.0]}])
     db = tf.Database(document(substances={"A": record}, reactions={"R": {"equation": "A = B", "methods": [{"method": "LogKTable", "table": {"temperatures": [273.15, 298.15, 373.15, 473.15], "logK": [1.0, 1.1, 1.2, 1.3]}}]}}))
     messages = " ".join(d.message for d in db.legacyWriteProblems().all())
     assert all(d.code == "LEG-WRT-001" for d in db.legacyWriteProblems().all())
-    for word in ("ConstantProperties", "data_source", "covariance", "table"):
+    for word in ("ConstantProperties", "covariance", "table"):
         assert word in messages
 
 

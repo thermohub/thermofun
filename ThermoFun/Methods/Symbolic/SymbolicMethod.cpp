@@ -360,8 +360,8 @@ auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& di
 {
     if (definition.kind != MethodKind::Symbolic)
         return;
-    if (!definition.source_hash.empty() && !definition.source_json.empty() && definition.source_hash != "sha256:" + sha256(definition.source_json))
-        report(diagnostics, "V2-SYM-003", Severity::Warning, definition, "The source of the method changed after its expression was made. Run: python -m thermofun.method_tool build");
+    if (!definition.formula_hash.empty() && !definition.formula_json.empty() && definition.formula_hash != "sha256:" + sha256(definition.formula_json))
+        report(diagnostics, "V2-SYM-003", Severity::Warning, definition, "The formula of the method changed after its expression was made. Run: python -m thermofun.method_tool build");
     if (!SymbolicExpression::available())
         return;
     const auto variables = symbolicVariables(definition);

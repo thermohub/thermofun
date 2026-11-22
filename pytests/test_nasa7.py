@@ -15,8 +15,8 @@ from thermofun import method_tool as methods  # noqa: E402
 
 DATA = json.loads((pathlib.Path(__file__).resolve().parent / "data" / "sources" / "nasa7-gri30.json").read_text())
 NAMES = [f"a{i}" for i in range(1, 8)]
-BUILT = methods.build({"kind": "symbolic", "tier": 1, "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
-                       "parameter_definitions": {n: {"unit": "1"} for n in NAMES}, "source": {"form": "nasa7"}})
+BUILT = methods.build({"kind": "symbolic", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
+                       "parameter_definitions": {n: {"unit": "1"} for n in NAMES}, "formula": {"form": "nasa7"}})
 
 
 def piece_for(species, T):

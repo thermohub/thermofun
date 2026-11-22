@@ -290,7 +290,7 @@ def method_page(spec, example, same=(), published=None, data=DATA):
                 lines += ["Implementation `%s`." % s["implementation"], ""]
             if not s["default"]:
                 lines += ["Variant `%s`: a record chooses it with `parameter_set`." % s["symbol"], ""]
-            lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % s["reference"], ""]
+            lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % "; ".join(s["data_sources"]), ""]
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
     if spec.get("auxiliary_outputs"):
         lines += ["## Named outputs", "",

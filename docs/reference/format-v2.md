@@ -33,7 +33,7 @@ A key that starts with `_` is ignored. A file with one record has `record_type`,
 
 ## An element
 
-`name`, `class`, `number`, `isotope_mass`, `valence`, `molar_mass`, `standard_entropy`, `heat_capacity`, `volume`, `reference_form`, `data_sources`, `sourcetdb`, `structural`, `units`, `legacy_class`.
+`name`, `class`, `number`, `isotope_mass`, `valence`, `molar_mass`, `standard_entropy`, `heat_capacity`, `volume`, `reference_state`, `data_sources`, `sourcetdb`, `structural`, `units`, `legacy_class`.
 
 ## A method in a record
 
@@ -43,8 +43,8 @@ A key that starts with `_` is ignored. A file with one record has `record_type`,
 
 ## A parameter set
 
-`method`, `implementation`, `default`, `formula_units`, `description`, `reference`, `parameters`, `auxiliary`, `units`.
+`method`, `implementation`, `default`, `formula_units`, `description`, `reference`, `parameters`, `units`.
 
 ## A Method record
 
-`kind`, `tier`, `operates_on`, `applies_to_classes`, `contributes_to`, `parameter_definitions`, `implementation_id`, `source`, `expression`, `generator`, `source_hash`, `tests`, `effects`, `citation`. See [Add a method as data](../how-to/add-a-method-as-data.md).
+`kind`, `operates_on`, `applies_to_classes`, `contributes_to`, `parameter_definitions`, `implementation_id`, `formula`, `expression`, `generator`, `source_hash`, `tests`, `effects`, `citation`. See [Add a method as data](../how-to/add-a-method-as-data.md).

@@ -16,8 +16,8 @@ from thermofun import method_tool as methods  # noqa: E402
 DATA = json.loads((pathlib.Path(__file__).resolve().parent / "data" / "sources" / "janaf-shomate.json").read_text())
 LETTERS = "ABCDEFG"
 
-RECORD = {"kind": "symbolic", "tier": 1, "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
-          "parameter_definitions": {n: {"unit": "1"} for n in LETTERS}, "source": {"form": "shomate"}}
+RECORD = {"kind": "symbolic", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
+          "parameter_definitions": {n: {"unit": "1"} for n in LETTERS}, "formula": {"form": "shomate"}}
 BUILT = methods.build(RECORD)
 
 

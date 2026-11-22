@@ -94,7 +94,7 @@ auto elementJson(const ElementRecord& r, const V2WriterOptions& options) -> json
     if (r.standard_entropy) out["standard_entropy"] = simpleQuantity(*r.standard_entropy, "J/(mol.K)", "", options);
     if (r.heat_capacity) out["heat_capacity"] = simpleQuantity(*r.heat_capacity, "J/(mol.K)", "", options);
     if (r.volume) out["volume"] = simpleQuantity(*r.volume, "m3/mol", r.file.format == DataFormat::Legacy ? "J/bar" : "", options);
-    if (!r.reference_form.empty()) out["reference_form"] = r.reference_form;
+    if (!r.reference_state.empty()) out["reference_state"] = r.reference_state;
     if (const auto sources = sourcesOf(r.data_sources); !sources.empty()) out["data_sources"] = sources;
     if (!r.sourcetdb.empty()) out["sourcetdb"] = r.sourcetdb;
     if (!r.structural.empty()) out["structural"] = structuralJson(r.structural, options);
@@ -127,7 +127,6 @@ auto substanceJson(const SubstanceRecord& r, const ThermoDataSetInfo& dataset, c
     if (r.preferred_property_source) out["preferred_property_source"] = toString(*r.preferred_property_source);
     const json a = applicabilityJson(r.applicability, options);
     if (!a.empty()) out["applicability"] = a;
-    if (!r.data_source.empty()) out["data_source"] = r.data_source;
     if (const auto sources = sourcesOf(r.data_sources); !sources.empty()) out["data_sources"] = sources;
     if (!r.structural.empty()) out["structural"] = structuralJson(r.structural, options);
     if (!r.covariance.empty()) out["covariances"] = covariancesJson(r.covariance);
@@ -177,7 +176,6 @@ auto reactionJson(const ReactionRecord& r, const ThermoDataSetInfo& dataset, con
     if (!a.empty()) out["applicability"] = a;
     if (r.convention) out["convention"] = conventionJson(*r.convention);
     if (r.preferred_property_source) out["preferred_property_source"] = toString(*r.preferred_property_source);
-    if (!r.data_source.empty()) out["data_source"] = r.data_source;
     if (const auto sources = sourcesOf(r.data_sources); !sources.empty()) out["data_sources"] = sources;
     if (!r.covariance.empty()) out["covariances"] = covariancesJson(r.covariance);
     if (r.deprecated) out["deprecated"] = true;
@@ -209,9 +207,9 @@ auto datasetJson(const ThermoDataSetInfo& d) -> json
     if (!(d.reference_conditions == defaults.reference_conditions)) out["reference_conditions"] = referenceJson(d.reference_conditions);
     if (!d.sourcetdb.empty()) out["sourcetdb"] = d.sourcetdb;
     if (!d.solvent.empty()) out["solvent"] = d.solvent;
-    if (!d.default_data_source.empty()) out["data_source"] = d.default_data_source;
+    if (!d.data_sources.empty()) out["data_sources"] = d.data_sources;
     json values = json::object();
-    if (d.defaults.quality) values["quality"] = toString(*d.defaults.quality);
+    if (!d.defaults.quality.empty()) values["quality"] = d.defaults.quality;
     if (d.defaults.origin) values["origin"] = toString(*d.defaults.origin);
     if (!values.empty()) out["defaults"] = values;
     out["conventions"] = json{{"water_triple_point_reference", d.water_triple_point_reference}};

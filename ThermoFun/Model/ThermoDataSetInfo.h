@@ -27,7 +27,7 @@ struct ThermoDataSetInfo
     std::vector<std::string> sourcetdb;
     std::string solvent;                ///< symbol of the aqueous solvent, for example "H2O@"; empty: search for it
     ValueMeta defaults;                 ///< data of values that a value does not give itself
-    std::string default_data_source;
+    std::vector<std::string> data_sources;      ///< NEA reference codes (TDB-5 1.11) of the sources, or free text; the first is the source of a value that gives none
     std::string water_triple_point_reference = "HKF_HGK_1974";   ///< as DatabaseConventions today
     std::vector<std::string> legacy_datasources;                 ///< the key "datasources" of a legacy file
     std::string legacy_date;                                     ///< the key "date" of a legacy file

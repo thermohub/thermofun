@@ -139,7 +139,7 @@ def test_each_built_in_set_says_what_it_holds_and_where_it_comes_from():
     assert len(sets) >= 9
     for method, s in sets:
         assert len(s["description"]) > 40, method
-        assert s["reference"], method
+        assert s["data_sources"], method
 
 
 def test_the_page_of_a_method_gives_its_constants_in_one_place():
@@ -160,7 +160,7 @@ def test_each_file_of_constants_describes_each_set():
         text = file.read_text()
         sets = len(re.findall(r"^  \w+:$", text, re.M))
         assert sets and len(re.findall(r'^    description: ".{40,}"$', text, re.M)) == sets, file.name
-        assert len(re.findall(r'^    reference: ".+"$', text, re.M)) == sets, file.name
+        assert len(re.findall(r'^    data_sources: \[".+"\]$', text, re.M)) == sets, file.name
 
 
 def water_of(doc):
@@ -312,7 +312,7 @@ def run_variant_program(folder):
 def test_a_record_chooses_a_variant_from_a_folder_of_the_environment(tmp_path):
     (tmp_path / "HKF88-test.yaml").write_text(
         "thermohub: 2.0.0-draft.1\nparameter_sets:\n  HKF88_test_variant_v1:\n    method: HKF88\n    implementation: gems\n"
-        "    default: false\n    description: a variant for this test only, with another eta\n    reference: this test\n"
+        "    default: false\n    description: a variant for this test only, with another eta\n    data_sources: [this test]\n"
         "    parameters:\n      eta: 1.7e+05\n")
     done = run_variant_program(tmp_path)
     assert done.returncode == 0, done.stderr[-500:]

@@ -35,7 +35,6 @@ void testDefaults()
     MethodDefinition m;
     CHECK(m.kind == MethodKind::Reference);
     CHECK(m.operates_on == OperatesOn::Substance);
-    CHECK(m.tier == 2);
 
     Applicability a;
     CHECK(!a.t_min && !a.t_max && !a.p_min && !a.p_max);

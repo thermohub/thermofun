@@ -19,12 +19,12 @@ TR, PR = 298.15, 1e5
 MAIER_KELLEY = ("Gr - Sr*(T - Tr) + a*(T - Tr - T*log(T/Tr)) - b*(T - Tr)**2/2 - c*(T - Tr)**2/(2*T*Tr**2)")
 
 SYMBOLIC_CP = {
-    "kind": "symbolic", "tier": 1, "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
+    "kind": "symbolic", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
     "parameter_definitions": {"a": {"unit": "J/(mol.K)"}, "b": {"unit": "J/(mol.K2)"}, "c": {"unit": "J.K/mol"}},
     "expression": {"G": MAIER_KELLEY},
 }
 INCREMENT = {
-    "kind": "symbolic", "tier": 1, "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp", "V"],
+    "kind": "symbolic", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp", "V"],
     "parameter_definitions": {"dv": {"unit": "m3/mol"}},
     "expression": {"G_increment": "dv*(P - Pr)"},
 }
@@ -107,7 +107,7 @@ def test_a_method_in_order_has_no_problem():
 
 
 def test_a_source_changed_after_the_build_is_reported():
-    definition = dict(SYMBOLIC_CP, source={"form": "gibbs", "expression": MAIER_KELLEY}, source_hash="sha256:0000")
+    definition = dict(SYMBOLIC_CP, formula={"form": "gibbs", "expression": MAIER_KELLEY}, formula_hash="sha256:0000")
     assert "V2-SYM-003" in validate_codes(definition)
 
 
@@ -137,7 +137,7 @@ def test_the_derivative_by_a_parameter_is_exact():
 
 # --- a method of a reaction -------------------------------------------------------------------------------------------
 
-LINEAR_DG = {"kind": "symbolic", "tier": 1, "operates_on": "reaction", "contributes_to": ["logK", "dG"],
+LINEAR_DG = {"kind": "symbolic", "operates_on": "reaction", "contributes_to": ["logK", "dG"],
              "parameter_definitions": {"h": {"unit": "J/mol"}, "s": {"unit": "J/(mol.K)"}, "w": {"unit": "m3/mol"}}, "expression": {"dG": "h - s*T + w*(P - Pr)"}}
 VALUES = {"h": -20000.0, "s": 30.0, "w": 1e-5}
 

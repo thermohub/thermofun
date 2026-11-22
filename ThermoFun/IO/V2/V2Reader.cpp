@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
@@ -33,6 +34,8 @@ auto optionalString(const json& node, const char* key) -> std::string
 auto stringList(const json& node, const char* key) -> std::vector<std::string>
 {
     std::vector<std::string> out;
+    if (node.contains(key) && node[key].is_string())   // a string is a list of one
+        out.push_back(node[key].get<std::string>());
     if (node.contains(key) && node[key].is_array())
         for (const auto& item : node[key])
             if (item.is_string())
@@ -349,9 +352,10 @@ auto resolveV2Document(const V2Document& document, Diagnostics& diagnostics) -> 
     for (const auto& s : document.substances)
     {
         checkApplications(s.symbol, s.methods);
-        if (!s.data_source.empty() && !sources.empty() && !sources.count(s.data_source))
-            report(c, Severity::Warning, "V2-REF-005", s.symbol, "/substances/" + s.symbol + "/data_source",
-                   "The data source " + s.data_source + " is not in the document.");
+        for (std::size_t i = 0; i < s.data_sources.size(); ++i)
+            if (isReferenceCode(s.data_sources[i]) && !sources.empty() && !sources.count(s.data_sources[i]))
+                report(c, Severity::Warning, "V2-REF-005", s.symbol, "/substances/" + s.symbol + "/data_sources/" + std::to_string(i),
+                       "The data source " + s.data_sources[i] + " is not in the document.");
     }
     for (const auto& r : document.reactions)
         checkApplications(r.symbol, r.methods);

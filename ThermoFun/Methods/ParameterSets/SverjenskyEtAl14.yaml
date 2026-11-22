@@ -4,7 +4,7 @@ parameter_sets:
     method: SverjenskyEtAl14
     formula_units: {T: degC, rho: g/cm3}
     description: "Dielectric constant of water at high pressure (Deep Earth Water model): eps = exp(u) rho^w, u = b1 t + b2 sqrt(t) + b3, w = a1 t + a2 sqrt(t) + a3, with t in degC and rho in g/cm3. The coefficients are those of the paper."
-    reference: "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145"
+    data_sources: ["Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145"]
     parameters:
       a1: -1.576377e-03
       a2: 6.810288e-02

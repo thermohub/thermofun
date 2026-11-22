@@ -169,7 +169,7 @@ Every number in a file can have one of these forms:
 | `{value: -237183, uncertainty: 100}` | A standard uncertainty of 100, in the unit of the value. |
 | `{value: -237183, uncertainty: {expanded: 200, coverage_factor: 2}}` | An expanded uncertainty and its coverage factor. |
 | `{value: -237183, uncertainty: {half_width: 300, distribution: uniform}}` | A rectangular distribution of half-width 300: u = 300/√3. `triangular`: u = a/√6. |
-| `{value: -237183, calculation_path: "from the log K of R1"}` | A note on how the value was made. It is kept and written back; no calculation reads it. |
+| `{value: -237183, derivation: "from the log K of R1"}` | A note on how the value was made. It is kept and written back; no calculation reads it. |
 | `{value: -237183, quality: core, origin: calculated, source: 2018LOT/MAT}` | Data about the value. |
 
 **Default units.** Standard-state properties are in J/mol, J/(mol K) and m3/mol. Reaction properties use the same units. Molar
@@ -580,7 +580,7 @@ reactions:
     methods:
       - method: LogKTable
         interpolation: lagrange
-        order: 3
+        interpolation_order: 3
         table: {temperatures: [273.15, 298.15, 373.15, 473.15], logK: [1.0, 1.1, 1.3, 1.6]}
 ```
 

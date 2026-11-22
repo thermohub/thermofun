@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include "Validate.h"
 #include "MissingParameter.h"
@@ -321,8 +322,9 @@ auto validateRecords(const V2Records& records, const FormulaParser& parseFormula
             else if (std::none_of(it->second->stoichiometry.begin(), it->second->stoichiometry.end(), [&](const auto& s) { return s.first == r.symbol; }))
                 report(diag, "V2-REF-001", r.symbol, path + "/defining_reaction", "The reaction " + r.defining_reaction + " does not name the substance.");
         }
-        if (!r.data_source.empty() && !sources.empty() && !sources.count(r.data_source))
-            report(diag, "V2-REF-005", r.symbol, path + "/data_source", "The data source " + r.data_source + " is not in the database.");
+        for (std::size_t i = 0; i < r.data_sources.size(); ++i)
+            if (isReferenceCode(r.data_sources[i]) && !sources.empty() && !sources.count(r.data_sources[i]))
+                report(diag, "V2-REF-005", r.symbol, path + "/data_sources/" + std::to_string(i), "The data source " + r.data_sources[i] + " is not in the database.");
     }
 
     // cycles through the defining reactions
@@ -391,8 +393,9 @@ auto validateRecords(const V2Records& records, const FormulaParser& parseFormula
                     report(diag, "V2-RXN-002", r.symbol, path + "/stoichiometry", "The reaction is not balanced in " + b.first + " (" + std::to_string(b.second) + ").");
                     break;
                 }
-        if (!r.data_source.empty() && !sources.empty() && !sources.count(r.data_source))
-            report(diag, "V2-REF-005", r.symbol, path + "/data_source", "The data source " + r.data_source + " is not in the database.");
+        for (std::size_t i = 0; i < r.data_sources.size(); ++i)
+            if (isReferenceCode(r.data_sources[i]) && !sources.empty() && !sources.count(r.data_sources[i]))
+                report(diag, "V2-REF-005", r.symbol, path + "/data_sources/" + std::to_string(i), "The data source " + r.data_sources[i] + " is not in the database.");
     }
     return diag;
 }

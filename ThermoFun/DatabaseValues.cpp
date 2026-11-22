@@ -82,7 +82,7 @@ auto pointerOf(const std::string& rest) -> json::json_pointer
 auto isQuantityKey(const std::string& key) -> bool
 {
     namespace k = model::v2key;
-    for (const char* name : {k::value, k::unit, k::uncertainty, k::quality, k::origin, k::calculation_path, k::source})
+    for (const char* name : {k::value, k::unit, k::uncertainty, k::quality, k::origin, k::derivation, k::source})
         if (key == name)
             return true;
     return false;

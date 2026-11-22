@@ -38,8 +38,7 @@ struct ReactionRecord
     std::optional<Convention> convention;
     std::optional<PropertySource> preferred_property_source;   ///< Direct or Reactants; empty: the default rule
     std::vector<CovarianceBlock> covariance; ///< correlations between values and parameters
-    std::string data_source;
-    std::vector<std::string> data_sources;
+    std::vector<std::string> data_sources;      ///< NEA reference codes (TDB-5 1.11) of the sources, or free text; the first is the source of a value that gives none
     bool deprecated = false;
     std::string extra_json;              ///< fields that the format does not define, as JSON text
     FileOrigin file;                            ///< the file it was read from; not data

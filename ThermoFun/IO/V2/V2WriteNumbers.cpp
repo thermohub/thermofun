@@ -105,7 +105,7 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
     // a legacy file gives 0 where it knows nothing: missing is not zero
     const bool noUncertainty = !q.uncertainty || (q.uncertainty->standard == 0.0 && q.uncertainty->convention_unknown);
     const auto& u = q.uncertainty;
-    const bool hasMeta = q.meta.quality || q.meta.origin || !q.meta.calculation_path.empty() || !q.meta.source.empty();
+    const bool hasMeta = !q.meta.quality.empty() || q.meta.origin || !q.meta.derivation.empty() || !q.meta.source.empty();
     if (noUncertainty && !hasMeta && (unit.empty() || fromScope))
         return number;
 
@@ -144,12 +144,12 @@ auto quantityJson(const Quantity& q, const std::string& slot, const Written& w, 
     }
     if (!unit.empty() && !fromScope)
         out["unit"] = unit;
-    if (q.meta.quality)
-        out["quality"] = toString(*q.meta.quality);
+    if (!q.meta.quality.empty())
+        out["quality"] = q.meta.quality;
     if (q.meta.origin)
         out["origin"] = toString(*q.meta.origin);
-    if (!q.meta.calculation_path.empty())
-        out["calculation_path"] = q.meta.calculation_path;
+    if (!q.meta.derivation.empty())
+        out["derivation"] = q.meta.derivation;
     if (!q.meta.source.empty())
         out["source"] = q.meta.source;
     return out;
