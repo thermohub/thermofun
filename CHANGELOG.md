@@ -438,7 +438,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Database::validate` reports the problems between records. A v2 file can use `include`, and `Database` reads a dataset folder. `toLegacyJson` and
   `save(path, DataFormat::Legacy)` write the legacy format. `jsonString()` of an edited record gives the record as it is now; before, it gave the old text. A v2 file without the key
   `thermohub` is refused, and a v2 file with methods that conflict is refused at the load.
-- The hydrogen ion is 0 only in the geochemical convention, and only if its record gives no other value. Before, a record with the formula `H+` always gave 0 and its data was ignored.
+- Ions have their own convention, `energy_reference.ions` (NEA TDB-5 1.6, 1.7.e). With `hydrogen_ion`, the default, H+(aq) is 0 at
+  every T and P in every energy reference, as in 0.x (values in its record are not used; validate warns, CNV-007), and the
+  electron (an aqueous solute with the formula `-` or `e-`) is from the standard hydrogen electrode: 1/2 of H2(g) at T and its
+  standard pressure, with V = 0. The PSI 2020 `e-` record (constant Cp) was up to 13 J/mol off at 300 degC. Without H2(g) the
+  record of the electron is used (CNV-011). With `ions: none`, the records give H+ and e-. Results are always on `hydrogen_ion`.
 - New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
   `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.

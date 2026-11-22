@@ -81,6 +81,8 @@ void exportThermoEngine(py::module& m)
     py::enum_<model::WaterReference>(m, "WaterReference", "The energy reference of water: the anchors helgeson_kirkham_1974 and codata_1989 (data of water), the scale steam_tables")
         .value("HelgesonKirkham1974", model::WaterReference::HelgesonKirkham1974).value("Codata1989", model::WaterReference::Codata1989)
         .value("SteamTables", model::WaterReference::SteamTables);
+    py::enum_<model::Ions>(m, "Ions", "The reference of ions: hydrogen_ion (H+ = 0, the electron from the standard hydrogen electrode) or none")
+        .value("HydrogenIon", model::Ions::HydrogenIon).value("None_", model::Ions::None);
 
     auto appendData1 = static_cast<void(ThermoEngine::*)(std::string)>(&ThermoEngine::appendData);
     auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>, std::string)>(&ThermoEngine::appendData);
@@ -137,6 +139,7 @@ void exportThermoEngine(py::module& m)
         out["standard_state.concentration_scale"] = model::words<model::ConcentrationScale>();
         out["energy_reference.elements"] = model::words<model::EnergyReference>();
         out["energy_reference.water"] = model::words<model::WaterReference>();
+        out["energy_reference.ions"] = model::words<model::Ions>();
         return out;
     }, "The valid words of the options of the engine");
 

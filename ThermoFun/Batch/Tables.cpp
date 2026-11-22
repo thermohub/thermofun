@@ -393,6 +393,7 @@ auto setConvention(EngineConventions& c, const std::string& key, const json& val
         else if (key == "standard_state" && name == "concentration_scale") c.standard_state.concentration_scale = wordOf<model::ConcentrationScale>(item.value());
         else if (key == "energy_reference" && name == "elements") c.energy_reference.elements = wordOf<model::EnergyReference>(item.value());
         else if (key == "energy_reference" && name == "water") c.energy_reference.water = wordOf<model::WaterReference>(item.value());
+        else if (key == "energy_reference" && name == "ions") c.energy_reference.ions = wordOf<model::Ions>(item.value());
         else if (key == "standard_state" || key == "energy_reference")
             fail("The conventions " + key + " have no field " + name + ".");
         else

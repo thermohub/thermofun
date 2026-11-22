@@ -12,6 +12,7 @@
 #include "Model/Quantity.h"
 #include "Model/Vocabulary.h"
 #include "Model/WaterAnchor.h"
+#include "Conventions/HydrogenIon.h"
 #include "ThermoEngine.h"
 #include "Common/Numbers.h"
 #include "check.h"
@@ -240,9 +241,38 @@ void testWaterAnchors()
     }
 }
 
+// ions (decision 0031, row 6): the words, and how the hydrogen ion, the electron and H2(g) are recognized
+void testIons()
+{
+    using namespace ThermoFun::model;
+    roundTrip<Ions>({Ions::HydrogenIon, Ions::None}, {"hydrogen_ion", "none"});
+    CHECK(withoutValences("H|0|2") == "H2" && withoutValences("Fe|3|2O3") == "Fe2O3" && withoutValences("H2") == "H2");
+    SubstanceRecord gas;
+    gas.aggregate_state = ThermoFun::model::AggregateState::Gas;
+    gas.formula = "H|0|2";
+    CHECK(isHydrogenGas(gas));
+    SubstanceRecord e;
+    e.class_ = ThermoFun::model::SubstanceClass::AqueousSolute;
+    e.formula = "-";
+    CHECK(isElectron(e) && isHydrogenElectrode(e, Convention{}));
+    e.convention = Convention{};
+    e.convention->energy_reference.ions = Ions::None;
+    CHECK(!isHydrogenElectrode(e, Convention{}));
+    SubstanceRecord h;
+    h.class_ = ThermoFun::model::SubstanceClass::AqueousSolute;
+    h.formula = "H+";
+    h.convention = Convention{};
+    h.convention->energy_reference.elements = EnergyReference::BermanBrown;   // ions do not follow the elements
+    CHECK(isZeroHydrogenIon(h, Convention{}));
+    Convention none;
+    none.energy_reference.ions = Ions::None;
+    CHECK(!isZeroHydrogenIon(h, none));
+}
+
 void runVocabulary()
 {
     testWaterAnchors();
+    testIons();
     testTheNumberParserByHand();
     testOldWordsOfTheConventions();
     testQuantity();

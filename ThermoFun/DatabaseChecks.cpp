@@ -146,10 +146,24 @@ auto Database::validate() const -> Diagnostics
             d.code = "CNV-007";
             d.record = record.symbol;
             d.path = "/substances/" + record.symbol;
-            d.message = "The geochemical convention defines the properties of the hydrogen ion as 0, and this record gives other values. They are used.";
+            d.message = "ions: hydrogen_ion defines the properties of the hydrogen ion as 0 at every T and P, and this record gives other values. They are not used; "
+                        "declare energy_reference: {ions: none} to use them.";
             all.add(d);
         }
     }
+    // the electron of the hydrogen electrode needs H2(g)
+    const bool hydrogenGas = std::any_of(records.substances.begin(), records.substances.end(), [](const auto& r) { return model::isHydrogenGas(r); });
+    for (const auto& record : records.substances)
+        if (!hydrogenGas && model::isHydrogenElectrode(record, records.dataset.convention))
+        {
+            Diagnostic d;
+            d.severity = Severity::Warning;
+            d.code = "CNV-011";
+            d.record = record.symbol;
+            d.path = "/substances/" + record.symbol;
+            d.message = "The electron is from the standard hydrogen electrode, 1/2 G(H2, g) - G(H+), and the database has no H2(g). The values of the record are used.";
+            all.add(d);
+        }
     checkConventions(*this, records, all);
     return all;
 }

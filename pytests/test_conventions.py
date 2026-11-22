@@ -306,7 +306,7 @@ def test_the_hydrogen_ion_in_mole_fraction_output():
 def test_the_hydrogen_ion_in_berman_brown_with_values_is_converted():
     values = {"G": -1000.0, "H": -1000.0, "S": 1.0, "Cp": 0.0, "V": 0.0}
     elements = dict(ELEMENT_RECORDS, Zz={"class": "charge", "standard_entropy": -60.0})
-    e = engine({"H+": hydrogen(standard_state_properties=values, methods=[{"method": "ConstantCp"}], energy_reference={"elements": "berman_brown"})}, elements=elements)
+    e = engine({"H+": hydrogen(standard_state_properties=values, methods=[{"method": "ConstantCp"}], energy_reference={"elements": "berman_brown", "ions": "none"})}, elements=elements)
     assert e.thermoPropertiesSubstance(Tr, Pr, "H+").gibbs_energy.val == pytest.approx(-1000.0 + Tr * 5.34, rel=1e-12)
 
 
@@ -320,8 +320,8 @@ def test_hkf_of_the_hydrogen_ion_in_another_convention_keeps_the_rule_of_hkf():
     sigma = 2 * 0 + elements["H"]["standard_entropy"] + elements["Zz"]["standard_entropy"]
     water = next(k for k, v in doc["substances"].items() if v.get("class") == "water_solvent")
     subs = {water: doc["substances"][water],
-            "H+": hydrogen(standard_state_properties=values, methods=[hkf]),
-            "HB": hydrogen(standard_state_properties=values, methods=[hkf], energy_reference={"elements": "berman_brown"})}
+            "H+": hydrogen(standard_state_properties=values, methods=[hkf], energy_reference={"ions": "none"}),
+            "HB": hydrogen(standard_state_properties=values, methods=[hkf], energy_reference={"elements": "berman_brown", "ions": "none"})}
     e = tf.ThermoEngine(tf.Database(json.dumps(dict(HEAD, elements=elements, substances=subs))))
     a = e.thermoPropertiesSubstance(373.15, Pr, "H+").gibbs_energy.val
     b = e.thermoPropertiesSubstance(373.15, Pr, "HB").gibbs_energy.val
@@ -626,3 +626,78 @@ def test_legacy_files_keep_the_triple_point_set(water, label, tmp_path):
     back = tf.Database(json.dumps(legacy))
     assert back.thermoDataSet().convention.energy_reference.water == tf.WaterReference.Codata1989
     assert water_gibbs(tf.ThermoEngine(back)) == water_gibbs(tf.ThermoEngine(db))
+
+
+# --- ions: the hydrogen ion and the electron (decision 0031, row 6; NEA TDB-5 1.6, 1.7.e) ----------------------------
+
+PSI = "pytests/PsiTDB2020-subset-thermofun.json"
+
+
+def psi_with_electron(**energy_reference):
+    doc = json.loads(tf.Database(PSI).toJson(True))
+    if energy_reference:
+        doc["substances"]["e-"]["energy_reference"] = energy_reference
+    return doc
+
+
+@pytest.mark.parametrize("T", [298.15, 323.15, 373.15, 423.15, 473.15, 523.15, 573.15])
+@pytest.mark.parametrize("P", [1e5, 5e7])
+def test_the_electron_is_half_of_hydrogen_gas_at_its_standard_pressure(T, P):
+    e = tf.ThermoEngine(PSI)
+    electron = e.thermoPropertiesSubstance(T, P, "e-")
+    h2 = e.thermoPropertiesSubstance(T, 1e5, "H2(g)")
+    assert electron.gibbs_energy.val == 0.5 * h2.gibbs_energy.val
+    assert electron.enthalpy.val == 0.5 * h2.enthalpy.val
+    assert electron.entropy.val == 0.5 * h2.entropy.val
+    assert electron.heat_capacity_cp.val == 0.5 * h2.heat_capacity_cp.val
+    assert electron.volume.val == 0.0 and electron.gibbs_energy.ddp == 0.0
+    # the reaction of the standard hydrogen electrode H+ + e- = 1/2 H2(g): drG = 0 at every T
+    assert e.thermoPropertiesSubstance(T, P, "H+").gibbs_energy.val == 0.0
+
+
+def test_the_electron_at_25_degC_is_the_codata_value():
+    e = tf.ThermoEngine(PSI).thermoPropertiesSubstance(298.15, 1e5, "e-")
+    assert e.gibbs_energy.val == pytest.approx(0.0, abs=1e-9)
+    assert e.entropy.val == pytest.approx(65.34, abs=0.005)   # 1/2 S(H2, g), CODATA 1989: 130.68
+
+
+def test_the_electron_of_its_record_with_ions_none():
+    doc = psi_with_electron(ions="none")
+    e = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    hydrogen_electrode = tf.ThermoEngine(PSI)
+    at = lambda engine, T: engine.thermoPropertiesSubstance(T, 1e5, "e-").gibbs_energy.val
+    # PSI 2020 gives a constant Cp 14.418: 0.55 J/mol at 100 degC, 13 J/mol at 300 degC from 1/2 H2(g)
+    assert at(e, 373.15) - at(hydrogen_electrode, 373.15) == pytest.approx(0.5475, abs=1e-3)
+    assert at(e, 573.15) - at(hydrogen_electrode, 573.15) == pytest.approx(13.02, abs=1e-2)
+
+
+def test_without_hydrogen_gas_the_electron_is_its_record_with_a_note():
+    doc = psi_with_electron()
+    del doc["substances"]["H2(g)"]
+    for name, r in list(doc["reactions"].items()) if "reactions" in doc else []:
+        if "H2(g)" in r.get("equation", ""):
+            del doc["reactions"][name]
+    db = tf.Database(json.dumps(doc))
+    assert "CNV-011" in {d.code for d in db.validate().all()}
+    p = tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "e-")
+    assert any("no H2(g)" in n.text for n in p.info.notes)
+    assert p.entropy.val != 0.0
+
+
+def test_the_results_are_always_on_hydrogen_ion():
+    e = tf.ThermoEngine(PSI)
+    c = tf.EngineConventions()
+    c.energy_reference.ions = "none"
+    with pytest.raises(ValueError, match="always on hydrogen_ion"):
+        e.setConventions(c)
+    c.energy_reference.ions = tf.Ions.HydrogenIon
+    e.setConventions(c)
+
+
+def test_ions_is_read_and_written_and_checked():
+    doc = psi_with_electron(ions="none")
+    back = json.loads(tf.Database(json.dumps(doc)).toJson(True))
+    assert back["substances"]["e-"]["energy_reference"] == {"ions": "none"}
+    doc["substances"]["e-"]["energy_reference"] = {"ions": "hydrogen"}
+    with pytest.raises(RuntimeError, match="hydrogen_ion"):
+        tf.Database(json.dumps(doc))

@@ -48,6 +48,8 @@ void exportRecords(py::module& m)
                       "benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation or dft_formation_0K (EnergyReference or the word)")
         .def_property("water", [](const EnergyReferences& x) { return x.water; }, [](EnergyReferences& x, py::object v) { x.water = optionalValueOf<WaterReference>(v); },
                       "helgeson_kirkham_1974 or codata_1989 (the anchor: data of water used inside), or steam_tables (the scale of the values of a water record); WaterReference or the word")
+        .def_property("ions", [](const EnergyReferences& x) { return x.ions; }, [](EnergyReferences& x, py::object v) { x.ions = optionalValueOf<Ions>(v); },
+                      "hydrogen_ion (the default: H+ is 0, the electron from the standard hydrogen electrode) or none (the records give them); Ions or the word")
         .def(py::self == py::self);
 
     py::class_<Convention>(m, "Convention", "The conventions of a dataset or a record: the blocks standard_state and energy_reference")

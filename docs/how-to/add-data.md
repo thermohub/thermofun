@@ -359,9 +359,10 @@ The engine converts the result of the base method. It does not convert increment
 entropies of the elements. Put them in `elements`. If they are not there, the engine uses the table of ChemicalFun and gives a warning (`CNV-006`). If no source has them, the engine gives an error (`CNV-001`).
 `NASA9` is always in `assigned_enthalpy` and `CpExtendedUNIQUAC` in `gibbs_helmholtz_formation`, whatever the record says. Results come in the defaults. To ask for others, set `EngineConventions`.
 
-**The hydrogen ion.** The geochemical convention (`benson_helgeson`, the default) defines all properties of the hydrogen ion as 0, at all T and P. A record with the class
-`aqueous_solute` and the formula `H+` needs no methods and no values in this convention. In another convention, the properties of H+ can be different: give `energy_reference` in
-the record, or in the dataset, with the values and the methods. ThermoFun then uses them. It also uses values other than 0 in the geochemical convention, and `validate` gives a warning (`CNV-007`).
+**The hydrogen ion and the electron.** `energy_reference.ions: hydrogen_ion` (the default) defines all properties of the hydrogen ion as 0, at all T and P, in every
+energy reference, and the electron from the standard hydrogen electrode: 1/2 of H2(g) at its standard pressure. A record with the class `aqueous_solute` and the formula
+`H+`, or `-` (or `e-`) for the electron, needs no methods and no values then; the electron needs H2(g) in the database (`validate` warns, `CNV-011`). Values in such a record
+are not used (`validate` warns for H+, `CNV-007`). To give your own values of H+ and e-, declare `energy_reference: {ions: none}` in the record or the dataset.
 
 ```python
 hydrogen = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  H+: {formula: H+, class: aqueous_solute, aggregate_state: aqueous}\n")
@@ -372,7 +373,7 @@ substances:
     formula: H+
     class: aqueous_solute
     aggregate_state: aqueous
-    energy_reference: {elements: ser}
+    energy_reference: {elements: ser, ions: none}
     standard_state_properties: {G: -1000, H: -1000, S: 10, Cp: 20, V: 0}
     methods:
       - {method: ConstantCp}

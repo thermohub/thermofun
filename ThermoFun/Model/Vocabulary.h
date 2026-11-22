@@ -83,6 +83,13 @@ enum class WaterReference
     SteamTables           ///< IAPWS: U and S of liquid water are 0 at the triple point
 };
 
+/// The reference of the properties of ions (decision 0031, row 6; NEA TDB-5 1.6, 1.7.e)
+enum class Ions
+{
+    HydrogenIon,  ///< H+(aq) is 0 at every T and P, and the electron is from the standard hydrogen electrode: G(e-) = 1/2 G(H2, g, p°) - G(H+)
+    None          ///< the records give the values of H+ and e-
+};
+
 // The functions below exist for each enum above.
 
 /// The canonical word of a value, as written in v2 files.

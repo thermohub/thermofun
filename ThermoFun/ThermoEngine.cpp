@@ -454,6 +454,7 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     s.conventions["standard_state.pressure"] = model::standardPressureText(*out.standard_state.pressure);
     s.conventions["standard_state.concentration_scale"] = model::toString(*out.standard_state.concentration_scale);
     s.conventions["energy_reference.elements"] = model::toString(*out.energy_reference.elements);
+    s.conventions["energy_reference.ions"] = "hydrogen_ion";
     s.conventions["energy_reference.water"] = out.energy_reference.water ? model::toString(*out.energy_reference.water) :
         model::toString(pimpl->database.containsSubstance(pimpl->solvent_in_use) ? pimpl->waterAnchorOf(*pimpl->database.getSubstance(pimpl->solvent_in_use).record())
                                                                                      : model::anchorOf(pimpl->database.thermoDataSet().convention.energy_reference.water).value_or(model::WaterReference::HelgesonKirkham1974));

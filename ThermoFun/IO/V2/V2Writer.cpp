@@ -36,6 +36,7 @@ void addConvention(json& out, const Convention& c)
     if (c.standard_state.concentration_scale) state["concentration_scale"] = toString(*c.standard_state.concentration_scale);
     if (c.energy_reference.elements) energy["elements"] = toString(*c.energy_reference.elements);
     if (c.energy_reference.water) energy["water"] = toString(*c.energy_reference.water);
+    if (c.energy_reference.ions) energy["ions"] = toString(*c.energy_reference.ions);
     if (!state.empty()) out["standard_state"] = state;
     if (!energy.empty()) out["energy_reference"] = energy;
 }

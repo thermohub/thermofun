@@ -97,6 +97,7 @@ struct ThermoEngine::Impl
         std::vector<std::shared_ptr<const model::ReactionRecord>> reaction_records;
         std::mutex entropy_mutex;
         std::map<std::string, double> element_entropies;   ///< by formula
+        std::optional<std::string> hydrogen_gas;           ///< the symbol of H2(g), empty if none; found once (under mutex)
     };
     std::shared_ptr<BoundCache> bound_cache = std::make_shared<BoundCache>();
 
@@ -237,7 +238,7 @@ struct ThermoEngine::Impl
     auto waterTripleOf(const Substance& substance) const -> WaterTripleProperties;
 
     /// An anchor asked for in the conventions of the results that is not the anchor of the solvent: an error (the engine
-    /// never converts between anchors; the anchor is declared on the dataset)
+    /// never converts between anchors; the anchor is declared on the dataset). Also ions: the results are always hydrogen_ion.
     auto checkRequestedWater() const -> void;
 
     /// Water from its anchor to the steam tables (sign -1), and back (sign 1)
@@ -285,6 +286,7 @@ struct ThermoEngine::Impl
     struct SubstanceKind
     {
         bool isHydrogen = false;
+        bool isElectron = false;  ///< from the standard hydrogen electrode (ions: hydrogen_ion)
         bool isH2Ovapor = false;
         bool isH2OSolvent = false;
         bool isReacDC = false;
@@ -292,6 +294,13 @@ struct ThermoEngine::Impl
     };
 
     auto kindOf(const Substance &substance) const -> SubstanceKind;
+
+    /// The symbol of H2(g) in the database (the gas of the hydrogen electrode), the record "H2(g)" first; empty if none
+    auto hydrogenGas() const -> std::string;
+
+    /// The electron from the standard hydrogen electrode, H+ + e- = 1/2 H2(g) with drG = 0 at every T (NEA TDB-5 1.7.e):
+    /// 1/2 of H2(g) at T and its standard pressure, H+ being 0; not a function of P (V = 0). Canonical convention.
+    auto hydrogenElectrode(double T, double P, const std::string& gas) const -> ThermoPropertiesSubstance;
 
     static auto hasMethod(const std::vector<model::MethodApplication>& methods, const char* id) -> bool
     {

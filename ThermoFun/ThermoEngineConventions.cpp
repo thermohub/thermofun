@@ -74,6 +74,9 @@ auto ThermoEngine::Impl::waterTripleOf(const Substance& substance) const -> Wate
 
 auto ThermoEngine::Impl::checkRequestedWater() const -> void
 {
+    if (conventions.energy_reference.ions == model::Ions::None)
+        throw std::invalid_argument("energy_reference.ions: the results are always on hydrogen_ion (H+ is 0, the electron from the standard hydrogen electrode); "
+                                    "none is a word for records that give their own values of H+ and e-.");
     const auto requested = model::anchorOf(conventions.energy_reference.water);
     if (!requested || !database.containsSubstance(solvent_in_use))
         return;

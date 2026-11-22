@@ -16,6 +16,7 @@ the standard state and the energy reference in two blocks:
 | `standard_state.concentration_scale` | `molality`, `molarity`, `mole_fraction` | `molality` |
 | `energy_reference.elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, ... | `benson_helgeson` |
 | `energy_reference.water` | `helgeson_kirkham_1974`, `codata_1989`, `steam_tables` | `helgeson_kirkham_1974` |
+| `energy_reference.ions` | `hydrogen_ion`, `none` | `hydrogen_ion` |
 
 **The engine has one inside convention.** Each record says what it is in, and the engine converts it to the canonical convention. So species with different conventions can be in one reaction. Results go out in the convention that you ask for.
 
@@ -55,5 +56,16 @@ G(anchor) = G(steam) + Gtr - Str (T - Ttr)
 
 A water record written on the steam scale declares `energy_reference: {water: steam_tables}`; results on the steam scale are
 asked for with the conventions of the engine.
+
+**The hydrogen ion and the electron.** With `ions: hydrogen_ion` (the default, NEA TDB-5 1.6 and 1.7.e), all properties of
+H+(aq) are 0 at every T and P, whatever the energy reference of the elements. The electron (an aqueous solute with the formula
+`-` or `e-`) is defined by the standard hydrogen electrode, H+ + e- = 1/2 H2(g) with drG° = 0 at every T:
+
+G(e-, T) = 1/2 G°(H2, g, T, p°) - G°(H+, T) = 1/2 G°(H2, g, T, p°)
+
+and the same for H, S and Cp. The gas is at its standard pressure, so the electron does not depend on P (V = 0). At 25 °C this
+gives S = 65.34 J/(mol K) and Cp = 14.42 J/(mol K), the values of the NEA tables. The engine takes H2(g) from the database
+(validate warns, CNV-011, if there is none; the record of the electron is then used). With `ions: none` on a record or the
+dataset, the records give the values of H+ and e-. Results are always on `hydrogen_ion`.
 
 [Choose conventions](../how-to/choose-conventions.md) gives the steps.

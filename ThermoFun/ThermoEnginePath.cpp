@@ -105,6 +105,17 @@ auto ThermoEngine::Impl::pathOfSubstance(const std::string& symbol, std::vector<
         path.source = "hydrogen_ion";
         return path;
     }
+    if (model::isHydrogenElectrode(*record, database.thermoDataSet().convention))
+        if (const auto gas = hydrogenGas(); !gas.empty())
+        {
+            path.source = "hydrogen_electrode";
+            above.push_back(symbol);
+            path.steps.push_back(pathOfSubstance(gas, above));
+            path.steps.back().coefficient = 0.5;
+            path.steps.back().role = "reactant";
+            above.pop_back();
+            return path;
+        }
     above.push_back(symbol);
     const bool isWater = record->class_ == model::SubstanceClass::WaterSolvent;
     if (comesFromReaction(substance) && !substance.reactionSymbol().empty())

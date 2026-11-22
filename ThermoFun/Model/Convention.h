@@ -49,6 +49,7 @@ struct EnergyReferences
 {
     std::optional<EnergyReference> elements;
     std::optional<WaterReference> water;
+    std::optional<Ions> ions;   ///< hydrogen_ion (the default) or none: decoupled from elements
 
     auto operator==(const EnergyReferences&) const -> bool = default;
 };

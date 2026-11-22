@@ -102,6 +102,8 @@ THERMOFUN_VOCABULARY(WaterReference, "water_reference",
     {WaterReference::HelgesonKirkham1974, "helgeson_kirkham_1974", {"geochemical"}}, {WaterReference::Codata1989, "codata_1989", {}},
     {WaterReference::SteamTables, "steam_tables", {}})
 
+THERMOFUN_VOCABULARY(Ions, "ions", {Ions::HydrogenIon, "hydrogen_ion", {}}, {Ions::None, "none", {}})
+
 #undef THERMOFUN_VOCABULARY
 
 /// Lower case, with '-' read as '_', so that "Steam-Tables" and "STEAM_TABLES" both match "steam_tables".
@@ -237,6 +239,7 @@ THERMOFUN_INSTANTIATE(EnergyReference)
 THERMOFUN_INSTANTIATE(StandardPressure)
 THERMOFUN_INSTANTIATE(ConcentrationScale)
 THERMOFUN_INSTANTIATE(WaterReference)
+THERMOFUN_INSTANTIATE(Ions)
 
 #undef THERMOFUN_INSTANTIATE
 

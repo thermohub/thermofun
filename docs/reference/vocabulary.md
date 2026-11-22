@@ -44,6 +44,7 @@ The words in brackets are accepted when a file is read, and the record is writte
 | `standard_state.concentration_scale` | `molality` (default), `molarity`, `mole_fraction` (also `amount_concentration`, `amount_fraction`) |
 | `energy_reference.elements` | `benson_helgeson` (default), `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |
 | `energy_reference.water` | `helgeson_kirkham_1974` (default), `codata_1989` (the anchors, data of water), `steam_tables` (a scale) |
+| `energy_reference.ions` | `hydrogen_ion` (default), `none` |
 
 See [Conventions](conventions.md) for what each word means.
 

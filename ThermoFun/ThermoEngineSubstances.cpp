@@ -191,11 +191,50 @@ auto ThermoEngine::Impl::kindOf(const Substance &substance) const -> SubstanceKi
     const auto record = substance.record();
     SubstanceKind kind;
     kind.isHydrogen = model::isZeroHydrogenIon(*record, database.thermoDataSet().convention);
+    kind.isElectron = model::isHydrogenElectrode(*record, database.thermoDataSet().convention);
     kind.isH2Ovapor = compat::isWaterVapour(*record);
     kind.isH2OSolvent = record->class_ == model::SubstanceClass::WaterSolvent;
     kind.isReacDC = comesFromReaction(substance);
     kind.state = model::solventStateOf(*record);
     return kind;
+}
+
+auto ThermoEngine::Impl::hydrogenGas() const -> std::string
+{
+    std::lock_guard<std::mutex> lock(bound_cache->mutex);
+    if (!bound_cache->hydrogen_gas)
+    {
+        std::string found;
+        for (const auto& [symbol, substance] : database.mapSubstances())
+            if (model::isHydrogenGas(*substance.record()) && (found.empty() || symbol == "H2(g)"))
+                found = symbol;
+        bound_cache->hydrogen_gas = found;
+    }
+    return *bound_cache->hydrogen_gas;
+}
+
+auto ThermoEngine::Impl::hydrogenElectrode(double T, double P, const std::string& gas) const -> ThermoPropertiesSubstance
+{
+    double p0 = database.getSubstance(gas).record()->reference_conditions.P;   // p° of the gas
+    const auto h2 = cachedSubstance(T, p0, gas);
+    const auto half = [](Reaktoro_::ThermoProperty x) {
+        x.val *= 0.5;
+        x.ddt *= 0.5;
+        x.ddp = 0.0;
+        x.err *= 0.5;
+        return x;
+    };
+    ThermoPropertiesSubstance tps;
+    tps.gibbs_energy = half(h2.gibbs_energy);
+    tps.enthalpy = half(h2.enthalpy);
+    tps.entropy = half(h2.entropy);
+    tps.heat_capacity_cp = half(h2.heat_capacity_cp);
+    tps.heat_capacity_cv = half(h2.heat_capacity_cp);   // V = 0: Cv = Cp
+    tps.volume = 0.0;
+    tps.internal_energy = tps.enthalpy;                  // U = H - P V
+    tps.helmholtz_energy = tps.gibbs_energy;             // A = U - T S = G
+    (void)P;
+    return tps;
 }
 
 auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
@@ -231,6 +270,16 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
         tps.heat_capacity_cv = 0.0;
         tps.helmholtz_energy = 0.0;
         cameFrom("hydrogen_ion");
+        stampSource(tps, source);
+        return tps;
+    }
+
+    // the electron of the hydrogen electrode; without H2(g), the values of its record (CNV-011)
+    const std::string gas = kind.isElectron ? hydrogenGas() : std::string();
+    if (!gas.empty())
+    {
+        tps = hydrogenElectrode(T, P, gas);
+        cameFrom("hydrogen_electrode");
         stampSource(tps, source);
         return tps;
     }
@@ -308,6 +357,8 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
 
     // check properties
     tps = fallbackThermoPropertiesSubstance(tps, substance);
+    if (kind.isElectron)
+        markOutsideRange(tps, Note{Note::Kind::Source, Note::Severity::Soft, "", "The electron from its record: the database has no H2(g) for the hydrogen electrode (ions: hydrogen_ion)", {}, {}});
 
     stampSource(tps, source == "none" ? std::string() : source);
     return tps;

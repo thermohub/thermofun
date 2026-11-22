@@ -322,16 +322,17 @@ auto readConvention(Context& c, const json& node, const UnitScope& scope, const 
         const std::string where = path + "/energy_reference";
         const json& block = node["energy_reference"];
         if (!block.is_object())
-            report(c, Severity::Error, "CNV-005", record, where, "energy_reference is a mapping: {elements, water}.");
+            report(c, Severity::Error, "CNV-005", record, where, "energy_reference is a mapping: {elements, water, ions}.");
         else
         {
-            static const std::set<std::string> known = {"elements", "water"};
+            static const std::set<std::string> known = {"elements", "water", "ions"};
             extraKeys(c, block, known, record, where);
             conv.energy_reference.elements = word(std::type_identity<EnergyReference>{}, block, "elements", where);
             if (conv.energy_reference.elements == EnergyReference::DFTFormation0K)
                 report(c, Severity::Warning, "CNV-008", record, where + "/elements",
                        "dft_formation_0K: the energy at 0 K is used as the enthalpy of formation at 298.15 K; the values are estimates.");
             conv.energy_reference.water = word(std::type_identity<WaterReference>{}, block, "water", where);
+            conv.energy_reference.ions = word(std::type_identity<Ions>{}, block, "ions", where);
         }
     }
     return conv;

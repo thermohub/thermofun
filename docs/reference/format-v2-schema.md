@@ -155,12 +155,13 @@ The standard state of the values: the standard pressure p° and, for solutes, th
 
 ## energy_reference
 
-From what zero G, H and S are counted: of the elements and of water.
+From what zero G, H and S are counted: of the elements, of water and of ions.
 
 | Key | Type | Required | Note |
 |---|---|---|---|
 | `elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |  |  |
 | `water` | `helgeson_kirkham_1974`, `codata_1989`, `steam_tables`, `geochemical` |  | The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974. |
+| `ions` | `hydrogen_ion`, `none` |  | hydrogen_ion (the default): H+(aq) is 0 at every T and P, and the electron is from the standard hydrogen electrode, G(e-) = 1/2 G(H2, g, p°) - G(H+) (NEA TDB-5 1.6, 1.7.e); none: the records give H+ and e-. |
 
 ## reference_conditions
 
