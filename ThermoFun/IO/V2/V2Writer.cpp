@@ -24,14 +24,16 @@ auto applicabilityJson(const Applicability& a, const V2WriterOptions& options) -
     return out;
 }
 
-auto conventionJson(const Convention& c) -> json
+// the blocks standard_state and energy_reference of a convention, into the object of a record or a dataset (decision 0031)
+void addConvention(json& out, const Convention& c)
 {
-    json out = json::object();
-    if (c.energy_reference) out["energy_reference"] = toString(*c.energy_reference);
-    if (c.standard_pressure) out["standard_pressure"] = toString(*c.standard_pressure);
-    if (c.concentration_scale) out["concentration_scale"] = toString(*c.concentration_scale);
-    if (c.water_reference) out["water_reference"] = toString(*c.water_reference);
-    return out;
+    json state = json::object(), energy = json::object();
+    if (c.standard_state.pressure) state["pressure"] = toString(*c.standard_state.pressure);
+    if (c.standard_state.concentration_scale) state["concentration_scale"] = toString(*c.standard_state.concentration_scale);
+    if (c.energy_reference.elements) energy["elements"] = toString(*c.energy_reference.elements);
+    if (c.energy_reference.water) energy["water"] = toString(*c.energy_reference.water);
+    if (!state.empty()) out["standard_state"] = state;
+    if (!energy.empty()) out["energy_reference"] = energy;
 }
 
 // the unknown fields of a record, after the canonical ones; a canonical key wins
@@ -112,7 +114,7 @@ auto substanceJson(const SubstanceRecord& r, const ThermoDataSetInfo& dataset, c
     out["aggregate_state"] = toString(r.aggregate_state);
     if (!r.sourcetdb.empty()) out["sourcetdb"] = r.sourcetdb;
     if (r.molar_mass) out["molar_mass"] = molarMassJson(*r.molar_mass, options);
-    if (r.convention) out["convention"] = conventionJson(*r.convention);
+    if (r.convention) addConvention(out, *r.convention);
     if (!(r.reference_conditions == dataset.reference_conditions)) out["reference_conditions"] = referenceJson(r.reference_conditions);
     if (!r.standard_state_properties.empty())
     {
@@ -174,7 +176,7 @@ auto reactionJson(const ReactionRecord& r, const ThermoDataSetInfo& dataset, con
     if (r.level != 0) out["level"] = r.level;
     const json a = applicabilityJson(r.applicability, options);
     if (!a.empty()) out["applicability"] = a;
-    if (r.convention) out["convention"] = conventionJson(*r.convention);
+    if (r.convention) addConvention(out, *r.convention);
     if (r.preferred_property_source) out["preferred_property_source"] = toString(*r.preferred_property_source);
     if (const auto sources = sourcesOf(r.data_sources); !sources.empty()) out["data_sources"] = sources;
     if (!r.covariance.empty()) out["covariances"] = covariancesJson(r.covariance);
@@ -213,8 +215,7 @@ auto datasetJson(const ThermoDataSetInfo& d) -> json
     if (d.defaults.origin) values["origin"] = toString(*d.defaults.origin);
     if (!values.empty()) out["defaults"] = values;
     out["conventions"] = json{{"water_triple_point_reference", d.water_triple_point_reference}};
-    const json c = conventionJson(d.convention);
-    if (!c.empty()) out["convention"] = c;
+    addConvention(out, d.convention);
     addExtra(out, d.extra_json);
     return out;
 }

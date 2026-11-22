@@ -73,24 +73,24 @@ void applyOldWords(EngineConventions& c)
 {
     if (!c.apparent_properties.empty())
     {
-        c.energy_reference = checkedWord<model::EnergyReference>(c.apparent_properties);
+        c.energy_reference.elements = checkedWord<model::EnergyReference>(c.apparent_properties);
         c.apparent_properties.clear();
     }
     if (!c.water_properties.empty())
     {
-        c.water_reference = checkedWord<model::WaterReference>(c.water_properties);
+        c.energy_reference.water = checkedWord<model::WaterReference>(c.water_properties);
         c.water_properties.clear();
     }
 }
 
 auto EngineConventions::apparentPropertiesWord() const -> std::string
 {
-    return apparent_properties.empty() ? oldWordOf(energy_reference) : apparent_properties;
+    return apparent_properties.empty() ? oldWordOf(energy_reference.elements.value_or(model::EnergyReference::BensonHelgeson)) : apparent_properties;
 }
 
 auto EngineConventions::waterPropertiesWord() const -> std::string
 {
-    return water_properties.empty() ? oldWordOf(water_reference) : water_properties;
+    return water_properties.empty() ? oldWordOf(energy_reference.water.value_or(model::WaterReference::Geochemical)) : water_properties;
 }
 
 void ThermoEngine::Impl::dropStaleResults()
@@ -429,10 +429,11 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     if (p.propagate_parameter_errors != defaults.propagate_parameter_errors) s.options["propagate_parameter_errors"] = word(p.propagate_parameter_errors);
     if (p.property_source != defaults.property_source) s.options["property_source"] = model::toString(p.property_source);
     const auto& c = pimpl->conventions;
-    s.conventions["energy_reference"] = model::toString(c.energy_reference);
-    s.conventions["standard_pressure"] = model::toString(c.standard_pressure);
-    s.conventions["concentration_scale"] = model::toString(c.concentration_scale);
-    s.conventions["water_reference"] = model::toString(c.water_reference);
+    const auto out = model::mergeConvention({c.standard_state, c.energy_reference}, model::canonicalConvention());
+    s.conventions["standard_state.pressure"] = model::toString(*out.standard_state.pressure);
+    s.conventions["standard_state.concentration_scale"] = model::toString(*out.standard_state.concentration_scale);
+    s.conventions["energy_reference.elements"] = model::toString(*out.energy_reference.elements);
+    s.conventions["energy_reference.water"] = model::toString(*out.energy_reference.water);
     return s;
 }
 

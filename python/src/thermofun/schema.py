@@ -72,11 +72,14 @@ def definitions():
                                            "heat_capacity")},
                       description="Default units of everything inside the level where it is.")
     d["units"]["additionalProperties"] = STRING
-    d["convention"] = _obj({"energy_reference": {"enum": ["benson_helgeson", "berman_brown", "ser", "assigned_enthalpy",
-                                                          "gibbs_helmholtz_formation", "dft_formation_0K"]},
-                            "standard_pressure": {"enum": ["1bar", "1atm"]},
-                            "concentration_scale": {"enum": ["molality", "mole_fraction", "molarity"]},
-                            "water_reference": {"enum": ["geochemical", "steam_tables"]}})
+    # a value is defined by its standard state, its reference temperature and its energy reference (decision 0031, row 6)
+    d["standard_state"] = _obj({"pressure": {"enum": ["1bar", "1atm"]},
+                                "concentration_scale": {"enum": ["molality", "mole_fraction", "molarity", "amount_fraction", "amount_concentration"]}},
+                               description="The standard state of the values: the standard pressure p° and, for solutes, the concentration scale.")
+    d["energy_reference"] = _obj({"elements": {"enum": ["benson_helgeson", "berman_brown", "ser", "assigned_enthalpy",
+                                                        "gibbs_helmholtz_formation", "dft_formation_0K"]},
+                                  "water": {"enum": ["geochemical", "steam_tables"]}},
+                                 description="From what zero G, H and S are counted: of the elements and of water.")
     d["reference_conditions"] = _obj({"T": QUANTITY, "P": QUANTITY})
     d["applicability"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
     d["region"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
@@ -96,7 +99,7 @@ def definitions():
                              reference_state={"type": "string", "description": "The reference state of the element at the reference temperature and the standard pressure (NEA TDB-5, Table 7): formula unit and state, for example O2(g), C(cr, graphite), Fe(cr, bcc)."}, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."}, sourcetdb={"oneOf": [STRING, STRINGS]},
                              structural={"type": "object"}, units=REF("units"), legacy_class=STRING))
     d["substance"] = _obj(dict(record, name=STRING, formula=STRING, charge=INTEGER, **{"class": STRING}, aggregate_state=STRING,
-                               sourcetdb={"oneOf": [STRING, STRINGS]}, molar_mass=QUANTITY, convention=REF("convention"),
+                               sourcetdb={"oneOf": [STRING, STRINGS]}, molar_mass=QUANTITY, standard_state=REF("standard_state"), energy_reference=REF("energy_reference"),
                                reference_conditions=REF("reference_conditions"),
                                standard_state_properties=_obj({k: QUANTITY for k in ("G", "H", "S", "Cp", "V", "A", "U", "Cv")}),
                                methods=REF("methods_of_a_record"), defining_reaction=STRING, preferred_property_source=STRING,
@@ -107,7 +110,7 @@ def definitions():
                               reference_conditions=REF("reference_conditions"),
                               reaction_properties=_obj({k: QUANTITY for k in ("logK", "dG", "dH", "dS", "dCp", "dV")}),
                               methods=REF("methods_of_a_record"), level=INTEGER, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."},
-                              applicability=REF("applicability"), convention=REF("convention"), preferred_property_source=STRING,
+                              applicability=REF("applicability"), standard_state=REF("standard_state"), energy_reference=REF("energy_reference"), preferred_property_source=STRING,
                               sourcetdb={"oneOf": [STRING, STRINGS]}, deprecated=BOOLEAN, units=REF("units"),
                               covariances=REF("covariances")))
     d["method_definition"] = _obj(dict(symbol=STRING, record_type=STRING, kind=STRING, operates_on=STRING, applies_to_classes=STRINGS,
@@ -123,7 +126,7 @@ def definitions():
     d["thermodataset"] = _obj(dict(symbol=STRING, name=STRING, version=STRING, status=STRING,
                                    reference_conditions=REF("reference_conditions"), sourcetdb={"oneOf": [STRING, STRINGS]},
                                    solvent=STRING, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."}, defaults={"type": "object"},
-                                   conventions=_obj({"water_triple_point_reference": STRING}), convention=REF("convention")))
+                                   conventions=_obj({"water_triple_point_reference": STRING}), standard_state=REF("standard_state"), energy_reference=REF("energy_reference")))
     return d
 
 

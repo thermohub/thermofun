@@ -40,7 +40,8 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `defaults` | object |  |  |
 | `conventions` | object |  |  |
-| `convention` | [convention](#convention) |  |  |
+| `standard_state` | [standard_state](#standard_state) |  |  |
+| `energy_reference` | [energy_reference](#energy_reference) |  |  |
 
 ## element
 
@@ -77,7 +78,8 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `aggregate_state` | string |  |  |
 | `sourcetdb` | string or list of string |  |  |
 | `molar_mass` | [quantity](#quantity) |  |  |
-| `convention` | [convention](#convention) |  |  |
+| `standard_state` | [standard_state](#standard_state) |  |  |
+| `energy_reference` | [energy_reference](#energy_reference) |  |  |
 | `reference_conditions` | [reference_conditions](#reference_conditions) |  |  |
 | `standard_state_properties` | object |  |  |
 | `methods` | [methods_of_a_record](#methods_of_a_record) |  |  |
@@ -106,7 +108,8 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `level` | integer |  |  |
 | `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `applicability` | [applicability](#applicability) |  |  |
-| `convention` | [convention](#convention) |  |  |
+| `standard_state` | [standard_state](#standard_state) |  |  |
+| `energy_reference` | [energy_reference](#energy_reference) |  |  |
 | `preferred_property_source` | string |  |  |
 | `sourcetdb` | string or list of string |  |  |
 | `deprecated` | boolean |  |  |
@@ -142,14 +145,23 @@ A standard uncertainty (a number), or an object: standard; expanded with coverag
 
 One of: number; an object with `standard`, `distribution`, `kind`; an object with `expanded`, `coverage_factor`, `distribution`, `kind`; an object with `half_width`, `distribution`, `kind`
 
-## convention
+## standard_state
+
+The standard state of the values: the standard pressure p° and, for solutes, the concentration scale.
 
 | Key | Type | Required | Note |
 |---|---|---|---|
-| `energy_reference` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |  |  |
-| `standard_pressure` | `1bar`, `1atm` |  |  |
-| `concentration_scale` | `molality`, `mole_fraction`, `molarity` |  |  |
-| `water_reference` | `geochemical`, `steam_tables` |  |  |
+| `pressure` | `1bar`, `1atm` |  |  |
+| `concentration_scale` | `molality`, `mole_fraction`, `molarity`, `amount_fraction`, `amount_concentration` |  |  |
+
+## energy_reference
+
+From what zero G, H and S are counted: of the elements and of water.
+
+| Key | Type | Required | Note |
+|---|---|---|---|
+| `elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |  |  |
+| `water` | `geochemical`, `steam_tables` |  |  |
 
 ## reference_conditions
 

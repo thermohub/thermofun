@@ -21,6 +21,7 @@
 #endif
 
 // pybind11 includes
+#include "pyWords.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tuple>
@@ -42,25 +43,6 @@ namespace py = pybind11;
 namespace ThermoFun {
 
 namespace {
-
-// The value of a checked word: an unknown word gives the words allowed and a hint
-template <class E>
-auto wordOf(const std::string& word) -> E
-{
-    const auto value = model::fromString<E>(word);
-    if (!value)
-        throw py::value_error(model::unknownWordMessage<E>(word));
-    return *value;
-}
-
-// A setting given as the enum or as a word
-template <class E>
-auto valueOf(const py::object& given) -> E
-{
-    if (py::isinstance<py::str>(given))
-        return wordOf<E>(given.cast<std::string>());
-    return given.cast<E>();
-}
 
 // The word of a value in capitals, as the old fields had it
 
@@ -150,10 +132,10 @@ void exportThermoEngine(py::module& m)
     m.def("optionWords", [] {
         std::map<std::string, std::vector<std::string>> out;
         out["property_source"] = model::words<model::PropertySource>();
-        out["energy_reference"] = model::words<model::EnergyReference>();
-        out["standard_pressure"] = model::words<model::StandardPressure>();
-        out["concentration_scale"] = model::words<model::ConcentrationScale>();
-        out["water_reference"] = model::words<model::WaterReference>();
+        out["standard_state.pressure"] = model::words<model::StandardPressure>();
+        out["standard_state.concentration_scale"] = model::words<model::ConcentrationScale>();
+        out["energy_reference.elements"] = model::words<model::EnergyReference>();
+        out["energy_reference.water"] = model::words<model::WaterReference>();
         return out;
     }, "The valid words of the options of the engine");
 
@@ -384,27 +366,19 @@ void exportThermoEngine(py::module& m)
     m.def("round_half_even", &rounding::roundHalfEven, py::arg("x"), py::arg("decimals"),
           "Round to a number of decimals with the NEA TDB rule (a 5 not followed by other non-zero digits rounds to the even digit)");
 
-    py::class_<EngineConventions>(m, "EngineConventions")
+    py::class_<EngineConventions>(m, "EngineConventions", "The conventions of the results: the standard state and the energy reference (decision 0031)")
         .def(py::init<>())
-        .def_property("energy_reference", [](const EngineConventions& c) { return c.energy_reference; },
-                      [](EngineConventions& c, py::object v) { c.energy_reference = valueOf<model::EnergyReference>(v); c.apparent_properties.clear(); },
-                      "the reference of the energies: what G and H of a substance are measured from. benson_helgeson (default): the apparent energies of formation from the elements at 298.15 K and 1 bar, as in geochemical databases; berman_brown: G differs from it by 298.15 times the entropies of the elements; ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K: see Conventions")
-        .def_property("standard_pressure", [](const EngineConventions& c) { return c.standard_pressure; },
-                      [](EngineConventions& c, py::object v) { c.standard_pressure = valueOf<model::StandardPressure>(v); },
-                      "the standard pressure of gases: 1bar (default) or 1atm")
-        .def_property("concentration_scale", [](const EngineConventions& c) { return c.concentration_scale; },
-                      [](EngineConventions& c, py::object v) { c.concentration_scale = valueOf<model::ConcentrationScale>(v); },
-                      "the concentration scale of the standard state of aqueous species: molality (default), mole_fraction or molarity")
-        .def_property("water_reference", [](const EngineConventions& c) { return c.water_reference; },
-                      [](EngineConventions& c, py::object v) { c.water_reference = valueOf<model::WaterReference>(v); c.water_properties.clear(); },
-                      "the reference of the energies of water: geochemical (default, G of formation from the elements) or steam_tables (G = 0 and S = 0 for liquid water at its triple point)")
-        // the old names: the same values as checked words in capitals
+        .def_readwrite("standard_state", &EngineConventions::standard_state,
+                       "the standard state of the results: pressure (1bar, the default, or 1atm) and concentration_scale (molality, the default, molarity or mole_fraction)")
+        .def_readwrite("energy_reference", &EngineConventions::energy_reference,
+                       "from what zero G, H and S of the results are counted: elements (benson_helgeson, the default, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K) and water (geochemical, the default, or steam_tables)")
+        // the names of 0.x: the same values as checked words in capitals
         .def_property("apparent_properties", [](const EngineConventions& c) { return c.apparentPropertiesWord(); },
-                      [](EngineConventions& c, const std::string& word) { c.energy_reference = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); },
-                      "the old name of energy_reference, in capitals (BENSON_HELGESON). It is kept for code that uses it; use energy_reference")
+                      [](EngineConventions& c, const std::string& word) { c.energy_reference.elements = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); },
+                      "the 0.x name of energy_reference.elements, in capitals (BENSON_HELGESON)")
         .def_property("water_properties", [](const EngineConventions& c) { return c.waterPropertiesWord(); },
-                      [](EngineConventions& c, const std::string& word) { c.water_reference = wordOf<model::WaterReference>(word); c.water_properties.clear(); },
-                      "the old name of water_reference, in capitals (GEOCHEMICAL). It is kept for code that uses it; use water_reference");
+                      [](EngineConventions& c, const std::string& word) { c.energy_reference.water = wordOf<model::WaterReference>(word); c.water_properties.clear(); },
+                      "the 0.x name of energy_reference.water, in capitals (GEOCHEMICAL)");
 }
 
 }

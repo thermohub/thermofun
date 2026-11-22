@@ -343,19 +343,21 @@ assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
 ```
 -->
 
-**Conventions.** Give `convention` in a record, or in the dataset, if the values are not in the defaults (`benson_helgeson`, `1bar`, `molality`, `geochemical`). For example: `convention: {energy_reference: berman_brown, standard_pressure: 1atm}`.
+**Conventions.** A value is defined by its standard state, its reference temperature and its energy reference. Give the blocks
+`standard_state` and `energy_reference` in a record, or in the dataset, if the values are not in the defaults (`1bar`, `molality`,
+`benson_helgeson`, `geochemical`). For example: `standard_state: {pressure: 1atm}` and `energy_reference: {elements: berman_brown}`.
 
-- `energy_reference`: `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K`.
-- `standard_pressure`: `1bar`, `1atm`. It changes gases only.
-- `concentration_scale`: `molality`, `mole_fraction`, `molarity`. It changes aqueous solutes only. `molarity` needs the water solvent in the database.
-- `water_reference`: `geochemical`, `steam_tables`. It changes the water solvent only.
+- `standard_state.pressure`: `1bar`, `1atm`. It changes gases only.
+- `standard_state.concentration_scale`: `molality`, `molarity`, `mole_fraction` (IUPAC: `amount_concentration`, `amount_fraction`). It changes aqueous solutes only. `molarity` needs the water solvent in the database.
+- `energy_reference.elements`: `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K`.
+- `energy_reference.water`: `geochemical`, `steam_tables`. It changes the water solvent only.
 
 The engine converts the result of the base method. It does not convert increments. Species with different conventions can be in one reaction. A change of the energy reference needs the
 entropies of the elements. Put them in `elements`. If they are not there, the engine uses the table of ChemicalFun and gives a warning (`CNV-006`). If no source has them, the engine gives an error (`CNV-001`).
 `NASA9` is always in `assigned_enthalpy` and `CpExtendedUNIQUAC` in `gibbs_helmholtz_formation`, whatever the record says. Results come in the defaults. To ask for others, set `EngineConventions`.
 
 **The hydrogen ion.** The geochemical convention (`benson_helgeson`, the default) defines all properties of the hydrogen ion as 0, at all T and P. A record with the class
-`aqueous_solute` and the formula `H+` needs no methods and no values in this convention. In another convention, the properties of H+ can be different: give `convention` in
+`aqueous_solute` and the formula `H+` needs no methods and no values in this convention. In another convention, the properties of H+ can be different: give `energy_reference` in
 the record, or in the dataset, with the values and the methods. ThermoFun then uses them. It also uses values other than 0 in the geochemical convention, and `validate` gives a warning (`CNV-007`).
 
 ```python
@@ -367,7 +369,7 @@ substances:
     formula: H+
     class: aqueous_solute
     aggregate_state: aqueous
-    convention: {energy_reference: ser}
+    energy_reference: {elements: ser}
     standard_state_properties: {G: -1000, H: -1000, S: 10, Cp: 20, V: 0}
     methods:
       - {method: ConstantCp}

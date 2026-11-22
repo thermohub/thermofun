@@ -7,6 +7,7 @@
 #include <ThermoFun/Engine/DetailedResult.h>
 #include <ThermoFun/Engine/Sensitivity.h>
 #include <ThermoFun/Engine/Snapshot.h>
+#include <ThermoFun/Model/Convention.h>
 #include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoProperties.h>
 
@@ -54,10 +55,10 @@ struct EnginePreferences
 };
 
 struct EngineConventions {
-    model::EnergyReference energy_reference = model::EnergyReference::BensonHelgeson;
-    model::StandardPressure standard_pressure = model::StandardPressure::OneBar;
-    model::ConcentrationScale concentration_scale = model::ConcentrationScale::Molality;
-    model::WaterReference water_reference = model::WaterReference::Geochemical;
+    /// The standard state of the results: the standard pressure and the concentration scale of solutes (decision 0031)
+    model::StandardState standard_state{model::StandardPressure::OneBar, model::ConcentrationScale::Molality};
+    /// From what zero G, H and S of the results are counted: of the elements and of water
+    model::EnergyReferences energy_reference{model::EnergyReference::BensonHelgeson, model::WaterReference::Geochemical};
 
     // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine,
     // and the field is then empty: read the words with apparentPropertiesWord() and waterPropertiesWord().

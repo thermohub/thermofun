@@ -49,8 +49,8 @@ def test_reference_state_of_an_element():
 
 @pytest.mark.parametrize("word, scale", [("amount_concentration", "molarity"), ("amount_fraction", "mole_fraction")])
 def test_iupac_names_of_the_concentration_scales(word, scale):
-    db = database(substances={"A": mineral(convention={"concentration_scale": word})})
-    assert str(db.getSubstance("A").record().convention.concentration_scale).split(".")[-1].lower() == scale.replace("_", "")
+    db = database(substances={"A": mineral(standard_state={"concentration_scale": word})})
+    assert str(db.getSubstance("A").record().convention.standard_state.concentration_scale).split(".")[-1].lower() == scale.replace("_", "")
 
 
 def test_dfG_and_dfH_are_G_and_H():
@@ -60,9 +60,9 @@ def test_dfG_and_dfH_are_G_and_H():
     assert db.get("/substances/A/standard_state_properties/H") == -1.1e6
     assert not warnings(db, "CNV-009") and not warnings(db, "V2-KEY-001")
     # H at Tr is dfH in every energy reference; G is dfG only in benson_helgeson and gibbs_helmholtz_formation
-    bb = database(substances={"A": mineral(standard_state_properties={"dfG": -1.0e6, "dfH": -1.1e6, "S": 50.0}, convention={"energy_reference": "berman_brown"})})
+    bb = database(substances={"A": mineral(standard_state_properties={"dfG": -1.0e6, "dfH": -1.1e6, "S": 50.0}, energy_reference={"elements": "berman_brown"})})
     assert [d.path for d in warnings(bb, "CNV-009")] == ["/substances/A/standard_state_properties/dfG"]
-    only_h = database(substances={"A": mineral(standard_state_properties={"G": -1.0e6, "dfH": -1.1e6}, convention={"energy_reference": "berman_brown"})})
+    only_h = database(substances={"A": mineral(standard_state_properties={"G": -1.0e6, "dfH": -1.1e6}, energy_reference={"elements": "berman_brown"})})
     assert not warnings(only_h, "CNV-009")
 
 

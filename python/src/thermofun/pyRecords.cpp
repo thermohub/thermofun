@@ -10,6 +10,7 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
+#include "pyWords.h"
 #include <ThermoFun/Model/Records.h>
 
 namespace ThermoFun {
@@ -27,12 +28,27 @@ void exportRecords(py::module& m)
         .def_readwrite("matrix", &CovarianceBlock::matrix)
         .def(py::self == py::self);
 
-    py::class_<Convention>(m, "Convention", "Conventions of a dataset or a record")
+    py::class_<StandardState>(m, "StandardState", "The standard state of values: the standard pressure and the concentration scale of solutes. None: the default or a more general level")
         .def(py::init<>())
+        .def_property("pressure", [](const StandardState& x) { return x.pressure; }, [](StandardState& x, py::object v) { x.pressure = optionalValueOf<StandardPressure>(v); },
+                      "the standard pressure p°: 1bar or 1atm (StandardPressure or the word)")
+        .def_property("concentration_scale", [](const StandardState& x) { return x.concentration_scale; },
+                      [](StandardState& x, py::object v) { x.concentration_scale = optionalValueOf<ConcentrationScale>(v); },
+                      "the concentration scale of solutes: molality, molarity or mole_fraction (ConcentrationScale or the word)")
+        .def(py::self == py::self);
+
+    py::class_<EnergyReferences>(m, "EnergyReferences", "From what zero G, H and S are counted: of the elements and of water. None: the default or a more general level")
+        .def(py::init<>())
+        .def_property("elements", [](const EnergyReferences& x) { return x.elements; }, [](EnergyReferences& x, py::object v) { x.elements = optionalValueOf<EnergyReference>(v); },
+                      "benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation or dft_formation_0K (EnergyReference or the word)")
+        .def_property("water", [](const EnergyReferences& x) { return x.water; }, [](EnergyReferences& x, py::object v) { x.water = optionalValueOf<WaterReference>(v); },
+                      "geochemical or steam_tables (WaterReference or the word)")
+        .def(py::self == py::self);
+
+    py::class_<Convention>(m, "Convention", "The conventions of a dataset or a record: the blocks standard_state and energy_reference")
+        .def(py::init<>())
+        .def_readwrite("standard_state", &Convention::standard_state)
         .def_readwrite("energy_reference", &Convention::energy_reference)
-        .def_readwrite("standard_pressure", &Convention::standard_pressure)
-        .def_readwrite("concentration_scale", &Convention::concentration_scale)
-        .def_readwrite("water_reference", &Convention::water_reference)
         .def(py::self == py::self);
 
     py::class_<ReferenceConditions>(m, "ReferenceConditions", "Reference temperature (K) and pressure (Pa)")

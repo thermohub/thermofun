@@ -58,7 +58,7 @@ def engine(name):
     substance = {"formula": name, "charge": 0, "class": "gas_fluid", "aggregate_state": "gas",
                  "reference_conditions": {"T": 298.15, "P": 1e5},
                  "standard_state_properties": {"G": 0.0, "H": 0.0, "S": 0.0, "Cp": 0.0, "V": 0.0},
-                 "convention": {"energy_reference": "benson_helgeson"},   # no conversion: the test has no elements
+                 "energy_reference": {"elements": "benson_helgeson"},   # no conversion: the test has no elements
                  "methods": [{"method": "Shomate", "segments": [
                      {"t_min": p["t_min"], "t_max": p["t_max"], "parameters": {n: p[n] for n in LETTERS}} for p in pieces]}]}
     doc = {"thermohub": "2.0.0-draft.1", "methods": {"Shomate": BUILT}, "substances": {name: substance}}
@@ -94,7 +94,7 @@ def engine_with_elements(name, energy_reference="assigned_enthalpy", elements=Tr
     substance = {"formula": FORMULAS[name], "charge": 0, "class": "gas_fluid", "aggregate_state": "gas",
                  "reference_conditions": {"T": 298.15, "P": 1e5},
                  "standard_state_properties": {"G": 0.0, "H": 0.0, "S": 0.0, "Cp": 0.0, "V": 0.0},
-                 "convention": {"energy_reference": energy_reference},
+                 "energy_reference": {"elements": energy_reference},
                  "methods": [{"method": "Shomate", "segments": [
                      {"t_min": p["t_min"], "t_max": p["t_max"], "parameters": {n: p[n] for n in LETTERS}} for p in pieces]}]}
     doc = {"thermohub": "2.0.0-draft.1", "methods": {"Shomate": BUILT}, "substances": {name: substance}}

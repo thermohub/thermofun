@@ -371,15 +371,25 @@ def diagnostics_page():
 def _options(cls, words):
     lines = ["| Option | Default | Valid words | Description |", "|---|---|---|---|"]
     default = cls()
-    for name in sorted(n for n in dir(default) if not n.startswith("_")):
-        attribute = getattr(cls, name)
-        value = getattr(default, name)
-        if callable(value):
-            continue
-        shown = str(value).split(".")[-1] if name in words else repr(value)
-        doc = (attribute.__doc__ or "").strip().splitlines()
-        lines.append("| %s | %s | %s | %s |" % (name, _cell(shown), ", ".join(words.get(name, [])), _cell(doc[0] if doc else "")))
-    return lines
+    groups = (tf.StandardState, tf.EnergyReferences)
+
+    def rows(owner, prefix):
+        out = []
+        for name in sorted(n for n in dir(owner) if not n.startswith("_")):
+            attribute = getattr(type(owner), name)
+            value = getattr(owner, name)
+            if callable(value):
+                continue
+            key = prefix + name
+            if isinstance(value, groups):   # a group of the conventions: one row for each field
+                out += rows(value, key + ".")
+                continue
+            shown = str(value).split(".")[-1] if key in words else repr(value)
+            doc = (attribute.__doc__ or "").strip().splitlines()
+            out.append("| %s | %s | %s | %s |" % (key, _cell(shown), ", ".join(words.get(key, [])), _cell(doc[0] if doc else "")))
+        return out
+
+    return lines + rows(cls(), "")
 
 
 def preferences_page():
@@ -422,7 +432,7 @@ def schema_page():
     s = schema.schema()
     defs = s["$defs"]
     order = ["document", "single_record", "thermodataset", "element", "substance", "reaction", "method_application", "quantity",
-             "uncertainty", "convention", "reference_conditions", "applicability", "units", "covariances", "parameters",
+             "uncertainty", "standard_state", "energy_reference", "reference_conditions", "applicability", "units", "covariances", "parameters",
              "method_definition", "parameter_set", "data_source"]
     lines = ["# The JSON Schema of the v2 format", "", NOTICE, "",
              "The schema is `ThermoFun/IO/V2/thermohub.schema.json` (JSON Schema 2020-12), also installed with the headers. "

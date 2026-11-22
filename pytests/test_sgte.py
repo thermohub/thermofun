@@ -55,7 +55,7 @@ def engine():
     substance = {"formula": "Fe", "charge": 0, "class": "component", "aggregate_state": "crystal",
                  "reference_conditions": {"T": 298.15, "P": 1e5},
                  "standard_state_properties": {"G": 0.0, "H": 0.0, "S": 0.0, "Cp": 0.0, "V": 7.09e-6},
-                 "convention": {"energy_reference": "benson_helgeson"},
+                 "energy_reference": {"elements": "benson_helgeson"},
                  "methods": [{"method": "SGTE", "segments": [
                      {"t_min": p["t_min"], "t_max": p["t_max"], "parameters": {n: p[n] for n in LETTERS}} for p in DATA["base_pieces"]]},
                      {"method": "MagneticIHJ", "segments": magnetic_pieces}]}

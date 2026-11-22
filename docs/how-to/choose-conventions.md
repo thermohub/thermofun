@@ -11,7 +11,7 @@ There are two questions: what the data are in, and what you want the results in.
 
 ## What the data are in
 
-Write `convention` in a record, or in `thermodataset` for all records. [Add data](add-data.md) lists the words. The engine converts the values to its canonical convention.
+Write the blocks `standard_state` and `energy_reference` in a record, or in `thermodataset` for all records. [Add data](add-data.md) lists the words. The engine converts the values to its canonical convention.
 
 ## What you want the results in
 
@@ -24,7 +24,7 @@ engine = tf.ThermoEngine("examples/v2/minimal.yaml")
 geochemical = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
 
 conventions = tf.EngineConventions()
-conventions.water_reference = "steam_tables"
+conventions.energy_reference.water = "steam_tables"
 engine.setConventions(conventions)
 steam = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
 

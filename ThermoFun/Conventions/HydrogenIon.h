@@ -23,8 +23,8 @@ inline auto isHydrogenIon(const SubstanceRecord& record) -> bool
 /// properties as 0; the convention of the record goes before that of the dataset.
 inline auto hydrogenIonConventionIsZero(const SubstanceRecord& record, const Convention& dataset) -> bool
 {
-    const auto own = record.convention ? record.convention->energy_reference : std::nullopt;
-    const auto reference = own ? own : dataset.energy_reference;
+    const auto own = record.convention ? record.convention->energy_reference.elements : std::nullopt;
+    const auto reference = own ? own : dataset.energy_reference.elements;
     return !reference || *reference == EnergyReference::BensonHelgeson;
 }
 

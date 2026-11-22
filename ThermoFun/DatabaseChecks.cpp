@@ -81,7 +81,7 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
             text += (text.empty() ? "" : ", ") + w;
         return text;
     };
-    const auto datasetReference = records.dataset.convention.energy_reference.value_or(model::EnergyReference::BensonHelgeson);
+    const auto datasetReference = records.dataset.convention.energy_reference.elements.value_or(model::EnergyReference::BensonHelgeson);
     bool hasSolvent = false;
     std::map<std::string, model::EnergyReference> references;
     for (const auto& r : records.substances)
@@ -92,10 +92,10 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
         for (const auto& a : r.methods)
             if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); spec && spec->effects.base && spec->native_convention)
                 native = spec->native_convention;
-        if (native && !own.energy_reference && *native != datasetReference)
+        if (native && !own.energy_reference.elements && *native != datasetReference)
             add(Severity::Warning, "CNV-003", r.symbol, "/substances/" + r.symbol + "/methods",
                 "The method gives " + model::toString(*native) + ", the dataset uses " + model::toString(datasetReference) + ", and the record declares no convention. The values are converted.");
-        const auto reference = native ? *native : own.energy_reference.value_or(datasetReference);
+        const auto reference = native ? *native : own.energy_reference.elements.value_or(datasetReference);
         references[r.symbol] = reference;
         if (reference != model::EnergyReference::BensonHelgeson && !r.formula.empty())
         {
@@ -108,7 +108,7 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
     }
     for (const auto& r : records.substances)
         if (r.class_ == model::SubstanceClass::AqueousSolute && !hasSolvent &&
-            mergeConvention(r.convention.value_or(model::Convention{}), records.dataset.convention).concentration_scale == model::ConcentrationScale::Molarity)
+            mergeConvention(r.convention.value_or(model::Convention{}), records.dataset.convention).standard_state.concentration_scale == model::ConcentrationScale::Molarity)
             add(Severity::Error, "CNV-002", r.symbol, "/substances/" + r.symbol + "/convention", "A solute in molarity needs a solvent, and the database has none.");
     for (const auto& r : records.reactions)
     {

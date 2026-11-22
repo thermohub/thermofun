@@ -267,7 +267,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             else if (solvent->reference_values)
             {
                 tps = toThermoProperties(model::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
-                if (kind.isH2OSolvent && declaredConvention(*substance.record()).water_reference == model::WaterReference::SteamTables)
+                if (kind.isH2OSolvent && declaredConvention(*substance.record()).energy_reference.water == model::WaterReference::SteamTables)
                     steamTablesShift(tps, T, 1.0);
                 cameFrom("reference");
             }

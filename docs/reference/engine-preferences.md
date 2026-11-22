@@ -25,9 +25,9 @@ A convention says what the zero of an energy is, and what a standard state is. T
 
 | Option | Default | Valid words | Description |
 |---|---|---|---|
-| apparent_properties | 'BENSON_HELGESON' |  | the old name of energy_reference, in capitals (BENSON_HELGESON). It is kept for code that uses it; use energy_reference |
-| concentration_scale | Molality | molality, mole_fraction, molarity | the concentration scale of the standard state of aqueous species: molality (default), mole_fraction or molarity |
-| energy_reference | BensonHelgeson | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K | the reference of the energies: what G and H of a substance are measured from. benson_helgeson (default): the apparent energies of formation from the elements at 298.15 K and 1 bar, as in geochemical databases; berman_brown: G differs from it by 298.15 times the entropies of the elements; ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K: see Conventions |
-| standard_pressure | OneBar | 1bar, 1atm | the standard pressure of gases: 1bar (default) or 1atm |
-| water_properties | 'GEOCHEMICAL' |  | the old name of water_reference, in capitals (GEOCHEMICAL). It is kept for code that uses it; use water_reference |
-| water_reference | Geochemical | geochemical, steam_tables | the reference of the energies of water: geochemical (default, G of formation from the elements) or steam_tables (G = 0 and S = 0 for liquid water at its triple point) |
+| apparent_properties | 'BENSON_HELGESON' |  | the 0.x name of energy_reference.elements, in capitals (BENSON_HELGESON) |
+| energy_reference.elements | BensonHelgeson | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation or dft_formation_0K (EnergyReference or the word) |
+| energy_reference.water | Geochemical | geochemical, steam_tables | geochemical or steam_tables (WaterReference or the word) |
+| standard_state.concentration_scale | Molality | molality, mole_fraction, molarity | the concentration scale of solutes: molality, molarity or mole_fraction (ConcentrationScale or the word) |
+| standard_state.pressure | OneBar | 1bar, 1atm | the standard pressure p°: 1bar or 1atm (StandardPressure or the word) |
+| water_properties | 'GEOCHEMICAL' |  | the 0.x name of energy_reference.water, in capitals (GEOCHEMICAL) |

@@ -249,7 +249,7 @@ engine = tf.ThermoEngine(AQ)
 print("geochemical: ", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
 
 conventions = tf.EngineConventions()
-conventions.water_reference = "steam_tables"
+conventions.energy_reference.water = "steam_tables"
 engine.setConventions(conventions)
 print("steam tables:", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
 ```

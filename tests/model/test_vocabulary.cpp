@@ -183,8 +183,8 @@ void testOldWordsOfTheConventions()
 {
     ThermoFun::EngineConventions c;
     CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON" && c.waterPropertiesWord() == "GEOCHEMICAL");
-    c.energy_reference = ThermoFun::model::EnergyReference::BermanBrown;
-    c.water_reference = ThermoFun::model::WaterReference::SteamTables;
+    c.energy_reference.elements = ThermoFun::model::EnergyReference::BermanBrown;
+    c.energy_reference.water = ThermoFun::model::WaterReference::SteamTables;
     CHECK(c.apparentPropertiesWord() == "BERMAN_BROWN" && c.waterPropertiesWord() == "STEAM_TABLES");
     c.apparent_properties = "BENSON_HELGESON";   // a word not yet applied is the answer
     CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON");

@@ -127,7 +127,7 @@ def test_validate_gives_exit_code_0_for_good_data(capsys):
 
 def test_validate_gives_exit_code_1_for_an_error(tmp_path, capsys):
     bad = tmp_path / "bad.json"
-    bad.write_text(json.dumps(dict(HEAD, substances={"X": {"formula": "Ca", "convention": {"energy_reference": "nonsense"}}})))
+    bad.write_text(json.dumps(dict(HEAD, substances={"X": {"formula": "Ca", "energy_reference": {"elements": "nonsense"}}})))
     assert validate.main([str(bad)]) == 1
     assert "CNV-005" in capsys.readouterr().out
 

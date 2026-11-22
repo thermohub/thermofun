@@ -7,12 +7,15 @@
 
 The same substance can have different values for G, because G has no absolute zero. A convention says how the values are defined.
 
-| Field | Words | Default |
+A value is defined by its **standard state**, its **reference temperature** and its **energy reference**. A record or a dataset gives
+the standard state and the energy reference in two blocks:
+
+| Block and field | Words | Default |
 |---|---|---|
-| `energy_reference` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, ... | `benson_helgeson` |
-| `concentration_scale` | `molality`, `mole_fraction`, `molarity` | `molality` |
-| `water_reference` | `geochemical`, `steam_tables` | `geochemical` |
-| `standard_pressure` | 1 bar, 1 atm | 1 bar |
+| `standard_state.pressure` | `1bar`, `1atm` | `1bar` |
+| `standard_state.concentration_scale` | `molality`, `molarity`, `mole_fraction` | `molality` |
+| `energy_reference.elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, ... | `benson_helgeson` |
+| `energy_reference.water` | `geochemical`, `steam_tables` | `geochemical` |
 
 **The engine has one inside convention.** Each record says what it is in, and the engine converts it to the canonical convention. So species with different conventions can be in one reaction. Results go out in the convention that you ask for.
 

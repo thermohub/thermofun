@@ -195,7 +195,7 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConv
     {
         const auto& spec = method->spec();
         Convention declared;
-        declared.energy_reference = spec.native_convention;
+        declared.energy_reference.elements = spec.native_convention;
         if (spec.effects.base)
             declared = mergeConvention(declared, inherited);
         bound->to_canonical.push_back(spec.effects.G == Effect::Set ? shiftToCanonical(declared, subject) : ConventionShift{});

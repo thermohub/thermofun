@@ -93,7 +93,7 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     }
     static const std::set<std::string> known = {
         "symbol", "name", "formula", "charge", "class", "aggregate_state", "sourcetdb", "molar_mass", "standard_state_convention",
-        "convention", "reference_conditions", "standard_state_properties", "methods", "defining_reaction", "preferred_property_source",
+        "standard_state", "energy_reference", "reference_conditions", "standard_state_properties", "methods", "defining_reaction", "preferred_property_source",
         "applicability", "data_sources", "structural", "deprecated", "deprecated_in_favour_of", "units", "record_type", "covariances"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
@@ -110,8 +110,7 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     r.aggregate_state = vocabulary<AggregateState>(c, optionalString(node, "aggregate_state"), symbol, path + "/aggregate_state").value_or(AggregateState::Other);
     r.sourcetdb = optionalString(node, "sourcetdb");
     r.molar_mass = quantity(c, node, "molar_mass", "kg/mol", mass, symbol, path);
-    if (node.contains("convention"))
-        r.convention = readConvention(c, node["convention"], symbol, path + "/convention");
+    r.convention = readConvention(c, node, symbol, path);
     standardStateLabel(c, node, r.convention, symbol, path);
     r.reference_conditions = readReferenceConditions(c, node, scope, symbol, path,
                                                      c.dataset ? c.dataset->reference_conditions : ReferenceConditions{});
@@ -144,8 +143,8 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
         }
     if (formationG)
     {
-        const auto own = r.convention ? r.convention->energy_reference : std::nullopt;
-        const auto reference = own ? own : (c.dataset ? c.dataset->convention.energy_reference : std::nullopt);
+        const auto own = r.convention ? r.convention->energy_reference.elements : std::nullopt;
+        const auto reference = own ? own : (c.dataset ? c.dataset->convention.energy_reference.elements : std::nullopt);
         if (reference && *reference != EnergyReference::BensonHelgeson && *reference != EnergyReference::GibbsHelmholtzFormation)
             report(c, Severity::Warning, "CNV-009", symbol, path + "/standard_state_properties/dfG",
                    "dfG is the Gibbs energy of formation, but the energy reference " + toString(*reference) +
@@ -184,7 +183,7 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
     }
     static const std::set<std::string> known = {
         "symbol", "name", "equation", "stoichiometry", "reference_conditions", "reaction_properties", "methods", "level",
-        "data_sources", "applicability", "convention", "preferred_property_source", "sourcetdb", "deprecated", "units", "record_type", "covariances"};
+        "data_sources", "applicability", "standard_state", "energy_reference", "preferred_property_source", "sourcetdb", "deprecated", "units", "record_type", "covariances"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -245,8 +244,7 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
         r.level = *level;
     if (node.contains("applicability"))
         r.applicability = readApplicability(c, node["applicability"], scope, symbol, path + "/applicability");
-    if (node.contains("convention"))
-        r.convention = readConvention(c, node["convention"], symbol, path + "/convention");
+    r.convention = readConvention(c, node, symbol, path);
     r.preferred_property_source = readPropertySource(c, node, symbol, path);
     r.data_sources = stringList(node, "data_sources");
     r.deprecated = node.contains("deprecated") && node["deprecated"].is_boolean() && node["deprecated"].get<bool>();
@@ -438,7 +436,7 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
     if (!node.is_object())
         return info;
     static const std::set<std::string> known = {"symbol", "name", "version", "status", "standard_state_convention", "reference_conditions",
-                                                "sourcetdb", "solvent", "data_sources", "defaults", "conventions", "convention"};
+                                                "sourcetdb", "solvent", "data_sources", "defaults", "conventions", "standard_state", "energy_reference"};
     info.symbol = optionalString(node, "symbol");
     info.name = optionalString(node, "name");
     info.version = optionalString(node, "version");
@@ -461,9 +459,8 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
         if (!w.empty())
             info.water_triple_point_reference = w;
     }
-    if (node.contains("convention"))
-        if (auto conv = readConvention(c, node["convention"], info.symbol, "/thermodataset/convention"))
-            info.convention = *conv;
+    if (auto conv = readConvention(c, node, info.symbol, "/thermodataset"))
+        info.convention = *conv;
     {
         std::optional<Convention> conv = info.convention;
         standardStateLabel(c, node, conv, info.symbol, "/thermodataset");

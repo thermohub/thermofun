@@ -291,25 +291,25 @@ def gibbs_of(db):
 def test_the_hydrogen_ion_is_zero_in_the_geochemical_convention():
     assert gibbs_of(hydrogen()) == 0.0
     assert gibbs_of(hydrogen(standard_state_properties=dict.fromkeys(VALUES, 0.0))) == 0.0
-    assert gibbs_of(hydrogen(convention={"energy_reference": "benson_helgeson"})) == 0.0
+    assert gibbs_of(hydrogen(energy_reference={"elements": "benson_helgeson"})) == 0.0
 
 
 @pytest.mark.parametrize("reference", ["ser", "berman_brown", "assigned_enthalpy"])
 def test_the_hydrogen_ion_has_its_values_in_another_convention(reference):
-    db = hydrogen(convention={"energy_reference": reference}, standard_state_properties=VALUES, methods=METHODS)
+    db = hydrogen(energy_reference={"elements": reference}, standard_state_properties=VALUES, methods=METHODS)
     assert gibbs_of(db) == -1000.0
     assert "CNV-007" not in codes(db)
 
 
 def test_the_convention_of_the_dataset_counts_for_the_hydrogen_ion():
     record = {"formula": "H+", "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": VALUES, "methods": METHODS}
-    db = tf.Database(document(thermodataset={"symbol": "x", "convention": {"energy_reference": "ser"}}, substances={"H+": record}))
+    db = tf.Database(document(thermodataset={"symbol": "x", "energy_reference": {"elements": "ser"}}, substances={"H+": record}))
     assert gibbs_of(db) == -1000.0
     assert "CNV-007" not in codes(db)
 
 
 def test_a_zero_in_a_record_of_another_convention_stays_a_value():
-    db = hydrogen(convention={"energy_reference": "ser"}, standard_state_properties=dict(VALUES, G=0.0, S=10.0), methods=METHODS)
+    db = hydrogen(energy_reference={"elements": "ser"}, standard_state_properties=dict(VALUES, G=0.0, S=10.0), methods=METHODS)
     p = tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "H+")
     assert p.entropy.val == 10.0
 
@@ -328,7 +328,7 @@ def test_only_the_hydrogen_ion_has_this_rule():
 
 def test_another_convention_with_nothing_given_is_refused():
     with pytest.raises(RuntimeError, match="V2-MTH-012"):
-        hydrogen(convention={"energy_reference": "ser"})
+        hydrogen(energy_reference={"elements": "ser"})
 
 
 @pytest.mark.parametrize("path", BUNDLED, ids=os.path.basename)
