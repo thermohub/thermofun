@@ -43,7 +43,8 @@ struct StandardState
 };
 
 /// From what zero G, H and S are counted: of the elements, and of water. A field without a value is the default
-/// (benson_helgeson, geochemical), or the value of a more general level.
+/// (benson_helgeson, helgeson_kirkham_1974), or the value of a more general level. For water, helgeson_kirkham_1974 and
+/// codata_1989 are anchors (data of water used inside), steam_tables the scale of the values of a water record.
 struct EnergyReferences
 {
     std::optional<EnergyReference> elements;

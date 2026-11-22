@@ -298,7 +298,7 @@ templates: species-properties
 ThermoFun ..., physical constants codata1986
 data: format legacy, dataset aq17-gem, sha256 ...
 water: H2O@: WaterIAPWS95/reaktoro, JohnsonNorton91/reaktoro
-conventions: energy_reference.elements = benson_helgeson, energy_reference.water = geochemical, standard_state.concentration_scale = molality, standard_state.pressure = 1bar
+conventions: energy_reference.elements = benson_helgeson, energy_reference.water = helgeson_kirkham_1974, standard_state.concentration_scale = molality, standard_state.pressure = 1bar
 ```
 
 <!-- check

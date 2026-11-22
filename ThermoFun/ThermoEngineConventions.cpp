@@ -58,10 +58,35 @@ auto ThermoEngine::Impl::declaredConvention(const model::SubstanceRecord& record
     return model::mergeConvention(record.convention.value_or(model::Convention{}), database.thermoDataSet().convention);
 }
 
-/// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
-auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign) const -> void
+auto ThermoEngine::Impl::waterAnchorOf(const model::SubstanceRecord& record) const -> model::WaterReference
 {
-    const auto wat = waterTripleData().at(database.conventions().water_triple_point_reference);
+    if (const auto own = model::anchorOf(record.convention ? record.convention->energy_reference.water : std::nullopt))
+        return *own;
+    return model::anchorOf(database.thermoDataSet().convention.energy_reference.water).value_or(model::WaterReference::HelgesonKirkham1974);
+}
+
+auto ThermoEngine::Impl::waterTripleOf(const Substance& substance) const -> WaterTripleProperties
+{
+    const auto solvent = boundSolvent(substance);
+    const std::string method = solvent && solvent->equation_of_state ? solvent->equation_of_state->spec().id : model::waterEquationOf(*substance.record());
+    return waterTripleData().at(model::waterTripleSet(waterAnchorOf(*substance.record()), method));
+}
+
+auto ThermoEngine::Impl::checkRequestedWater() const -> void
+{
+    const auto requested = model::anchorOf(conventions.energy_reference.water);
+    if (!requested || !database.containsSubstance(solvent_in_use))
+        return;
+    const auto declared = waterAnchorOf(*database.getSubstance(solvent_in_use).record());
+    if (*requested != declared)
+        throw std::invalid_argument("energy_reference.water: the results cannot be asked for in " + model::toString(*requested) + ": the water of this dataset is " +
+                                    model::toString(declared) + ", and the engine does not convert between the two anchors (they are data of water, and the "
+                                    "species of a dataset are consistent with its own). Declare energy_reference.water on the dataset, or ask for steam_tables.");
+}
+
+/// Water from its anchor to the steam tables (sign -1), and back (sign 1)
+auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign, const WaterTripleProperties& wat) const -> void
+{
     // the entropy has a constant added, so G and A have also a term linear in T: G = G(steam) + Gtr - Str (T - Ttr). The error and status are not changed
     const double Ttr = model::builtinConstants("WaterHGK84", "reaktoro")->parameters.at("Ttr").value;
     const double linear = wat.Str * (T - Ttr);
@@ -126,7 +151,7 @@ auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, doubl
     {
         if (outputConvention().energy_reference.water == model::WaterReference::SteamTables)
         {
-            steamTablesShift(tps, T, -1.0);
+            steamTablesShift(tps, T, -1.0, waterTripleOf(substance));
             label("steam_tables");
         }
         return tps;
@@ -154,7 +179,7 @@ auto ThermoEngine::Impl::canonicalReference(const Substance& substance) const ->
     if (record->class_ == model::SubstanceClass::WaterSolvent)
     {
         if (declared.energy_reference.water == model::WaterReference::SteamTables)
-            steamTablesShift(tps, substance.referenceT(), 1.0);
+            steamTablesShift(tps, substance.referenceT(), 1.0, waterTripleOf(substance));
         return tps;
     }
     if (declared == model::Convention{})

@@ -21,31 +21,33 @@ Set the conventions of the engine.
 import thermofun as tf
 
 engine = tf.ThermoEngine("examples/v2/minimal.yaml")
-geochemical = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
+anchored = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
 
 conventions = tf.EngineConventions()
 conventions.energy_reference.water = "steam_tables"
 engine.setConventions(conventions)
 steam = engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@")
 
-print(round(geochemical.gibbs_energy.val, 2), "J/mol: G of water on the geochemical scale")
+print(round(anchored.gibbs_energy.val, 2), "J/mol: G of water, anchored as Helgeson and Kirkham (1974)")
 print(round(steam.gibbs_energy.val, 2), "J/mol: G of water on the scale of the steam tables")
 ```
 
 Output:
 
 ```text
--237181.72 J/mol: G of water on the geochemical scale
+-237181.72 J/mol: G of water, anchored as Helgeson and Kirkham (1974)
 -82.18 J/mol: G of water on the scale of the steam tables
 ```
 
-On the steam tables, G = H - T S, and S is 0 at the triple point of water.
+On the steam tables, G = H - T S, and S is 0 at the triple point of water. The anchor of water itself,
+`helgeson_kirkham_1974` (the default) or `codata_1989`, is data: declare it on the dataset
+(`energy_reference: {water: codata_1989}`). The engine does not convert between the two anchors.
 
 <!-- check
 ```python
 assert abs(steam.gibbs_energy.val - (steam.enthalpy.val - 298.15 * steam.entropy.val)) < 2.0   # J/mol
 assert abs(engine.thermoPropertiesSubstance(273.16, 611.655, "H2O@").entropy.val) < 0.1        # J/(mol K)
-assert steam.gibbs_energy.val != geochemical.gibbs_energy.val
+assert steam.gibbs_energy.val != anchored.gibbs_energy.val
 ```
 -->
 

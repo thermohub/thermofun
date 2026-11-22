@@ -239,9 +239,12 @@
     },
     "water": {
      "enum": [
-      "geochemical",
-      "steam_tables"
-     ]
+      "helgeson_kirkham_1974",
+      "codata_1989",
+      "steam_tables",
+      "geochemical"
+     ],
+     "description": "The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974."
     }
    },
    "patternProperties": {
@@ -997,18 +1000,6 @@
     },
     "defaults": {
      "type": "object"
-    },
-    "conventions": {
-     "type": "object",
-     "properties": {
-      "water_triple_point_reference": {
-       "type": "string"
-      }
-     },
-     "patternProperties": {
-      "^_": {}
-     },
-     "additionalProperties": false
     },
     "standard_state": {
      "$ref": "#/$defs/standard_state"

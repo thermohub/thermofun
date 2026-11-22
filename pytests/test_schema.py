@@ -38,7 +38,7 @@ def reader_key_sets():
 
 # a key of each object that only it has, to find its set in the reader
 FINGERPRINT = {"element": "isotope_mass", "substance": "aggregate_state", "reaction": "equation", "method_definition": "operates_on",
-               "parameter_set": "formula_units", "data_source": "doi", "thermodataset": "conventions", "method_application": "segments"}
+               "parameter_set": "formula_units", "data_source": "doi", "thermodataset": "solvent", "method_application": "segments"}
 NOT_IN_THE_FORMAT = {"standard_state_convention"}   # read only to warn (V2-KEY-003)
 
 

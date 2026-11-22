@@ -10,6 +10,7 @@
 
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 
 #include "LegacyKeys.h"
 #include "LegacyMethodMap.h"
@@ -379,8 +380,12 @@ auto writeLegacyDocument(const V2Records& records, const LegacyWriteOptions& opt
     root["thermodataset"] = records.dataset.symbol;
     root["datasources"] = records.dataset.legacy_datasources;
     root["date"] = records.dataset.legacy_date;
-    if (records.dataset.water_triple_point_reference != ThermoDataSetInfo{}.water_triple_point_reference)
-        root["conventions"] = json{{"water_triple_point_reference", records.dataset.water_triple_point_reference}};
+    // the anchor codata_1989 as the triple-point set of the water method of the dataset (decision 0031)
+    if (records.dataset.convention.energy_reference.water == WaterReference::Codata1989)
+    {
+        const auto* water = waterSolventOf(records.substances, records.dataset.solvent);
+        root["conventions"] = json{{"water_triple_point_reference", waterTripleSet(WaterReference::Codata1989, water ? waterEquationOf(*water) : "WaterHGK84")}};
+    }
     const auto section = [&](const char* name, const auto& list, auto write) {
         json out = json::array();
         for (const auto& record : list)

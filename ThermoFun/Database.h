@@ -30,8 +30,10 @@ using ElementsMap   = std::map<std::string, Element>;
 using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap  = std::map<std::string, Reaction>;
 
+/// The 0.x view of the water anchor of the dataset (energy_reference.water, decision 0031): the name of the triple-point set,
+/// HKF_HGK_1974 (helgeson_kirkham_1974, G of liquid water at 25 degC -237181 J/mol) or NEA_HGK / NEA_IAPWS (codata_1989,
+/// -237140 J/mol; the set follows from the water method). Setting a name sets the anchor of the dataset.
 struct DatabaseConventions {
-    // e.g. "NEA_HGK", "NEA_IAPWS" (determines the correct properties of water from EoS to geochemical conventions, e.g. G0 -237140 in NEA_HGK or -237181 in HKF_HGK_1974 supcrt datasets
     std::string water_triple_point_reference = "HKF_HGK_1974";
 
     bool operator==(const DatabaseConventions&) const = default;

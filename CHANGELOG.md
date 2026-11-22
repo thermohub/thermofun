@@ -418,6 +418,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `EngineConventions::energy_reference`, `standard_pressure`, `concentration_scale`, `water_reference`. In Python they take the
   enum or a word. `apparent_properties` and `water_properties` still work. A wrong word now raises an error with a hint; before, it
   was ignored. A convention that is not calculated yet (for example `1atm`) raises an error.
+- The water of a dataset has an anchor, `energy_reference.water` = `helgeson_kirkham_1974` (the default, the triple-point set
+  `HKF_HGK_1974`) or `codata_1989` (`NEA_HGK` or `NEA_IAPWS`, now taken from the water method in use), declared on the dataset or
+  the water record. The engine never converts between the two; asking for the other one in `EngineConventions` is an error,
+  and only `steam_tables` converts. `Database::conventions().water_triple_point_reference` and the legacy key stay: setting
+  the name sets the anchor, and `GEOCHEMICAL` in `water_properties` is the anchor of the dataset, as before.
 - New: `setPropertySource` and `propertySource`: a substance from its methods or its defining reaction, a reaction from its methods
   or its reactants, for one record or for all.
 - ThermoFun reads the v2 format in JSON: `Database`, `ThermoEngine`, and `Substance`, `Reaction`, `Element` for one record. Units of a

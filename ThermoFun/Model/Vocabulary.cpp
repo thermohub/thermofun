@@ -99,7 +99,8 @@ THERMOFUN_VOCABULARY(ConcentrationScale, "concentration_scale",
     {ConcentrationScale::Molarity, "molarity", {"amount_concentration"}})
 
 THERMOFUN_VOCABULARY(WaterReference, "water_reference",
-    {WaterReference::Geochemical, "geochemical", {}}, {WaterReference::SteamTables, "steam_tables", {}})
+    {WaterReference::HelgesonKirkham1974, "helgeson_kirkham_1974", {"geochemical"}}, {WaterReference::Codata1989, "codata_1989", {}},
+    {WaterReference::SteamTables, "steam_tables", {}})
 
 #undef THERMOFUN_VOCABULARY
 

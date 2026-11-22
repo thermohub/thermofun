@@ -11,9 +11,10 @@ Each word has one meaning in these pages.
 |---|---|
 | Base method | A method that gives all the properties of a record. A record has one. |
 | Built-in constant | A value of a model, not of one record. It is in a file of `ThermoFun/Methods/ParameterSets`. |
-| Canonical convention | The convention that the engine calculates in: `benson_helgeson`, molality, geochemical water, 1 bar. |
+| Canonical convention | The convention that the engine calculates in: `benson_helgeson`, molality, 1 bar, and the anchor of water of the dataset. |
 | Catalog | The list of all methods of the library, with their parameters. `tf.methods.catalog()` gives it. |
-| Convention | How values are defined: energy reference, concentration scale, water reference, standard pressure. |
+| Convention | How values are defined: energy reference, concentration scale, standard pressure. |
+| Water anchor | The data of liquid water that tie an equation of state of water to the values of formation: `helgeson_kirkham_1974` or `codata_1989`. Data of the dataset, not a convention: never converted. |
 | Increment | A method that adds to what the base method gives: a phase transition, a volume, a term of the pressure. |
 | Dataset | The information about a database: symbol, name, version, conventions. The key is `thermodataset`. |
 | Defining reaction | The reaction that gives the properties of a substance. |

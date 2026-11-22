@@ -11,6 +11,7 @@
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/Common/OutsideRange.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterElectroState.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.hpp>
@@ -78,7 +79,7 @@ auto checkZhangDuan(double T, double P, const ZhangDuanConstants& c) -> void
 
 auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> ThermoPropertiesSubstance
 {
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
 
     double Pout = P;
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -105,7 +106,7 @@ auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants&
 auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKConstants& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state, constants), wtr, constants.Ttr, constants.saturation.M);
     });
@@ -122,7 +123,7 @@ auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPruss
 auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterIAPWS95");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state, constants), wtr, constants.Ttr, constants.saturation.M);
     });
@@ -159,7 +160,7 @@ auto iapws95GasProperties(double T, double& P, int, const WagnerPrussConstants& 
 
 auto iapws95GasSubstance(double T, double& P, int, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
 {
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterIAPWS95Gas");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         bool ok = false;
         const real D = gasEquationDensity(pass.T, pass.P, constants, ok);
@@ -299,7 +300,7 @@ private:
 
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> PropertiesSolvent
 {
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
 
     double Pout = P;
     auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {

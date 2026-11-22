@@ -84,7 +84,6 @@ auto Database::Impl::fromV2(const std::string& text, const std::string& file) ->
     // a file with no thermodataset block (a part of a dataset) leaves the dataset as it is
     if (document.has_dataset)
     {
-        conventions.water_triple_point_reference = document.info.water_triple_point_reference;
         dataset_info = document.info;
     }
     for (const auto& m : document.methods)

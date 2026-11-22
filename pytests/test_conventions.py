@@ -144,9 +144,9 @@ def test_the_record_goes_before_the_dataset():
 
 
 def test_legacy_defaults_are_the_identity():
-    # 1bar, molality, geochemical, benson_helgeson written out give the same bits as nothing written
+    # 1bar, molality, helgeson_kirkham_1974, benson_helgeson written out give the same bits as nothing written
     canonical = {"standard_state": {"pressure": "1bar", "concentration_scale": "molality"},
-                 "energy_reference": {"elements": "benson_helgeson", "water": "geochemical"}}
+                 "energy_reference": {"elements": "benson_helgeson", "water": "helgeson_kirkham_1974"}}
     assert props(engine({"X": substance(**canonical)})) == props(engine({"X": substance()}))
 
 
@@ -547,3 +547,82 @@ def test_water_on_the_steam_tables_has_its_own_entropy_scale():
     assert at.gibbs_energy.val == pytest.approx(0.0, abs=2.0)
     warm = steam.thermoPropertiesSubstance(298.15, 1e5, symbol)
     assert warm.gibbs_energy.val == pytest.approx(warm.enthalpy.val - 298.15 * warm.entropy.val, abs=2.0)
+
+
+# --- the water anchors (decision 0031, correction of row 8) ---------------------------------------------------------
+
+IAPWS_WATER = dict(WATER, methods=[{"method": "WaterIAPWS95", "implementation": "reaktoro"}, {"method": "JohnsonNorton91", "implementation": "reaktoro"}])
+
+
+def water_engine(water=WATER, dataset=None, record_water=None):
+    record = dict(water)
+    if record_water:
+        record["energy_reference"] = {"water": record_water}
+    return engine({"H2O@": record}, dataset=dataset)
+
+
+def water_gibbs(e, T=Tr, P=Pr):
+    return e.thermoPropertiesSubstance(T, P, "H2O@").gibbs_energy.val
+
+
+@pytest.mark.parametrize("water,method,triple", [(WATER, "WaterHGK84", "NEA_HGK"), (IAPWS_WATER, "WaterIAPWS95", "NEA_IAPWS")])
+def test_codata_1989_takes_the_triple_point_set_of_the_water_method(water, method, triple):
+    codata = water_engine(water, dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})
+    alone = tf.methods.solventMethod(method, implementation="reaktoro").substanceProperties(Tr, Pr, 0, triple).gibbs_energy.val
+    assert water_gibbs(codata) == alone
+    assert water_gibbs(codata) == pytest.approx(-237140.0, abs=0.5)      # CODATA 1989
+    assert water_gibbs(water_engine(water)) == pytest.approx(-237181.7, abs=0.5)   # Helgeson and Kirkham 1974, the default
+    assert water_gibbs(water_engine(water, record_water="codata_1989")) == water_gibbs(codata)   # declared on the water record
+
+
+def test_another_anchor_cannot_be_asked_for():
+    e = water_engine()
+    with pytest.raises(ValueError, match="does not convert between the two anchors"):
+        output(e, water="codata_1989")
+    # the anchor of the dataset itself, and the steam tables, can
+    output(e, water="helgeson_kirkham_1974")
+    assert water_gibbs(e) == water_gibbs(water_engine())
+    codata = output(water_engine(dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}}), water="codata_1989")
+    assert water_gibbs(codata) == pytest.approx(-237140.0, abs=0.5)
+
+
+def test_steam_tables_from_either_anchor_is_the_same_water():
+    hk = output(water_engine(), water="steam_tables")
+    codata = output(water_engine(dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}}), water="steam_tables")
+    for T, P in ((273.16, 611.655), (298.15, 1e5), (473.15, 50e5)):
+        assert water_gibbs(hk, T, P) == pytest.approx(water_gibbs(codata, T, P), abs=1.0)
+
+
+def test_the_0x_view_of_the_anchor():
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"H2O@": IAPWS_WATER},
+                                     thermodataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})))
+    assert db.conventions.water_triple_point_reference == "NEA_IAPWS"   # the set of the water method
+    db.conventions.water_triple_point_reference = "HKF_HGK_1974"
+    assert db.thermoDataSet().convention.energy_reference.water == tf.WaterReference.HelgesonKirkham1974
+    with pytest.raises(Exception, match="NEA_HGK or NEA_IAPWS"):
+        db.conventions.water_triple_point_reference = "NEA"
+        db.thermoDataSet()
+    # GEOCHEMICAL of 0.x is the water of the dataset, whichever its anchor
+    e = water_engine(dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})
+    c = e.conventions
+    c.water_properties = "GEOCHEMICAL"
+    e.conventions = c
+    assert c.energy_reference.water is None and water_gibbs(e) == pytest.approx(-237140.0, abs=0.5)
+
+
+def test_the_old_conventions_block_is_an_unknown_key():
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"H2O@": WATER},
+                                     thermodataset={"symbol": "d", "conventions": {"water_triple_point_reference": "NEA_HGK"}})))
+    assert "V2-KEY-001" in {d.code for d in db.loadDiagnostics().all()}
+    assert db.thermoDataSet().convention.energy_reference.water is None
+
+
+@pytest.mark.parametrize("water,label", [(WATER, "NEA_HGK"), (IAPWS_WATER, "NEA_IAPWS")])
+def test_legacy_files_keep_the_triple_point_set(water, label, tmp_path):
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"H2O@": water},
+                                     thermodataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})))
+    legacy = json.loads(db.toLegacyJson(False))
+    assert legacy["conventions"] == {"water_triple_point_reference": label}
+    back = tf.Database(json.dumps(legacy))
+    assert back.thermoDataSet().convention.energy_reference.water == tf.WaterReference.Codata1989
+    assert water_gibbs(tf.ThermoEngine(back)) == water_gibbs(tf.ThermoEngine(db))

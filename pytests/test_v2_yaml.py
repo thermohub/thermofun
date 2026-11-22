@@ -72,7 +72,7 @@ def test_yaml_as_people_write_it():
 units: {energy: cal}
 thermodataset:
   symbol: written
-  conventions: {water_triple_point_reference: NEA_HGK}
+  energy_reference: {water: codata_1989}
 defaults: &minerals
   class: component
   aggregate_state: crystal

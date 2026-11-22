@@ -8,10 +8,11 @@
 
 namespace ThermoFun::model {
 
-/// The convention that the engine uses inside: 1bar, molality, benson_helgeson, geochemical.
+/// The convention that the engine uses inside: 1bar, molality, benson_helgeson. Water has no value here: inside, water has the
+/// anchor its dataset or record declares (helgeson_kirkham_1974 by default), and the engine never converts between anchors.
 inline auto canonicalConvention() -> Convention
 {
-    return {{1e5, ConcentrationScale::Molality}, {EnergyReference::BensonHelgeson, WaterReference::Geochemical}};
+    return {{1e5, ConcentrationScale::Molality}, {EnergyReference::BensonHelgeson, std::nullopt}};
 }
 
 /// The fields of `specific` that have a value, completed with those of `general`.

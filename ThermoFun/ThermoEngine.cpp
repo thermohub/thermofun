@@ -77,10 +77,7 @@ void applyOldWords(EngineConventions& c)
         c.apparent_properties.clear();
     }
     if (!c.water_properties.empty())
-    {
-        c.energy_reference.water = checkedWord<model::WaterReference>(c.water_properties);
-        c.water_properties.clear();
-    }
+        c.setWaterPropertiesWord(c.water_properties);
 }
 
 auto EngineConventions::apparentPropertiesWord() const -> std::string
@@ -90,7 +87,21 @@ auto EngineConventions::apparentPropertiesWord() const -> std::string
 
 auto EngineConventions::waterPropertiesWord() const -> std::string
 {
-    return water_properties.empty() ? oldWordOf(energy_reference.water.value_or(model::WaterReference::Geochemical)) : water_properties;
+    if (!water_properties.empty())
+        return water_properties;
+    return energy_reference.water ? oldWordOf(*energy_reference.water) : "GEOCHEMICAL";
+}
+
+auto EngineConventions::setWaterPropertiesWord(const std::string& word) -> void
+{
+    // in 0.x GEOCHEMICAL meant the water of the dataset, whichever its triple-point set: the anchor of the dataset now
+    std::string lower = word;
+    std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    if (lower == "geochemical")
+        energy_reference.water.reset();
+    else
+        energy_reference.water = checkedWord<model::WaterReference>(word);
+    water_properties.clear();
 }
 
 void ThermoEngine::Impl::dropStaleResults()
@@ -101,6 +112,7 @@ void ThermoEngine::Impl::dropStaleResults()
         conventions == cached_for.conventions && db.conventions() == cached_for.database_conventions)
         return;
     checkPreferences(preferences);
+    checkRequestedWater();
     clearResults();
 }
 
@@ -263,7 +275,16 @@ auto ThermoEngine::setConventions(const EngineConventions conventions) -> void
 {
     auto checked = conventions;
     applyOldWords(checked);
-    pimpl->conventions = checked;
+    std::swap(pimpl->conventions, checked);
+    try
+    {
+        pimpl->checkRequestedWater();
+    }
+    catch (...)
+    {
+        std::swap(pimpl->conventions, checked);
+        throw;
+    }
     pimpl->clearResults();
 }
 
@@ -433,7 +454,9 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     s.conventions["standard_state.pressure"] = model::standardPressureText(*out.standard_state.pressure);
     s.conventions["standard_state.concentration_scale"] = model::toString(*out.standard_state.concentration_scale);
     s.conventions["energy_reference.elements"] = model::toString(*out.energy_reference.elements);
-    s.conventions["energy_reference.water"] = model::toString(*out.energy_reference.water);
+    s.conventions["energy_reference.water"] = out.energy_reference.water ? model::toString(*out.energy_reference.water) :
+        model::toString(pimpl->database.containsSubstance(pimpl->solvent_in_use) ? pimpl->waterAnchorOf(*pimpl->database.getSubstance(pimpl->solvent_in_use).record())
+                                                                                     : model::anchorOf(pimpl->database.thermoDataSet().convention.energy_reference.water).value_or(model::WaterReference::HelgesonKirkham1974));
     return s;
 }
 

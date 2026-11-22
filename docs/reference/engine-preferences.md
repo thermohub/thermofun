@@ -27,7 +27,7 @@ A convention says what the zero of an energy is, and what a standard state is. T
 |---|---|---|---|
 | apparent_properties | 'BENSON_HELGESON' |  | the 0.x name of energy_reference.elements, in capitals (BENSON_HELGESON) |
 | energy_reference.elements | BensonHelgeson | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K | benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation or dft_formation_0K (EnergyReference or the word) |
-| energy_reference.water | Geochemical | geochemical, steam_tables | geochemical or steam_tables (WaterReference or the word) |
+| energy_reference.water | None | helgeson_kirkham_1974, codata_1989, steam_tables | helgeson_kirkham_1974 or codata_1989 (the anchor: data of water used inside), or steam_tables (the scale of the values of a water record); WaterReference or the word |
 | standard_state.concentration_scale | Molality | molality, mole_fraction, molarity | the concentration scale of solutes: molality, molarity or mole_fraction (ConcentrationScale or the word) |
 | standard_state.pressure | 0 | 1bar, 1atm, any pressure in Pa | the standard pressure p° in Pa; set it with 1bar, 1atm (a word or StandardPressure) or any pressure in Pa |
-| water_properties | 'GEOCHEMICAL' |  | the 0.x name of energy_reference.water, in capitals (GEOCHEMICAL) |
+| water_properties | 'GEOCHEMICAL' |  | the 0.x name of energy_reference.water, in capitals: GEOCHEMICAL (the anchor of the dataset) or STEAM_TABLES |

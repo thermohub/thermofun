@@ -97,7 +97,7 @@ A legacy `error` is read as a standard uncertainty (coverage factor 1). The lega
 $ head -n 22 aq17.yaml
 thermohub: 2.0.0-draft.1
 generator: ThermoFun
-thermodataset: {symbol: aq17-gem, name: aq17-gem, conventions: {water_triple_point_reference: HKF_HGK_1974}}
+thermodataset: {symbol: aq17-gem, name: aq17-gem}
 elements:
   Al: {molar_mass: 26.9815006256104, standard_entropy: 28.2999992370605, data_sources: ["[1998SHO/EA]"]}
   C: {molar_mass: 12.0108003616333, standard_entropy: 5.73999977111816, data_sources: ["[1998SHO/EA]"]}

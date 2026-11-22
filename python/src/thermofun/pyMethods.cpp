@@ -118,7 +118,9 @@ void exportMethods(py::module& parent)
                  tps.volume.ddp *= 1e-5;
                  tps.volume.err *= 1e-5;
                  return tps; },
-             "The properties of water as a substance at T [K], P [Pa]", py::arg("T"), py::arg("P"), py::arg("state") = 0, py::arg("triple") = "NEA_HGK");
+             "The properties of water as a substance at T [K], P [Pa]. triple: a water anchor (helgeson_kirkham_1974, codata_1989; the method picks "
+             "the triple-point set of its equation) or the name of a set of WaterTriplePoint (HKF_HGK_1974, NEA_HGK, NEA_IAPWS)",
+             py::arg("T"), py::arg("P"), py::arg("state") = 0, py::arg("triple") = "NEA_HGK");
 
     py::class_<DielectricMethod, std::shared_ptr<DielectricMethod>>(m, "DielectricMethod", "A model of the dielectric constant of water")
         .def_property_readonly("id", [](const DielectricMethod& s) { return s.spec().id; })

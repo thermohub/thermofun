@@ -260,7 +260,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             const auto solvent = boundSolvent(substance);
             if (solvent->equation_of_state)
             {
-                tps = solvent->equation_of_state->substanceProperties(T, P, kind.state, database.conventions().water_triple_point_reference);
+                tps = solvent->equation_of_state->substanceProperties(T, P, kind.state, model::toString(waterAnchorOf(*substance.record())));
                 water_g_contains_rt_ln_p = solvent->equation_of_state->gibbsEnergyContainsRTlnP();
                 cameFrom("water");
             }
@@ -268,7 +268,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             {
                 tps = toThermoProperties(model::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
                 if (kind.isH2OSolvent && declaredConvention(*substance.record()).energy_reference.water == model::WaterReference::SteamTables)
-                    steamTablesShift(tps, T, 1.0);
+                    steamTablesShift(tps, T, 1.0, waterTripleOf(substance));
                 cameFrom("reference");
             }
         }

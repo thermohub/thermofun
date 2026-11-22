@@ -304,7 +304,13 @@ void testElementAndInfo()
         R"JSON({"thermodataset": "aq17", "date": "09.12.2019", "datasources": ["a", "b"],
             "conventions": {"water_triple_point_reference": "NEA_HGK"}, "substances": []})JSON");
     CHECK(info.symbol == "aq17" && info.legacy_date == "09.12.2019" && info.legacy_datasources.size() == 2);
-    CHECK(info.water_triple_point_reference == "NEA_HGK");
+    CHECK(info.convention.energy_reference.water == WaterReference::Codata1989);
+    // the default anchor is not written as a value; an unknown triple-point set is an error
+    CHECK(!readLegacyDocumentInfo(R"JSON({"thermodataset": "x", "conventions": {"water_triple_point_reference": "HKF_HGK_1974"}})JSON").convention.energy_reference.water);
+    bool unknown = false;
+    try { readLegacyDocumentInfo(R"JSON({"thermodataset": "x", "conventions": {"water_triple_point_reference": "NEA"}})JSON"); }
+    catch (const std::exception&) { unknown = true; }
+    CHECK(unknown);
     CHECK(readLegacyDocumentInfo("[]").symbol.empty());
 }
 

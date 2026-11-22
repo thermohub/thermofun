@@ -27,6 +27,7 @@
 #include "Conventions/ConventionConverter.h"
 #include "Conventions/HydrogenIon.h"
 #include "Model/SubstanceRecord.h"
+#include "Model/WaterAnchor.h"
 #include "ThermoEngine.h"
 #include "Database.h"
 #include "Reaction.h"
@@ -229,8 +230,18 @@ struct ThermoEngine::Impl
     /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
     static auto toThermoProperties(const model::SubstanceResult& r) -> ThermoPropertiesSubstance;
 
-    /// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
-    auto steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign) const -> void;
+    /// The water anchor of a water record (decision 0031): its own, else that of the dataset, else helgeson_kirkham_1974
+    auto waterAnchorOf(const model::SubstanceRecord& record) const -> model::WaterReference;
+
+    /// The triple-point data of a water record: its anchor, for its equation of state of water
+    auto waterTripleOf(const Substance& substance) const -> WaterTripleProperties;
+
+    /// An anchor asked for in the conventions of the results that is not the anchor of the solvent: an error (the engine
+    /// never converts between anchors; the anchor is declared on the dataset)
+    auto checkRequestedWater() const -> void;
+
+    /// Water from its anchor to the steam tables (sign -1), and back (sign 1)
+    auto steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign, const WaterTripleProperties& wat) const -> void;
 
     static auto add(Reaktoro_::ThermoProperty& to, double factor, const Reaktoro_::ThermoScalar& term) -> void
     {

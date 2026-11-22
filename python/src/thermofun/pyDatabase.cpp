@@ -181,9 +181,10 @@ void exportDatabase(py::module& m)
         .def("__str__", [](const Database& self) { std::stringstream ss; ss << self.getElements(); ss << self.getSubstances(); ss << self.getReactions(); return ss.str(); })
         ;
 
-    py::class_<DatabaseConventions>(m, "DatabaseConventions")
+    py::class_<DatabaseConventions>(m, "DatabaseConventions", "The 0.x view of the water anchor of the dataset (energy_reference.water)")
         .def(py::init<>())
-        .def_readwrite("water_triple_point_reference", &DatabaseConventions::water_triple_point_reference);
+        .def_readwrite("water_triple_point_reference", &DatabaseConventions::water_triple_point_reference,
+                       "HKF_HGK_1974 (helgeson_kirkham_1974) or NEA_HGK / NEA_IAPWS (codata_1989, the set of the water method). Setting it sets the anchor of the dataset");
 }
 
 }

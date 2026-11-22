@@ -10,6 +10,7 @@
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Water/WaterLVS83.h>
 #include <ThermoFun/Methods/Water/WaterTransportGems.h>
@@ -157,7 +158,7 @@ public:
 
     auto substanceProperties(double T, double& P, int state, const std::string& triple) const -> ThermoPropertiesSubstance override
     {
-        const WaterTripleProperties wtr = waterTripleData().at(triple);
+        const WaterTripleProperties wtr = waterTripleOf(triple, "WaterLVS83");
         double Pout = P;
         auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
             WaterLVS83 lvs(c_.lvs);

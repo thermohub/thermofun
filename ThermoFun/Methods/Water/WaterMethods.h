@@ -21,7 +21,8 @@ namespace ThermoFun::model {
 auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const SolventMethod>;
 auto waterHGK84ReaktoroMethod(const MethodApplication& application) -> std::shared_ptr<const SolventMethod>;
 
-/// The properties of water as a solvent from the code of GEMS, in the reference of the triple point given by its name.
+/// The properties of water as a solvent from the code of GEMS, tied to the formation values by `triple` (a water anchor
+/// or the name of a triple-point set, as SolventMethod::substanceProperties).
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent;
 
 /// WaterLVS83: the equation of Levelt Sengers et al. (1983) near the critical point, in its region (SUPCRT92). values: its

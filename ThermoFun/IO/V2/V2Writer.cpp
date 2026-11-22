@@ -219,7 +219,6 @@ auto datasetJson(const ThermoDataSetInfo& d) -> json
     if (!d.defaults.quality.empty()) values["quality"] = d.defaults.quality;
     if (d.defaults.origin) values["origin"] = toString(*d.defaults.origin);
     if (!values.empty()) out["defaults"] = values;
-    out["conventions"] = json{{"water_triple_point_reference", d.water_triple_point_reference}};
     addConvention(out, d.convention);
     addExtra(out, d.extra_json);
     return out;

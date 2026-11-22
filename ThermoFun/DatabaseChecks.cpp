@@ -17,7 +17,6 @@ auto allRecords(const Database& db) -> model::V2Records
 {
     model::V2Records out;
     out.dataset = db.thermoDataSet();
-    out.dataset.water_triple_point_reference = db.conventions().water_triple_point_reference;
     for (const auto& item : db.mapElements())
         out.elements.push_back(*item.second.record());
     for (const auto& item : db.mapSubstances())

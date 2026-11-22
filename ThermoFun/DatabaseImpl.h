@@ -18,6 +18,7 @@
 #include "Engine/Binding.h"
 #include "Conventions/Convention.h"
 #include "Conventions/HydrogenIon.h"
+#include "Model/WaterAnchor.h"
 #include "Methods/MethodCatalog.h"
 #include "IO/detail/JsonDetect.h"
 #include "IO/detail/Yaml.h"
@@ -47,8 +48,8 @@ namespace ThermoFun {
 
 struct Database::Impl
 {
-    /// Data about the dataset, and the records of the project that a v2 file gives
-    model::ThermoDataSetInfo dataset_info;
+    /// Data about the dataset, and the records of the project that a v2 file gives. Mutable for syncConventions.
+    mutable model::ThermoDataSetInfo dataset_info;
     std::map<std::string, model::MethodDefinition> methods;
     std::map<std::string, model::MethodParameterSet> parameter_sets;
     std::map<std::string, model::DataSource> data_sources;
@@ -70,8 +71,15 @@ struct Database::Impl
     ChemicalFun::DBElements all_elements;
     //char type_ = jsonio::FileTypes::Undef_;
 
-    /// For calculating and outputting properties of a database e.g., the water triple properties
+    /// The 0.x view of the water anchor of the dataset (energy_reference.water): the name of its triple-point set. A change
+    /// of the view sets the anchor; see syncConventions.
     mutable DatabaseConventions conventions;
+    mutable DatabaseConventions conventions_seen;       ///< the view as syncConventions last left it
+    mutable std::uint64_t conventions_revision = 0;     ///< the revision at which syncConventions last left it
+
+    /// A name set in the 0.x view (the legacy file, or db.conventions()) sets the anchor of the dataset; then the view shows
+    /// the triple-point set of the anchor for the water method of the dataset (decision 0031).
+    auto syncConventions() const -> void;
 
     /// Changes with every change of the records (unique over all databases, see Database::revision)
     std::uint64_t revision = nextRevision();

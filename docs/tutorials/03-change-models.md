@@ -230,14 +230,17 @@ print("rounded:    ", G.val, "+-", G.err)
 
 ## Change the conventions of the results
 
-G has no absolute zero, so the same substance has different values of G and H in different conventions. A **convention** says what a value refers to. For the zero of water there are two:
+G has no absolute zero, so the same substance has different values of G and H in different conventions. A **convention** says what a value refers to. For water there are three words, two anchors and one scale:
 
-- the **geochemical** scale (the default) gives the values of formation from the elements, as the databases of aqueous species do: G of liquid water at 25 degC is about -237 kJ/mol;
-- the **steam tables** give G = 0 and S = 0 for liquid water at its triple point (273.16 K).
+- the anchor **helgeson_kirkham_1974** (the default) gives the values of formation from the elements, as HKF and SUPCRT92 data do: G of liquid water at 25 degC is -237181 J/mol;
+- the anchor **codata_1989** gives the CODATA 1989 values, as NEA data do: -237140 J/mol;
+- the **steam tables** give U = 0 and S = 0 for liquid water at its triple point (273.16 K).
+
+The two anchors are data of water, not conventions: the species of a dataset are consistent with its own water in every reaction with H2O. A dataset declares its anchor (`energy_reference: {water: codata_1989}`), and the engine never converts between the two. Only the steam tables are asked for as a convention of the results.
 
 A convention does not change the units: results are always in J/mol, J/(mol K) and m3/mol. It changes what a value refers to:
 
-- the **energy reference**: from what zero G, H and S are counted (for water: the formation scale of geochemistry, or the steam tables);
+- the **energy reference**: from what zero G, H and S are counted (for water: the values of formation, or the steam tables);
 - the **standard state**: the standard pressure (1 bar or 1 atm) and, for solutes, the concentration scale (molality, molarity, mole fraction). These change G and S, and with molarity also H, Cp and V.
 
 [Conventions](../reference/conventions.md) has the details, and [Choose conventions](../how-to/choose-conventions.md) the steps.
@@ -246,7 +249,7 @@ Here G of water is given on the scale of the steam tables. The change holds from
 
 ```{code-cell} ipython3
 engine = tf.ThermoEngine(AQ)
-print("geochemical: ", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
+print("anchored:    ", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
 
 conventions = tf.EngineConventions()
 conventions.energy_reference.water = "steam_tables"

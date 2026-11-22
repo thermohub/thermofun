@@ -57,18 +57,22 @@ struct EnginePreferences
 struct EngineConventions {
     /// The standard state of the results: the standard pressure and the concentration scale of solutes (decision 0031)
     model::StandardState standard_state{1e5, model::ConcentrationScale::Molality};
-    /// From what zero G, H and S of the results are counted: of the elements and of water
-    model::EnergyReferences energy_reference{model::EnergyReference::BensonHelgeson, model::WaterReference::Geochemical};
+    /// From what zero G, H and S of the results are counted: of the elements, and of water. Water without a value (the
+    /// default) is the anchor that the dataset declares (helgeson_kirkham_1974 or codata_1989); steam_tables converts the
+    /// water results to the steam tables. Asking for the other anchor is an error: the engine never converts between them.
+    model::EnergyReferences energy_reference{model::EnergyReference::BensonHelgeson, std::nullopt};
 
-    // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine,
-    // and the field is then empty: read the words with apparentPropertiesWord() and waterPropertiesWord().
+    // The old names, checked. A word set here replaces energy_reference at the next call of the engine, and the field is
+    // then empty: read the words with apparentPropertiesWord() and waterPropertiesWord().
     std::string apparent_properties;   // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
-    std::string water_properties;      // e.g. "GEOCHEMICAL", "STEAM_TABLES"
+    std::string water_properties;      // "GEOCHEMICAL" (the anchor of the dataset) or "STEAM_TABLES"
 
     /// The old word of energy_reference, for example "BENSON_HELGESON" (review of v2, Q9)
     auto apparentPropertiesWord() const -> std::string;
-    /// The old word of water_reference, for example "GEOCHEMICAL"
+    /// The old word of energy_reference.water: "GEOCHEMICAL" for the anchor of the dataset, "STEAM_TABLES"
     auto waterPropertiesWord() const -> std::string;
+    /// Sets energy_reference.water from an old word: "GEOCHEMICAL" is the anchor of the dataset (no value)
+    auto setWaterPropertiesWord(const std::string& word) -> void;
 
     bool operator==(const EngineConventions&) const = default;
 };

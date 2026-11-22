@@ -30,7 +30,7 @@ void testDefaults()
 
     ThermoDataSetInfo info;
     CHECK(info.status == DatasetStatus::Draft);
-    CHECK(info.water_triple_point_reference == "HKF_HGK_1974");
+    CHECK(!info.convention.energy_reference.water);   // helgeson_kirkham_1974
 
     MethodDefinition m;
     CHECK(m.kind == MethodKind::Reference);

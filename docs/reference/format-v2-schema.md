@@ -39,7 +39,6 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `solvent` | string |  |  |
 | `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `defaults` | object |  |  |
-| `conventions` | object |  |  |
 | `standard_state` | [standard_state](#standard_state) |  |  |
 | `energy_reference` | [energy_reference](#energy_reference) |  |  |
 
@@ -161,7 +160,7 @@ From what zero G, H and S are counted: of the elements and of water.
 | Key | Type | Required | Note |
 |---|---|---|---|
 | `elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |  |  |
-| `water` | `geochemical`, `steam_tables` |  |  |
+| `water` | `helgeson_kirkham_1974`, `codata_1989`, `steam_tables`, `geochemical` |  | The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974. |
 
 ## reference_conditions
 

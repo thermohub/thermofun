@@ -204,7 +204,8 @@ def test_a_whole_database_as_v2_gives_the_results_of_the_legacy_file(path):
     legacy_db = tf.Database(path)
     symbols = legacy_db.getSubstancesList()
     document = fixtures.document(path, symbols, legacy_db.getReactionsList(), legacy_db.getElementsList(), {"symbol": "whole"})
-    document["thermodataset"]["conventions"] = {"water_triple_point_reference": legacy_db.conventions.water_triple_point_reference}
+    if legacy_db.thermoDataSet().convention.energy_reference.water is not None:
+        document["thermodataset"]["energy_reference"] = {"water": "codata_1989"}
     v2_db = tf.Database(json.dumps(document))
     assert v2_db.numberOfSubstances() == legacy_db.numberOfSubstances()
     assert v2_db.numberOfReactions() == legacy_db.numberOfReactions()

@@ -78,8 +78,9 @@ void exportThermoEngine(py::module& m)
     py::enum_<model::ConcentrationScale>(m, "ConcentrationScale", "The concentration scale of aqueous solutes")
         .value("Molality", model::ConcentrationScale::Molality).value("MoleFraction", model::ConcentrationScale::MoleFraction)
         .value("Molarity", model::ConcentrationScale::Molarity);
-    py::enum_<model::WaterReference>(m, "WaterReference", "The reference of the properties of water")
-        .value("Geochemical", model::WaterReference::Geochemical).value("SteamTables", model::WaterReference::SteamTables);
+    py::enum_<model::WaterReference>(m, "WaterReference", "The energy reference of water: the anchors helgeson_kirkham_1974 and codata_1989 (data of water), the scale steam_tables")
+        .value("HelgesonKirkham1974", model::WaterReference::HelgesonKirkham1974).value("Codata1989", model::WaterReference::Codata1989)
+        .value("SteamTables", model::WaterReference::SteamTables);
 
     auto appendData1 = static_cast<void(ThermoEngine::*)(std::string)>(&ThermoEngine::appendData);
     auto appendData2 = static_cast<void(ThermoEngine::*)(std::vector<std::string>, std::string)>(&ThermoEngine::appendData);
@@ -371,14 +372,14 @@ void exportThermoEngine(py::module& m)
         .def_readwrite("standard_state", &EngineConventions::standard_state,
                        "the standard state of the results: pressure (1bar, the default, or 1atm) and concentration_scale (molality, the default, molarity or mole_fraction)")
         .def_readwrite("energy_reference", &EngineConventions::energy_reference,
-                       "from what zero G, H and S of the results are counted: elements (benson_helgeson, the default, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K) and water (geochemical, the default, or steam_tables)")
+                       "from what zero G, H and S of the results are counted: elements (benson_helgeson, the default, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation, dft_formation_0K) and water (None, the default: the anchor of the dataset, helgeson_kirkham_1974 or codata_1989; steam_tables converts the water results)")
         // the names of 0.x: the same values as checked words in capitals
         .def_property("apparent_properties", [](const EngineConventions& c) { return c.apparentPropertiesWord(); },
                       [](EngineConventions& c, const std::string& word) { c.energy_reference.elements = wordOf<model::EnergyReference>(word); c.apparent_properties.clear(); },
                       "the 0.x name of energy_reference.elements, in capitals (BENSON_HELGESON)")
         .def_property("water_properties", [](const EngineConventions& c) { return c.waterPropertiesWord(); },
-                      [](EngineConventions& c, const std::string& word) { c.energy_reference.water = wordOf<model::WaterReference>(word); c.water_properties.clear(); },
-                      "the 0.x name of energy_reference.water, in capitals (GEOCHEMICAL)");
+                      [](EngineConventions& c, const std::string& word) { c.setWaterPropertiesWord(word); },
+                      "the 0.x name of energy_reference.water, in capitals: GEOCHEMICAL (the anchor of the dataset) or STEAM_TABLES");
 }
 
 }

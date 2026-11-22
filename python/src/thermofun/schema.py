@@ -78,7 +78,8 @@ def definitions():
                                description="The standard state of the values: the standard pressure p° and, for solutes, the concentration scale.")
     d["energy_reference"] = _obj({"elements": {"enum": ["benson_helgeson", "berman_brown", "ser", "assigned_enthalpy",
                                                         "gibbs_helmholtz_formation", "dft_formation_0K"]},
-                                  "water": {"enum": ["geochemical", "steam_tables"]}},
+                                  "water": {"enum": ["helgeson_kirkham_1974", "codata_1989", "steam_tables", "geochemical"],
+                                            "description": "The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974."}},
                                  description="From what zero G, H and S are counted: of the elements and of water.")
     d["reference_conditions"] = _obj({"T": QUANTITY}, description="The reference temperature Tr. The reference pressure is the standard pressure p° of standard_state.")
     d["applicability"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
@@ -126,7 +127,7 @@ def definitions():
     d["thermodataset"] = _obj(dict(symbol=STRING, name=STRING, version=STRING, status=STRING,
                                    reference_conditions=REF("reference_conditions"), sourcetdb={"oneOf": [STRING, STRINGS]},
                                    solvent=STRING, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."}, defaults={"type": "object"},
-                                   conventions=_obj({"water_triple_point_reference": STRING}), standard_state=REF("standard_state"), energy_reference=REF("energy_reference")))
+                                   standard_state=REF("standard_state"), energy_reference=REF("energy_reference")))
     return d
 
 

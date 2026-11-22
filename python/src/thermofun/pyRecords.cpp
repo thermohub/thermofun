@@ -47,7 +47,7 @@ void exportRecords(py::module& m)
         .def_property("elements", [](const EnergyReferences& x) { return x.elements; }, [](EnergyReferences& x, py::object v) { x.elements = optionalValueOf<EnergyReference>(v); },
                       "benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation or dft_formation_0K (EnergyReference or the word)")
         .def_property("water", [](const EnergyReferences& x) { return x.water; }, [](EnergyReferences& x, py::object v) { x.water = optionalValueOf<WaterReference>(v); },
-                      "geochemical or steam_tables (WaterReference or the word)")
+                      "helgeson_kirkham_1974 or codata_1989 (the anchor: data of water used inside), or steam_tables (the scale of the values of a water record); WaterReference or the word")
         .def(py::self == py::self);
 
     py::class_<Convention>(m, "Convention", "The conventions of a dataset or a record: the blocks standard_state and energy_reference")
@@ -258,7 +258,6 @@ void exportRecords(py::module& m)
         .def_readwrite("solvent", &ThermoDataSetInfo::solvent)
         .def_readwrite("defaults", &ThermoDataSetInfo::defaults)
         .def_readwrite("data_sources", &ThermoDataSetInfo::data_sources)
-        .def_readwrite("water_triple_point_reference", &ThermoDataSetInfo::water_triple_point_reference)
         .def_readwrite("legacy_datasources", &ThermoDataSetInfo::legacy_datasources)
         .def_readwrite("legacy_date", &ThermoDataSetInfo::legacy_date)
         .def_readwrite("extra_json", &ThermoDataSetInfo::extra_json)

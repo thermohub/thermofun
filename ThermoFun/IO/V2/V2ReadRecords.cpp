@@ -449,11 +449,10 @@ auto readDataSource(Context& c, const json& node, const std::string& key, const 
 auto readDataset(Context& c, const json& node, const UnitScope& scope) -> ThermoDataSetInfo
 {
     ThermoDataSetInfo info;
-    info.water_triple_point_reference = "HKF_HGK_1974";
     if (!node.is_object())
         return info;
     static const std::set<std::string> known = {"symbol", "name", "version", "status", "standard_state_convention", "reference_conditions",
-                                                "sourcetdb", "solvent", "data_sources", "defaults", "conventions", "standard_state", "energy_reference"};
+                                                "sourcetdb", "solvent", "data_sources", "defaults", "standard_state", "energy_reference"};
     info.symbol = optionalString(node, "symbol");
     info.name = optionalString(node, "name");
     info.version = optionalString(node, "version");
@@ -477,12 +476,6 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
     {
         info.defaults.quality = optionalString(node["defaults"], "quality");
         info.defaults.origin = vocabulary<Origin>(c, optionalString(node["defaults"], "origin"), info.symbol, "/thermodataset/defaults/origin");
-    }
-    if (node.contains("conventions") && node["conventions"].is_object())
-    {
-        const std::string w = optionalString(node["conventions"], "water_triple_point_reference");
-        if (!w.empty())
-            info.water_triple_point_reference = w;
     }
     info.extra_json = extraKeys(c, node, known, info.symbol, "/thermodataset");
     return info;
