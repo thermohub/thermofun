@@ -2,7 +2,7 @@
 
 Murnaghan equation of Holland and Powell.
 
-Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump.
+Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump. Without alpha0 or kappa0 (or with 0) V is the reference volume at every T and P, as in GEMS, and the result says so.
 
 Source: Holland and Powell (1998).
 
@@ -25,8 +25,8 @@ Source: Holland and Powell (1998).
 
 | Name | Unit of the source | SI unit | Required | Default | Description |
 |---|---|---|---|---|---|
-| alpha0 | 1/K | 1/K | yes |  | thermal expansion at the reference state |
-| kappa0 | kbar | Pa | yes |  | bulk modulus at 298 K |
+| alpha0 | 1/K | 1/K | no |  | thermal expansion at the reference state |
+| kappa0 | kbar | Pa | no |  | bulk modulus at 298 K |
 
 ## Example
 

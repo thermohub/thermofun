@@ -148,16 +148,31 @@ auto variableVolumeInfo(PropertiesInfo& out, const PropertiesInfo& ref, bool var
     }
 }
 
+// Without the parameters of a variable volume the method uses the reference volume at every T and P (as GEMS): a note on G, H
+// and V says so. It is where the values come from, not a range: the value stays within.
+auto constantVolumeNote(PropertiesInfo& out, const std::string& method, const std::string& missing) -> void
+{
+    const Note note{Note::Kind::Source, Note::Severity::Soft, method,
+                    method + " without " + missing + ": constant volume, the reference volume at every T and P", {}, {"G", "H", "V"}};
+    for (auto* x : {&out.G, &out.H, &out.V})
+        addNote(x->notes, note);
+}
+
 auto murnaghanHP98Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
-    const bool variable = (!p.data.gems || in.P != in.Pr || in.T != in.Tr) && std::fabs(in.Vr) > 1e-9 && std::fabs(p.values[p.data.coefficients]) > 1e-9 && std::fabs(p.values[p.data.coefficients + 1] * 1e-8) > 1e-9;
+    const bool parameters = std::fabs(p.values[p.data.coefficients]) > 1e-9 && std::fabs(p.values[p.data.coefficients + 1] * 1e-8) > 1e-9;
+    const bool variable = (!p.data.gems || in.P != in.Pr || in.T != in.Tr) && std::fabs(in.Vr) > 1e-9 && parameters;
     variableVolumeInfo(out, ref, variable);
+    if (!parameters && std::fabs(in.Vr) > 1e-9)
+        constantVolumeNote(out, "MurnaghanHP98", "alpha0 and kappa0");
     boundsOf(out, "Holland and Powell Murnaghan model", p.data.applicability, in);
 }
 
 auto taitHP11Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const Parameters& p) -> void
 {
     variableVolumeInfo(out, ref, p.values[p.data.coefficients + 1] != 0.0 && std::fabs(in.Vr) >= 1e-9);
+    if (p.values[p.data.coefficients + 1] == 0.0 && std::fabs(in.Vr) >= 1e-9)
+        constantVolumeNote(out, "TaitHP11", "kappa0");
     boundsOf(out, "Holland and Powell Tait model", p.data.applicability, in);
 }
 

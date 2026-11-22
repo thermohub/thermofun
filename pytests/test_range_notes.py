@@ -206,3 +206,29 @@ def test_arithmetic_keeps_the_range_notes():
     difference = outside - inside
     assert difference.info.validity == tf.Validity.extrapolated
     assert [n.method for n in difference.info.notes] == ["JohnsonNorton91"]
+
+
+def test_a_volume_method_without_its_parameters_gives_a_constant_volume_and_says_so():
+    # aq17: MurnaghanHP98 of Boehmite and Gibbsite has no alpha0 and kappa0; the method then uses the reference volume (as GEMS)
+    path = "Resources/databases/aq17-thermofun.json"
+    engine = tf.ThermoEngine(path)
+    low = engine.thermoPropertiesSubstance(473.15, 1e5, "Boehmite")
+    high = engine.thermoPropertiesSubstance(473.15, 1e8, "Boehmite")
+    assert high.volume.val == low.volume.val > 0.0
+    assert high.gibbs_energy.val - low.gibbs_energy.val == pytest.approx(low.volume.val * (1e8 - 1e5), rel=1e-9)
+    notes = [n for n in high.gibbs_energy.info.notes if "constant volume" in n.text]
+    assert notes and notes[0].kind == tf.Note.Kind.Source and notes[0].method == "MurnaghanHP98"
+    assert high.gibbs_energy.info.validity == tf.Validity.within
+    assert not [n for n in high.entropy.info.notes if "constant volume" in n.text]
+    found = [d for d in tf.Database(path).validate().all() if d.code in ("V2-MTH-028", "V2-MTH-004")]
+    assert sorted((d.code, d.record) for d in found) == [("V2-MTH-028", "Boehmite"), ("V2-MTH-028", "Gibbsite")]
+    assert all(d.severity == tf.Severity.Warning for d in found)
+
+
+def test_a_volume_method_with_its_parameters_has_no_constant_volume_note():
+    engine = tf.ThermoEngine("Resources/databases/aq17-thermofun.json")
+    for symbol in tf.Database("Resources/databases/aq17-thermofun.json").mapSubstances():
+        if symbol in ("Boehmite", "Gibbsite"):
+            continue
+        r = engine.thermoPropertiesSubstance(473.15, 1e8, symbol)
+        assert not [n for n in r.gibbs_energy.info.notes if "constant volume" in n.text], symbol

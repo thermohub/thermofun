@@ -62,7 +62,7 @@ None.
 
 | Code | Count | First records |
 |---|---|---|
-| V2-MTH-004 | 4 | Boehmite, Gibbsite |
+| V2-MTH-028 | 2 | Boehmite, Gibbsite |
 
 ## Methods used
 

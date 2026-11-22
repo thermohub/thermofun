@@ -143,6 +143,20 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
             for (const auto& p : spec->parameters)
                 if (p.required && !p.default_si && !has(app.parameters, p.name))
                     report(diag, "V2-MTH-004", record, where, missingParameterMessage(*spec, p));
+
+        // a volume method without the parameters of a variable volume uses the reference volume at every T and P
+        const auto zero = [&](const std::string& name) {
+            if (const auto it = app.parameters.find(name); it != app.parameters.end())
+                return it->second.value == 0.0;
+            if (set)
+                if (const auto it = set->parameters.find(name); it != set->parameters.end())
+                    return it->second.value == 0.0;
+            return true;
+        };
+        if (spec->id == "MurnaghanHP98" && (zero("alpha0") || zero("kappa0")))
+            report(diag, "V2-MTH-028", record, where, "MurnaghanHP98 has no alpha0 and kappa0: it calculates a constant volume, the reference volume at every T and P.");
+        if (spec->id == "TaitHP11" && zero("kappa0"))
+            report(diag, "V2-MTH-028", record, where, "TaitHP11 has no kappa0: it calculates a constant volume, the reference volume at every T and P.");
     }
 }
 

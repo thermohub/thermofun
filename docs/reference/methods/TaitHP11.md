@@ -2,7 +2,7 @@
 
 Tait equation of Holland and Powell.
 
-Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp.
+Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp. Without kappa0 (or with 0) V is the reference volume at every T and P, and the result says so.
 
 Source: Holland and Powell (2011).
 
@@ -24,8 +24,8 @@ Source: Holland and Powell (2011).
 | kappa0p | 1 | 1 | yes |  | pressure derivative of the bulk modulus |
 | kappa0pp | 1/kbar | 1/Pa | yes |  | second pressure derivative of the bulk modulus |
 | n_atoms | 1 | 1 | yes |  | number of atoms in the formula |
-| alpha0 | 1/K | 1/K | yes |  | thermal expansion at the reference state |
-| kappa0 | kbar | Pa | yes |  | bulk modulus at 298 K |
+| alpha0 | 1/K | 1/K | no |  | thermal expansion at the reference state |
+| kappa0 | kbar | Pa | no |  | bulk modulus at 298 K |
 
 ## Example
 

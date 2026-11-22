@@ -366,17 +366,17 @@ auto substanceMethods() -> std::vector<MethodSpec>
                           par("a3", "K", "K", "thermal expansion, term a3 / T2", false), par("kt00", "Pa", "MPa", "bulk modulus at the reference temperature"),
                           par("dkdt", "Pa/K", "MPa/K", "temperature derivative of the bulk modulus", false), par("kp", "1", "1", "pressure derivative of the bulk modulus"),
                           par("kpp", "1/Pa", "1/MPa", "second pressure derivative of the bulk modulus; 0: computed from kp", false)}));
-    m.push_back(Spec("MurnaghanHP98", "Murnaghan equation of Holland and Powell", "Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump.", "Holland and Powell (1998)")
-                    .alias({"HP98Min"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 200).classes(minerals).impl({"consistent", "gems"}).add(expansionAndBulkModulus(true)));
+    m.push_back(Spec("MurnaghanHP98", "Murnaghan equation of Holland and Powell", "Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump. Without alpha0 or kappa0 (or with 0) V is the reference volume at every T and P, as in GEMS, and the result says so.", "Holland and Powell (1998)")
+                    .alias({"HP98Min"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 200).classes(minerals).impl({"consistent", "gems"}).add(expansionAndBulkModulus(false)));
     {
-        Spec s("TaitHP11", "Tait equation of Holland and Powell", "Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp.",
+        Spec s("TaitHP11", "Tait equation of Holland and Powell", "Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp. Without kappa0 (or with 0) V is the reference volume at every T and P, and the result says so.",
                "Holland and Powell (2011)");
         s.alias({"HP11Tait"}).effects(E::Add, E::Add, E::Add, E::Add, E::Set, 200).classes(minerals);
         s.add({par("kappa0p", "1", "1", "pressure derivative of the bulk modulus"), par("kappa0pp", "1/Pa", "1/kbar", "second pressure derivative of the bulk modulus")});
         auto atoms = par("n_atoms", "1", "1", "number of atoms in the formula");
         atoms.fittable = false;
         s.add(atoms);
-        s.add(expansionAndBulkModulus(true));
+        s.add(expansionAndBulkModulus(false));
         m.push_back(s);
     }
     sections.end("Minerals");
