@@ -175,6 +175,13 @@ def test_rounding_functions_follow_the_nea_rules():
     assert (v, e) == (1234.567, 0.0)
     v, e = tf.round_to_uncertainty(-1129178.3, 100.0, 2)
     assert (v, e) == (pytest.approx(-1129180.0), pytest.approx(100.0))
+    # the uncertainty goes to the nearest (TDB-3 sect. 4), not always up: only a half goes up (1.05 -> 1.1 above)
+    v, e = tf.round_to_uncertainty(-1133193.6479607779, 1500.4686767806918, 2)
+    assert (v, e) == (pytest.approx(-1133200.0), pytest.approx(1500.0))
+    assert tf.round_to_uncertainty(0.0, 1549.0, 2)[1] == pytest.approx(1500.0)
+    assert tf.round_to_uncertainty(0.0, 1550.0, 2)[1] == pytest.approx(1600.0)
+    assert tf.round_to_uncertainty(0.0, 1551.0, 2)[1] == pytest.approx(1600.0)
+    assert tf.round_to_uncertainty(0.0, 0.0249, 1)[1] == pytest.approx(0.02)
 
 
 def test_rounding_preference_of_the_engine(data, tmp_path):

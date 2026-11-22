@@ -369,7 +369,7 @@ void exportThermoEngine(py::module& m)
                    "round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded")
     .def_readwrite("uncertainty_significant_digits",
                    &EnginePreferences::uncertainty_significant_digits,
-                   "number of significant digits of the (rounded up) uncertainties if round_to_uncertainty is True (default: 2)")
+                   "number of significant digits of the rounded uncertainties if round_to_uncertainty is True (default: 2): to the nearest, a half up (NEA TDB-3 sect. 4)")
     .def_readwrite("propagate_parameter_errors",
                    &EnginePreferences::propagate_parameter_errors,
                    "also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False)");

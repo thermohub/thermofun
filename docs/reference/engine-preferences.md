@@ -17,7 +17,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | round_to_uncertainty | False |  | round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded |
 | solventState | 0 |  | not read by the calculations (old API): the state of water comes from its record or from the state argument of propertiesSolvent, default 0 |
 | solventSymbol | 'H2O@' |  | symbol of solvent used in EoS of solute properties (e.g., H2O@ for HKF model), default H2O@ |
-| uncertainty_significant_digits | 2 |  | number of significant digits of the (rounded up) uncertainties if round_to_uncertainty is True (default: 2) |
+| uncertainty_significant_digits | 2 |  | number of significant digits of the rounded uncertainties if round_to_uncertainty is True (default: 2): to the nearest, a half up (NEA TDB-3 sect. 4) |
 
 ## EngineConventions
 

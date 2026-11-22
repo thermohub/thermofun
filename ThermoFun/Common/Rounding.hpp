@@ -11,7 +11,8 @@
 namespace ThermoFun {
 
 /// Rounding rules of the NEA TDB project (Guidelines for the assignment of uncertainties, TDB-3, Wanner 1999, and
-/// TDB-1): a value is given with as many decimals as its uncertainty, with the "round half to even" rule.
+/// TDB-1): a value is given with as many decimals as its uncertainty, with the "round half to even" rule; the uncertainty is
+/// rounded to the nearest, with a half up.
 namespace rounding {
 
 namespace detail {
@@ -40,19 +41,22 @@ inline double roundHalfEven(double x, int decimals)
     return result / p;
 }
 
-/// Round up (away from the smaller values) to a number of decimals, used for the uncertainties
-inline double roundUp(double x, int decimals)
+/// Round to the nearest, a 5 followed by no other non-zero digit up (away from the smaller values): the rule of TDB-3 for
+/// an uncertainty (its example 25.45 +- 1.05 gives 25.4 +- 1.1), so that an uncertainty at a half is not made smaller
+inline double roundHalfUp(double x, int decimals)
 {
     if (!std::isfinite(x)) return x;
     const double p = std::pow(10.0, decimals);
     const double scaled = x * p;
     const double fl = std::floor(scaled);
-    const double result = (scaled - fl <= detail::tolerance(scaled)) ? fl : fl + 1.0;
+    const double r = scaled - fl;
+    const double result = (r + detail::tolerance(scaled) >= 0.5) ? fl + 1.0 : fl;
     return result / p;
 }
 
-/// Round an uncertainty to a number of significant digits (up), and the value to the same number of decimals
-/// (rounded half to even). Nothing is changed if the uncertainty is not positive or not finite.
+/// Round an uncertainty to a number of significant digits (to the nearest, a half up), and the value to the same number of
+/// decimals (half to even), as NEA TDB-3 sect. 4: 25.45 +- 1.05 -> 25.4 +- 1.1 (two digits),
+/// 1500.47 -> 1500 (two digits). Nothing is changed if the uncertainty is not positive or not finite.
 /// @param value the value
 /// @param error the uncertainty
 /// @param significantDigits the number of significant digits of the uncertainty (>= 1)
@@ -62,12 +66,12 @@ inline void toUncertainty(double& value, double& error, int significantDigits)
     const int digits = std::max(1, significantDigits);
     int exponent = static_cast<int>(std::floor(std::log10(error)));
     int decimals = digits - 1 - exponent;
-    double rounded = roundUp(error, decimals);
+    double rounded = roundHalfUp(error, decimals);
     if (rounded >= std::pow(10.0, exponent + 1) * (1.0 - 1e-12)) // the uncertainty gained a digit: 0.96 -> 1.0
     {
         ++exponent;
         decimals = digits - 1 - exponent;
-        rounded = roundUp(error, decimals);
+        rounded = roundHalfUp(error, decimals);
     }
     error = rounded;
     value = roundHalfEven(value, decimals);
