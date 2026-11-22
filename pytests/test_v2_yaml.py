@@ -134,6 +134,15 @@ def test_a_symbol_with_a_slash_has_its_line(tmp_path):
     assert found[0].line == 5
 
 
+def test_the_nea_reference_codes_give_no_warning(tmp_path):
+    # TDB-5 1.11: four-digit year (two in older volumes), one or two authors, a number for a second reference with the same code
+    codes = ["1995ROB/HEM", "1995ROB/HEM2", "1865KOP", "61ROS/ROS", "2003GUI/FAN3"]
+    target = tmp_path / "data.yaml"
+    target.write_text(HEADER + "data_sources:\n" + "".join("  %s:\n    title: t\n" % code for code in codes + ["my/data"]))
+    found = [d.record for d in tf.Database(str(target)).loadDiagnostics().all() if d.code == "V2-SRC-001"]
+    assert found == ["my/data"]
+
+
 def test_an_error_gives_its_code_and_its_line(tmp_path):
     target = tmp_path / "data.yaml"
     target.write_text(HEADER + "substances:\n  A:\n    methods:\n      - method: HKF88\n        parameters: {zz: 1}\n")

@@ -79,7 +79,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | V2-COV-002 | Error | The covariance matrix is not positive semi-definite. | Correct the matrix; a correlation must be between -1 and 1. |
 | V2-COV-003 | Error | The size of the covariance matrix does not agree with its list of values. | Give a square matrix with one row for each value of the list. |
 | V2-COV-004 | Error | A value of the covariance block is not in the record. | Correct the path of the value, or add the value to the record. |
-| V2-SRC-001 | Warning | The symbol of the data source does not follow the NEA pattern. | Write the symbol as year + first letters of the authors, for example 1988TAN/HEL. |
+| V2-SRC-001 | Warning | The symbol of the data source is not an NEA reference code (TDB-5 1.11). | Write the year, the first three letters of the first two authors and a number for a second reference with the same code, for example 1988TAN/HEL or 1988TAN/HEL2. |
 | LEG-QRK-001 | Info | The method number and the method name do not agree. The number is used. | Correct the method name, or convert the file to v2. |
 | LEG-QRK-002 | Info | The method name has spaces at the start or end. They are removed. | Remove the spaces from the method name. |
 | LEG-QRK-003 | Info | The units of the HKF coefficients are not the expected list. The expected units are used. | No action is needed; convert the file to v2 to remove the message. |

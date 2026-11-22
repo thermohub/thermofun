@@ -415,9 +415,11 @@ auto readDataSource(Context& c, const json& node, const std::string& key, const 
     d.bibtex = optionalString(node, "bibtex");
     d.year = optionalInt(node, "year");
     d.extra_json = extraKeys(c, node, known, symbol, path);
-    static const std::regex nea("^[0-9]{4}[A-Z]{3}(/[A-Z]{3})?$");
+    // the NEA reference code (TDB-5 1.11): year (4 digits, or 2 in older volumes), the first three letters of the first author and
+    // of the second one after "/", and a number for the second, third, ... reference with the same code (1995ROB/HEM2)
+    static const std::regex nea("^([0-9]{4}|[0-9]{2})[A-Z]{3}(/[A-Z]{3})?[0-9]*$");
     if (!std::regex_match(symbol, nea))
-        report(c, Severity::Warning, "V2-SRC-001", symbol, path, "The symbol " + symbol + " is not of the form 1999ABC/DEF.");
+        report(c, Severity::Warning, "V2-SRC-001", symbol, path, "The symbol " + symbol + " is not an NEA reference code such as 1995ROB/HEM or 1995ROB/HEM2.");
     return d;
 }
 

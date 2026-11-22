@@ -231,8 +231,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
         {"V2-COV-004", S::Error, "A value of the covariance block is not in the record.",
          "Correct the path of the value, or add the value to the record."},
         // data sources
-        {"V2-SRC-001", S::Warning, "The symbol of the data source does not follow the NEA pattern.",
-         "Write the symbol as year + first letters of the authors, for example 1988TAN/HEL."},
+        {"V2-SRC-001", S::Warning, "The symbol of the data source is not an NEA reference code (TDB-5 1.11).",
+         "Write the year, the first three letters of the first two authors and a number for a second reference with the same code, for example 1988TAN/HEL or 1988TAN/HEL2."},
         // legacy format
         {"LEG-QRK-001", S::Info, "The method number and the method name do not agree. The number is used.",
          "Correct the method name, or convert the file to v2."},
