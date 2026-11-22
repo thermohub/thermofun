@@ -137,19 +137,20 @@ print(database.get("/substances/H2O@/methods"))
 
 ```{code-cell} ipython3
 database.set("/substances/H2O@/methods", [{"method": "WaterIAPWS95"}, {"method": "HelgesonKirkham74"}])
-engine_hk74 = tf.ThermoEngine(database)
+hk74_engine = tf.ThermoEngine(database)
 
-print(engine_hk74.calculationPath("H2O@")["methods"])
+print("aq17:", engine.calculationPath("H2O@")["methods"])
+print("new: ", hk74_engine.calculationPath("H2O@")["methods"])
 ```
 
-Compare the volume and the heat capacity of Ca+2 with the model of the record (`engine`) and the new model:
+Compare the volume and the heat capacity of Ca+2 with the dielectric model of aq17 (JohnsonNorton91) and with HelgesonKirkham74:
 
 ```{code-cell} ipython3
-ion_record = engine.thermoPropertiesSubstance(373.15, 1e8, "Ca+2")
-ion_hk74 = engine_hk74.thermoPropertiesSubstance(373.15, 1e8, "Ca+2")
+ion_jn91 = engine.thermoPropertiesSubstance(373.15, 1e8, "Ca+2")
+ion_hk74 = hk74_engine.thermoPropertiesSubstance(373.15, 1e8, "Ca+2")
 
-print("V  (m3/mol)    ", ion_record.volume.val, "with the model of the record,", ion_hk74.volume.val, "with HelgesonKirkham74")
-print("Cp (J/(mol K)) ", ion_record.heat_capacity_cp.val, "with the model of the record,", ion_hk74.heat_capacity_cp.val, "with HelgesonKirkham74")
+print("V  (m3/mol)    JohnsonNorton91:", ion_jn91.volume.val, "  HelgesonKirkham74:", ion_hk74.volume.val)
+print("Cp (J/(mol K)) JohnsonNorton91:", ion_jn91.heat_capacity_cp.val, "  HelgesonKirkham74:", ion_hk74.heat_capacity_cp.val)
 ```
 
 To compare models for many records and conditions, a table can do it in one setup: see [Make tables](../how-to/make-tables.md).
@@ -229,12 +230,17 @@ print("rounded:    ", G.val, "+-", G.err)
 
 ## Change the conventions of the results
 
-G has no absolute zero, so the same substance has different values of G and H in different conventions. A **convention** says what the zero is. For water there are two:
+G has no absolute zero, so the same substance has different values of G and H in different conventions. A **convention** says what a value refers to. For the zero of water there are two:
 
 - the **geochemical** scale (the default) gives the values of formation from the elements, as the databases of aqueous species do: G of liquid water at 25 degC is about -237 kJ/mol;
 - the **steam tables** give G = 0 and S = 0 for liquid water at its triple point (273.16 K).
 
-All values of the engine are in J/mol, J/(mol K) and m3/mol. The conventions of the engine only change the zero. See [Conventions](../reference/conventions.md) for the other conventions (the energy reference of the elements, molality or mole fraction, 1 bar or 1 atm), and [Choose conventions](../how-to/choose-conventions.md) for the steps.
+A convention does not change the units: results are always in J/mol, J/(mol K) and m3/mol. It changes what a value refers to:
+
+- the **energy reference**: from what zero G, H and S are counted (for water: the formation scale of geochemistry, or the steam tables);
+- the **standard state**: the standard pressure (1 bar or 1 atm) and, for solutes, the concentration scale (molality, molarity, mole fraction). These change G and S, and with molarity also H, Cp and V.
+
+[Conventions](../reference/conventions.md) has the details, and [Choose conventions](../how-to/choose-conventions.md) the steps.
 
 Here G of water is given on the scale of the steam tables. The change holds from the next calculation.
 
@@ -248,9 +254,9 @@ engine.setConventions(conventions)
 print("steam tables:", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
 ```
 
-## Use a model alone
+## Use a method alone to calculate
 
-You do not need a database to run a water model.
+A method, the code of one model such as WaterIAPWS95, calculates without a database and without an engine.
 
 ```{code-cell} ipython3
 water = tf.methods.solventMethod("WaterIAPWS95", implementation="reaktoro").properties(298.15, 1e5, 0)

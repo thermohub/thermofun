@@ -14,7 +14,7 @@ Steps for one job. The guides are in four groups: using ThermoFun to calculate, 
 - [Choose conventions](choose-conventions.md)
 - [Propagate uncertainties](propagate-uncertainties.md)
 - [See what each method gives](get-per-method-results.md)
-- [Use a method alone](use-a-method-alone.md)
+- [Use a method alone to calculate](use-a-method-alone.md)
 
 ## Data
 

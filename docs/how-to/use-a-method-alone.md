@@ -3,9 +3,11 @@
  Copyright (C) 2026 ThermoFun contributors
 -->
 
-# Use a method alone
+# Use a method alone to calculate
 
-**You need:** ThermoFun. You need no database and no engine.
+A method, the code of one model such as WaterIAPWS95, calculates without a database and without an engine.
+
+**You need:** ThermoFun.
 
 1. Make the method from its id and its parameters in SI.
 2. Give the reference values.

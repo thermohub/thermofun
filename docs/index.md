@@ -47,7 +47,7 @@ Calculate:
 - [Choose conventions](how-to/choose-conventions.md)
 - [Propagate uncertainties](how-to/propagate-uncertainties.md)
 - [See what each method gives](how-to/get-per-method-results.md)
-- [Use a method alone](how-to/use-a-method-alone.md)
+- [Use a method alone to calculate](how-to/use-a-method-alone.md)
 
 Data:
 
