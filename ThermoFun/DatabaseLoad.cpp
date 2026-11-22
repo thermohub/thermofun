@@ -206,7 +206,10 @@ auto Database::Impl::loadV2File(const std::filesystem::path& path, std::vector<s
         bundle[section->second] = ordered::array({tree});
         fromV2(bundle.dump(), key);
     }
-    else if (tree.contains("thermohub") || !model::detail::looksLikeJson(text))
+    // only a legacy file goes to the legacy reader: fromFile sends any other file back here, and a JSON file that is neither
+    // (no thermohub key, not legacy) looped until the stack ran out; the v2 reader reports what such a file lacks
+    else if (tree.contains("thermohub") || !model::detail::looksLikeJson(text) ||
+             model::detail::detectDocumentFormat(json::parse(text, nullptr, false)) != model::DataFormat::Legacy)
         fromV2(text, key);
     else
         fromFile(key);
