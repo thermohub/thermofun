@@ -36,10 +36,8 @@ import thermofun as tf
 from thermofun import fitting
 
 truth = tf.ThermoEngine("mineral-methods.yaml")
-measured = []
-for T in (600.0, 800.0, 1000.0, 1100.0, 1200.0):                # K
-    Cp = truth.thermoPropertiesSubstance(T, 1e5, "Calcite").heat_capacity_cp.val
-    measured.append(fitting.Observation("Calcite", "Cp", T, 1e5, Cp, 0.5))   # the last value is the uncertainty, J/(mol K)
+# Cp of Calcite at five T (K) and 1 bar, with the uncertainty 0.5 J/(mol K)
+measured = fitting.calculated(truth, "Calcite", "Cp", [600.0, 800.0, 1000.0, 1100.0, 1200.0], 1e5, uncertainty=0.5)
 ```
 
 ## Start from a wrong value

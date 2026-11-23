@@ -149,6 +149,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   catalog a method used in a region is `regional`; such a method needs a base method after it (V2-MTH-012). It gives the
   stable phase only (the equation has no metastable states); a liquid below the saturation pressure comes from the next
   method. Tests: `pytests/test_water_lvs83.py`.
+- **Observations of one property at many points** (`thermofun.fitting`): `observations(symbol, property, T, P, values,
+  uncertainties, unit, T_unit)` from your numbers in their unit (for example kJ/mol and °C), and `calculated(engine, symbol,
+  property, T, P, uncertainty)` from an engine, to see a fit find known values. The fit how-to and tutorial 7 use them.
 - **Fit templates and tasks** (`thermofun.fitting`): a template (`thermofun/fit_templates/HKF88.yaml`) holds what a fit of one
   method needs (the parameters and their units, the searched one, the constraints of the method as switches, conventions,
   rules that warn, plausible ranges, presets); a task names the template, a record, a preset, given values and data (rows or

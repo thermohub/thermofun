@@ -274,3 +274,24 @@ def test_the_examples_of_the_guide_run_and_print_what_the_page_shows():
         run_python(m[1], scope, "fit-parameters.md", expected_output(text, m.end()))
         ran += 1
     assert ran >= 9
+
+
+def test_observations_of_one_property_at_many_points():
+    made = fitting.observations("UO2+2", "G", T=[10, 25], P=0.0, values=[-954.45, -952.95], uncertainties=[0.5, 1.0],
+                                unit="kJ/mol", T_unit="C")
+    assert made == [fitting.Observation("UO2+2", "G", 283.15, 0.0, -954450.0, 500.0),
+                    fitting.Observation("UO2+2", "G", 298.15, 0.0, -952950.0, 1000.0)]
+    assert fitting.observations("Q", "Cp", [300.0, 400.0], 1e5, [80.0, 90.0])[1] == fitting.Observation("Q", "Cp", 400.0, 1e5, 90.0, 1.0)
+    with pytest.raises(ValueError, match="T has 1 values"):
+        fitting.observations("Q", "Cp", [300.0], 1e5, [80.0, 90.0])
+    with pytest.raises(ValueError, match="Unknown property"):
+        fitting.observations("Q", "Cv", 300.0, 1e5, [80.0])
+    with pytest.raises(ValueError, match="T_unit"):
+        fitting.observations("Q", "Cp", 300.0, 1e5, [80.0], T_unit="F")
+
+
+def test_calculated_observations_are_the_values_of_the_engine():
+    engine = engine_of()
+    made = fitting.calculated(engine, "Q", "Cp", [300.0, 500.0], 1e5, uncertainty=0.5)
+    assert [o.value for o in made] == [engine.thermoPropertiesSubstance(T, 1e5, "Q").heat_capacity_cp.val for T in (300.0, 500.0)]
+    assert [(o.T, o.P, o.uncertainty) for o in made] == [(300.0, 1e5, 0.5), (500.0, 1e5, 0.5)]

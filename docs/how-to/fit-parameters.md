@@ -103,11 +103,9 @@ from thermofun import fitting
 
 # measured: here calculated with known values, to see the fit find them
 truth = tf.ThermoEngine(tf.Database(data))
-measured = []
-for T in (300.0, 500.0, 700.0, 900.0):
-    r = truth.thermoPropertiesSubstance(T, 1e5, "Qtz")
-    measured.append(fitting.Observation("Qtz", "Cp", T, 1e5, r.heat_capacity_cp.val, 0.5))
-    measured.append(fitting.Observation("Qtz", "G", T, 1e5, r.gibbs_energy.val, 50.0))
+T = [300.0, 500.0, 700.0, 900.0]
+measured = (fitting.calculated(truth, "Qtz", "Cp", T, 1e5, uncertainty=0.5)
+            + fitting.calculated(truth, "Qtz", "G", T, 1e5, uncertainty=50.0))
 
 engine = tf.ThermoEngine(tf.Database(data))
 engine.parameter("Qtz", "CpPolynomial", "a0").setValue(80.0)   # a wrong start
@@ -121,6 +119,8 @@ assert abs(result.values["Qtz/CpPolynomial/a0"] - 100.0) < 1e-6
 assert result.chi2 < 1e-6
 ```
 -->
+
+`fitting.observations(symbol, property, T, P, values, uncertainties, unit, T_unit)` makes the observations of one property at many points, from your numbers and their unit; `fitting.calculated(engine, symbol, property, T, P, uncertainty)` makes them with an engine, as here. One `fitting.Observation(symbol, property, T, P, value, uncertainty)` is one point, in SI.
 
 The weight of an observation is its uncertainty. `Observation.property` is one of `G`, `H`, `S`, `Cp`, `V`, `U`, `A` of a substance, or `logK`, `lnK`, `dG`, `dH`, `dS`, `dCp`, `dV` of a reaction.
 
@@ -177,10 +177,11 @@ water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueou
          "methods": [{"method": "WaterHGK84"}, {"method": "JohnsonNorton91"}]}
 engine = tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water, "UO2+2": uo2}}))
 
-# G of UO2+2 at the saturation pressure (P = 0): T in °C, G and its uncertainty in kJ/mol (Hovey et al. 1989)
-hovey = [(10, -954.45, 0.5), (25, -952.95, 0.5), (40, -951.48, 0.5), (50, -950.52, 1.0), (55, -950.04, 0.5),
-         (100, -945.78, 1.0), (150, -941.02, 1.0), (200, -936.02, 1.0), (250, -930.6, 2.0), (300, -924.6, 2.0)]
-measured = [fitting.Observation("UO2+2", "G", t + 273.15, 0.0, g * 1000, u * 1000) for t, g, u in hovey]
+# G of UO2+2 at the saturation pressure (P = 0), Hovey et al. (1989)
+measured = fitting.observations("UO2+2", "G", P=0.0, unit="kJ/mol", T_unit="C",
+    T=[10, 25, 40, 50, 55, 100, 150, 200, 250, 300],
+    values=[-954.45, -952.95, -951.48, -950.52, -950.04, -945.78, -941.02, -936.02, -930.6, -924.6],
+    uncertainties=[0.5, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0, 1.0, 2.0, 2.0])
 
 constraints = [
     fitting.PropertyConstraint("UO2+2", "Cp", 298.15, 1e5, 10.04 * CAL),   # Cp at 25 °C, J/(mol K)
