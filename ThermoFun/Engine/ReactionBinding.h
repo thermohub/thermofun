@@ -27,7 +27,8 @@ struct BoundReaction
 auto canBindReaction(const ReactionRecord& record, const std::map<std::string, MethodDefinition>* definitions = nullptr) -> bool;
 
 /// Make the methods of a reaction.
-auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<std::string, MethodDefinition>* definitions = nullptr) -> std::shared_ptr<const BoundReaction>;
+/// R: the gas constant of the calculation (engine option physical_constants)
+auto bindReaction(std::shared_ptr<const ReactionRecord> record, const std::map<std::string, MethodDefinition>* definitions = nullptr, double R = R_CONSTANT) -> std::shared_ptr<const BoundReaction>;
 
 /// The properties of a bound reaction at T (K) and P (Pa). solvent: if the methods need it.
 auto executeReaction(const BoundReaction& bound, double T, double P, const PropertiesSolvent* solvent) -> ThermoPropertiesReaction;

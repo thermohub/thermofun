@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 
 namespace ThermoFun::model {
@@ -17,7 +18,8 @@ namespace ThermoFun::model {
 auto substanceFromReaction(double T, double P, const ThermoPropertiesReaction& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& others, double coefficient) -> ThermoPropertiesSubstance;
 
 /// The properties of a reaction from those of its reactants, each with its coefficient. reaction and symbols: for the messages.
-auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols) -> ThermoPropertiesReaction;
+auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols,
+                           double R = R_CONSTANT) -> ThermoPropertiesReaction;
 
 /// The properties tps with the pressure term of a constant volume: V dP on G and H. reference: the reference properties, Pr in Pa. Without a reference
 /// volume nothing changes.

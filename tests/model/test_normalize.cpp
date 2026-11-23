@@ -63,9 +63,11 @@ void runNormalize()
                                         R"({"value": 1, "uncertainty": {"half_width": 2, "distribution": "normal"}})",
                                         R"({"value": 1, "uncertainty": {"standard": 2, "distribution": "lognormal"}})"})
         CHECK(!read(bad_uncertainty, "J/mol", code) && code == "V2-UNC-005");
-    q = read(R"({"value": 1, "quality": "core", "origin": "calculated", "calculation_path": "a+b", "source": "2018LOT/MAT"})", "J/mol", code);
-    CHECK(q && q->meta.quality == Quality::Core && q->meta.origin == Origin::Calculated && q->meta.calculation_path == "a+b" &&
+    q = read(R"({"value": 1, "quality": "core", "origin": "calculated", "derivation": "a+b", "source": "2018LOT/MAT"})", "J/mol", code);
+    CHECK(q && q->meta.quality == "core" && q->meta.origin == Origin::Calculated && q->meta.derivation == "a+b" &&
           q->meta.source == "2018LOT/MAT");
+    q = read(R"({"value": 1, "quality": "selected"})", "J/mol", code);   // free text (decision 0031, row 2)
+    CHECK(q && q->meta.quality == "selected");
     q = read(R"("-237.183 kJ/mol")", "J/mol", code);
     CHECK(q && close(q->value, -237183) && q->written.unit == "kJ/mol");
     // a defined zero uncertainty is kept

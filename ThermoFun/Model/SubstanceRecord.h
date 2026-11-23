@@ -49,8 +49,7 @@ struct SubstanceRecord
     std::vector<CovarianceBlock> covariance;    ///< correlations between values and parameters
 
     // origin
-    std::string data_source;                    ///< source of the record, used if a value gives none
-    std::vector<std::string> data_sources;      ///< the legacy keys datasources and references, as written
+    std::vector<std::string> data_sources;      ///< NEA reference codes (TDB-5 1.11) of the sources, or free text; the first is the source of a value that gives none
     bool deprecated = false;
     std::string deprecated_in_favour_of;
 

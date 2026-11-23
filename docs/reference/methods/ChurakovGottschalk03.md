@@ -10,6 +10,7 @@ Source: Churakov and Gottschalk (2003a, b).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, S adds, Cp adds, V sets |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -38,9 +39,9 @@ Source: Churakov and Gottschalk (2003a, b).
 | pol1 | 1 | 1 | yes |  | see pol0, angstrom3 K |
 | pol2 | 1 | 1 | yes |  | see pol0, K |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, beta: epsilon/T without units, reduced density: sigma^3 NA rho without units. They are not converted.
 

@@ -10,6 +10,7 @@ Source: Dolejs and Manning (2010).
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | the solvent |
 | Temperature segments | no |

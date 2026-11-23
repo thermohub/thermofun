@@ -289,16 +289,16 @@ auto readQuantity(const json& node, const std::string& slot_si_unit, const UnitS
         {
             const std::string& key = item.key();
             if (key != v2key::value && key != v2key::unit && key != v2key::uncertainty && key != v2key::quality &&
-                key != v2key::origin && key != v2key::calculation_path && key != v2key::source)
+                key != v2key::origin && key != v2key::derivation && key != v2key::source)
                 report(diag, Severity::Warning, "V2-QTY-003", path + "/" + key, "Unknown key in a quantity: " + key);
         }
         number = node[v2key::value].get<double>();
         unit = text(node, v2key::unit);
         if (node.contains(v2key::uncertainty))
             uncertainty = &node[v2key::uncertainty];
-        q.meta.quality = readWord<Quality>(text(node, v2key::quality), diag, path + "/" + v2key::quality);
+        q.meta.quality = text(node, v2key::quality);
         q.meta.origin = readWord<Origin>(text(node, v2key::origin), diag, path + "/" + v2key::origin);
-        q.meta.calculation_path = text(node, v2key::calculation_path);
+        q.meta.derivation = text(node, v2key::derivation);
         q.meta.source = text(node, v2key::source);
     }
     else
@@ -368,7 +368,7 @@ auto writeQuantity(const Quantity& q, const std::string& slot_si_unit) -> json
         }
     }
 
-    const bool noMeta = !q.meta.quality && !q.meta.origin && q.meta.calculation_path.empty() && q.meta.source.empty();
+    const bool noMeta = q.meta.quality.empty() && !q.meta.origin && q.meta.derivation.empty() && q.meta.source.empty();
     if (!hasUncertainty && noMeta && inSlotUnit)
         return written;
 
@@ -378,12 +378,12 @@ auto writeQuantity(const Quantity& q, const std::string& slot_si_unit) -> json
         out[v2key::unit] = unit;
     if (hasUncertainty)
         out[v2key::uncertainty] = uncertainty;
-    if (q.meta.quality)
-        out[v2key::quality] = toString(*q.meta.quality);
+    if (!q.meta.quality.empty())
+        out[v2key::quality] = q.meta.quality;
     if (q.meta.origin)
         out[v2key::origin] = toString(*q.meta.origin);
-    if (!q.meta.calculation_path.empty())
-        out[v2key::calculation_path] = q.meta.calculation_path;
+    if (!q.meta.derivation.empty())
+        out[v2key::derivation] = q.meta.derivation;
     if (!q.meta.source.empty())
         out[v2key::source] = q.meta.source;
     return out;

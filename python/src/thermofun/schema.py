@@ -64,21 +64,28 @@ def definitions():
         "oneOf": [
             NUMBER,
             {"type": "string", "pattern": r"^\s*[-+]?[0-9.]+([eE][-+]?[0-9]+)?\s+\S.*$"},
-            _obj({"value": NUMBER, "unit": STRING, "uncertainty": REF("uncertainty"), "quality": STRING, "origin": STRING,
-                  "calculation_path": {"type": "string", "description": "A note on how the value was made; no calculation reads it."},
+            _obj({"value": NUMBER, "unit": STRING, "uncertainty": REF("uncertainty"), "quality": {"type": "string", "description": "Free text: how far the data author trusts the value. Suggested words: core, recommended, supplemental; the word of the source compilation is fine (NEA: selected, auxiliary)."}, "origin": STRING,
+                  "derivation": {"type": "string", "description": "How the value was obtained, for any origin (calculated, estimated, converted, ...): free text, kept and written back; no calculation reads it."},
                   "source": STRING}, ["value"]),
         ]}
     d["units"] = _obj({k: STRING for k in ("energy", "pressure", "temperature", "length", "mass", "amount", "volume", "entropy",
                                            "heat_capacity")},
                       description="Default units of everything inside the level where it is.")
     d["units"]["additionalProperties"] = STRING
-    d["convention"] = _obj({"energy_reference": {"enum": ["benson_helgeson", "berman_brown", "ser", "assigned_enthalpy",
-                                                          "gibbs_helmholtz_formation", "dft_formation_0K"]},
-                            "standard_pressure": {"enum": ["1bar", "1atm"]},
-                            "concentration_scale": {"enum": ["molality", "mole_fraction", "molarity"]},
-                            "water_reference": {"enum": ["geochemical", "steam_tables"]}})
-    d["reference_conditions"] = _obj({"T": QUANTITY, "P": QUANTITY})
+    # a value is defined by its standard state, its reference temperature and its energy reference (decision 0031, row 6)
+    d["standard_state"] = _obj({"pressure": {"oneOf": [{"enum": ["1bar", "1atm"]}, QUANTITY], "description": "p°: 1bar, 1atm, or any pressure (a number in Pa, or with a unit)"},
+                                "concentration_scale": {"enum": ["molality", "mole_fraction", "molarity", "amount_fraction", "amount_concentration"]}},
+                               description="The standard state of the values: the standard pressure p° and, for solutes, the concentration scale.")
+    d["energy_reference"] = _obj({"elements": {"enum": ["benson_helgeson", "berman_brown", "ser", "assigned_enthalpy",
+                                                        "gibbs_helmholtz_formation", "dft_formation_0K"]},
+                                  "water": {"enum": ["helgeson_kirkham_1974", "codata_1989", "steam_tables", "geochemical"],
+                                            "description": "The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974."},
+                                  "ions": {"enum": ["hydrogen_ion", "none"],
+                                           "description": "hydrogen_ion (the default): H+(aq) is 0 at every T and P, and the electron is from the standard hydrogen electrode, G(e-) = 1/2 G(H2, g, p°) - G(H+) (NEA TDB-5 1.6, 1.7.e); none: the records give H+ and e-."}},
+                                 description="From what zero G, H and S are counted: of the elements, of water and of ions.")
+    d["reference_conditions"] = _obj({"T": QUANTITY}, description="The reference temperature Tr. The reference pressure is the standard pressure p° of standard_state.")
     d["applicability"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
+    d["region"] = _obj({k: QUANTITY for k in ("t_min", "t_max", "p_min", "p_max")})
     d["covariances"] = {"type": "array", "items": _obj({"paths": STRINGS, "matrix": {"type": "array", "items": {"type": "array", "items": NUMBER}}},
                                                        ["paths", "matrix"])}
     d["parameters"] = _map({"oneOf": [QUANTITY, {"type": "array"}]}, "Parameters of a method, by name.")
@@ -86,43 +93,45 @@ def definitions():
         "method": STRING, "parameters": REF("parameters"), "parameter_set": STRING,
         "segments": {"type": "array", "items": _obj({"t_min": QUANTITY, "t_max": QUANTITY, "parameters": REF("parameters")})},
         "transitions": {"type": "array", "items": _obj({k: QUANTITY for k in ("T", "dS", "dH", "dV", "dTdP")})},
-        "applicability": REF("applicability"), "table": {"type": "object"}, "units": REF("units"), "implementation": STRING,
-        "interpolation": STRING, "order": INTEGER}, ["method"])
+        "applicability": REF("applicability"), "region": REF("region"), "table": {"type": "object"}, "units": REF("units"), "implementation": STRING,
+        "interpolation": STRING, "interpolation_order": INTEGER}, ["method"])
     d["methods_of_a_record"] = {"type": "array", "items": REF("method_application")}
     record = {"symbol": STRING, "record_type": STRING}
     d["element"] = _obj(dict(record, name=STRING, **{"class": STRING}, number=INTEGER, isotope_mass=NUMBER, valence=INTEGER,
                              molar_mass=QUANTITY, standard_entropy=QUANTITY, heat_capacity=QUANTITY, volume=QUANTITY,
-                             reference_form=STRING, data_sources=STRINGS, sourcetdb={"oneOf": [STRING, STRINGS]},
+                             reference_state={"type": "string", "description": "The reference state of the element at the reference temperature and the standard pressure (NEA TDB-5, Table 7): formula unit and state, for example O2(g), C(cr, graphite), Fe(cr, bcc)."}, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."}, sourcetdb={"oneOf": [STRING, STRINGS]},
                              structural={"type": "object"}, units=REF("units"), legacy_class=STRING))
     d["substance"] = _obj(dict(record, name=STRING, formula=STRING, charge=INTEGER, **{"class": STRING}, aggregate_state=STRING,
-                               sourcetdb={"oneOf": [STRING, STRINGS]}, molar_mass=QUANTITY, convention=REF("convention"),
+                               sourcetdb={"oneOf": [STRING, STRINGS]}, molar_mass=QUANTITY, standard_state=REF("standard_state"), energy_reference=REF("energy_reference"),
                                reference_conditions=REF("reference_conditions"),
                                standard_state_properties=_obj({k: QUANTITY for k in ("G", "H", "S", "Cp", "V", "A", "U", "Cv")}),
                                methods=REF("methods_of_a_record"), defining_reaction=STRING, preferred_property_source=STRING,
-                               applicability=REF("applicability"), data_source=STRING, data_sources=STRINGS,
+                               applicability=REF("applicability"), data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."},
                                structural={"type": "object"}, deprecated=BOOLEAN, deprecated_in_favour_of=STRING,
                                units=REF("units"), covariances=REF("covariances")), ["formula"])
     d["reaction"] = _obj(dict(record, name=STRING, equation=STRING, stoichiometry=_map(NUMBER),
                               reference_conditions=REF("reference_conditions"),
                               reaction_properties=_obj({k: QUANTITY for k in ("logK", "dG", "dH", "dS", "dCp", "dV")}),
-                              methods=REF("methods_of_a_record"), level=INTEGER, data_source=STRING, data_sources=STRINGS,
-                              applicability=REF("applicability"), convention=REF("convention"), preferred_property_source=STRING,
+                              methods=REF("methods_of_a_record"), level=INTEGER, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."},
+                              applicability=REF("applicability"), standard_state=REF("standard_state"), energy_reference=REF("energy_reference"), preferred_property_source=STRING,
                               sourcetdb={"oneOf": [STRING, STRINGS]}, deprecated=BOOLEAN, units=REF("units"),
                               covariances=REF("covariances")))
-    d["method_definition"] = _obj(dict(symbol=STRING, record_type=STRING, kind=STRING, tier=INTEGER, operates_on=STRING, applies_to_classes=STRINGS,
-                                       contributes_to=STRINGS, parameter_definitions={"type": ["object", "array"]},
-                                       implementation_id=STRING, source={"type": ["string", "object"]}, expression={"type": ["string", "object"]},
-                                       generator=STRING, source_hash=STRING, tests={"type": "array"}, effects={"type": "object"},
-                                       citation=STRING))
+    d["method_definition"] = _obj(dict(symbol=STRING, record_type=STRING, kind=STRING, operates_on=STRING, applies_to_classes=STRINGS,
+                                       contributes_to={"oneOf": [STRINGS, {"type": "object", "additionalProperties": {"enum": ["sets", "adds", "uses"]}}],
+                                                       "description": "What the method contributes to: a mapping property -> sets (the whole value), adds (an increment) or uses (an input only); a property not listed is not touched. A list of properties is the short form: each adds."}, parameter_definitions={"type": ["object", "array"]},
+                                       implementation_id=STRING, formula={"type": ["string", "object"], "description": "The formula of a symbolic method as the author writes it: form and expression."}, expression={"type": ["string", "object"]},
+                                       generator=STRING, formula_hash=STRING, tests={"type": "array"},
+                                       data_sources={"oneOf": [STRING, STRINGS]}))
     d["parameter_set"] = _obj(dict(symbol=STRING, record_type=STRING, method=STRING, implementation=STRING, default=BOOLEAN,
                                    formula_units={"type": "object"}, description=STRING, parameters=REF("parameters"),
-                                   auxiliary={"type": "object"}, reference=STRING, units=REF("units")), ["method", "parameters"])
+                                   data_sources={"oneOf": [STRING, STRINGS]}, units=REF("units")), ["method", "parameters"])
     d["data_source"] = _obj(dict(symbol=STRING, record_type=STRING, title=STRING, authors={"oneOf": [STRING, STRINGS]}, year=INTEGER, journal=STRING,
                                  doi=STRING, bibtex=STRING))
     d["thermodataset"] = _obj(dict(symbol=STRING, name=STRING, version=STRING, status=STRING,
                                    reference_conditions=REF("reference_conditions"), sourcetdb={"oneOf": [STRING, STRINGS]},
-                                   solvent=STRING, data_source=STRING, defaults={"type": "object"},
-                                   conventions=_obj({"water_triple_point_reference": STRING}), convention=REF("convention")))
+                                   solvent=STRING, data_sources={"oneOf": [STRING, STRINGS], "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."}, defaults={"type": "object"},
+                                   standard_state=REF("standard_state"), energy_reference=REF("energy_reference"),
+                                   physical_constants={"enum": ["codata1986", "codata2018"], "description": "The constants of physics the values were derived with. An engine with another set warns (CNV-012)."}))
     return d
 
 

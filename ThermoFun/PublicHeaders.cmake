@@ -3,11 +3,14 @@
 set(THERMOFUN_PUBLIC_HEADERS
     Batch/OutputBatch.h
     Batch/RecordRules.h
-    Batch/Tables.h
+    Batch/BatchSetup.h
     Batch/ThermoBatch.h
     Common/Constants.h
     Common/Diagnostics.h
+    Common/Notes.h
+    Common/PhysicalConstants.h
     Common/Real.hpp
+    Common/Route.h
     Common/ThermoProperties.h
     Common/ThermoProperty.hpp
     Common/ThermoScalar.hpp
@@ -15,9 +18,8 @@ set(THERMOFUN_PUBLIC_HEADERS
     Database.h
     Element.h
     Engine/Consistency.h
-    Engine/DetailedResult.h
     Engine/Sensitivity.h
-    Engine/Snapshot.h
+    Engine/Summary.h
     GlobalVariables.h
     Methods/Evaluate.h
     Methods/Method.h
@@ -40,6 +42,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Model/SubstanceRecord.h
     Model/ThermoDataSetInfo.h
     Model/Vocabulary.h
+    Model/WaterAnchor.h
     Reaction.h
     RecordBuilder.h
     Substance.h

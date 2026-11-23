@@ -30,7 +30,7 @@ How to use them: [Propagate uncertainties](../how-to/propagate-uncertainties.md)
 
 ## Rounding
 
-With `round_to_uncertainty` (off by default), the engine rounds each result that has an uncertainty greater than 0. The derivatives and the results without an uncertainty are not rounded. It rounds the uncertainty up to `uncertainty_significant_digits`, and the value to the same decimals, as in NEA TDB-3. A 5 with nothing after it rounds to the even digit. The calculation itself keeps all digits.
+With `round_to_uncertainty` (off by default), the engine rounds each result that has an uncertainty greater than 0. The derivatives and the results without an uncertainty are not rounded. It rounds the uncertainty to `uncertainty_significant_digits`, to the nearest with a half up, and the value to the same decimals with a half to the even digit, as in NEA TDB-3 section 4: 25.45 ± 1.05 becomes 25.4 ± 1.1, and an uncertainty of 1500.47 with two digits becomes 1500. The calculation itself keeps all digits.
 
 ```python
 import thermofun as tf

@@ -5,6 +5,7 @@
 #define THERMOPROPERTIES_H
 
 // TCorPT includes
+#include <ThermoFun/Common/Notes.h>
 #include <ThermoFun/Common/ThermoProperty.hpp>
 
 namespace ThermoFun {
@@ -87,24 +88,21 @@ struct ThermoPropertiesReactionT
 template<class S>
 struct PropertiesSolventT
 {
-    /// speed of sound
-    double speed_of_sound,
-//       Alpha,            /// constant pressure expansion (alpha)
-//       Beta,             /// constant temperature compressibility (beta)
-    /// dynamic viscosity
-       dynamic_viscosity,
-    /// thermal conductivity
-       thermal_conductivity,
-    /// surface tension
-       surface_tension,
-    /// not clear (currently not used)
-       Tdiff,
-    /// Prandtl number (currently not used)
-       Prndtl,
-    /// kinetic viscosity (currently not used)
-       Visck;
-//       Albe,             /// alpha/beta ratio
-//       dAldT;            /// T derivative of isobaric expansion
+    // Transport properties, in SI; 0 if the method does not give them (the GEMS water code gives them)
+    /// speed of sound (m/s)
+    double speed_of_sound = 0.0;
+    /// dynamic viscosity (Pa s)
+    double dynamic_viscosity = 0.0;
+    /// thermal conductivity (W/(m K))
+    double thermal_conductivity = 0.0;
+    /// surface tension (N/m), at saturation only
+    double surface_tension = 0.0;
+    /// thermal diffusivity (m2/s)
+    double Tdiff = 0.0;
+    /// Prandtl number
+    double Prndtl = 0.0;
+    /// kinematic viscosity (m2/s)
+    double Visck = 0.0;
     /// constant pressure expansion (alpha) (in units of 1/K)
     S Alpha;
 
@@ -114,7 +112,7 @@ struct PropertiesSolventT
     /// constant temperature compressibility (beta) (in units of (1/Pa)
     S Beta;
 
-    /// alpha/beta ratio (in units of K/Pa)
+    /// alpha/beta ratio, (dP/dT) at constant volume (in units of Pa/K)
     S Albe;
 
 //    /// ideal gas Gibbs energy (in units of J/mol)
@@ -261,10 +259,11 @@ struct FunctionG
 
 /// The thermodynamic properties returned by the engine: ThermoScalar properties with the value, the derivatives with
 /// respect to T and P, the error and the status (the interface of ThermoFun is not changed by the use of autodiff).
-struct ThermoPropertiesSubstance : ThermoPropertiesSubstanceT<Reaktoro_::ThermoScalar> {};
-struct ThermoPropertiesReaction  : ThermoPropertiesReactionT<Reaktoro_::ThermoScalar> {};
-struct PropertiesSolvent         : PropertiesSolventT<Reaktoro_::ThermoScalar> {};
-struct ElectroPropertiesSolvent  : ElectroPropertiesSolventT<Reaktoro_::ThermoScalar> {};
+/// info: the notes of all values of the result, its source and the pressure used (decision 0029); each value has its own info.
+struct ThermoPropertiesSubstance : ThermoPropertiesSubstanceT<Reaktoro_::ThermoScalar> { Reaktoro_::Info info; };
+struct ThermoPropertiesReaction  : ThermoPropertiesReactionT<Reaktoro_::ThermoScalar> { Reaktoro_::Info info; };
+struct PropertiesSolvent         : PropertiesSolventT<Reaktoro_::ThermoScalar> { Reaktoro_::Info info; };
+struct ElectroPropertiesSolvent  : ElectroPropertiesSolventT<Reaktoro_::ThermoScalar> { Reaktoro_::Info info; };
 
 /// The same properties as autodiff numbers, used inside the models while calculating
 using ThermoPropertiesSubstanceAD = ThermoPropertiesSubstanceT<real>;

@@ -80,7 +80,7 @@ void exportMethods(py::module& parent)
         .def_readonly("S", &MethodResult::S)
         .def_readonly("Cp", &MethodResult::Cp)
         .def_readonly("V", &MethodResult::V)
-        .def_readonly("outside_range", &MethodResult::outside_range);
+        .def_readonly("extrapolated", &MethodResult::extrapolated, "True if the method used a value outside its range");
 
     py::class_<ReferenceValues>(m, "Reference", "The reference state of a substance, in SI; a value that is None is not given")
         .def(py::init(&makeReference), py::arg("T") = py::none(), py::arg("P") = py::none(), py::arg("G") = py::none(),
@@ -118,7 +118,9 @@ void exportMethods(py::module& parent)
                  tps.volume.ddp *= 1e-5;
                  tps.volume.err *= 1e-5;
                  return tps; },
-             "The properties of water as a substance at T [K], P [Pa]", py::arg("T"), py::arg("P"), py::arg("state") = 0, py::arg("triple") = "NEA_HGK");
+             "The properties of water as a substance at T [K], P [Pa]. triple: a water anchor (helgeson_kirkham_1974, codata_1989; the method picks "
+             "the triple-point set of its equation) or the name of a set of WaterTriplePoint (HKF_HGK_1974, NEA_HGK, NEA_IAPWS)",
+             py::arg("T"), py::arg("P"), py::arg("state") = 0, py::arg("triple") = "NEA_HGK");
 
     py::class_<DielectricMethod, std::shared_ptr<DielectricMethod>>(m, "DielectricMethod", "A model of the dielectric constant of water")
         .def_property_readonly("id", [](const DielectricMethod& s) { return s.spec().id; })
@@ -132,45 +134,74 @@ void exportMethods(py::module& parent)
 
     m.def("symbolicAvailable", [] { return SymbolicExpression::available(); }, "True if this build runs symbolic methods");
 
-    m.def("physicalConstants", [] {
+    m.def("physicalConstants", [](const std::string& name) {
+        const auto& c = ThermoFun::physicalConstants(name);
         py::dict out;
-        out["name"] = ThermoFun::PHYSICAL_CONSTANTS_NAME; out["R"] = ThermoFun::R_CONSTANT; out["NA"] = ThermoFun::NA_CONSTANT; out["F"] = ThermoFun::F_CONSTANT; out["e"] = ThermoFun::e_CONSTANT; out["k"] = ThermoFun::k_CONSTANT;
+        out["name"] = c.name; out["R"] = c.R; out["NA"] = c.NA; out["F"] = c.F; out["e"] = c.e; out["k"] = c.k;
         return out;
-    }, "The constants of physics of this build");
+    }, "A set of constants of physics (Methods/ParameterSets/PhysicalConstants*.yaml): codata1986, the default, or codata2018. "
+       "An engine uses the set of its option physical_constants", py::arg("name") = "codata1986");
+    m.def("physicalConstantsNames", &ThermoFun::physicalConstantsNames, "The names of the sets of constants of physics");
 
-    m.def("catalog", [] {
-        py::list out;
-        for (const auto& spec : MethodCatalog::instance().specs())
-        {
+    const auto rowOf = [](const MethodSpec& spec) -> py::dict {
             py::dict row;
             row["id"] = spec.id; row["aliases"] = spec.aliases; row["title"] = spec.title; row["summary"] = spec.summary;
             row["citation"] = spec.citation; row["operates_on"] = toString(spec.operates_on); row["group"] = spec.group; row["same_as"] = spec.same_as;
             row["depends_on"] = spec.depends_on == Dependence::None ? "none" : spec.depends_on == Dependence::T ? "T" : spec.depends_on == Dependence::P ? "P" : spec.depends_on == Dependence::TP ? "T, P" : "";
-            row["base"] = spec.operates_on == OperatesOn::Substance ? spec.effects.base : spec.reaction_effects.base;
+            row["base"] = spec.operates_on == OperatesOn::Substance ? spec.contributes_to.base : spec.reaction_contributes_to.base;
             row["piecewise"] = spec.piecewise; row["implemented"] = spec.implemented;
             row["water"] = spec.role == MethodRole::SolventProperties; row["dielectric"] = spec.role == MethodRole::SolventElectro;
             row["implementations"] = spec.implementations;
+            if (!spec.range.empty())
             {
-                py::list outputs;
-                for (const auto& o : spec.auxiliary_outputs)
+                py::dict range;  // K and Pa; None is no limit (decision 0029)
+                range["t_min"] = spec.range.t_min ? py::object(py::float_(*spec.range.t_min)) : py::object(py::none());
+                range["t_max"] = spec.range.t_max ? py::object(py::float_(*spec.range.t_max)) : py::object(py::none());
+                range["p_min"] = spec.range.p_min ? py::object(py::float_(*spec.range.p_min)) : py::object(py::none());
+                range["p_max"] = spec.range.p_max ? py::object(py::float_(*spec.range.p_max)) : py::object(py::none());
+                range["source"] = spec.range.source;
+                row["range"] = range;
+            }
+            else
+                row["range"] = py::none();
+            {
+                // decision 0030: terms (parts of the contribution to one property) and variables (quantities of the model)
+                py::list terms, variables;
+                for (const auto& t : spec.terms)
                 {
                     py::dict item;
-                    item["name"] = o.name; item["si_unit"] = o.si_unit; item["description"] = o.description;
-                    outputs.append(item);
+                    item["name"] = t.name; item["property"] = t.property; item["si_unit"] = t.si_unit; item["description"] = t.description;
+                    terms.append(item);
                 }
-                row["auxiliary_outputs"] = outputs;
+                for (const auto& v : spec.variables)
+                {
+                    py::dict item;
+                    item["name"] = v.name; item["si_unit"] = v.si_unit; item["description"] = v.description;
+                    variables.append(item);
+                }
+                row["terms"] = terms;
+                row["variables"] = variables;
             }
             row["needs_solvent"] = spec.needs.solvent;
             {
-                // what the method does to each property of a substance: set, add, read or none
-                const auto word = [](Effect e) { return e == Effect::Set ? "set" : e == Effect::Add ? "add" : e == Effect::Read ? "read" : "none"; };
-                const auto& e = spec.effects;
-                py::dict effects;
+                // what the method contributes to each property (decision 0031, row 11): sets, adds or uses; a property it does
+                // not touch is absent
+                py::dict contributes;
+                const auto add = [&](const char* name, Contribution c) {
+                    if (c != Contribution::None)
+                        contributes[name] = c == Contribution::Sets ? "sets" : c == Contribution::Adds ? "adds" : "uses";
+                };
                 if (spec.operates_on == OperatesOn::Substance)
                 {
-                    effects["G"] = word(e.G); effects["H"] = word(e.H); effects["S"] = word(e.S); effects["Cp"] = word(e.Cp); effects["V"] = word(e.V);
+                    const auto& e = spec.contributes_to;
+                    add("G", e.G); add("H", e.H); add("S", e.S); add("Cp", e.Cp); add("V", e.V);
                 }
-                row["effects"] = effects;
+                else
+                {
+                    const auto& r = spec.reaction_contributes_to;
+                    add("logK", r.logK); add("dG", r.dG); add("dH", r.dH); add("dS", r.dS); add("dCp", r.dCp); add("dV", r.dV);
+                }
+                row["contributes_to"] = contributes;
             }
             std::vector<std::string> classes, legacy_names;
             for (const auto c : spec.applies_to_classes)
@@ -187,37 +218,55 @@ void exportMethods(py::module& parent)
                 py::dict one;
                 one["name"] = p.name; one["si_unit"] = p.si_unit; one["source_unit"] = p.source_unit; one["required"] = p.required;
                 one["description"] = p.description;
-                one["constant"] = p.constant; one["used"] = p.used;
+                one["model_parameter"] = p.model_parameter; one["used"] = p.used;
                 one["default"] = p.default_si ? py::cast(*p.default_si) : py::none();
                 parameters.append(one);
             }
             row["parameters"] = parameters;
-            py::list constantSets;
+            py::list modelParameterSets;
             auto addSets = [&](const std::string& method) {
                 for (const auto& set : model::builtinSetsOf(method))
                 {
                     py::dict one;
                     one["symbol"] = set.symbol; one["implementation"] = set.implementation; one["default"] = set.is_default;
-                    one["description"] = set.description; one["reference"] = set.reference; one["formula_units"] = set.formula_units;
-                    constantSets.append(one);
+                    one["description"] = set.description; one["data_sources"] = set.data_sources; one["formula_units"] = set.formula_units;
+                    modelParameterSets.append(one);
                 }
             };
             addSets(spec.id);
             if (spec.id == "WaterHGK84" || spec.id == "WaterIAPWS95")
                 addSets("WaterSaturation");
-            row["constant_sets"] = constantSets;
-            out.append(row);
+            row["model_parameter_sets"] = modelParameterSets;
+            return row;
+    };
+    m.def("catalog", [rowOf](const std::string& id) -> py::object {
+        if (!id.empty())
+        {
+            const auto* spec = MethodCatalog::instance().find(id);
+            if (!spec)
+                throw py::value_error("There is no method " + id + ".");
+            return rowOf(*spec);
         }
+        py::list out;
+        for (const auto& spec : MethodCatalog::instance().specs())
+            out.append(rowOf(spec));
         return out;
-    }, "All built-in methods: id, title, what they need and their parameters");
+    }, "All built-in methods (a list), or with an id one method: id, title, what it contributes to, what it needs, its parameters and "
+       "model parameters", py::arg("id") = "");
 
-    m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference, int lagrangeOrder) {
+    m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference,
+                               const std::string& interpolation, int interpolationOrder) {
             auto a = makeApplication(id, "", parameters);
-            if (lagrangeOrder > 0)
+            if (!interpolation.empty())
             {
-                a.interpolation = Interpolation::Lagrange;
-                a.interpolation_order = lagrangeOrder;
+                const auto word = fromString<Interpolation>(interpolation);
+                if (!word)
+                    throw py::value_error(unknownWordMessage<Interpolation>(interpolation));
+                a.interpolation = *word;
             }
+            a.interpolation_order = interpolationOrder;
+            if (a.interpolation == Interpolation::Lagrange && interpolationOrder < 1)
+                throw py::value_error("interpolation lagrange needs interpolation_order, the order of the polynomial (1 or more).");
             if (!temperatures.is_none())
             {
                 TableData table;
@@ -237,8 +286,10 @@ void exportMethods(py::module& parent)
             }
             return std::const_pointer_cast<ReactionMethod>(MethodRegistry::instance().createReaction(a, record));
         }, "A method of a reaction, for example reactionMethod(\"LogKTable\", temperatures=[...], logK=[...]). "
-           "parameters in SI; lagrange_order above 0 for the Lagrange polynomial of LogKTable; reference: logK, dG, dH, dS, dCp, dV in SI.",
-        py::arg("id"), py::arg("parameters") = py::dict(), py::arg("temperatures") = py::none(), py::arg("logK") = py::none(), py::arg("reference") = py::dict(), py::arg("lagrange_order") = 0);
+           "parameters in SI; interpolation of LogKTable: cubic_spline (the default) or lagrange with interpolation_order, the order of the polynomial, as the "
+           "keys of a method application; reference: logK, dG, dH, dS, dCp, dV in SI.",
+        py::arg("id"), py::arg("parameters") = py::dict(), py::arg("temperatures") = py::none(), py::arg("logK") = py::none(), py::arg("reference") = py::dict(),
+        py::arg("interpolation") = "", py::arg("interpolation_order") = 0);
     m.def("substanceMethod", [](const std::string& id, const std::string& implementation, const py::dict& parameters, const std::string& symbol, int charge) {
             SubstanceRecord record;
             record.symbol = symbol;

@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 ThermoFun contributors
 
-# Reading and changing a value of a record by its path, a dict as a database, the summary, and the text of V2-MTH-004.
+# Reading and changing a value of a record by its path (also a key of a value written as a number), a dict as a database, the
+# summary, and the text of V2-MTH-004.
 
 import pathlib
 
@@ -36,7 +37,22 @@ def test_an_uncertainty_and_a_list_of_methods_are_set_as_python_objects():
     assert tf.ThermoEngine(database).thermoPropertiesSubstance(373.15, 1e8, "Calcite").gibbs_energy.err == pytest.approx(1500.0)
     database.set("/substances/H2O@/methods", [{"method": "WaterIAPWS95"}, {"method": "HelgesonKirkham74"}])
     assert [m["method"] for m in database.get("/substances/H2O@/methods")] == ["WaterIAPWS95", "HelgesonKirkham74"]
-    assert tf.ThermoEngine(database).calculationPath("H2O@")["methods"] == ["WaterIAPWS95", "HelgesonKirkham74"]
+    assert [m.method for m in tf.ThermoEngine(database).route("H2O@").methods] == ["WaterIAPWS95", "HelgesonKirkham74"]
+
+
+def test_the_uncertainty_of_a_value_written_as_a_number_is_set_alone():
+    database = tf.Database(AQ)
+    S = "/substances/Calcite/standard_state_properties/S"
+    value = database.get(S)
+    assert isinstance(value, float) and database.get(S + "/value") == value
+    database.set(S + "/uncertainty", 15.0)
+    assert database.get(S) == {"value": value, "uncertainty": 15.0}
+    assert database.get(S + "/uncertainty") == 15.0
+    result = tf.ThermoEngine(database).thermoPropertiesSubstance(373.15, 1e5, "Calcite")
+    assert result.entropy.err == pytest.approx(15.0)
+    assert result.gibbs_energy.err == pytest.approx(15.0 * (373.15 - 298.15))
+    with pytest.raises(Exception, match="no value"):
+        database.get("/substances/Calcite/standard_state_properties/G/uncertainty")
 
 
 def test_a_record_is_added_by_its_path():
@@ -76,9 +92,13 @@ def test_the_summary_counts_the_substances_by_class_and_state():
 
 
 def test_a_missing_parameter_says_what_it_is_and_which_method_needs_it():
-    problem = [d for d in tf.Database(AQ).validate().all() if d.record == "Boehmite" and "alpha0" in d.message][0]
-    assert problem.code == "V2-MTH-004"
-    assert "MurnaghanHP98" in problem.message and "thermal expansion" in problem.message and "1/K" in problem.message
+    # HKF88 without omega: a block with some parameters but not all the required ones is refused at load
+    na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": {"G": -261881.0},
+          "methods": [{"method": "HKF88", "parameters": {"a1": 0.1839, "a2": -228.5, "a3": 3.256, "a4": -27260, "c1": 18.18, "c2": -29810}}]}
+    with pytest.raises(RuntimeError) as error:
+        tf.Database({"substances": {"Na+": na}})
+    message = str(error.value)
+    assert "V2-MTH-004" in message and "HKF88" in message and "omega" in message and "Born coefficient" in message and "cal/mol" in message
 
 
 def test_a_dict_can_leave_out_the_version_and_is_not_changed():
@@ -101,3 +121,16 @@ def test_the_class_has_clearer_aliases_that_are_written_with_the_word_of_the_for
     assert database.get("/substances/M/class") == "component"
     assert database.get("/substances/W/class") == "water_solvent"
     assert not [d for d in database.loadDiagnostics().all() if d.code == "V2-VOC-001"]
+
+
+def test_a_value_is_removed_by_its_path():
+    database = tf.Database("examples/v2/mineral-methods.yaml")
+    assert database.get("/substances/Calcite/methods/1/method") == "LandauHP98"
+    database.remove("/substances/Calcite/methods/1")
+    assert [m["method"] for m in database.get("/substances/Calcite/methods")] == ["CpPolynomial", "MurnaghanHP98"]
+    database.remove("/substances/Calcite/standard_state_properties/V")
+    assert "V" not in database.get("/substances/Calcite/standard_state_properties")
+    with pytest.raises(ValueError, match="no value at"):
+        database.remove("/substances/Calcite/methods/7")
+    with pytest.raises(ValueError, match="names a whole record"):
+        database.remove("/substances/Calcite")

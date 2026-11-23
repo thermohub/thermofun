@@ -12,7 +12,6 @@ namespace ThermoFun::model {
 
 namespace {
 
-constexpr double R = R_CONSTANT;  // J/(mol K), as the models of the library
 
 template <typename Scalar>
 auto constantProperties(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) -> void
@@ -109,6 +108,7 @@ auto idealGas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) 
 {
     if (plainValue(in.P) <= 0.0)
         return;
+    const double R = in.options.R;   // the gas constant of the calculation
     state.V = in.T / in.P * R;
     if (in.options.apply_pressure_correction)  // G(T, P) = G(T, Pr) + RT ln(P/Pr), and H does not depend on P
     {
@@ -121,7 +121,7 @@ auto idealGas(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in) 
 auto idealGasInfo(PropertiesInfo& out, const InfoInputs& in) -> void
 {
     if (in.P > 0.0)
-        out.V = ValueInfo{ValueInfo::Status::Calculated, 0.0, ""};
+        out.V = ValueInfo{ValueInfo::Status::Calculated, 0.0, {}};
 }
 
 } // namespace

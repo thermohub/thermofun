@@ -15,7 +15,7 @@ ThermoFun reads and writes this format. [Convert a legacy database](../how-to/co
 | `reactants` | `stoichiometry` |
 | `logKr`, `drsm_gibbs_energy`, `drsm_enthalpy`, ... | `reaction_properties`: `logK`, `dG`, `dH`, ... |
 | `limitsTP` | `applicability`, or `segments` of a method |
-| `Tst`, `Pst` | `reference_conditions` |
+| `Tst`, `Pst` | `reference_conditions.T`; `Pst` other than 1 bar becomes `standard_state.pressure` |
 | `m_expansivity`, `m_compressibility` | `alpha0`, `kappa0` of the mineral methods |
 | `m_landau_phase_trans_props` | `Tc0`, `Smax`, `Vmax` of `LandauHP98` |
 | `entropy`, `atomic_mass` of an element | `standard_entropy`, `molar_mass` |

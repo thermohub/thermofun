@@ -37,10 +37,11 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `reference_conditions` | [reference_conditions](#reference_conditions) |  |  |
 | `sourcetdb` | string or list of string |  |  |
 | `solvent` | string |  |  |
-| `data_source` | string |  |  |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `defaults` | object |  |  |
-| `conventions` | object |  |  |
-| `convention` | [convention](#convention) |  |  |
+| `standard_state` | [standard_state](#standard_state) |  |  |
+| `energy_reference` | [energy_reference](#energy_reference) |  |  |
+| `physical_constants` | `codata1986`, `codata2018` |  | The constants of physics the values were derived with. An engine with another set warns (CNV-012). |
 
 ## element
 
@@ -57,8 +58,8 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `standard_entropy` | [quantity](#quantity) |  |  |
 | `heat_capacity` | [quantity](#quantity) |  |  |
 | `volume` | [quantity](#quantity) |  |  |
-| `reference_form` | string |  |  |
-| `data_sources` | list of string |  |  |
+| `reference_state` | string |  | The reference state of the element at the reference temperature and the standard pressure (NEA TDB-5, Table 7): formula unit and state, for example O2(g), C(cr, graphite), Fe(cr, bcc). |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `sourcetdb` | string or list of string |  |  |
 | `structural` | object |  |  |
 | `units` | [units](#units) |  |  |
@@ -77,15 +78,15 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `aggregate_state` | string |  |  |
 | `sourcetdb` | string or list of string |  |  |
 | `molar_mass` | [quantity](#quantity) |  |  |
-| `convention` | [convention](#convention) |  |  |
+| `standard_state` | [standard_state](#standard_state) |  |  |
+| `energy_reference` | [energy_reference](#energy_reference) |  |  |
 | `reference_conditions` | [reference_conditions](#reference_conditions) |  |  |
 | `standard_state_properties` | object |  |  |
 | `methods` | [methods_of_a_record](#methods_of_a_record) |  |  |
 | `defining_reaction` | string |  |  |
 | `preferred_property_source` | string |  |  |
 | `applicability` | [applicability](#applicability) |  |  |
-| `data_source` | string |  |  |
-| `data_sources` | list of string |  |  |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `structural` | object |  |  |
 | `deprecated` | boolean |  |  |
 | `deprecated_in_favour_of` | string |  |  |
@@ -105,10 +106,10 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `reaction_properties` | object |  |  |
 | `methods` | [methods_of_a_record](#methods_of_a_record) |  |  |
 | `level` | integer |  |  |
-| `data_source` | string |  |  |
-| `data_sources` | list of string |  |  |
+| `data_sources` | string or list of string |  | NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none. |
 | `applicability` | [applicability](#applicability) |  |  |
-| `convention` | [convention](#convention) |  |  |
+| `standard_state` | [standard_state](#standard_state) |  |  |
+| `energy_reference` | [energy_reference](#energy_reference) |  |  |
 | `preferred_property_source` | string |  |  |
 | `sourcetdb` | string or list of string |  |  |
 | `deprecated` | boolean |  |  |
@@ -125,17 +126,18 @@ One of: record_type `element` and [element](#element); record_type `substance` a
 | `segments` | list of object |  |  |
 | `transitions` | list of object |  |  |
 | `applicability` | [applicability](#applicability) |  |  |
+| `region` | [region](#region) |  |  |
 | `table` | object |  |  |
 | `units` | [units](#units) |  |  |
 | `implementation` | string |  |  |
 | `interpolation` | string |  |  |
-| `order` | integer |  |  |
+| `interpolation_order` | integer |  |  |
 
 ## quantity
 
 A value: a number in the default unit of its field, a text "value unit", or an object.
 
-One of: number; string; an object with `value`, `unit`, `uncertainty`, `quality`, `origin`, `calculation_path`, `source`
+One of: number; string; an object with `value`, `unit`, `uncertainty`, `quality`, `origin`, `derivation`, `source`
 
 ## uncertainty
 
@@ -143,21 +145,32 @@ A standard uncertainty (a number), or an object: standard; expanded with coverag
 
 One of: number; an object with `standard`, `distribution`, `kind`; an object with `expanded`, `coverage_factor`, `distribution`, `kind`; an object with `half_width`, `distribution`, `kind`
 
-## convention
+## standard_state
+
+The standard state of the values: the standard pressure p° and, for solutes, the concentration scale.
 
 | Key | Type | Required | Note |
 |---|---|---|---|
-| `energy_reference` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |  |  |
-| `standard_pressure` | `1bar`, `1atm` |  |  |
-| `concentration_scale` | `molality`, `mole_fraction`, `molarity` |  |  |
-| `water_reference` | `geochemical`, `steam_tables` |  |  |
+| `pressure` | `1bar`, `1atm` or [quantity](#quantity) |  | p°: 1bar, 1atm, or any pressure (a number in Pa, or with a unit) |
+| `concentration_scale` | `molality`, `mole_fraction`, `molarity`, `amount_fraction`, `amount_concentration` |  |  |
+
+## energy_reference
+
+From what zero G, H and S are counted: of the elements, of water and of ions.
+
+| Key | Type | Required | Note |
+|---|---|---|---|
+| `elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K` |  |  |
+| `water` | `helgeson_kirkham_1974`, `codata_1989`, `steam_tables`, `geochemical` |  | The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974. |
+| `ions` | `hydrogen_ion`, `none` |  | hydrogen_ion (the default): H+(aq) is 0 at every T and P, and the electron is from the standard hydrogen electrode, G(e-) = 1/2 G(H2, g, p°) - G(H+) (NEA TDB-5 1.6, 1.7.e); none: the records give H+ and e-. |
 
 ## reference_conditions
+
+The reference temperature Tr. The reference pressure is the standard pressure p° of standard_state.
 
 | Key | Type | Required | Note |
 |---|---|---|---|
 | `T` | [quantity](#quantity) |  |  |
-| `P` | [quantity](#quantity) |  |  |
 
 ## applicability
 
@@ -201,19 +214,17 @@ Type: mapping to [quantity](#quantity) or array
 | `symbol` | string |  |  |
 | `record_type` | string |  |  |
 | `kind` | string |  |  |
-| `tier` | integer |  |  |
 | `operates_on` | string |  |  |
 | `applies_to_classes` | list of string |  |  |
-| `contributes_to` | list of string |  |  |
+| `contributes_to` | list of string or mapping to `sets`, `adds`, `uses` |  | What the method contributes to: a mapping property -> sets (the whole value), adds (an increment) or uses (an input only); a property not listed is not touched. A list of properties is the short form: each adds. |
 | `parameter_definitions` | object or array |  |  |
 | `implementation_id` | string |  |  |
-| `source` | string or object |  |  |
+| `formula` | string or object |  | The formula of a symbolic method as the author writes it: form and expression. |
 | `expression` | string or object |  |  |
 | `generator` | string |  |  |
-| `source_hash` | string |  |  |
+| `formula_hash` | string |  |  |
 | `tests` | array |  |  |
-| `effects` | object |  |  |
-| `citation` | string |  |  |
+| `data_sources` | string or list of string |  |  |
 
 ## parameter_set
 
@@ -227,8 +238,7 @@ Type: mapping to [quantity](#quantity) or array
 | `formula_units` | object |  |  |
 | `description` | string |  |  |
 | `parameters` | [parameters](#parameters) | yes |  |
-| `auxiliary` | object |  |  |
-| `reference` | string |  |  |
+| `data_sources` | string or list of string |  |  |
 | `units` | [units](#units) |  |  |
 
 ## data_source
@@ -247,3 +257,12 @@ Type: mapping to [quantity](#quantity) or array
 ## methods_of_a_record
 
 Type: list of [method_application](#method_application)
+
+## region
+
+| Key | Type | Required | Note |
+|---|---|---|---|
+| `t_min` | [quantity](#quantity) |  |  |
+| `t_max` | [quantity](#quantity) |  |  |
+| `p_min` | [quantity](#quantity) |  |  |
+| `p_max` | [quantity](#quantity) |  |  |

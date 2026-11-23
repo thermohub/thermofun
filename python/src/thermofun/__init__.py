@@ -11,10 +11,10 @@ from thermofun.PyThermoFun import *
 
 
 def __getattr__(name):
-    # tables is imported when it is first used, so that `python -m thermofun.tables` does not find it imported already
-    # (Python then warns that the module may run twice)
-    if name in ("tables", "table"):
+    # batch is imported when it is first used, so that `python -m thermofun.batch` does not find it imported already
+    # (Python then warns that the module may run twice). tf.batch is the module and the function: tf.batch(setup) runs it.
+    if name in ("batch", "BatchSetup", "Results", "template"):
         import importlib
-        tables = importlib.import_module("thermofun.tables")
-        return tables if name == "tables" else tables.table
+        module = importlib.import_module("thermofun.batch")
+        return module if name == "batch" else getattr(module, name)
     raise AttributeError(f"module 'thermofun' has no attribute {name!r}")

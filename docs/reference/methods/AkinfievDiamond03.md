@@ -10,6 +10,7 @@ Source: Akinfiev and Diamond (2003).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G uses, H uses, S uses, Cp uses, V sets |
 | Classes | aqueous_solute |
 | Needs | the solvent |
 | Temperature segments | no |
@@ -24,9 +25,9 @@ Source: Akinfiev and Diamond (2003).
 | a | cm3/g | m3/kg | yes |  | parameter a |
 | b | cm3.K^0.5/g | m3.K^0.5/kg | yes |  | parameter b |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: M: g/mol. They are not converted.
 

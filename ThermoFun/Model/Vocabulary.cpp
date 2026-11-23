@@ -45,9 +45,6 @@ THERMOFUN_VOCABULARY(ReactionPropertyName, "reaction_property",
     {RPN::logK, "logK", {}}, {RPN::lnK, "lnK", {}}, {RPN::dG, "dG", {}}, {RPN::dH, "dH", {}}, {RPN::dS, "dS", {}},
     {RPN::dCp, "dCp", {}}, {RPN::dV, "dV", {}}, {RPN::dU, "dU", {}}, {RPN::dA, "dA", {}})
 
-THERMOFUN_VOCABULARY(Quality, "quality",
-    {Quality::Core, "core", {}}, {Quality::Recommended, "recommended", {}}, {Quality::Supplemental, "supplemental", {}})
-
 THERMOFUN_VOCABULARY(Origin, "origin",
     {Origin::Measured, "measured", {}}, {Origin::Entered, "entered", {}}, {Origin::Calculated, "calculated", {}},
     {Origin::Estimated, "estimated", {}}, {Origin::Converted, "converted", {}})
@@ -98,11 +95,14 @@ THERMOFUN_VOCABULARY(StandardPressure, "standard_pressure",
     {StandardPressure::OneBar, "1bar", {"1 bar", "bar"}}, {StandardPressure::OneAtm, "1atm", {"1 atm", "atm"}})
 
 THERMOFUN_VOCABULARY(ConcentrationScale, "concentration_scale",
-    {ConcentrationScale::Molality, "molality", {}}, {ConcentrationScale::MoleFraction, "mole_fraction", {}},
-    {ConcentrationScale::Molarity, "molarity", {}})
+    {ConcentrationScale::Molality, "molality", {}}, {ConcentrationScale::MoleFraction, "mole_fraction", {"amount_fraction"}},
+    {ConcentrationScale::Molarity, "molarity", {"amount_concentration"}})
 
 THERMOFUN_VOCABULARY(WaterReference, "water_reference",
-    {WaterReference::Geochemical, "geochemical", {}}, {WaterReference::SteamTables, "steam_tables", {}})
+    {WaterReference::HelgesonKirkham1974, "helgeson_kirkham_1974", {"geochemical"}}, {WaterReference::Codata1989, "codata_1989", {}},
+    {WaterReference::SteamTables, "steam_tables", {}})
+
+THERMOFUN_VOCABULARY(Ions, "ions", {Ions::HydrogenIon, "hydrogen_ion", {}}, {Ions::None, "none", {}})
 
 #undef THERMOFUN_VOCABULARY
 
@@ -226,7 +226,6 @@ auto unknownWordMessage(std::string_view word) -> std::string
 
 THERMOFUN_INSTANTIATE(PropertyName)
 THERMOFUN_INSTANTIATE(ReactionPropertyName)
-THERMOFUN_INSTANTIATE(Quality)
 THERMOFUN_INSTANTIATE(Origin)
 THERMOFUN_INSTANTIATE(PropertySource)
 THERMOFUN_INSTANTIATE(DatasetStatus)
@@ -240,6 +239,7 @@ THERMOFUN_INSTANTIATE(EnergyReference)
 THERMOFUN_INSTANTIATE(StandardPressure)
 THERMOFUN_INSTANTIATE(ConcentrationScale)
 THERMOFUN_INSTANTIATE(WaterReference)
+THERMOFUN_INSTANTIATE(Ions)
 
 #undef THERMOFUN_INSTANTIATE
 

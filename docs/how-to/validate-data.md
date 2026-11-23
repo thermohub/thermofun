@@ -21,15 +21,14 @@ minimal.yaml: no problems
 ## 2. A file with problems
 
 A load refuses only what makes the file unusable. The other problems are found when the whole database is checked. Here
-two minerals of aq17 miss parameters of their volume method:
+two minerals of aq17 have no thermal expansion and bulk modulus in their volume method, so their volume does not change
+with T and P:
 
 ```console
 $ python -m thermofun.validate aq17-thermofun.json
-error V2-MTH-004 Boehmite /substances/Boehmite/methods/1: The method MurnaghanHP98 needs the parameter alpha0 (thermal expansion at the reference state, in 1/K). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
-error V2-MTH-004 Boehmite /substances/Boehmite/methods/1: The method MurnaghanHP98 needs the parameter kappa0 (bulk modulus at 298 K, in kbar). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
-error V2-MTH-004 Gibbsite /substances/Gibbsite/methods/1: The method MurnaghanHP98 needs the parameter alpha0 (thermal expansion at the reference state, in 1/K). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
-error V2-MTH-004 Gibbsite /substances/Gibbsite/methods/1: The method MurnaghanHP98 needs the parameter kappa0 (bulk modulus at 298 K, in kbar). The method works on G, H, S, Cp, V and cannot calculate without it. The page of the method (reference/methods/MurnaghanHP98) lists its parameters. Add the parameter, or give a `parameter_set` that has it.
-aq17-thermofun.json: 4 errors, 0 warnings
+warning V2-MTH-028 Boehmite /substances/Boehmite/methods/1: MurnaghanHP98 has no alpha0 and kappa0: it calculates a constant volume, the reference volume at every T and P. Give the thermal expansion and the bulk modulus, if the volume should change with T and P; the result has a note while they are missing.
+warning V2-MTH-028 Gibbsite /substances/Gibbsite/methods/1: MurnaghanHP98 has no alpha0 and kappa0: it calculates a constant volume, the reference volume at every T and P. Give the thermal expansion and the bulk modulus, if the volume should change with T and P; the result has a note while they are missing.
+aq17-thermofun.json: 0 errors, 2 warnings
 ```
 
 Each line has the severity, the code, the record, and the path of the value in the record (`methods/1` is the second
@@ -76,9 +75,9 @@ print(problems.ok())
 Output:
 
 ```text
-Severity.Error V2-MTH-004 Boehmite /substances/Boehmite/methods/1
-Severity.Error V2-MTH-004 Boehmite /substances/Boehmite/methods/1
-False
+Severity.Warning V2-MTH-028 Boehmite /substances/Boehmite/methods/1
+Severity.Warning V2-MTH-028 Gibbsite /substances/Gibbsite/methods/1
+True
 ```
 
 A file that cannot be read raises an error with the same text:

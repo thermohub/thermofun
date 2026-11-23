@@ -15,7 +15,7 @@ struct FunctionG;
 /// @param T temparature (K)
 /// @param P pressure (Pa)
 /// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
-auto functionG(real T, real P, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG;
+auto functionG(real T, real P, const PropertiesSolventAD&ps, const HKFModelParameters& constants) -> FunctionG;
 
 /// Calculate the electrostatic state of the aqueous species using the g-function state.
 /// @param g structure holding the g function values and its derivatives
@@ -29,7 +29,8 @@ auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> Ele
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFreaktoro(real T, real P, const HKFInputs& species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD;
+/// @param born if given, gets the Born terms of the totals
+auto thermoPropertiesAqSoluteHKFreaktoro(real T, real P, const HKFInputs& species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp, HKFBornTerms* born = nullptr) -> ThermoPropertiesSubstanceAD;
 
 //auto checkTemperatureValidityHKF(Reaktoro::Temperature T, Reaktoro::Pressure P, Substance species) -> void;
 }

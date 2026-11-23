@@ -14,11 +14,21 @@
 #include <utility>
 #include <vector>
 
+#include <ThermoFun/Common/Notes.h>
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Common/Route.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
 
 namespace ThermoFun::model {
+
+/// The terms and variables of a method at one point (decision 0030), SI, in the order of the spec
+struct MethodOutputs
+{
+    std::vector<RouteNumber> terms;
+    std::vector<RouteNumber> variables;
+};
 
 /// The number type of a pass with derivatives: the derivative is with respect to T, to P or to one parameter.
 using TPReal = ThermoFun::real;
@@ -46,7 +56,7 @@ struct ValueInfo
     enum class Status { NotDefined, Read, Calculated, Assigned };
     Status status = Status::NotDefined;
     double err = 0.0;
-    std::string message;
+    Notes notes;  ///< why the value can be doubted (decision 0029); the status message is made from them
 
     /// The status and the error of a value calculated from others: the errors add in quadrature, and it is not defined if one of them is not.
     template <typename... Values>
@@ -99,6 +109,7 @@ struct SubstanceOptions
 {
     bool apply_pressure_correction = true;   ///< a method for the pressure of a gas: G has RT ln(P/Pr), and S has -R ln(P/Pr)
     bool cancel_fugacity_coefficient = false; ///< fluids: G does not have RT ln(phi)
+    double R = R_CONSTANT;                    ///< the gas constant of the calculation, J/(mol K): of the engine option physical_constants
 };
 
 /// What a substance method gets at each call.
@@ -113,6 +124,9 @@ struct SubstanceInputs
     const SubstanceState<Scalar>* ideal_gas_water = nullptr;
     int seeded_parameter = -1;                      ///< the parameter of this method that the pass derives by; -1: none
     SubstanceOptions options{};
+    /// Set if the terms and variables of the method are asked for (decision 0030; only in the pass with respect to T): a method
+    /// that has them writes them here as its formula calculates them, in SI, with the names of its spec. Null: not asked for.
+    MethodOutputs* outputs = nullptr;
 };
 
 /// What the status and the errors of a method depend on. K, Pa.
@@ -150,11 +164,6 @@ public:
 
     /// The status and the error of what the method gives. out holds those of the incoming properties.
     virtual auto info(PropertiesInfo& /*out*/, const PropertiesInfo& /*reference*/, const InfoInputs&) const -> void {}
-
-    /// Named outputs beside the properties (the terms and intermediate functions of the model), in SI, for the state of the inputs
-    /// (the pass with respect to T: the values only). The names are those of the spec (auxiliary_outputs). Calculated only on request,
-    /// by explain and the auxiliary outputs of the engine. Empty if the method has none.
-    virtual auto auxiliary(const SubstanceInputs<TPReal>&) const -> std::map<std::string, double> { return {}; }
 };
 
 } // namespace ThermoFun::model

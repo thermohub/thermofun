@@ -18,11 +18,10 @@ struct MethodParameterSet
     std::string method;                            ///< id of the method it belongs to
     std::string implementation;                    ///< empty: all the implementations of the method
     std::map<std::string, Quantity> parameters;
-    std::map<std::string, Quantity> auxiliary;
     bool is_default = true;                        ///< false: only a record that names it uses it
     std::string formula_units;                     ///< the units of the formulas that the values are in, as text; values are not converted
     std::string description;                       ///< what the values are, and their units
-    std::string reference;                         ///< symbol of a data source
+    std::vector<std::string> data_sources;         ///< NEA reference codes (TDB-5 1.11), or free text
     std::string extra_json;
 
     auto operator==(const MethodParameterSet&) const -> bool = default;

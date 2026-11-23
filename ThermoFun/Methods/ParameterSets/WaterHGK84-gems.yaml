@@ -4,8 +4,8 @@ parameter_sets:
     method: WaterHGK84
     implementation: gems
     formula_units: {T: K or degC by name, P: bar or MPa by name}
-    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; crit: the critical point of the near-critical branch; surf: surface tension; born: the T in degC and P in bar up to which the Born functions are calculated; trans: the reducing values of viscosity and thermal conductivity; cond_C: a constant of thermal conductivity; visc_ and cond_ Pmax, P2, T2, P3, T3, Tmax: the range of viscosity and of thermal conductivity, P in bar and T in degC, outside of which they are 0; tt: triple point; cr, co: near-critical equation of Levelt Sengers et al. (1983); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml."
-    reference: "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983); Johnson and Norton (1991)"
+    description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; surf: surface tension; born: the T in degC and P in bar up to which the Born functions are calculated; trans: the reducing values of viscosity and thermal conductivity; cond_C: a constant of thermal conductivity; visc_ and cond_ Pmax, P2, T2, P3, T3, Tmax: the range of viscosity and of thermal conductivity, P in bar and T in degC, outside of which they are 0; tt: triple point; cr: the critical point of the code (its limits; the equation near the critical point is the method WaterLVS83); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml."
+    data_sources: ["Haar, Gallagher and Kell (1984); Johnson and Norton (1991)"]
     parameters:
       ac_wm: 0.1801520000e2
       ac_gascon: 0.46152200e0
@@ -217,57 +217,6 @@ parameter_sets:
       cr_Ucon: 22046.0e0
       cr_Scon: 0.034070660379837018423130834983e3
       cr_dPcon: 0.000000327018783663660700780197e0
-      co_a_1: -0.017762e0
-      co_a_2: 5.238000e0
-      co_a_3: 0.000000e0
-      co_a_4: -2.549150e1
-      co_a_5: 6.844500e0
-      co_a_6: 0.325000e0
-      co_a_7: 1.440300e0
-      co_a_8: 0.000000e0
-      co_a_9: 1.375700e0
-      co_a_10: 2.366660e1
-      co_a_11: 4.820000e0
-      co_a_12: 0.294200e0
-      co_a_13: -1.123260e1
-      co_a_14: -2.265470e1
-      co_a_15: -1.788760e1
-      co_a_16: -4.933200e0
-      co_a_17: 1.109430391161019373812391218008e0
-      co_a_18: -1.981395981400671095301629432211e0
-      co_a_19: 0.246912528778663959151808173743e0
-      co_a_20: -0.843411332867484343974055795059e0
-      co_q_1: -0.006000e0
-      co_q_2: -0.003000e0
-      co_q_3: 0.000000e0
-      co_q_4: 6.470670e2
-      co_q_5: 3.227780e2
-      co_q_6: 2.204600e1
-      co_q_7: 0.267000e0
-      co_q_8: -1.600000e0
-      co_q_9: 0.491775937675717720291497417773e0
-      co_q_10: 0.108500e0
-      co_q_11: 0.586534703230779473334597524774e0
-      co_q_12: -1.026243389120214352553706598564e0
-      co_q_13: 0.612903225806451612903225804745e0
-      co_q_14: 0.500000e0
-      co_q_15: -0.391500e0
-      co_q_16: 0.825000e0
-      co_q_17: 0.741500e0
-      co_q_18: 0.103245882826119154987166286332e0
-      co_q_19: 0.160322434159191991394857495360e0
-      co_q_20: -0.169859514687100893997445721324e0
-      co_x_1: 6.430000e2
-      co_x_2: 6.453000e2
-      co_x_3: 6.950000e2
-      co_x_4: 1.997750e2
-      co_x_5: 4.200400e2
-      co_x_6: 2.09945691135940719075293945960e1
-      co_x_7: 2.15814057875264119875397458907e1
-      co_x_8: 3.0135e1
-      co_x_9: 4.0484e1
-      co_x_10: 0.175777517046267847932127026995e0
-      co_x_11: 0.380293646126229135059562456934e0
       psat_a_1: -0.78889166e1
       psat_a_2: 0.25514255e1
       psat_a_3: -0.6716169e1
@@ -422,8 +371,6 @@ parameter_sets:
       trans_Pstar: 22.1150e6
       trans_ustar: 1.0e-6
       cond_C: 3.7711e-8
-      crit_T: 647.067000003e0
-      crit_P: 22.0460000008e0
       visc_Pmax: 5000.0
       visc_P2: 3500.0
       visc_T2: 150.0

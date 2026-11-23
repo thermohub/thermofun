@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 #include "Validate.h"
 #include "MissingParameter.h"
@@ -28,7 +29,9 @@ void report(Diagnostics& diag, const char* code, const std::string& record, cons
     diag.add(d);
 }
 
-void checkRange(Diagnostics& diag, const Applicability& a, const std::string& record, const std::string& path)
+// The bounds of an applicability or of a region: a minimum at or above its maximum holds nowhere
+template <class Bounds>
+void checkRange(Diagnostics& diag, const Bounds& a, const std::string& record, const std::string& path)
 {
     if (a.t_min && a.t_max && !(*a.t_min < *a.t_max))
         report(diag, "V2-APP-001", record, path, "t_min is not below t_max.");
@@ -43,10 +46,10 @@ void checkTransformations(Diagnostics& diag, const std::vector<MethodApplication
     for (size_t i = 0; i < methods.size(); ++i)
     {
         const auto* spec = MethodCatalog::instance().find(methods[i].method, OperatesOn::Substance);
-        if (!spec || spec->effects.base)
+        if (!spec || spec->contributes_to.base)
             continue;
         const std::string where = path + "/methods/" + std::to_string(i);
-        if (spec->effects.transform)
+        if (spec->contributes_to.transform)
         {
             if (found)
                 report(diag, "V2-MTH-017", record, where, "There is more than one transformation method.");
@@ -83,6 +86,11 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
         if (!spec->implemented)
             report(diag, "V2-MTH-008", record, where, "The method " + spec->id + " is known but does nothing.");
         checkRange(diag, app.applicability, record, where + "/applicability");
+        checkRange(diag, app.region, record, where + "/region");   // an inverted region is never used: say so
+        // a substance gets the same check from the binding (checkMethods, in Database::validate); a reaction only here
+        if (operatesOn == OperatesOn::Reaction && !app.region.empty())
+            report(diag, "V2-MTH-027", record, where + "/region",
+                   spec->id + " has a region, but methods of its kind cannot be combined by region: regions select among water equations of state or among dielectric models.");
 
         const MethodParameterSet* set = nullptr;
         if (!app.parameter_set.empty())
@@ -140,6 +148,20 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
             for (const auto& p : spec->parameters)
                 if (p.required && !p.default_si && !has(app.parameters, p.name))
                     report(diag, "V2-MTH-004", record, where, missingParameterMessage(*spec, p));
+
+        // a volume method without the parameters of a variable volume uses the reference volume at every T and P
+        const auto zero = [&](const std::string& name) {
+            if (const auto it = app.parameters.find(name); it != app.parameters.end())
+                return it->second.value == 0.0;
+            if (set)
+                if (const auto it = set->parameters.find(name); it != set->parameters.end())
+                    return it->second.value == 0.0;
+            return true;
+        };
+        if (spec->id == "MurnaghanHP98" && (zero("alpha0") || zero("kappa0")))
+            report(diag, "V2-MTH-028", record, where, "MurnaghanHP98 has no alpha0 and kappa0: it calculates a constant volume, the reference volume at every T and P.");
+        if (spec->id == "TaitHP11" && zero("kappa0"))
+            report(diag, "V2-MTH-028", record, where, "TaitHP11 has no kappa0: it calculates a constant volume, the reference volume at every T and P.");
     }
 }
 
@@ -304,8 +326,9 @@ auto validateRecords(const V2Records& records, const FormulaParser& parseFormula
             else if (std::none_of(it->second->stoichiometry.begin(), it->second->stoichiometry.end(), [&](const auto& s) { return s.first == r.symbol; }))
                 report(diag, "V2-REF-001", r.symbol, path + "/defining_reaction", "The reaction " + r.defining_reaction + " does not name the substance.");
         }
-        if (!r.data_source.empty() && !sources.empty() && !sources.count(r.data_source))
-            report(diag, "V2-REF-005", r.symbol, path + "/data_source", "The data source " + r.data_source + " is not in the database.");
+        for (std::size_t i = 0; i < r.data_sources.size(); ++i)
+            if (isReferenceCode(r.data_sources[i]) && !sources.empty() && !sources.count(r.data_sources[i]))
+                report(diag, "V2-REF-005", r.symbol, path + "/data_sources/" + std::to_string(i), "The data source " + r.data_sources[i] + " is not in the database.");
     }
 
     // cycles through the defining reactions
@@ -374,8 +397,9 @@ auto validateRecords(const V2Records& records, const FormulaParser& parseFormula
                     report(diag, "V2-RXN-002", r.symbol, path + "/stoichiometry", "The reaction is not balanced in " + b.first + " (" + std::to_string(b.second) + ").");
                     break;
                 }
-        if (!r.data_source.empty() && !sources.empty() && !sources.count(r.data_source))
-            report(diag, "V2-REF-005", r.symbol, path + "/data_source", "The data source " + r.data_source + " is not in the database.");
+        for (std::size_t i = 0; i < r.data_sources.size(); ++i)
+            if (isReferenceCode(r.data_sources[i]) && !sources.empty() && !sources.count(r.data_sources[i]))
+                report(diag, "V2-REF-005", r.symbol, path + "/data_sources/" + std::to_string(i), "The data source " + r.data_sources[i] + " is not in the database.");
     }
     return diag;
 }

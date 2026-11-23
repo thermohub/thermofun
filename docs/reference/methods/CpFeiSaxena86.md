@@ -10,6 +10,7 @@ Source: Fei and Saxena (1986).
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

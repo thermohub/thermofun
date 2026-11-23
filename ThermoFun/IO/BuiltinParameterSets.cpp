@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/Common/PhysicalConstants.h>
+#include <stdexcept>
 #include <ThermoFun/Model/BuiltinParameterSets.h>
 
 #include <cstdlib>
@@ -100,7 +102,7 @@ auto builtinSetsOf(const std::string& method) -> const std::vector<MethodParamet
     return it != read.end() ? it->second : read.emplace(method, readMethod(method)).first->second;
 }
 
-auto builtinConstants(const std::string& method, const std::string& implementation) -> const MethodParameterSet*
+auto builtinModelParameters(const std::string& method, const std::string& implementation) -> const MethodParameterSet*
 {
     const auto& sets = builtinSetsOf(method);
     for (const auto* wanted : {&implementation, static_cast<const std::string*>(nullptr)})
@@ -143,6 +145,53 @@ auto parameterSetVariant(const std::string& symbol) -> const MethodParameterSet*
 } // namespace ThermoFun::model
 
 namespace ThermoFun {
+
+namespace {
+
+auto physicalConstantsSets() -> const std::vector<PhysicalConstants>&
+{
+    static const auto sets = [] {
+        std::vector<PhysicalConstants> out;
+        for (const auto& set : model::builtinSetsOf("PhysicalConstants"))
+        {
+            PhysicalConstants c;
+            const std::string prefix = "PhysicalConstants_";
+            c.name = set.symbol.rfind(prefix, 0) == 0 ? set.symbol.substr(prefix.size()) : set.symbol;
+            const auto value = [&set = set](const char* name) { return set.parameters.at(name).value; };
+            c.R = value("R"); c.NA = value("NA"); c.F = value("F"); c.e = value("e"); c.k = value("k");
+            out.push_back(c);
+        }
+        return out;
+    }();
+    return sets;
+}
+
+} // namespace
+
+auto physicalConstants(const std::string& name) -> const PhysicalConstants&
+{
+    for (const auto& c : physicalConstantsSets())
+        if (c.name == name)
+            return c;
+    std::string known;
+    for (const auto& c : physicalConstantsSets())
+        known += (known.empty() ? "" : ", ") + c.name;
+    throw std::invalid_argument("physical_constants: there is no set " + name + ". Allowed: " + known + ".");
+}
+
+auto defaultPhysicalConstants() -> const PhysicalConstants&
+{
+    static const PhysicalConstants& c = physicalConstants("codata1986");
+    return c;
+}
+
+auto physicalConstantsNames() -> std::vector<std::string>
+{
+    std::vector<std::string> out;
+    for (const auto& c : physicalConstantsSets())
+        out.push_back(c.name);
+    return out;
+}
 
 auto waterTripleData() -> const std::unordered_map<std::string, WaterTripleProperties>&
 {

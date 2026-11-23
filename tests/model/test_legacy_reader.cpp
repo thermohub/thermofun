@@ -304,7 +304,13 @@ void testElementAndInfo()
         R"JSON({"thermodataset": "aq17", "date": "09.12.2019", "datasources": ["a", "b"],
             "conventions": {"water_triple_point_reference": "NEA_HGK"}, "substances": []})JSON");
     CHECK(info.symbol == "aq17" && info.legacy_date == "09.12.2019" && info.legacy_datasources.size() == 2);
-    CHECK(info.water_triple_point_reference == "NEA_HGK");
+    CHECK(info.convention.energy_reference.water == WaterReference::Codata1989);
+    // the default anchor is not written as a value; an unknown triple-point set is an error
+    CHECK(!readLegacyDocumentInfo(R"JSON({"thermodataset": "x", "conventions": {"water_triple_point_reference": "HKF_HGK_1974"}})JSON").convention.energy_reference.water);
+    bool unknown = false;
+    try { readLegacyDocumentInfo(R"JSON({"thermodataset": "x", "conventions": {"water_triple_point_reference": "NEA"}})JSON"); }
+    catch (const std::exception&) { unknown = true; }
+    CHECK(unknown);
     CHECK(readLegacyDocumentInfo("[]").symbol.empty());
 }
 
@@ -373,10 +379,12 @@ void testRules()
 
     // water vapour
     {
-        auto state = [](const SubstanceRecord& s) { return s.methods.at(0).parameters.at("state").value; };
+        auto state = [](const SubstanceRecord& s) { return s.methods.back().parameters.at("state").value; };
+        // the GEMS water is HGK with WaterLVS83 near the critical point (implied: not written back)
         const SubstanceRecord flag = readLegacySubstance(R"JSON({"symbol": "H2O(g)", "class_": {"1": "SC_GASFLUID"},
             "TPMethods": [{"method": {"2": "solute_hkf88_gems"}}, {"method": {"8": "fug_critical_param"}}]})JSON");
-        CHECK(flag.methods.size() == 1 && flag.methods[0].method == "WaterHGK84" && flag.methods[0].implementation == "gems" && state(flag) == 1.0);
+        CHECK(flag.methods.size() == 2 && flag.methods[0].method == "WaterLVS83" && flag.methods[0].implied &&
+              flag.methods[1].method == "WaterHGK84" && flag.methods[1].implementation == "gems" && state(flag) == 1.0);
         const SubstanceRecord eos = readLegacySubstance(R"JSON({"symbol": "H2O(g)", "class_": {"1": "SC_GASFLUID"},
             "TPMethods": [{"method": {"3": "solute_hkf88_reaktoro"}}, {"method": {"31": "water_eos_hgk84_reaktoro"}}]})JSON");
         CHECK(eos.methods.size() == 1 && eos.methods[0].method == "WaterHGK84" && state(eos) == 1.0);

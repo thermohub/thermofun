@@ -115,7 +115,8 @@ def bad_points(path, only=None):
 def bad_points_of(db, doc, only=None, one=None):
     problems = []
     engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
-    for section, kind, method in (("substances", "substance", engine.parameterSensitivities), ("reactions", "reaction", engine.reactionParameterSensitivities)):
+    for section, kind, method in (("substances", "substance", lambda *a: engine.parameterSensitivities(*a, kind="substance")),
+                                  ("reactions", "reaction", lambda *a: engine.parameterSensitivities(*a, kind="reaction"))):
         for symbol, record in doc.get(section, {}).items():
             if record.get("class") == "water_solvent":
                 continue
@@ -233,7 +234,7 @@ def test_the_derivatives_of_a_reaction_from_its_reactants():
     engine = tf.ThermoEngine(tf.Database(json.dumps(doc)))
     nu = doc["reactions"][symbol]["stoichiometry"][species]
     ref = (species, "", "S")
-    reaction = engine.reactionParameterSensitivities(473.15, 1e7, symbol, [ref])
+    reaction = engine.parameterSensitivities(473.15, 1e7, symbol, [ref], kind="reaction")
     substance = engine.parameterSensitivities(473.15, 1e7, species, [ref])
     assert reaction["dS"][label(ref)] == pytest.approx(nu * substance["S"][label(ref)], rel=1e-12)
     assert reaction["logK"][label(ref)] == pytest.approx(-nu * substance["G"][label(ref)] / (8.31451 * 473.15 * math.log(10.0)), rel=1e-4)
@@ -329,12 +330,13 @@ def test_the_derivatives_follow_the_path_of_the_substance():
 def test_the_derivatives_follow_the_path_of_the_reaction():
     engine = tf.ThermoEngine(both_ways())
     logK, species = ("C", "", "logK"), ("C", "", "G")
-    assert derivative(engine.reactionParameterSensitivities, "C", logK, "logK") == 1.0  # its own methods
-    assert derivative(engine.reactionParameterSensitivities, "C", species, "dG") == 0.0
+    of_reaction = lambda *a: engine.parameterSensitivities(*a, kind="reaction")
+    assert derivative(of_reaction, "C", logK, "logK") == 1.0  # its own methods
+    assert derivative(of_reaction, "C", species, "dG") == 0.0
     engine.setPropertySource("C", "reactants")                                          # the sum over its species
-    assert derivative(engine.reactionParameterSensitivities, "C", logK, "logK") == 0.0
-    assert derivative(engine.reactionParameterSensitivities, "C", species, "dG") == pytest.approx(1.0)
-    assert derivative(engine.reactionParameterSensitivities, "C", ("A", "", "G"), "dG") == pytest.approx(-1.0)
+    assert derivative(of_reaction, "C", logK, "logK") == 0.0
+    assert derivative(of_reaction, "C", species, "dG") == pytest.approx(1.0)
+    assert derivative(of_reaction, "C", ("A", "", "G"), "dG") == pytest.approx(-1.0)
 
 
 def test_a_substance_and_a_reaction_with_one_symbol_have_their_own_path():
@@ -436,7 +438,7 @@ def test_a_constant_of_the_method_of_a_solute():
 def test_a_constant_of_the_method_of_a_reaction():
     file = "pytests/Reactions/Co_Cu_aq-thermofun.json"
     ref = ("CoCl4-2", "RyzhenkoBryzgalin", "zzH2O")
-    got = tf.ThermoEngine(file).reactionParameterSensitivities(673.15, 800e5, "CoCl4-2", [ref])["logK"]["CoCl4-2/RyzhenkoBryzgalin/zzH2O"]
+    got = tf.ThermoEngine(file).parameterSensitivities(673.15, 800e5, "CoCl4-2", [ref], kind="reaction")["logK"]["CoCl4-2/RyzhenkoBryzgalin/zzH2O"]
     def logK(value):
         engine = tf.ThermoEngine(file)
         engine.parameter(*ref).setValue(value)

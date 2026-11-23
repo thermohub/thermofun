@@ -10,6 +10,7 @@ Source: Soave (1972); Soave (1993).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, S adds, Cp adds, V sets |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -30,9 +31,9 @@ Source: Soave (1972); Soave (1993).
 | omega | 1 | 1 | yes |  | acentric factor |
 | N | 1 | 1 | no |  | empirical parameter of the attraction term |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: none: numbers. They are not converted.
 

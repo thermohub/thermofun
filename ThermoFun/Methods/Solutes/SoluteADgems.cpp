@@ -113,8 +113,8 @@ void Akinfiev_EOS_increments(real Tk, real /*P*/, real Gig, real Sig, real CPig,
     derP = 0.0; derT = 0.0; der2T = 0.0;
     deltaB = 0.0; lnKH = 0.0; Nw = 0.0; xi = 0.0; aa = 0.0; bb = 0.0; RT = 0.0;
     fug = 0.0; vol = 0.0; drhoT = 0.0; drhoP = 0.0; d2rhoT = 0.0; lnfug = 0.0; Gres = 0.0; Sres = 0.0; CPres = 0.0;
-    RR = R_CONSTANT*10.;  // cm3 bar/(K mol)
-    R_CONST = R_CONSTANT;
+    RR = R_CODATA1986*10.;  // cm3 bar/(K mol)
+    R_CONST = R_CODATA1986;
 
     RT = Tk*R_CONST;
     // EOS coefficients

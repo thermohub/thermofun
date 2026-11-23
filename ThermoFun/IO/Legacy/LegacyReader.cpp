@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <algorithm>
 #include <ThermoFun/IO/Legacy/detail/LegacyReaderParts.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 
 namespace ThermoFun::model::legacyreader {
 
@@ -164,6 +166,24 @@ namespace ThermoFun::model {
 
 using namespace legacyreader;
 
+namespace {
+
+/// The water of GEMS (water_eos_hgk84_lvs83_gems) is HGK with the equation of Levelt Sengers et al. near the critical
+/// point: in a record these are two methods, WaterLVS83 in its region before WaterHGK84 (decision 0028)
+void addImpliedLVS83(SubstanceRecord& s)
+{
+    const auto hgk = std::find_if(s.methods.begin(), s.methods.end(), [](const MethodApplication& a) { return a.method == "WaterHGK84" && a.implementation == "gems"; });
+    if (hgk != s.methods.end() && std::none_of(s.methods.begin(), s.methods.end(), [](const MethodApplication& a) { return a.method == "WaterLVS83"; }))
+    {
+        MethodApplication lvs;
+        lvs.method = "WaterLVS83";
+        lvs.implied = true;
+        s.methods.insert(hgk, lvs);
+    }
+}
+
+} // namespace
+
 void checkReading(const Diagnostics& diagnostics)
 {
     for (const auto& d : diagnostics.errors())
@@ -210,6 +230,13 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
         s.reference_conditions.T = j[legacy::Tst].get<double>();
     if (isPresent(j, legacy::Pst) && j[legacy::Pst].is_number())
         s.reference_conditions.P = j[legacy::Pst].get<double>();
+    // the reference pressure is the standard pressure p° (decision 0031, row 7): a legacy record at another pressure says so
+    if (s.reference_conditions.P != 1e5)
+    {
+        if (!s.convention)
+            s.convention = Convention{};
+        s.convention->standard_state.pressure = s.reference_conditions.P;
+    }
 
     struct Slot
     {
@@ -227,6 +254,8 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
             s.standard_state_properties[slot.property] = *q;
 
     readSubstanceMethods(j, s, c);
+
+    addImpliedLVS83(s);
 
     s.data_sources = readSources(j);
     reportUnknownKeys(j, knownSubstanceKeys(), c);
@@ -272,6 +301,13 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
         r.reference_conditions.T = j[legacy::Tst].get<double>();
     if (isPresent(j, legacy::Pst) && j[legacy::Pst].is_number())
         r.reference_conditions.P = j[legacy::Pst].get<double>();
+    // the reference pressure is the standard pressure p° (decision 0031, row 7): a legacy record at another pressure says so
+    if (r.reference_conditions.P != 1e5)
+    {
+        if (!r.convention)
+            r.convention = Convention{};
+        r.convention->standard_state.pressure = r.reference_conditions.P;
+    }
 
     struct Slot
     {
@@ -374,6 +410,7 @@ void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, double exp
     record.structural.erase("kappa0");
     record.preferred_property_source.reset();
     readSubstanceMethods(j, record, c);
+    addImpliedLVS83(record);
 }
 
 void readLegacyMethods(const std::vector<LegacyMethodEntry>& entries, ReactionRecord& record, Diagnostics* diagnostics)
@@ -401,9 +438,13 @@ auto readLegacyDocumentInfo(const std::string& text) -> ThermoDataSetInfo
                 info.legacy_datasources.push_back(v.get<std::string>());
     if (isPresent(j, legacy::Conventions) && j[legacy::Conventions].is_object())
     {
+        // the triple-point set names the water anchor (decision 0031): HKF_HGK_1974 is the default, NEA_HGK and NEA_IAPWS are
+        // codata_1989 (the set itself follows from the water method)
         const std::string ref = stringOf(j[legacy::Conventions], "water_triple_point_reference");
-        if (!ref.empty())
-            info.water_triple_point_reference = ref;
+        if (const auto anchor = waterAnchorOfSet(ref); anchor == WaterReference::Codata1989)
+            info.convention.energy_reference.water = anchor;
+        else if (!ref.empty() && !anchor)
+            throw std::runtime_error("The legacy water_triple_point_reference \"" + ref + "\" is not known: HKF_HGK_1974, NEA_HGK or NEA_IAPWS.");
     }
     return info;
 }

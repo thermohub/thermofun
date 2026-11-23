@@ -67,7 +67,8 @@ auto substanceFromReaction(double T, double P, const ThermoPropertiesReaction& t
     return tps;
 }
 
-auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols) -> ThermoPropertiesReaction
+auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols,
+                           double R) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
     tpr.reaction_heat_capacity_cp = 0.0;
@@ -81,7 +82,8 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
     tpr.reaction_internal_energy = 0.0;
     tpr.reaction_helmholtz_energy = 0.0;
 
-    std::string message = "Calculated from the reaction components: " + reaction + "; ";
+    // where the values come from (decision 0029)
+    addNote(tpr.info.notes, Note{Note::Kind::Source, Note::Severity::Soft, "", "Calculated from the reaction components: " + reaction, {}, {}});
 
         // the values and derivatives of the properties of the reaction
         if (!components.empty())
@@ -111,7 +113,7 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
                     a.reaction_internal_energy  += pass(tps.internal_energy)*coeff;
                     a.reaction_helmholtz_energy += pass(tps.helmholtz_energy)*coeff;
                 }
-                a.ln_equilibrium_constant  = a.reaction_gibbs_energy / -(R_CONSTANT*pass.T);
+                a.ln_equilibrium_constant  = a.reaction_gibbs_energy / -(R*pass.T);
                 a.log_equilibrium_constant = a.ln_equilibrium_constant * ln_to_lg;
                 return a;
             });
@@ -132,7 +134,11 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
             copyValues(tpr.reaction_helmholtz_energy, values.reaction_helmholtz_energy);
         }
 
-        // the errors and statuses, and the messages of the properties that are not defined
+        // the notes of the components, with the component in the path (decision 0029)
+        for (size_t i = 0; i < components.size(); ++i)
+            inheritNotes(tpr.info.notes, components[i].first.info.notes, symbols[i]);
+
+        // the errors and statuses; what is missing for a property that is not defined
         for (size_t i = 0; i < components.size(); ++i)
         {
             const auto& tps = components[i].first;
@@ -149,14 +155,36 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
             tpr.reaction_internal_energy.propagateFrom(tpr.reaction_internal_energy, tps.internal_energy);
             tpr.reaction_helmholtz_energy.propagateFrom(tpr.reaction_helmholtz_energy, tps.helmholtz_energy);
 
-            setMessage(tps.heat_capacity_cp.sta.first, "Cp of component " + substance, message+tps.heat_capacity_cp.sta.second, tpr.reaction_heat_capacity_cp.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.reaction_gibbs_energy.sta.second);
-            setMessage(tps.enthalpy.sta.first,         "H0 of component " + substance, message+tps.enthalpy.sta.second,         tpr.reaction_enthalpy.sta.second);
-            setMessage(tps.entropy.sta.first,          "S0 of component " + substance, message+tps.entropy.sta.second,          tpr.reaction_entropy.sta.second);
-            setMessage(tps.volume.sta.first,           "V0 of component " + substance, message+tps.volume.sta.second,           tpr.reaction_volume.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.log_equilibrium_constant.sta.second);
-            setMessage(tps.gibbs_energy.sta.first,     "G0 of component " + substance, message+tps.gibbs_energy.sta.second,     tpr.ln_equilibrium_constant.sta.second);
+            const std::pair<const Reaktoro_::ThermoScalar*, std::pair<const char*, const char*>> parts[] = {
+                {&tps.heat_capacity_cp, {"Cp", "Cp"}}, {&tps.gibbs_energy, {"G", "G0"}}, {&tps.enthalpy, {"H", "H0"}},
+                {&tps.entropy, {"S", "S0"}}, {&tps.volume, {"V", "V0"}}};
+            for (const auto& [value, names] : parts)
+                if (value->sta.first == Reaktoro_::Status::notdefined)
+                    addNote(tpr.info.notes, Note{Note::Kind::Undefined, Note::Severity::Hard, "", std::string(names.second) + " of component " + substance, {}, {names.first}});
         }
+        // the message of each property, made from the notes about it (log K and ln K follow G)
+        tpr.reaction_heat_capacity_cp.sta.second = render(tpr.info.notes, "Cp");
+        tpr.reaction_gibbs_energy.sta.second = render(tpr.info.notes, "G");
+        tpr.reaction_enthalpy.sta.second = render(tpr.info.notes, "H");
+        tpr.reaction_entropy.sta.second = render(tpr.info.notes, "S");
+        tpr.reaction_volume.sta.second = render(tpr.info.notes, "V");
+        tpr.log_equilibrium_constant.sta.second = render(tpr.info.notes, "G");
+        tpr.ln_equilibrium_constant.sta.second = render(tpr.info.notes, "G");
+        // the info of each value: the notes about it
+        auto about = [&](const char* property) {
+            Notes out;
+            for (const auto& note : tpr.info.notes)
+                if (isAbout(note, property))
+                    out.push_back(note);
+            return out;
+        };
+        tpr.reaction_heat_capacity_cp.info.notes = about("Cp");
+        tpr.reaction_gibbs_energy.info.notes = about("G");
+        tpr.reaction_enthalpy.info.notes = about("H");
+        tpr.reaction_entropy.info.notes = about("S");
+        tpr.reaction_volume.info.notes = about("V");
+        tpr.log_equilibrium_constant.info.notes = about("G");
+        tpr.ln_equilibrium_constant.info.notes = about("G");
 
     // the errors: first-order propagation of the errors of the reactants (independent), weighted by the
     // stoichiometric coefficients; ln K = -G/(R T)
@@ -180,7 +208,7 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
         tpr.reaction_enthalpy.setError({{1.0, std::sqrt(h)}});
         tpr.reaction_entropy.setError({{1.0, std::sqrt(sv)}});
         tpr.reaction_volume.setError({{1.0, std::sqrt(v)}});
-        tpr.ln_equilibrium_constant.setError({{1.0/(R_CONSTANT*T), std::sqrt(g)}});
+        tpr.ln_equilibrium_constant.setError({{1.0/(R*T), std::sqrt(g)}});
         tpr.log_equilibrium_constant.setError({{ln_to_lg, tpr.ln_equilibrium_constant.err}});
         tpr.reaction_heat_capacity_cv.setError({{1.0, std::sqrt(cv)}});
         tpr.reaction_internal_energy.setError({{1.0, std::sqrt(u)}});

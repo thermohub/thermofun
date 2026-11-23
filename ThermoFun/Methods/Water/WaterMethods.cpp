@@ -3,10 +3,15 @@
 
 #include "WaterMethods.h"
 
+#include <algorithm>
+#include <cstdio>
+#include <utility>
 #include <functional>
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/Exception.h>
+#include <ThermoFun/Common/OutsideRange.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterElectroState.hpp>
 #include <ThermoFun/Methods/Water/Reaktoro/WaterElectroStateJohnsonNorton.hpp>
@@ -67,14 +72,14 @@ auto checkModelValidity(double T, double P, double Tmax, double /*Tmin*/, double
     }
 }
 // The limits of Zhang and Duan (2005): from 100 MPa and 273.15 K up to about 20-30 GPa and 2000 K.
-auto checkZhangDuan(double T, double P, const ZhangDuanConstants& c) -> void
+auto checkZhangDuan(double T, double P, const ZhangDuanModelParameters& c) -> void
 {
     checkModelValidity(T, P, c.Tmax, 273.15, c.Pmax, c.Pmin, "Zhang and Duan (2005) H2O model.");
 }
 
-auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> ThermoPropertiesSubstance
+auto hgk84GemsSubstance(double T, double& P, int state, const std::string& triple, const WaterHGKgemsModelParameters& constants) -> ThermoPropertiesSubstance
 {
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
 
     double Pout = P;
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -90,7 +95,7 @@ auto hgk84GemsSubstance(double T, double& P, int state, const std::string& tripl
     return tps;
 }
 
-auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants& constants) -> PropertiesSolvent
+auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKModelParameters& constants) -> PropertiesSolvent
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -98,16 +103,16 @@ auto hgk84ReaktoroProperties(double T, double& P, int state, const HGKConstants&
     });
 }
 
-auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKConstants& constants) -> ThermoPropertiesSubstance
+auto hgk84ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const HGKModelParameters& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return thermoPropertiesWaterHGKreaktoro(pass.T, waterThermoStateHGK(pass.T, pass.P, state, constants), wtr, constants.Ttr, constants.saturation.M);
     });
 }
 
-auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPrussConstants& constants) -> PropertiesSolvent
+auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPrussModelParameters& constants) -> PropertiesSolvent
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -115,16 +120,55 @@ auto iapws95ReaktoroProperties(double T, double& P, int state, const WagnerPruss
     });
 }
 
-auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussConstants& constants) -> ThermoPropertiesSubstance
+auto iapws95ReaktoroSubstance(double T, double& P, int state, const std::string& triple, const WagnerPrussModelParameters& constants) -> ThermoPropertiesSubstance
 {
     if (P==0) P = waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val();
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterIAPWS95");
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateWagnerPruss(pass.T, pass.P, state, constants), wtr, constants.Ttr, constants.saturation.M);
     });
 }
 
-auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& constants) -> PropertiesSolvent
+/// The vapour from the gas equation: the density at T, P (not 0). The caller checks with gasEquationCovers first.
+auto gasEquationDensity(real T, real P, const WagnerPrussModelParameters& constants, bool& ok) -> real
+{
+    return waterDensityGasEquation(T, P, constants, 55.0, ok);
+}
+
+/// The region of the gas equation (Wagner and Pruss 2002, Sects. 3, 6.3.1 and 7.3.2.3): the vapour that is metastable (P above
+/// the saturation pressure) at T from 200 K to the critical point and P up to 10 MPa, where the density is up to 55 kg/m3.
+/// Stable vapour and the saturated vapour line stay with IAPWS-95, which is very accurate there.
+auto gasEquationCovers(double T, double P, int state, const WagnerPrussModelParameters& constants) -> bool
+{
+    if (state != 1 || P <= 0.0 || P > 1.0e7 || T < 200.0 || T >= constants.saturation.Tcr)
+        return false;
+    if (P <= waterSaturatedPressureWagnerPruss(real(T), constants.saturation).val())
+        return false;
+    bool ok = false;
+    gasEquationDensity(real(T), real(P), constants, ok);
+    return ok;
+}
+
+auto iapws95GasProperties(double T, double& P, int, const WagnerPrussModelParameters& constants) -> PropertiesSolvent
+{
+    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        bool ok = false;
+        const real D = gasEquationDensity(pass.T, pass.P, constants, ok);
+        return propertiesWaterWP95reaktoro(waterThermoStateGasEquation(pass.T, pass.P, D, constants));
+    });
+}
+
+auto iapws95GasSubstance(double T, double& P, int, const std::string& triple, const WagnerPrussModelParameters& constants) -> ThermoPropertiesSubstance
+{
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterIAPWS95Gas");
+    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        bool ok = false;
+        const real D = gasEquationDensity(pass.T, pass.P, constants, ok);
+        return thermoPropertiesWaterWP95reaktoro(pass.T, waterThermoStateGasEquation(pass.T, pass.P, D, constants), wtr, constants.Ttr, constants.saturation.M);
+    });
+}
+
+auto zhangDuan05Properties(double T, double& P, const ZhangDuanModelParameters& constants) -> PropertiesSolvent
 {
     checkZhangDuan(T, P, constants);
     return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -132,7 +176,7 @@ auto zhangDuan05Properties(double T, double& P, const ZhangDuanConstants& consta
     });
 }
 
-auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const ZhangDuanConstants& constants) -> ThermoPropertiesSubstance
+auto zhangDuan05Substance(double T, double& P, bool dew_gibbs, const ZhangDuanModelParameters& constants) -> ThermoPropertiesSubstance
 {
     checkZhangDuan(T, P, constants);
     auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -184,12 +228,14 @@ auto johnsonNorton91Reaktoro(double T, double P, const PropertiesSolvent& ps, in
     return eps;
 }
 
-auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const WaterHGKgemsConstants& constants) -> ElectroPropertiesSolvent
+auto johnsonNorton91Gems(double T, double P, const PropertiesSolvent& ps, const WaterHGKgemsModelParameters& constants) -> ElectroPropertiesSolvent
 {
-    return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+    auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         WaterHGKgems water_hgk(constants);
         return water_hgk.electroPropertiesWaterJNgems(pass.T, pass.P / bar_to_Pa, pass(ps.density) / 1000.0, pass(ps.Beta) * bar_to_Pa, pass(ps.Alpha), pass(ps.dAldT));
     });
+    // the range of the model is checked with the others, from the catalog (Engine/Solvent.cpp, decision 0029)
+    return eps;
 }
 
 /// An equation of state of water, made of functions.
@@ -199,10 +245,12 @@ public:
     using Properties = std::function<PropertiesSolvent(double, double&, int, const std::string&)>;
     using Substance = std::function<ThermoPropertiesSubstance(double, double&, int, const std::string&)>;
     using Pressure = std::function<double(double, double)>;
+    using Covers = std::function<bool(double, double, int)>;
 
-    FunctionSolventMethod(const char* id, const char* implementation, Properties properties, Substance substance, bool containsRTlnP, Pressure pressure = {})
+    FunctionSolventMethod(const char* id, const char* implementation, Properties properties, Substance substance, bool containsRTlnP, Pressure pressure = {},
+                          Covers covers = {}, bool hasSaturation = true)
     : spec_(specOf(id)), implementation_(implementation), properties_(std::move(properties)), substance_(std::move(substance)), contains_(containsRTlnP),
-      pressure_(std::move(pressure)) {}
+      pressure_(std::move(pressure)), covers_(std::move(covers)), has_saturation_(hasSaturation) {}
 
     auto spec() const -> const MethodSpec& override { return spec_; }
     auto implementation() const -> std::string override { return implementation_; }
@@ -215,6 +263,9 @@ public:
             return std::nullopt;
         return pressure_(T, rho);
     }
+    // a method with its own region (covers given) has no saturation: the next one of the record gives it
+    auto covers(double T, double P, int state) const -> bool override { return covers_ ? covers_(T, P, state) : true; }
+    auto coversSaturation(double) const -> bool override { return !covers_ && has_saturation_; }
 
 private:
     const MethodSpec& spec_;
@@ -223,6 +274,8 @@ private:
     Substance substance_;
     bool contains_;
     Pressure pressure_;
+    Covers covers_;
+    bool has_saturation_;
 };
 
 /// A dielectric model of water, made of a function.
@@ -245,9 +298,9 @@ private:
 
 } // namespace
 
-auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple, const WaterHGKgemsConstants& constants) -> PropertiesSolvent
+auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple, const WaterHGKgemsModelParameters& constants) -> PropertiesSolvent
 {
-    WaterTripleProperties wtr = waterTripleData().at(triple);
+    WaterTripleProperties wtr = model::waterTripleOf(triple, "WaterHGK84");
 
     double Pout = P;
     auto ps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
@@ -274,11 +327,11 @@ auto waterHGK84GemsProperties(double T, double& P, int state, const std::string&
 
 auto waterHGK84GemsProperties(double T, double& P, int state, const std::string& triple) -> PropertiesSolvent
 {
-    static const auto constants = makeWaterHGKgemsConstants(builtinConstants("WaterHGK84", "gems")->parameters, builtinConstants("JohnsonNorton91")->parameters);
+    static const auto constants = makeWaterHGKgemsModelParameters(builtinModelParameters("WaterHGK84", "gems")->parameters, builtinModelParameters("JohnsonNorton91")->parameters);
     return waterHGK84GemsProperties(T, P, state, triple, *constants);
 }
 
-auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const SolventMethod>
+auto waterHGK84GemsMethod(std::shared_ptr<const WaterHGKgemsModelParameters> constants) -> std::shared_ptr<const SolventMethod>
 {
     return std::make_shared<const FunctionSolventMethod>("WaterHGK84", "gems",
         [constants](double T, double& P, int state, const std::string& triple) { return waterHGK84GemsProperties(T, P, state, triple, *constants); },
@@ -316,9 +369,9 @@ auto valueOf(const MethodApplication& a, const char* name) -> double
 
 namespace {
 
-auto saturationOf(const MethodApplication& a) -> WaterSaturationConstants
+auto saturationOf(const MethodApplication& a) -> WaterSaturationModelParameters
 {
-    WaterSaturationConstants s;
+    WaterSaturationModelParameters s;
     for (int i = 1; i <= 6; ++i)
     {
         s.a.push_back(valueOf(a, ("sat_a" + std::to_string(i)).c_str()));
@@ -333,7 +386,7 @@ auto saturationOf(const MethodApplication& a) -> WaterSaturationConstants
 
 auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
 {
-    HGKConstants k;
+    HGKModelParameters k;
     k.saturation = saturationOf(a); k.Ttr = valueOf(a, "Ttr");
     k.A0 = listOf(a, "A0"); k.A1 = listOf(a, "A1"); k.yc = listOf(a, "yc"); k.A3 = listOf(a, "A3"); k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta");
     k.ri = listOf(a, "ri"); k.ti = listOf(a, "ti"); k.A4 = listOf(a, "A4");
@@ -348,7 +401,7 @@ auto waterHGK84ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<con
 
 auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
 {
-    WagnerPrussConstants k;
+    WagnerPrussModelParameters k;
     k.saturation = saturationOf(a); k.Ttr = valueOf(a, "Ttr");
     k.no = listOf(a, "no"); k.gammao = listOf(a, "gammao"); k.c = listOf(a, "c"); k.d = listOf(a, "d"); k.t = listOf(a, "t"); k.n = listOf(a, "n");
     k.alpha = listOf(a, "alpha"); k.beta = listOf(a, "beta"); k.gamma = listOf(a, "gamma"); k.epsilon = listOf(a, "epsilon");
@@ -359,11 +412,44 @@ auto waterIAPWS95ReaktoroMethod(const MethodApplication& a) -> std::shared_ptr<c
         [k](double T, double rho) { const auto h = waterHelmholtzStateWagnerPruss(T, rho, k); return static_cast<double>(rho * rho * h.helmholtzD); });
 }
 
-auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanConstants constants) -> std::shared_ptr<const SolventMethod>
+auto waterIAPWS95GasMethod(const MethodApplication& a) -> std::shared_ptr<const SolventMethod>
+{
+    // the ideal-gas part, the critical point and the saturation are those of IAPWS-95; the 7 terms replace its residual part
+    MethodApplication b;
+    b.method = "WaterIAPWS95";
+    b.parameters = builtinModelParameters("WaterIAPWS95", "reaktoro")->parameters;
+    for (const auto& [name, value] : builtinModelParameters("WaterSaturation")->parameters)
+        b.parameters.emplace(name, value);
+    WagnerPrussModelParameters k;
+    k.saturation = saturationOf(b); k.Ttr = valueOf(b, "Ttr");
+    k.no = listOf(b, "no"); k.gammao = listOf(b, "gammao"); k.c = listOf(b, "c"); k.d = listOf(b, "d"); k.t = listOf(b, "t"); k.n = listOf(b, "n");
+    k.alpha = listOf(b, "alpha"); k.beta = listOf(b, "beta"); k.gamma = listOf(b, "gamma"); k.epsilon = listOf(b, "epsilon");
+    k.a = listOf(b, "a"); k.b = listOf(b, "b"); k.A = listOf(b, "A"); k.B = listOf(b, "B"); k.C = listOf(b, "C"); k.F = listOf(b, "F"); k.E = listOf(b, "E");
+    const auto n = listOf(a, "n"), d = listOf(a, "d"), t = listOf(a, "t");
+    if (n.size() != 8 || d.size() != 8 || t.size() != 8)
+        funError("Cannot make the method " + a.method, "It needs n, d and t with 8 places: place 1 is not used, places 2 to 8 are the 7 terms.", __LINE__, __FILE__);
+    // n has one place more than d, t and c in the data of IAPWS-95: zero all of n, then set the 7 terms only
+    std::fill(k.n.begin(), k.n.end(), 0.0);
+    for (std::size_t i = 1; i <= 7; ++i)
+    {
+        k.n[i] = n[i];
+        k.d[i] = d[i];
+        k.t[i] = t[i];
+        k.c[i] = 0.0;
+    }
+    return std::make_shared<const FunctionSolventMethod>("WaterIAPWS95Gas", "",
+        [k](double T, double& P, int state, const std::string&) { return iapws95GasProperties(T, P, state, k); },
+        [k](double T, double& P, int state, const std::string& triple) { return iapws95GasSubstance(T, P, state, triple, k); }, true,
+        [k](double T, double rho) { const auto h = waterHelmholtzStateWagnerPruss(T, rho, k); return static_cast<double>(rho * rho * h.helmholtzD); },
+        [k](double T, double P, int state) { return gasEquationCovers(T, P, state, k); });
+}
+
+auto waterZhangDuan05Method(bool dew_gibbs, ZhangDuanModelParameters constants) -> std::shared_ptr<const SolventMethod>
 {
     return std::make_shared<const FunctionSolventMethod>("WaterZhangDuan05", "",
         [constants](double T, double& P, int, const std::string&) { return zhangDuan05Properties(T, P, constants); },
-        [dew_gibbs, constants](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, constants); }, false);
+        [dew_gibbs, constants](double T, double& P, int, const std::string&) { return zhangDuan05Substance(T, P, dew_gibbs, constants); }, false,
+        FunctionSolventMethod::Pressure{}, FunctionSolventMethod::Covers{}, false);  // it has no saturation: P = 0 goes to the next equation of state of the record
 }
 
 auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared_ptr<const DielectricMethod>
@@ -373,7 +459,7 @@ auto johnsonNorton91ReaktoroMethod(std::vector<double> constants) -> std::shared
     });
 }
 
-auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsConstants> constants) -> std::shared_ptr<const DielectricMethod>
+auto johnsonNorton91GemsMethod(std::shared_ptr<const WaterHGKgemsModelParameters> constants) -> std::shared_ptr<const DielectricMethod>
 {
     return std::make_shared<const FunctionDielectricMethod>("JohnsonNorton91", "gems", [constants](double T, double P, const PropertiesSolvent& solvent, int) {
         return johnsonNorton91Gems(T, P, solvent, *constants);
@@ -385,11 +471,18 @@ auto bradleyPitzer79Method(std::vector<double> constants) -> std::shared_ptr<con
     return std::make_shared<const FunctionDielectricMethod>("BradleyPitzer79", "", [constants = std::move(constants)](double T, double P, const PropertiesSolvent&, int) {
         const double Tmin = constants[9], Tmax = constants[10], Tlow = constants[11], Pmax_low = constants[12], Pmax = constants[13];
         const double Pbar = P / bar_to_Pa;
-        if (T < Tmin || T > Tmax || Pbar > (T < Tlow ? Pmax_low : Pmax))
-            thfun_logger->warn("BradleyPitzer79: T = {} K, P = {} bar is outside the range of the model", T, Pbar);
-        return twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        auto eps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
             return electroPropertiesWaterBradleyPitzer79(pass, constants);
         });
+        // its range is in its constants, with a lower maximum pressure below Tlow (decision 0029)
+        if (T < Tmin || T > Tmax || Pbar > (T < Tlow ? Pmax_low : Pmax))
+        {
+            char text[200];
+            std::snprintf(text, sizeof(text), "T = %.6g K, P = %.6g bar, outside %.6g to %.6g K, up to %.6g bar (%.6g bar below %.6g K)", T, Pbar, Tmin, Tmax,
+                          Pmax, Pmax_low, Tlow);
+            markOutsideRange(eps, Note{Note::Kind::Range, Note::Severity::Soft, "BradleyPitzer79", text, {}, {}});
+        }
+        return eps;
     });
 }
 

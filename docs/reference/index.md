@@ -17,7 +17,7 @@ Facts and the reasons behind them, in six sections. The pages of the methods, th
 
 - [Options of the engine](engine-preferences.md) and its conventions.
 - [Conventions](conventions.md): what the zero of an energy is, and the standard states.
-- [Batch options](batch.md)
+- [Batch setups](batch.md)
 
 ## Formats
 
@@ -33,6 +33,7 @@ Facts and the reasons behind them, in six sections. The pages of the methods, th
 ## Results and units
 
 - [Results](results.md): what a calculation gives.
+- [Routes](routes.md): how a result was calculated.
 - [Units](units.md)
 - [Derivatives](derivatives.md)
 - [Uncertainties and rounding](uncertainty.md)
@@ -89,6 +90,7 @@ diagnostics
 :maxdepth: 1
 
 results
+routes
 units
 derivatives
 uncertainty

@@ -6,7 +6,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD&wp, HKFBornTerms* born) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
     const auto& hkf = subst.parameters;
@@ -106,6 +106,8 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst,
     H  *= cal_to_J;
     S  *= cal_to_J;
     Cp *= cal_to_J;
+    if (born)
+        *born = HKFBornTerms{GZterm*cal_to_J, HYterm*cal_to_J, SYterm*cal_to_J, CpXtrm*cal_to_J, VQterm*1e-01};
 
     ThermoPropertiesSubstanceAD tps;
     tps.volume           = V;
@@ -126,7 +128,7 @@ auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& subst,
 // gShok2- Calc  g, dgdP, dgdT, d2gdT2 use equations in Shock et al. (1991)
 // units:  T (C), D (g/cm3), beta, dgdP (bars-1)
 // alpha, dgdT (K-1), daldT, d2gdT2 (K-2)
-auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFModelParameters& constants) -> FunctionG
 {
     real a, b, dgdD, /*dgdD2,*/ dadT, dadTT, dbdT, dbdTT, dDdT, dDdP,
                 dDdTT, Db, dDbdT, dDbdTT, ft, dftdT, dftdTT, fp, dfpdP,
@@ -258,6 +260,8 @@ auto omeg92(FunctionG g, const HKFInputs& species) -> ElectroPropertiesSubstance
     {
         reref = pow(chg,2.) / (wref / eta + chg / (zeta + gref));
         re = reref + fabs(chg) * g.g;
+        eps.reref = reref;
+        eps.re = re;
         eps.w = eta * (pow(chg,2.) / re - chg / (zeta + g.g));
         Z3 = fabs(pow(chg,3.)) / pow(re,2.) - chg / pow((zeta + g.g),2.);
         Z4 = fabs(pow(chg,4.)) / pow(re,3.) - chg / pow((zeta + g.g),3.);

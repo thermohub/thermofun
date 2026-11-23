@@ -31,10 +31,9 @@ Databases are in `Resources/databases/` of the repository. The words of these pa
 2. [Load data](tutorials/02-load-data.md): read, choose, check and write records.
 3. [Change the models](tutorials/03-change-models.md): methods, how they combine, implementations, options and conventions.
 4. [Where the files are](tutorials/04-where-the-files-are.md)
-5. [Templates](tutorials/05-templates.md)
-6. [Output tables](tutorials/06-output-tables.md)
-7. [Batch calculations](tutorials/07-batch-calculations.md)
-8. [Fit parameters](tutorials/08-fit-parameters.md)
+5. [Batch calculations](tutorials/05-batch-calculations.md)
+6. [Batch templates](tutorials/06-batch-templates.md)
+7. [Fit parameters](tutorials/07-fit-parameters.md)
 
 Each tutorial is a notebook. It runs each time the site is built, so its results come from the current code. To run one in Jupyter, download it from its page as `.ipynb`, or use the copies in [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter), which also has workshops and longer examples with other codes.
 
@@ -42,19 +41,22 @@ Each tutorial is a notebook. It runs each time the site is built, so its results
 
 Calculate:
 
-- [Make tables](how-to/make-tables.md): from a YAML setup or a template, in C++ and Python.
+- [Run a batch calculation](how-to/make-tables.md): many records at many conditions, from a YAML setup or a batch template, in C++ and Python.
 - [Choose water models](how-to/choose-water-models.md)
 - [Choose conventions](how-to/choose-conventions.md)
 - [Propagate uncertainties](how-to/propagate-uncertainties.md)
-- [See what each method gives](how-to/get-per-method-results.md)
-- [Use a method alone](how-to/use-a-method-alone.md)
-- [Fit parameters to measured data](how-to/fit-parameters.md) (under development)
+- [See how a result is calculated](how-to/see-how-a-result-is-calculated.md)
+- [Use a method alone to calculate](how-to/use-a-method-alone.md)
 
 Data:
 
 - [Add data](how-to/add-data.md): the complete guide to substances, reactions, methods, units and datasets.
 - [Validate data](how-to/validate-data.md)
 - [Convert a legacy database](how-to/convert-legacy-database.md)
+
+Fitting:
+
+- [Fit parameters to measured data](how-to/fit-parameters.md) (under development)
 
 Technical guides:
 
@@ -65,7 +67,7 @@ Technical guides:
 ## Reference: facts
 
 - [Methods](reference/methods/index.md), one page for each method, with their [parameters](reference/method-parameters.md) and [how they combine](reference/how-methods-combine.md).
-- Options: [options of the engine](reference/engine-preferences.md), [conventions](reference/conventions.md) and [batch options](reference/batch.md).
+- Options: [options of the engine](reference/engine-preferences.md), [conventions](reference/conventions.md) and [batch setups](reference/batch.md).
 - Formats: [the data model](reference/data-model.md), [the v2 format](reference/format-v2.md) with its [JSON Schema](reference/format-v2-schema.md), [allowed words](reference/vocabulary.md), [the legacy format](reference/legacy-format.md) and [how it differs](reference/legacy-and-v2.md).
 - [Diagnostics](reference/diagnostics.md): each code and how to correct it.
 - Results and units: [results](reference/results.md), [units](reference/units.md), [derivatives](reference/derivatives.md) and [uncertainties and rounding](reference/uncertainty.md).

@@ -30,8 +30,10 @@ using ElementsMap   = std::map<std::string, Element>;
 using SubstancesMap = std::map<std::string, Substance>;
 using ReactionsMap  = std::map<std::string, Reaction>;
 
+/// The 0.x view of the water anchor of the dataset (energy_reference.water, decision 0031): the name of the triple-point set,
+/// HKF_HGK_1974 (helgeson_kirkham_1974, G of liquid water at 25 degC -237181 J/mol) or NEA_HGK / NEA_IAPWS (codata_1989,
+/// -237140 J/mol; the set follows from the water method). Setting a name sets the anchor of the dataset.
 struct DatabaseConventions {
-    // e.g. "NEA_HGK", "NEA_IAPWS" (determines the correct properties of water from EoS to geochemical conventions, e.g. G0 -237140 in NEA_HGK or -237181 in HKF_HGK_1974 supcrt datasets
     std::string water_triple_point_reference = "HKF_HGK_1974";
 
     bool operator==(const DatabaseConventions&) const = default;
@@ -325,6 +327,11 @@ public:
     /// @param jsonValue the new value, as JSON text: `-1.5e6`, `"text"`, `{"value": 1, "uncertainty": 2}`, `[{"method": "ConstantCp"}]`
     /// @throws std::invalid_argument if the path or the text is not valid
     auto setValue(const std::string& path, const std::string& jsonValue) -> void;
+
+    /// Removes a value of a record by its path (see value): a key, or an element of a list, for example
+    /// `/substances/Calcite/methods/1`; the record is then set again (see setSubstance).
+    /// @throws std::invalid_argument if the path is not a path of a value of a record of this database
+    auto removeValue(const std::string& path) -> void;
 
     /// All problems of the database, also those that a load does not refuse because a record can come from another file.
     auto validate() const -> Diagnostics;

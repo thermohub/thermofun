@@ -25,6 +25,12 @@
 #include <initializer_list>
 #include <utility>
 #include <string>
+#include <limits>
+
+#include <memory>
+
+#include <ThermoFun/Common/Notes.h>
+#include <ThermoFun/Common/Route.h>
 
 namespace Reaktoro_ {
 
@@ -38,6 +44,36 @@ enum Status {
 };
 
 using StatusMessage = std::pair <Status, std::string>;
+
+/// What a value says about itself besides its number and its error (decision 0029): the notes behind it (range, source,
+/// undefined, uncertainty), how it was calculated (its route), and the pressure used. The validity, the status and the completeness of the
+/// uncertainty are made from these, the status code and the error (see validity(), uncertainty()).
+struct Info
+{
+    ThermoFun::Notes notes;
+    std::shared_ptr<const ThermoFun::Route> route;  ///< how the result was calculated (decision 0030); null if not known
+    double pressure = std::numeric_limits<double>::quiet_NaN();  ///< the pressure used, Pa: the saturation pressure at P = 0
+
+    /// The info of a value calculated from two others: their range and uncertainty notes; route and pressure if the same
+    static auto merge(const Info& l, const Info& r) -> Info
+    {
+        Info out;
+        for (const auto* from : {&l.notes, &r.notes})
+            for (const auto& note : *from)
+                if (note.kind == ThermoFun::Note::Kind::Range || note.kind == ThermoFun::Note::Kind::Uncertainty)
+                    ThermoFun::addNote(out.notes, note);
+        out.route = l.route == r.route ? l.route : nullptr;
+        out.pressure = l.pressure == r.pressure ? l.pressure : std::numeric_limits<double>::quiet_NaN();
+        return out;
+    }
+};
+
+/// The status of a value calculated from others, with their info: what the arithmetic of ThermoScalar gives
+struct StatusInfo
+{
+    StatusMessage sta;
+    Info info;
+};
 
 /// A number that behaves as a double (x.val, x.val = 3.0, x.val += 1, double d = x.val) and can also be called as a
 /// function (x.val(), as autodiff::real and Reaktoro do). It is used for the members val, ddt and ddp of ThermoScalar so
@@ -88,6 +124,9 @@ public:
     /// The status of the themrodyanic property
     StatusMessage sta;
 
+    /// The notes, route and pressure of the value (decision 0029)
+    Info info;
+
     /// Construct a default ThermoScalar instance
     ThermoScalarBase()
     : ThermoScalarBase(0.0) {}
@@ -105,10 +144,14 @@ public:
     ThermoScalarBase(const V& val, const V& ddt, const V& ddp, const V& err, const StatusMessage& sta)
     : val(val), ddt(ddt), ddp(ddp), err(fabs(err)), sta(sta) {}
 
+    /// A value calculated from others, with their info
+    ThermoScalarBase(const V& val, const V& ddt, const V& ddp, const V& err, const StatusInfo& s)
+    : val(val), ddt(ddt), ddp(ddp), err(fabs(err)), sta(s.sta), info(s.info) {}
+
     /// Construct a copy of a ThermoScalar instance.
     template<typename VR>
     ThermoScalarBase(const ThermoScalarBase<VR>& other)
-    : val(other.val), ddt(other.ddt), ddp(other.ddp), err(other.err), sta(other.sta) {}
+    : val(other.val), ddt(other.ddt), ddp(other.ddp), err(other.err), sta(other.sta), info(other.info) {}
 
     /// Assign another ThermoScalarBase instance to this ThermoScalarBase instance.
     template<typename VR>
@@ -119,6 +162,7 @@ public:
         ddp = other.ddp;
         err = other.err;
         sta = other.sta;
+        info = other.info;
         return *this;
     }
 
@@ -130,6 +174,7 @@ public:
         ddp = 0.0;
         err = 0.0;
         sta = {Status::assigned, std::string("")};
+        info = Info{};
         return *this;
     }
 
@@ -146,6 +191,7 @@ public:
             sta = {Status::notdefined, std::string("")};
         else
             sta = {Status::calculated, std::string("")};
+        info = Info::merge(info, other.info);
 
         return *this;
     }
@@ -163,6 +209,7 @@ public:
             sta = {Status::notdefined, std::string("")};
         else
             sta = {Status::calculated, std::string("")};
+        info = Info::merge(info, other.info);
 
         return *this;
     }
@@ -184,6 +231,7 @@ public:
             sta = {Status::notdefined, std::string("")};
         else
             sta = {Status::calculated, std::string("")};
+        info = Info::merge(info, other.info);
 
         return *this;
     }
@@ -207,6 +255,7 @@ public:
             sta = {Status::notdefined, std::string("")};
         else
             sta = {Status::calculated, std::string("")};
+        info = Info::merge(info, other.info);
 
         return *this;
     }
@@ -271,6 +320,9 @@ public:
           error = std::sqrt(error*error + props.err*props.err)), ...);
         sta = status;
         err = error;
+        Info merged;
+        ((merged = Info::merge(merged, props.info)), ...);
+        info.notes = merged.notes;
         return *this;
     }
 
@@ -332,20 +384,16 @@ public:
 
 
 template<typename VL, typename VR>
-inline auto status(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> StatusMessage
+inline auto status(const ThermoScalarBase<VL>& l, const ThermoScalarBase<VR>& r) -> StatusInfo
 {
-    if (l.sta.first == Status::notdefined || r.sta.first == Status::notdefined)
-        return {Status::notdefined, std::string("")};
-    else
-        return {Status::calculated, std::string("")};
+    const Status code = (l.sta.first == Status::notdefined || r.sta.first == Status::notdefined) ? Status::notdefined : Status::calculated;
+    return {{code, std::string("")}, Info::merge(l.info, r.info)};
 }
 template<typename VL>
-inline auto status(const ThermoScalarBase<VL>& l) -> StatusMessage
+inline auto status(const ThermoScalarBase<VL>& l) -> StatusInfo
 {
-    if (l.sta.first == Status::notdefined)
-        return {Status::notdefined, std::string("")};
-    else
-        return {Status::calculated, std::string("")};
+    const Status code = l.sta.first == Status::notdefined ? Status::notdefined : Status::calculated;
+    return {{code, std::string("")}, Info::merge(l.info, Info{})};
 }
 /// The value of a ThermoScalar instance (as val(x) of autodiff)
 template<typename V>
@@ -358,7 +406,6 @@ inline auto val(const ThermoScalarBase<V>& x) -> double
 template<typename V>
 inline auto operator+(const ThermoScalarBase<V>& l) -> ThermoScalarBase<double>
 {
-    l.sta = status(l);
     return l;
 }
 

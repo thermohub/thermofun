@@ -126,13 +126,13 @@ auto makeReactionMethod(const char* id, ReactionInputs inputs, Calculate calcula
 }
 
 /// The pressure term of a constant volume on the incoming properties. Vref: the reference volume in this pass, J/bar. Pref in bar.
-auto constantVolumeTerms(const Reaktoro_::Pass& pass, ThermoPropertiesReactionAD a, const real& Vref, double Pref) -> ThermoPropertiesReactionAD
+auto constantVolumeTerms(const Reaktoro_::Pass& pass, ThermoPropertiesReactionAD a, const real& Vref, double Pref, double R) -> ThermoPropertiesReactionAD
 {
     const real Pbar = pass.P / 1e5; // the pressure of the pass (with its derivative)
     const real VP = a.reaction_volume * (Pbar - Pref);
     a.reaction_gibbs_energy += VP;
     a.reaction_enthalpy += VP;
-    a.log_equilibrium_constant -= Vref * (Pbar - Pref) / (R_CONSTANT * pass.T) / lg_to_ln;
+    a.log_equilibrium_constant -= Vref * (Pbar - Pref) / (R * pass.T) / lg_to_ln;
     a.reaction_entropy = (a.reaction_enthalpy - a.reaction_gibbs_energy) / pass.T;
     a.reaction_internal_energy = a.reaction_enthalpy - Pbar * a.reaction_volume;
     a.reaction_helmholtz_energy = a.reaction_internal_energy - pass.T * a.reaction_entropy;
@@ -148,7 +148,7 @@ auto logKTable(const std::vector<double>& x, const std::vector<double>& y, int o
     if (T < x.front() || T > x.back())
         funError("Temperature outside the table of log K", "T = " + std::to_string(T) + " K, the table covers " + std::to_string(x.front()) + " to " + std::to_string(x.back()) + " K.", __LINE__, __FILE__);
 
-    const double Rln10 = R_CONSTANT * lg_to_ln;
+    const double Rln10 = inputs.R * lg_to_ln;
     const real dVr = Reaktoro_::constant(inputs.reference.reaction_volume);
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
         const real TK = pass.T;
@@ -275,7 +275,7 @@ auto makeReactionConstantVolume(ReactionInputs inputs) -> std::shared_ptr<const 
         [](const ReactionInputs& in, double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) { return constantVolumeProperties(in, T, P, incoming); },
         [](const ReactionInputs& in, double T, double P, const ThermoPropertiesReaction& incoming, const PropertiesSolvent*) {
             const auto pass = passOfIncoming(T, P);
-            return constantVolumeTerms(pass, lift(pass, incoming), seeded(in.reference.reaction_volume, in.seed.dV), in.Pr / 1e5);
+            return constantVolumeTerms(pass, lift(pass, incoming), seeded(in.reference.reaction_volume, in.seed.dV), in.Pr / 1e5, in.R);
         });
 }
 
@@ -399,7 +399,7 @@ auto constantVolumeProperties(const ReactionInputs& reaction, double T, double P
     const auto Vref = reaction.reference.reaction_volume;
 
     auto tpr = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
-        return constantVolumeTerms(pass, lift(pass, tprIn), pass(Vref), Pref);
+        return constantVolumeTerms(pass, lift(pass, tprIn), pass(Vref), Pref, reaction.R);
     });
 
     // the properties that were not changed keep their error and status
@@ -417,7 +417,7 @@ auto constantVolumeProperties(const ReactionInputs& reaction, double T, double P
 
     // first-order propagation of the errors (independent inputs)
     const double dP = P / 1e5 - Pref;
-    const double RT = R_CONSTANT * T;
+    const double RT = reaction.R * T;
     tpr.reaction_gibbs_energy.setError({{1.0, tprIn.reaction_gibbs_energy.err}, {dP, tprIn.reaction_volume.err}});
     tpr.reaction_enthalpy.setError({{1.0, tprIn.reaction_enthalpy.err}, {dP, tprIn.reaction_volume.err}});
     tpr.log_equilibrium_constant.setError({{1.0, tprIn.log_equilibrium_constant.err}, {dP/(RT*lg_to_ln), Vref.err}});

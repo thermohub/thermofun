@@ -22,7 +22,6 @@ enum class PropertyName { G, H, S, Cp, V, U, A, Cv };
 enum class ReactionPropertyName { logK, lnK, dG, dH, dS, dCp, dV, dU, dA };
 
 /// How much a value is trusted
-enum class Quality { Core, Recommended, Supplemental };
 
 /// How a value was obtained
 enum class Origin { Measured, Entered, Calculated, Estimated, Converted };
@@ -74,11 +73,21 @@ enum class StandardPressure
 /// The concentration scale of aqueous solutes
 enum class ConcentrationScale { Molality, MoleFraction, Molarity };
 
-/// The reference of the properties of water
+/// The energy reference of water (decision 0031, row 8 corrected): the data of liquid water that tie the equation of state of
+/// water to the formation values. The two anchors are data, declared on the dataset or the water record and used inside;
+/// the engine never converts between them. The steam tables are a scale, converted both ways.
 enum class WaterReference
 {
-    Geochemical,  ///< the reference of HKF and HGK (1974) at the triple point
-    SteamTables   ///< IAPWS: U and S of liquid water are 0 at the triple point
+    HelgesonKirkham1974,  ///< G of liquid water at 25 degC -237181 J/mol (Helgeson and Kirkham 1974; HKF, SUPCRT92); 0.x word "geochemical"
+    Codata1989,           ///< G of liquid water at 25 degC -237140 J/mol (CODATA 1989, NEA TDB)
+    SteamTables           ///< IAPWS: U and S of liquid water are 0 at the triple point
+};
+
+/// The reference of the properties of ions (decision 0031, row 6; NEA TDB-5 1.6, 1.7.e)
+enum class Ions
+{
+    HydrogenIon,  ///< H+(aq) is 0 at every T and P, and the electron is from the standard hydrogen electrode: G(e-) = 1/2 G(H2, g, p°) - G(H+)
+    None          ///< the records give the values of H+ and e-
 };
 
 // The functions below exist for each enum above.

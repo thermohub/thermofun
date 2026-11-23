@@ -63,6 +63,7 @@ auto propertiesWaterHGKreaktoro(const WaterThermoState& wt) -> PropertiesSolvent
     state.Alpha      = -wt.densityT/wt.density;
     state.Beta       = wt.densityP/wt.density;
     state.dAldT      = -wt.densityTT/wt.density + state.Alpha*state.Alpha;
+    state.Albe       = state.Alpha/state.Beta;  // Pa/K
 //    const auto alphaP = -wt.densityTP/wt.density - alpha*beta;
 //    const auto betaP  =  wt.densityPP/wt.density - beta*beta;
 

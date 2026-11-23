@@ -127,27 +127,27 @@ def test_validate_gives_exit_code_0_for_good_data(capsys):
 
 def test_validate_gives_exit_code_1_for_an_error(tmp_path, capsys):
     bad = tmp_path / "bad.json"
-    bad.write_text(json.dumps(dict(HEAD, substances={"X": {"formula": "Ca", "convention": {"energy_reference": "nonsense"}}})))
+    bad.write_text(json.dumps(dict(HEAD, substances={"X": {"formula": "Ca", "energy_reference": {"elements": "nonsense"}}})))
     assert validate.main([str(bad)]) == 1
     assert "CNV-005" in capsys.readouterr().out
 
 
-# --- the snapshot ---------------------------------------------------------------------------------------------------------
+# --- the summary of an engine ---------------------------------------------------------------------------------------------------------
 
-def test_the_snapshot_names_the_data():
-    s = tf.ThermoEngine(str(LEGACY)).snapshot()
+def test_the_summary_names_the_data():
+    s = tf.ThermoEngine(str(LEGACY)).summary()
     assert s.format_version == "legacy" and s.thermofun_version
     assert len(s.content_hash) == 64 and set(s.content_hash) <= set("0123456789abcdef")
 
 
 def test_the_hash_is_stable_and_follows_the_records():
     a, b = tf.ThermoEngine(str(LEGACY)), tf.ThermoEngine(str(LEGACY))
-    assert a.snapshot().content_hash == b.snapshot().content_hash
+    assert a.summary().content_hash == b.summary().content_hash
     substance = a.database().getSubstance("Quartz")
     substance.setName("Quartz changed")
     a.database().setSubstance(substance)
     a2 = tf.ThermoEngine(a.database())
-    assert a2.snapshot().content_hash != b.snapshot().content_hash
+    assert a2.summary().content_hash != b.summary().content_hash
 
 
 def test_a_v2_file_gives_its_dataset_and_the_implementations():
@@ -155,7 +155,7 @@ def test_a_v2_file_gives_its_dataset_and_the_implementations():
     p = tf.EnginePreferences()
     p.method_implementation = {"HKF88": "gems"}
     e.setPreferences(p)
-    s = e.snapshot()
+    s = e.summary()
     assert s.format_version.startswith("2.") and s.dataset == "minimal" and s.implementations == {"HKF88": "gems"}
 
 
@@ -182,12 +182,12 @@ def item(items, kind):
 
 
 def test_a_substance_that_its_reaction_reproduces_is_consistent():
-    c = item(two_ways().consistencyReport([(T0, P0)]), "substance_vs_reaction")
+    c = item(two_ways().consistencyReport(T0, P0), "substance_vs_reaction")
     assert c.flag == "consistent" and abs(c.delta_G) < 1e-6
 
 
 def test_a_shifted_log_k_is_inconsistent_by_rt_ln10():
-    items = two_ways(shift=0.1).consistencyReport([(T0, P0)])
+    items = two_ways(shift=0.1).consistencyReport(T0, P0)
     c = item(items, "substance_vs_reaction")
     assert c.flag == "inconsistent"
     assert abs(c.delta_G) == pytest.approx(R * T0 * math.log(10) * 0.1, rel=1e-6)
@@ -198,14 +198,14 @@ def test_a_shifted_log_k_is_inconsistent_by_rt_ln10():
 def test_the_threshold_is_an_option():
     options = tf.ConsistencyOptions()
     options.delta_G_threshold = 1e6
-    assert item(two_ways(shift=0.1).consistencyReport([(T0, P0)], options), "substance_vs_reaction").flag == "consistent"
+    assert item(two_ways(shift=0.1).consistencyReport(T0, P0, options), "substance_vs_reaction").flag == "consistent"
 
 
 def test_a_failed_calculation_stays_in_the_report():
     bad = species(-1.0, -1.0, 1.0)
     db = dict(HEAD, substances={"A": bad, "C": dict(species(-1.0, -1.0, 1.0), defining_reaction="R")},
               reactions={"R": {"stoichiometry": {"C": 1, "A": -1, "Missing": -1}, "reaction_properties": {"dG": 0.0, "logK": 0.0}, "methods": [{"method": "ConstantReactionProperties"}]}})
-    items = tf.ThermoEngine(tf.Database(json.dumps(db))).consistencyReport([(T0, P0)])
+    items = tf.ThermoEngine(tf.Database(json.dumps(db))).consistencyReport(T0, P0)
     assert any(i.flag == "not calculated" and i.message for i in items)
 
 

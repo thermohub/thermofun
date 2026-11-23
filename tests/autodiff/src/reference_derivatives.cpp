@@ -149,8 +149,8 @@ int main(int argc, char** argv)
 
                     std::vector<double> values;
                     for (const auto& p : model::MethodCatalog::instance().find("ChurakovGottschalk03", model::OperatesOn::Substance)->parameters)
-                        if (p.constant)
-                            values.push_back(model::builtinConstants("ChurakovGottschalk03")->parameters.at(p.name).value);
+                        if (p.model_parameter)
+                            values.push_back(model::builtinModelParameters("ChurakovGottschalk03")->parameters.at(p.name).value);
                     const cgf::Constants constants(values);
                     cgf::PureFluidDerivatives o;
                     cgf::pureFluid(T, ro, cc, constants, o);

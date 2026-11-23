@@ -38,7 +38,7 @@ auto thermoPropertiesReaction_Vol_fT(real TK, real Pbar, const ReactionInputs& r
     tpr.reaction_entropy -= dGdT;
     tpr.reaction_enthalpy += dG - TK*dGdT;
     tpr.reaction_heat_capacity_cp -= TK*d2GdT2;
-    tpr.ln_equilibrium_constant -= dG / (R_CONSTANT*TK);
+    tpr.ln_equilibrium_constant -= dG / (reaction.R*TK);
     tpr.log_equilibrium_constant = tpr.ln_equilibrium_constant * ln_to_lg;
     tpr.reaction_internal_energy  = tpr.reaction_enthalpy - Pbar*tpr.reaction_volume;
     tpr.reaction_helmholtz_energy = tpr.reaction_internal_energy - TK*tpr.reaction_entropy;

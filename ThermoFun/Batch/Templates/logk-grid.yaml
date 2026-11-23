@@ -2,10 +2,9 @@
 conditions:
   T: {from: 25, to: 500, step: 25, unit: degC}
   P: {values: [500, 1000, 2000, 5000], unit: bar}
-tables:
+results:
   - name: logk
     reactions: []
-    columns:
-      - {property: logK, digits: 3}
-    layout: grid
-    output: logk.csv
+    properties:
+      - {name: logK, digits: 3}
+    output: {file: logk.csv, layout: grid}

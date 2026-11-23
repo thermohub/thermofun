@@ -212,7 +212,7 @@ def test_project_records_read_back():
     again = tf.Database(text)
     assert again.parameterSets() == db.parameterSets()
     assert again.dataSources() == db.dataSources()
-    assert again.methods()["CpPolynomial"].citation == "1998HOL/POW"
+    assert again.methods()["CpPolynomial"].data_sources == ["1998HOL/POW"]
     assert again.thermoDataSet().solvent == "WATER"
 
 
@@ -221,7 +221,7 @@ def test_implementation_interpolation_covariance_and_unknown_keys_read_back():
                 "substances": {"A": {"formula": "Ca", "_mine": 1, "standard_state_properties": {"G": {"value": 1.0, "uncertainty": 1.0}, "H": {"value": 2.0, "uncertainty": 1.0}},
                                      "covariances": [{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [[1.0, 0.5], [0.5, 1.0]]}],
                                      "methods": [{"method": "ConstantCp", "_note": "x"}]}},
-                "reactions": {"R": {"equation": "A = B", "methods": [{"method": "LogKTable", "interpolation": "cubic_spline", "order": 2,
+                "reactions": {"R": {"equation": "A = B", "methods": [{"method": "LogKTable", "interpolation": "cubic_spline", "interpolation_order": 2,
                                                                       "table": {"temperatures": [273.15, 298.15, 373.15, 473.15], "logK": [1.0, 1.1, 1.2, 1.3]}}]}}}
     db = tf.Database(json.dumps(document))
     written = json.loads(tf.Database(db.toYaml()).toJson())
@@ -230,7 +230,7 @@ def test_implementation_interpolation_covariance_and_unknown_keys_read_back():
     assert written["substances"]["A"]["covariances"][0]["matrix"] == [[1.0, 0.5], [0.5, 1.0]]
     assert written["reactions"]["R"]["equation"] == "A = B"
     assert written["reactions"]["R"]["methods"][0]["interpolation"] == "cubic_spline"
-    assert written["reactions"]["R"]["methods"][0]["order"] == 2
+    assert written["reactions"]["R"]["methods"][0]["interpolation_order"] == 2
 
 
 @pytest.mark.parametrize("name, parse", [("data.yaml", False), ("data.yml", False), ("data.json", True)])
@@ -266,7 +266,7 @@ def test_standard_state_convention_is_not_read_and_a_label_with_1atm_sets_the_pr
               "standard_state_properties": {"G": 1}}
     db = tf.Database(json.dumps({"thermohub": "2.0.0-draft.1", "substances": {"A": record}}))
     assert "V2-KEY-003" in {d.code for d in db.loadDiagnostics().all()}
-    assert db.getSubstance("A").record().convention.standard_pressure == tf.StandardPressure.OneAtm
+    assert db.getSubstance("A").record().convention.standard_state.pressure == 101325.0
     assert "standard_state_convention" not in db.toJson(False)
 
 

@@ -14,7 +14,7 @@
 namespace ThermoFun {
 
 /// The molar volume (the reduced volume) of water at T (K) and P (bar), solved with Newton's iterations
-auto waterMolarVolume (real TK, real Pbar, real V0, const ZhangDuanConstants& c) -> real
+auto waterMolarVolume (real TK, real Pbar, real V0, const ZhangDuanModelParameters& c) -> real
 {
     const auto a = c.a;
     const double gamma = c.gamma, RConstant = c.R;
@@ -61,7 +61,7 @@ auto waterMolarVolume (real TK, real Pbar, real V0, const ZhangDuanConstants& c)
 }
 
 // Duan et al 1992a; F = F92*beta, G = F92*gamma
-auto waterFugacityCoeff (real T, real P, real Vr, real V, const ZhangDuanConstants& c) -> real
+auto waterFugacityCoeff (real T, real P, real Vr, real V, const ZhangDuanModelParameters& c) -> real
 {
     const auto a = c.a;
     const double gamma = c.gamma, RConstant = c.R;
@@ -122,7 +122,7 @@ static auto gaussLegendre(int n, std::vector<double>& x, std::vector<double>& w)
     }
 }
 
-auto waterGibbsEnergyDEW(real TK, real Pbar, const ZhangDuanConstants& c) -> real
+auto waterGibbsEnergyDEW(real TK, real Pbar, const ZhangDuanModelParameters& c) -> real
 {
     if (Pbar.val() < 1000.0)
     {
@@ -158,7 +158,7 @@ auto waterGibbsEnergyDEW(real TK, real Pbar, const ZhangDuanConstants& c) -> rea
     return G + integral * 0.1;
 }
 
-auto thermoPropertiesWaterZhangDuan2005(real T, real P, const ZhangDuanConstants& c) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesWaterZhangDuan2005(real T, real P, const ZhangDuanModelParameters& c) -> ThermoPropertiesSubstanceAD
 {
     ThermoPropertiesSubstanceAD tps;
 
@@ -172,7 +172,7 @@ auto thermoPropertiesWaterZhangDuan2005(real T, real P, const ZhangDuanConstants
     const auto V = Vr * c.Vc;
     FugCoef = exp(waterFugacityCoeff(T, P, Vr, V, c));
 
-    auto Gres = log(FugCoef)*R_CONSTANT * (T);
+    auto Gres = log(FugCoef)*R_CODATA1986 * (T);
 
     tps.volume = V / 10;
 
@@ -190,7 +190,7 @@ struct VolumeDerivatives
     real T, P, TT, TP, PP;
 };
 
-static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar, const ZhangDuanConstants& c) -> VolumeDerivatives
+static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar, const ZhangDuanModelParameters& c) -> VolumeDerivatives
 {
     const auto a = c.a;
     const double gamma = c.gamma, RConstant = c.R, waterCriticalTemperature = c.Tc, waterCriticalVolume = c.Vc;
@@ -252,7 +252,7 @@ static auto volumeDerivatives(const real& x, const real& TK, const real& Pbar, c
     return v;
 }
 
-auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass, const ZhangDuanConstants& c) -> PropertiesSolventAD
+auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass, const ZhangDuanModelParameters& c) -> PropertiesSolventAD
 {
     PropertiesSolventAD ps;
 
@@ -281,6 +281,7 @@ auto propertiesWaterZhangDuan2005(const Reaktoro_::Pass& pass, const ZhangDuanCo
     ps.Alpha     = -ps.densityT/ps.density;
     ps.Beta      = ps.densityP/ps.density; // 1/Pa
     ps.dAldT     = -ps.densityTT/ps.density + ps.Alpha*ps.Alpha;
+    ps.Albe      = ps.Alpha/ps.Beta;  // Pa/K
 
     return ps;
 }

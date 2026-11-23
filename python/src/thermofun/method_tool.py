@@ -1,20 +1,20 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 ThermoFun contributors
 
-"""Makes the expression of a symbolic (Tier-1) method record from its source. It needs SymPy.
+"""Makes the expression of a symbolic method record from its formula. It needs SymPy.
 
     python -m thermofun.method_tool build  record.yaml [-o out.yaml]
     python -m thermofun.method_tool check  record.yaml
     python -m thermofun.method_tool new    cp
 
 A file is one Method record, or a document with a `methods` mapping. `build` writes `expression`, `generator` and
-`source_hash` next to `source`. `check` writes nothing: it exits with 1 if the expression is not the one the source gives,
-if the source changed after the build, or if a test case of the record fails.
+`formula_hash` next to `formula`. `check` writes nothing: it exits with 1 if the expression is not the one the formula gives,
+if the formula changed after the build, or if a test case of the record fails.
 
-The source forms for a substance are `cp`, `cp_increment`, `volume`, `gibbs`, `gibbs_increment`, `shomate`
+The forms of a formula for a substance are `cp`, `cp_increment`, `volume`, `gibbs`, `gibbs_increment`, `shomate`
 (the parameters A to G of the NIST WebBook) and `nasa7` (the parameters a1 to a7 of the NASA 7-term polynomials).
 Each piece in T has its own parameter values in the substance.
-The source forms for a reaction (`operates_on: reaction`) are `logk` (log K as a function of T and P), `drcp` (the heat
+The forms of a formula for a reaction (`operates_on: reaction`) are `logk` (log K as a function of T and P), `drcp` (the heat
 capacity of reaction as a function of T), `vant_hoff` (constant enthalpy of reaction, no expression) and `dg` (dG as written).
 """
 
@@ -49,9 +49,9 @@ def _generator():
         return "thermofun.method_tool build"
 
 
-def source_hash(source):
-    """The hash of the source block, as written in `source_hash`."""
-    text = json.dumps(source, sort_keys=True, separators=(",", ":"))
+def formula_hash(formula):
+    """The hash of the formula block, as written in `formula_hash`."""
+    text = json.dumps(formula, sort_keys=True, separators=(",", ":"))
     return "sha256:" + hashlib.sha256(text.encode()).hexdigest()
 
 
@@ -84,7 +84,7 @@ def _integrate(expr, variable, lower, upper):
     dummy = sympy.Symbol("u_", positive=True)
     result = sympy.integrate(expr.subs(variable, dummy), (dummy, lower, upper))
     if result.has(sympy.Integral):
-        raise BuildError(f"SymPy cannot integrate {expr}. Write the source in the form gibbs or gibbs_increment, "
+        raise BuildError(f"SymPy cannot integrate {expr}. Write the formula in the form gibbs or gibbs_increment, "
                          "or the method needs a coded (Tier 2) implementation.")
     return result
 
@@ -151,18 +151,18 @@ def _magnetic_ihj(symbols, record):
 
 
 def _reaction_dg(record, symbols):
-    """The pair ("dG", expression of dG) for the source of a method of a reaction."""
+    """The pair ("dG", expression of dG) for the formula of a method of a reaction."""
     sympy = _sympy()
-    source = record.get("source") or {}
-    form = source.get("form")
+    formula = record.get("formula") or {}
+    form = formula.get("form")
     if form not in REACTION_FORMS:
-        raise BuildError(f"the source form '{form}' is not for a reaction. Use one of: {', '.join(REACTION_FORMS)}")
+        raise BuildError(f"the form '{form}' is not for a reaction. Use one of: {', '.join(REACTION_FORMS)}")
     T, Tr = symbols["T"], symbols["Tr"]
     if form == "vant_hoff":
         return "dG", symbols["dHr"] - T * (symbols["dHr"] - symbols["dGr"]) / Tr
-    if "expression" not in source:
-        raise BuildError("the source needs an expression")
-    expr = _parse(source["expression"], symbols)
+    if "expression" not in formula:
+        raise BuildError("the formula needs an expression")
+    expr = _parse(formula["expression"], symbols)
     if form == "dg":
         return "dG", expr
     if form == "logk":
@@ -173,16 +173,16 @@ def _reaction_dg(record, symbols):
 
 
 def _gibbs(record, symbols):
-    """The pair (key, expression of G or of the increment of G) for the source of the record."""
+    """The pair (key, expression of G or of the increment of G) for the formula of the record."""
     sympy = _sympy()
     if _of_reaction(record):
         return _reaction_dg(record, symbols)
-    source = record.get("source") or {}
-    form = source.get("form")
-    if "segments" in source:
-        raise BuildError("pieces in T (source.segments) are not supported yet")
+    formula = record.get("formula") or {}
+    form = formula.get("form")
+    if "segments" in formula:
+        raise BuildError("pieces in T (formula.segments) are not supported yet")
     if form not in FORMS:
-        raise BuildError(f"the source form '{form}' is not supported. Use one of: {', '.join(FORMS)}")
+        raise BuildError(f"the form '{form}' is not supported. Use one of: {', '.join(FORMS)}")
     if form == "shomate":
         return "G", _shomate(symbols, record)
     if form == "nasa7":
@@ -191,9 +191,9 @@ def _gibbs(record, symbols):
         return "G", _sgte(symbols, record)
     if form == "magnetic_ihj":
         return "G_increment", _magnetic_ihj(symbols, record)
-    if "expression" not in source:
-        raise BuildError("the source needs an expression")
-    expr = _parse(source["expression"], symbols)
+    if "expression" not in formula:
+        raise BuildError("the formula needs an expression")
+    expr = _parse(formula["expression"], symbols)
     T, P, Tr, Pr = (symbols[n] for n in ("T", "P", "Tr", "Pr"))
     if form == "cp":
         dH = _integrate(expr, T, Tr, T)
@@ -255,7 +255,7 @@ def _simplified(expr, symbols, record):
 
 
 def build(record):
-    """A copy of the Method record with `expression`, `generator` and `source_hash` made from `source`."""
+    """A copy of the Method record with `expression`, `generator` and `formula_hash` made from `formula`."""
     sympy = _sympy()
     if record.get("kind") != "symbolic":
         raise BuildError("the record is not a symbolic method (kind: symbolic)")
@@ -267,7 +267,7 @@ def build(record):
     else:
         out["expression"] = {key: sympy.sstr(_simplified(g, symbols, record))}
     out["generator"] = _generator()
-    out["source_hash"] = source_hash(record["source"])
+    out["formula_hash"] = formula_hash(record["formula"])
     return out
 
 
@@ -283,21 +283,21 @@ def check(record):
         built = build(record)
     except BuildError as error:
         return [str(error)]
-    if record.get("source_hash") and record["source_hash"] != built["source_hash"]:
-        problems.append("the source changed after the expression was made (V2-SYM-003): run build")
+    if record.get("formula_hash") and record["formula_hash"] != built["formula_hash"]:
+        problems.append("the formula changed after the expression was made (V2-SYM-003): run build")
     written, made = _pieces(record.get("expression")), _pieces(built["expression"])
     key = next(iter(made[0]))
     if len(written) != len(made) or any(key not in w for w in written):
         problems.append(f"the record has not the expression for {key} of each piece: run build")
         return problems
-    # the written expression and the one of the source must give the same numbers
+    # the written expression and the one of the formula must give the same numbers
     point = {"T": 450.0, "P": 3e7, "reference": {"Gr": -1e6, "Hr": -1.1e6, "Sr": 80.0, "Cpr": 90.0, "Vr": 3e-5, "dGr": -1e4, "dHr": -2e4, "dSr": 30.0, "dCpr": 90.0, "dVr": 3e-5},
              "parameters": {n: 1.5 for n in (record.get("parameter_definitions") or {})}}
     for i, (w, m) in enumerate(zip(written, made)):
         a, b = properties(w[key], record, point), properties(m[key], record, point)
         for name in a:
             if abs(a[name] - b[name]) > 1e-9 * max(1.0, abs(b[name])):
-                problems.append(f"the expression of piece {i} and the source differ in {name}")
+                problems.append(f"the expression of piece {i} and the formula differ in {name}")
     # the test cases, with the generated form; a case of a method with pieces names its piece
     for i, case in enumerate(record.get("tests") or []):
         got = properties(written[case.get("piece", 0)][key], record, case)
@@ -326,19 +326,21 @@ _TEMPLATES = {
 
 
 def new(form):
-    """A template Method record for a source form."""
+    """A template Method record for a form of formula."""
     if form not in _TEMPLATES:
-        raise BuildError(f"the source form '{form}' is not supported. Use one of: {', '.join(FORMS + REACTION_FORMS)}")
+        raise BuildError(f"the form '{form}' is not supported. Use one of: {', '.join(FORMS + REACTION_FORMS)}")
     expression, parameters = _TEMPLATES[form]
     if form in REACTION_FORMS:
-        return {"kind": "symbolic", "tier": 1, "operates_on": "reaction", "contributes_to": ["logK", "dG", "dH", "dS", "dCp", "dV"],
+        return {"kind": "symbolic", "operates_on": "reaction", "contributes_to": {p: "sets" for p in ("logK", "dG", "dH", "dS", "dCp", "dV")},
                 "parameter_definitions": {k: {"unit": v} for k, v in parameters.items()},
-                "source": {"form": form, "expression": expression} if expression else {"form": form}}
-    source = {"form": form} if form in ("shomate", "nasa7", "sgte", "magnetic_ihj") else {"form": form, "expression": expression}
-    return {"kind": "symbolic", "tier": 1, "operates_on": "substance",
-            "contributes_to": ["G", "H", "S", "Cp"] + (["V"] if form in ("volume", "gibbs_increment") else []),
+                "formula": {"form": form, "expression": expression} if expression else {"form": form}}
+    formula = {"form": form} if form in ("shomate", "nasa7", "sgte", "magnetic_ihj") else {"form": form, "expression": expression}
+    # a base form gives the whole value (sets), an increment adds to the value before it (decision 0031, row 11)
+    word = "adds" if form in ("cp_increment", "volume", "gibbs_increment", "magnetic_ihj") else "sets"
+    return {"kind": "symbolic", "operates_on": "substance",
+            "contributes_to": {p: word for p in ["G", "H", "S", "Cp"] + (["V"] if form in ("volume", "gibbs_increment") else [])},
             "parameter_definitions": {k: {"unit": v} for k, v in parameters.items()},
-            "source": source}
+            "formula": formula}
 
 
 def _load(path):

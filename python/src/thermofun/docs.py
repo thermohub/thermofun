@@ -5,8 +5,8 @@
 
     python -m thermofun.docs generate docs/reference [--check] [--data Resources/databases]
 
-The pages are methods/index.md, one page for each method, diagnostics.md and engine-preferences.md. The examples come from the
-records of the bundled databases. With --check nothing is written: the command compares the files and exits with 1 if one differs.
+The pages are methods/index.md, one page for each method, diagnostics.md, engine-preferences.md, format-v2-schema.md, and
+vocabulary.md with ../glossary.md from docs/reference/vocabulary.yaml. The examples come from the records of the bundled databases. With --check nothing is written: the command compares the files and exits with 1 if one differs.
 """
 
 import argparse
@@ -21,7 +21,25 @@ import thermofun as tf
 DATA = "Resources/databases"
 # examples from published sources, written by hand and checked by pytests/test_method_examples.py
 EXAMPLES = "docs/reference/method-examples.yaml"
+# the words of ThermoFun: the allowed words and the glossary (decisions 0030-0032)
+VOCABULARY = "docs/reference/vocabulary.yaml"
 
+
+
+def _range_text(r):
+    """The published range of a model, as on its page: outside of it a value is calculated with a note (decision 0029)."""
+    def bounds(low, high, factor, unit):
+        if low is not None and high is not None:
+            return "%s to %s %s" % (_number(low * factor), _number(high * factor), unit)
+        if high is not None:
+            return "up to %s %s" % (_number(high * factor), unit)
+        return "from %s %s" % (_number(low * factor), unit)
+    parts = []
+    if r["t_min"] is not None or r["t_max"] is not None:
+        parts.append("T " + bounds(r["t_min"], r["t_max"], 1.0, "K"))
+    if r["p_min"] is not None or r["p_max"] is not None:
+        parts.append("P " + bounds(r["p_min"], r["p_max"], 1e-5, "bar"))
+    return ", ".join(parts) + (" (%s)" % r["source"] if r["source"] else "") + "; outside of it a value is calculated with a note"
 
 def published_examples(path=EXAMPLES):
     """For each method id: the hand-written example of docs/reference/method-examples.yaml."""
@@ -235,10 +253,13 @@ def method_page(spec, example, same=(), published=None, data=DATA):
     lines += ["| | |", "|---|---|",
               "| Works on | %s |" % spec["operates_on"],
               "| Kind | %s |" % ("base method" if spec["base"] else "increment"),
+              "| Contributes to | %s |" % (", ".join("%s %s" % (k, v) for k, v in spec["contributes_to"].items()) or "nothing"),
               "| Classes | %s |" % (", ".join(spec["classes"]) or "any"),
               "| Needs | %s |" % needs,
               "| Temperature segments | %s |" % ("yes" if spec["piecewise"] else "no"),
               "| Has code | %s |" % ("yes" if spec["implemented"] else "no: the name is known, and the method does nothing")]
+    if spec.get("range"):
+        lines.append("| Range of the model | %s |" % _range_text(spec["range"]))
     if spec["native_convention"]:
         lines.append("| Convention of its results | %s |" % spec["native_convention"])
     if spec["legacy_names"]:
@@ -250,9 +271,9 @@ def method_page(spec, example, same=(), published=None, data=DATA):
         lines += ["## Implementations", "",
                   "%s. The default is `%s`. Use another only to reproduce the results of that code." %
                   (", ".join("`%s`" % i for i in spec["implementations"]), spec["implementations"][0]), ""]
-    own = [p for p in spec["parameters"] if not p["constant"] and p["used"]]
-    unused = [p["name"] for p in spec["parameters"] if not p["constant"] and not p["used"]]
-    built_in = [p["name"] for p in spec["parameters"] if p["constant"]]
+    own = [p for p in spec["parameters"] if not p["model_parameter"] and p["used"]]
+    unused = [p["name"] for p in spec["parameters"] if not p["model_parameter"] and not p["used"]]
+    built_in = [p["name"] for p in spec["parameters"] if p["model_parameter"]]
     if own:
         lines += ["## Parameters", "", "| Name | Unit of the source | SI unit | Required | Default | Description |", "|---|---|---|---|---|---|"]
         for p in own:
@@ -265,21 +286,29 @@ def method_page(spec, example, same=(), published=None, data=DATA):
                   "Not read: %s. Legacy files write these coefficients of log K(T) and dCp(T) with every method of log K, as GEMS calculated "
                   "them; a file can keep them, and they change nothing." % ", ".join(_ranges(unused)), ""]
     if built_in:
-        lines += ["## Built-in coefficients", "", "A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
+        lines += ["## Model parameters", "", "Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. "
                   "A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.", ""]
-        for s in spec["constant_sets"]:
+        for s in spec["model_parameter_sets"]:
             if s["implementation"]:
                 lines += ["Implementation `%s`." % s["implementation"], ""]
             if not s["default"]:
                 lines += ["Variant `%s`: a record chooses it with `parameter_set`." % s["symbol"], ""]
-            lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % s["reference"], ""]
+            lines += ["Units of the values: %s. They are not converted." % s["formula_units"], "", s["description"], "", "Source: %s." % "; ".join(s["data_sources"]), ""]
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
-    if spec.get("auxiliary_outputs"):
-        lines += ["## Named outputs", "",
-                  "Besides G, H, S, Cp and V, the method gives these terms and intermediate functions of the model, in SI units, on request: "
-                  "`engine.auxiliaryOutputs(symbol, T, P)` gives them as rows (the column is `%s:<name>`), a table setup takes them as columns with the same name, and `engine.explain` has them for each method." % spec["id"], "",
+    if spec.get("terms"):
+        lines += ["## Terms", "",
+                  "Named parts of the contribution of the method to one property, in SI units. The route of every result has them "
+                  "(`result.info.route`, decision 0030), `engine.routeTable(T, P, symbol, \"terms\")` gives them as rows (the column is `%s:<name>`), "
+                  "and a batch calculation takes them as properties `terms:%s:<name>`." % (spec["id"], spec["id"]), "",
+                  "| Name | Part of | SI unit | What it is |", "|---|---|---|---|"]
+        lines += ["| `%s` | %s | %s | %s |" % (o["name"], o["property"], o["si_unit"], o["description"]) for o in spec["terms"]]
+        lines += [""]
+    if spec.get("variables"):
+        lines += ["## Variables", "",
+                  "Quantities of the model that the terms come from, not summed, in SI units: on the route of every result, "
+                  "`engine.routeTable(T, P, symbol, \"variables\")` (the column is `%s:<name>`), and the properties `variables:%s:<name>` of a batch calculation." % (spec["id"], spec["id"]), "",
                   "| Name | SI unit | What it is |", "|---|---|---|"]
-        lines += ["| `%s` | %s | %s |" % (o["name"], o["si_unit"], o["description"]) for o in spec["auxiliary_outputs"]]
+        lines += ["| `%s` | %s | %s |" % (o["name"], o["si_unit"], o["description"]) for o in spec["variables"]]
         lines += [""]
     lines += ["## Example", ""]
     if published and not example:
@@ -353,15 +382,25 @@ def diagnostics_page():
 def _options(cls, words):
     lines = ["| Option | Default | Valid words | Description |", "|---|---|---|---|"]
     default = cls()
-    for name in sorted(n for n in dir(default) if not n.startswith("_")):
-        attribute = getattr(cls, name)
-        value = getattr(default, name)
-        if callable(value):
-            continue
-        shown = str(value).split(".")[-1] if name in words else repr(value)
-        doc = (attribute.__doc__ or "").strip().splitlines()
-        lines.append("| %s | %s | %s | %s |" % (name, _cell(shown), ", ".join(words.get(name, [])), _cell(doc[0] if doc else "")))
-    return lines
+    groups = (tf.StandardState, tf.EnergyReferences)
+
+    def rows(owner, prefix):
+        out = []
+        for name in sorted(n for n in dir(owner) if not n.startswith("_")):
+            attribute = getattr(type(owner), name)
+            value = getattr(owner, name)
+            if callable(value):
+                continue
+            key = prefix + name
+            if isinstance(value, groups):   # a group of the conventions: one row for each field
+                out += rows(value, key + ".")
+                continue
+            shown = str(value).split(".")[-1] if key in words else repr(value)
+            doc = (attribute.__doc__ or "").strip().splitlines()
+            out.append("| %s | %s | %s | %s |" % (key, _cell(shown), ", ".join(words.get(key, [])), _cell(doc[0] if doc else "")))
+        return out
+
+    return lines + rows(cls(), "")
 
 
 def preferences_page():
@@ -404,7 +443,7 @@ def schema_page():
     s = schema.schema()
     defs = s["$defs"]
     order = ["document", "single_record", "thermodataset", "element", "substance", "reaction", "method_application", "quantity",
-             "uncertainty", "convention", "reference_conditions", "applicability", "units", "covariances", "parameters",
+             "uncertainty", "standard_state", "energy_reference", "reference_conditions", "applicability", "units", "covariances", "parameters",
              "method_definition", "parameter_set", "data_source"]
     lines = ["# The JSON Schema of the v2 format", "", NOTICE, "",
              "The schema is `ThermoFun/IO/V2/thermohub.schema.json` (JSON Schema 2020-12), also installed with the headers. "
@@ -430,14 +469,46 @@ def schema_page():
     return "\n".join(lines)
 
 
+def vocabulary(path=VOCABULARY):
+    """The words of docs/reference/vocabulary.yaml."""
+    import yaml  # only to generate the pages
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def vocabulary_page(words):
+    allowed = words["allowed_words"]
+    lines = ["# Allowed words", "", NOTICE + " The words are in `docs/reference/vocabulary.yaml`.", "", allowed["intro"].strip(), ""]
+    for section in allowed["sections"]:
+        lines += ["## " + section["title"], "", "| Field | Allowed words |", "|---|---|"]
+        for field in section["fields"]:
+            name = field["field"] if "`" in field["field"] else "`%s`" % field["field"]
+            lines.append("| %s | %s |" % (name, _cell(field["words"])))
+        lines.append("")
+        if section.get("after"):
+            lines += [section["after"].strip(), ""]
+    return "\n".join(lines)
+
+
+def glossary_page(words):
+    glossary = words["glossary"]
+    lines = ["# Glossary", "", NOTICE + " The words are in `docs/reference/vocabulary.yaml`.", "", glossary["intro"].strip(), "",
+             "| Word | Meaning | Term of the standard | Source |", "|---|---|---|---|"]
+    for w in sorted(glossary["words"], key=lambda w: w["word"].lower()):
+        lines.append("| %s | %s | %s | %s |" % (w["word"], _cell(w["meaning"]), _cell(w.get("standard", "")), _cell(w["source"])))
+    lines.append("")
+    return "\n".join(lines)
+
+
 def pages(data=DATA):
     """The files as a dictionary: path relative to the folder of the reference -> text."""
     catalog = list(tf.methods.catalog())  # the order of the catalog gives the order of the groups
     specs = [s for s in catalog if not s["same_as"]]  # another name of a method: a note on the page of that method
     found = examples(data)
     written = published_examples()
+    words = vocabulary()
     out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
-           "format-v2-schema.md": schema_page()}
+           "format-v2-schema.md": schema_page(), "vocabulary.md": vocabulary_page(words), "../glossary.md": glossary_page(words)}
     for s in specs:
         out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]], written.get(s["id"]), data)
     for g, members in groups(specs).items():

@@ -22,7 +22,8 @@ OPTIMB = [(300, 500, -0.001681),     # in region II: f is used
 
 def engine(implementation):
     water = {"formula": "H2O@", "class": "water_solvent", "aggregate_state": "aqueous", "standard_state_properties": {"G": -237181.0},
-             "methods": [{"method": "WaterHGK84", "implementation": implementation}, {"method": "JohnsonNorton91", "implementation": implementation}]}
+             "methods": ([{"method": "WaterLVS83"}] if implementation == "gems" else [])
+                        + [{"method": "WaterHGK84", "implementation": implementation}, {"method": "JohnsonNorton91", "implementation": implementation}]}
     na = {"formula": "Na+", "charge": 1, "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": {"G": -261881.0, "S": 58.4},
           "methods": [{"method": "HKF88", "implementation": implementation, "units": {"energy": "cal", "pressure": "bar"},
                        "parameters": {"a1": 0.1839, "a2": -228.5, "a3": 3.256, "a4": -27260, "c1": 18.18, "c2": -29810, "omega": 33060}}]}
@@ -30,7 +31,7 @@ def engine(implementation):
 
 
 def g(e, t, p):
-    return e.auxiliaryOutputs("Na+", t + 273.15, p * 1e5)[0]["HKF88:g"]
+    return e.routeTable(t + 273.15, p * 1e5, "Na+", "variables")[0]["HKF88:g"]
 
 
 @pytest.mark.parametrize("implementation", ["reaktoro", "gems"])
@@ -54,7 +55,7 @@ def test_the_derivatives_of_g_follow_g_on_both_sides_of_355_c(implementation):
     e = engine(implementation)
     for t in (350.0, 360.0):
         T, P, h = t + 273.15, 300e5, 1e-3
-        a = e.auxiliaryOutputs("Na+", T, P)[0]
+        a = e.routeTable(T, P, "Na+", "variables")[0]
         dG_dT = (e.thermoPropertiesSubstance(T + h, P, "Na+").gibbs_energy.val - e.thermoPropertiesSubstance(T - h, P, "Na+").gibbs_energy.val) / (2 * h)
         assert dG_dT == pytest.approx(-e.thermoPropertiesSubstance(T, P, "Na+").entropy.val, rel=1e-6), t
         assert a["HKF88:g"] < 0.0
@@ -68,7 +69,7 @@ def rho(e, T, P):
 def test_g_is_held_below_350_kg_per_m3(implementation):
     e = engine(implementation)
     for T in (673.15, 873.15, 1073.15):
-        steam = [e.auxiliaryOutputs("Na+", T, P)[0] for P in (1e5, 1e7)]
+        steam = [e.routeTable(T, P, "Na+", "variables")[0] for P in (1e5, 1e7)]
         assert rho(e, T, 1e7) < 350.0
         assert steam[0]["HKF88:g"] == pytest.approx(steam[1]["HKF88:g"], rel=1e-12)   # not a function of P
         assert -0.2 < steam[0]["HKF88:g"] < 0.0 and steam[0]["HKF88:re"] > 1.7
@@ -77,8 +78,8 @@ def test_g_is_held_below_350_kg_per_m3(implementation):
     for _ in range(60):
         mid = (lo + hi) / 2
         lo, hi = (mid, hi) if rho(e, 673.15, mid) < 350.0 else (lo, mid)
-    below = e.auxiliaryOutputs("Na+", 673.15, lo * (1 - 1e-7))[0]["HKF88:g"]
-    above = e.auxiliaryOutputs("Na+", 673.15, hi * (1 + 1e-7))[0]["HKF88:g"]
+    below = e.routeTable(673.15, lo * (1 - 1e-7), "Na+", "variables")[0]["HKF88:g"]
+    above = e.routeTable(673.15, hi * (1 + 1e-7), "Na+", "variables")[0]["HKF88:g"]
     assert below == pytest.approx(above, abs=1e-5)
 
 

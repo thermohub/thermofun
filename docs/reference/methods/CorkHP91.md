@@ -10,6 +10,7 @@ Source: Holland and Powell (1991).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, S adds, Cp adds, V sets |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -32,9 +33,9 @@ Source: Holland and Powell (1991).
 | k2 | 1 | 1 | no |  | interaction parameter k2 |
 | k3 | 1 | 1 | no |  | interaction parameter k3 |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, P: kbar, V: kJ/kbar. They are not converted.
 

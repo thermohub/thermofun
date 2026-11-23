@@ -1,0 +1,285 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 ThermoFun contributors
+#
+# The words of ThermoFun (decisions 0030, 0031, 0032): the words of the data (the v2 format) with the term of the standard
+# and its source, and the words of the software. `python -m thermofun.docs generate docs/reference` writes from this file
+# docs/reference/vocabulary.md (the allowed words) and docs/glossary.md (the meanings). pytests/test_vocabulary_page.py checks
+# the allowed words against the library and the schema.
+#
+# Sources: NEA TDB-1, -3, -4, -5 (the guidelines of the NEA Thermochemical Database project, TDB-5 = Grenthe et al. 2013),
+# IUPAC GB4 (the Green Book, 4th ed.), ISO 80000-5, GUM (JCGM 100), CODATA 1989 (Cox et al.), the decisions of ThermoFun.
+
+allowed_words:
+  intro: >-
+    Some fields of a record take one word of a fixed list, for example `class: component` or `aggregate_state: crystal`.
+    A word that is not in the list gives the warning `V2-VOC-001`, with the nearest word (`Did you mean "crystal"?`), and
+    the value `other` is used. Capitals and `-` for `_` are accepted.
+  sections:
+    - title: Substance
+      fields:
+        - field: class
+          words: "`component` (also `condensed_species`; see below), `gas_fluid`, `aqueous_solute`, `water_solvent` (also `solvent`), `surface_species`, `site_moiety`, `other` (default)"
+          check: {schema: substance.class}
+        - field: aggregate_state
+          words: "`gas`, `liquid`, `glass`, `crystal` (also `crystalline`), `aqueous`, `surface`, `ion_exchange`, `plasma`, `solid`, `condensed`, `fluid`, `liquid_crystal`, `amorphous_solid`, `monomeric`, `polymeric`, `solid_solution`, `other` (default)"
+          check: {schema: substance.aggregate_state}
+        - field: preferred_property_source
+          words: "`direct` (the methods of the record), `reaction` (the defining reaction), `reactants`, `record`"
+          check: {options: property_source}
+      after: |
+        ### What `class` means
+
+        The class says which family of rules ThermoFun applies to a substance (for example, the methods for aqueous species need the solvent), and each class has its standard state. The aggregate state says only the state of matter. A substance has both.
+
+        | `class` | What it is | Standard state | Examples |
+        |---|---|---|---|
+        | `component` (or `condensed_species`) | A component of a solid, a solid solution, a melt or another condensed phase: the substances that are none of the other classes. The name comes from the old format, where it meant a component of a phase. | the pure phase at p° | calcite, quartz, a glass, a melt end member |
+        | `gas_fluid` | A gas or a fluid species. | the ideal gas at p° | CO2(g), H2O(g) |
+        | `aqueous_solute` | A species dissolved in the solvent. It is not a `component`, although it is a component of the aqueous phase. | the ideal-dilute solution at m° = 1 mol/kg (or c°, x°) and p° | Ca+2, NaCl(aq) |
+        | `water_solvent` (or `solvent`) | The solvent. Today only water; a solvent other than water is not implemented. | the pure phase at p° | H2O@ |
+        | `surface_species` | A species on a surface. | as a solute, on the molality scale, at p° | |
+        | `site_moiety` | A site of a solid solution. | none of its own: part of the end members | |
+        | `other` | Not said. | | |
+
+        The words in brackets are accepted when a file is read, and the record is written with the first word, the word of the format. The class and the aggregate state do not decide how a record is calculated: its methods do ([How methods combine](how-methods-combine.md)).
+    - title: Element
+      fields:
+        - field: class
+          words: "`element`, `charge`, `other`"
+    - title: Conventions
+      fields:
+        - field: standard_state.pressure
+          words: "`1bar` (default), `1atm`, or any pressure"
+        - field: standard_state.concentration_scale
+          words: "`molality` (default), `molarity`, `mole_fraction` (also `amount_concentration`, `amount_fraction`)"
+          check: {options: standard_state.concentration_scale}
+        - field: energy_reference.elements
+          words: "`benson_helgeson` (default), `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K`"
+          check: {options: energy_reference.elements}
+        - field: energy_reference.water
+          words: "`helgeson_kirkham_1974` (default), `codata_1989` (the anchors, data of water), `steam_tables` (a scale)"
+          check: {options: energy_reference.water}
+        - field: energy_reference.ions
+          words: "`hydrogen_ion` (default), `none`"
+          check: {options: energy_reference.ions}
+      after: "See [Conventions](conventions.md) for what each word means."
+    - title: Methods and tables
+      fields:
+        - field: "`operates_on` of a method"
+          words: "`substance`, `reaction`"
+        - field: "`kind` of a method"
+          words: "`symbolic`, `reference`, `composite`"
+        - field: "`contributes_to` of a method"
+          words: "`sets` (the whole value), `adds` (an increment to the value before), `uses` (an input only); a property not named is not touched"
+        - field: "`interpolation` of a table of values"
+          words: "`lagrange`, `cubic_spline` (also `spline`), `bilinear`"
+        - field: "`status` of a dataset"
+          words: "`draft`, `published`"
+      after: "The methods that a record can use are in the [list of methods](methods/index.md), the units in [Units](units.md), and the codes of the warnings in [Diagnostics](diagnostics.md)."
+    - title: Results and batch calculations
+      fields:
+        - field: "`by` of a route"
+          words: "`methods`, `reaction`, `reactants`, `water`, `reference`, `hydrogen_ion`, `hydrogen_electrode`"
+        - field: "`role` of a need of a route"
+          words: "`solvent`, `defining_reaction`, `reactant`"
+        - field: "`what` of a conversion of a route"
+          words: "`convention`, `gas_options`, `fallback`, `rounding`"
+        - field: "part of `routeTable`"
+          words: "`contribution` (default), `terms`, `variables`"
+        - field: "`show` of a property of a batch result"
+          words: "`value` (default), `uncertainty`, `ddt`, `ddp`, `status`"
+        - field: "`points` of the conditions"
+          words: "`grid` (default), `pairs`"
+        - field: "`vary_first` of the conditions"
+          words: "`P` (default), `T`"
+        - field: "`layout` of the output"
+          words: "`long` (default), `wide`, `grid`"
+        - field: "`rows_by` of the output"
+          words: "`substance` (default), `condition`"
+        - field: "`provenance` of the output"
+          words: "`header` (default), `file`, `none`"
+      after: "See [Results](results.md), [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md) and [Batch setups](batch.md)."
+
+glossary:
+  intro: >-
+    Each word has one meaning in these pages. The source is the standard that defines the word (NEA TDB guidelines, IUPAC
+    Green Book GB4, ISO 80000-5, GUM, CODATA), or ThermoFun for a word of the software.
+  words:
+    - word: Base method
+      meaning: A method that gives all the properties of a record. A record has one.
+      source: ThermoFun
+    - word: Batch calculation
+      meaning: Many records at many conditions at once, from a batch setup. `tf.batch(setup)` gives the results, one result table for each entry of `results`.
+      source: ThermoFun
+    - word: Batch setup
+      meaning: "What a batch calculation does, in four blocks: `database` and `engine`, `conditions`, `results`, `output`. A dict, a YAML file or a `BatchSetup`."
+      source: ThermoFun
+    - word: Batch template
+      meaning: A file with some blocks of a batch setup. A **fragment** has one block only, such as the conditions. `blank` has a placeholder `<...>` for each value to give.
+      source: ThermoFun
+    - word: Canonical convention
+      meaning: The convention that the engine calculates in. `benson_helgeson`, molality, 1 bar, `hydrogen_ion`, and the anchor of water of the dataset.
+      source: ThermoFun
+    - word: Catalog
+      meaning: The list of all methods of the library, with their parameters, model parameters, terms and variables. `tf.methods.catalog()` gives it.
+      source: ThermoFun
+    - word: Coefficient
+      meaning: The multiplier of a term in a formula (the Cp coefficients a, b, c), and a part of the name of some physical quantities (activity coefficient). Not a value of a model (that is a model parameter).
+      source: NEA TDB-4
+    - word: Constant
+      meaning: A physical constant, such as R, F or NA. The engine option `physical_constants` chooses the set.
+      standard: fundamental physical constant
+      source: CODATA
+    - word: Contributes to
+      meaning: "What a method does to each property of a record: `sets` the whole value, `adds` an increment, or `uses` it as an input. The page of each method gives it."
+      source: ThermoFun
+    - word: Contribution
+      meaning: What one method adds to (or replaces in) G, H, S, Cp, V of a result. The result is the sum of the contributions and the changes of the conversions.
+      source: ThermoFun
+    - word: Conversion
+      meaning: A change after the source of the values, on the route of a result. A convention (a method in another convention, the conventions of the results), an option of gases, the fallback to the values of the record, the rounding to the uncertainty.
+      source: ThermoFun
+    - word: Convention
+      meaning: How values are defined. The standard state (standard pressure, concentration scale) and the energy reference (of the elements, of water, of the ions).
+      source: ThermoFun
+    - word: Data source
+      meaning: Where a record comes from. `data_sources` is a list of reference codes of the NEA form (`92GRE/FUG`) or texts.
+      standard: reference code
+      source: NEA TDB-5 1.11
+    - word: Dataset
+      meaning: The information about a database. Symbol, name, version, conventions. The key is `thermodataset`.
+      source: ThermoFun
+    - word: Defining reaction
+      meaning: The reaction that gives the properties of a substance.
+      source: ThermoFun
+    - word: Derivation
+      meaning: How a value of a record was obtained (`quantity.derivation`), whatever its origin.
+      source: ThermoFun
+    - word: Dielectric model
+      meaning: A method that gives the dielectric constant of water and the Born functions.
+      source: ThermoFun
+    - word: Electron
+      meaning: "With `ions: hydrogen_ion`, the electron of the standard hydrogen electrode. H+ + e- = 1/2 H2(g) with ΔrG° = 0 at every T, so G(e-) = 1/2 G(H2, g) - G(H+)."
+      standard: electron, standard hydrogen electrode
+      source: NEA TDB-5 1.7.e
+    - word: Energy reference
+      meaning: From what zero G, H and S of a record are counted. `elements` (such as `benson_helgeson`), `water` (the anchor) and `ions` (`hydrogen_ion`).
+      source: ThermoFun
+    - word: Engine
+      meaning: The object that calculates. `ThermoEngine`. Its summary (`engine.summary()`) names what the results depend on.
+      source: ThermoFun
+    - word: Equation of state of water
+      meaning: A method that gives the density of water and its properties as a substance.
+      source: ThermoFun
+    - word: Expanded uncertainty
+      meaning: U = k u. The 95 % intervals of the NEA reviews are read as expanded uncertainties with k = 1.96.
+      standard: expanded uncertainty
+      source: GUM; GB4 5.1; NEA TDB-3
+    - word: Fluid
+      meaning: A gas or a supercritical fluid with an equation of state, such as CORK.
+      source: ThermoFun
+    - word: HKF
+      meaning: The Helgeson-Kirkham-Flowers equation of state of aqueous species.
+      source: Helgeson et al. (1981), Tanger and Helgeson (1988)
+    - word: Hydrogen ion
+      meaning: "With `ions: hydrogen_ion` (the default), H+(aq) has G, H, S, Cp, V = 0 at every T and P."
+      standard: convention for the hydrogen ion
+      source: NEA TDB-5 1.6; CODATA 1989
+    - word: Implementation
+      meaning: One code of a method. `reaktoro` and `gems` are the implementations of `WaterHGK84`.
+      source: ThermoFun
+    - word: Increment
+      meaning: A method that adds to what the base method gives. A phase transition, a volume, a term of the pressure.
+      source: ThermoFun
+    - word: Legacy format
+      meaning: The JSON format before version 1.0, with keys such as `sm_gibbs_energy` and `TPMethods`.
+      source: ThermoFun
+    - word: Method
+      meaning: A calculation of properties at T and P, with its parameters. A record lists its methods.
+      source: ThermoFun
+    - word: Model parameter
+      meaning: A value of a model, the same for every record, for example HKF eta or the coefficients of IAPWS-95. It is in a file of `ThermoFun/Methods/ParameterSets`.
+      source: NEA TDB-4
+    - word: Parameter
+      meaning: A value that a method reads from a record, such as `a1` of `HKF88`. It can be fitted.
+      source: NEA TDB-4
+    - word: Parameter set
+      meaning: A named group of values for a method. A record names it with `parameter_set`.
+      source: ThermoFun
+    - word: Property source
+      meaning: Where the properties of a record come from. Its methods, its defining reaction, or its reactants.
+      source: ThermoFun
+    - word: Provenance
+      meaning: How a result of a batch calculation was made. The database and the SHA-256 of its records, the templates, and the summary of each engine.
+      source: ThermoFun
+    - word: Reactant
+      meaning: A substance in a reaction, with its coefficient. The coefficient is negative on the left side of the equation.
+      standard: stoichiometric number
+      source: IUPAC GB4 2.11
+    - word: Record
+      meaning: One element, substance, reaction, method definition, parameter set or data source.
+      source: ThermoFun
+    - word: Reference state
+      meaning: The state of an element in which its energies of formation are 0, such as `O2(g)` or `C(cr, graphite)` (`element.reference_state`).
+      standard: reference state of an element
+      source: NEA TDB-5 3.1; GB4 4.11.1
+    - word: Reference temperature
+      meaning: The temperature of the values of a record (Tr, `reference_conditions.T`), 298.15 K by default.
+      standard: reference temperature
+      source: NEA TDB-5 3.3
+    - word: Reference values
+      meaning: The values of a record at its reference temperature and its standard pressure. The key is `standard_state_properties`.
+      source: ThermoFun
+    - word: Result table
+      meaning: One result of a batch calculation (`ResultTable`). A row for each record and point, a column for each property and each variant of `compare`.
+      source: ThermoFun
+    - word: Route
+      meaning: How a result was calculated (`result.route`). Where its values came from (`by`), the methods with their contributions, the records it needed (`needs`), the conversions. `engine.route(symbol)` gives it without numbers.
+      source: ThermoFun
+    - word: Segment
+      meaning: A T interval of a method, with its own parameters.
+      source: ThermoFun
+    - word: Solute
+      meaning: A substance dissolved in water. Its class is `aqueous_solute`.
+      standard: solute
+      source: IUPAC GB4 2.10
+    - word: Solvent
+      meaning: The water record that solutes read. `engine.solventSymbol()` gives its symbol.
+      standard: solvent
+      source: IUPAC GB4 2.10
+    - word: Standard pressure
+      meaning: p°, the pressure of the standard state, `standard_state.pressure`. 1 bar by default, also 1 atm or any pressure.
+      standard: standard pressure
+      source: GB4 4.11.1 (v); NEA TDB-5 3.2
+    - word: Standard state
+      meaning: The state that a value refers to. The class of the record, its aggregate state, and `standard_state` (pressure, concentration scale).
+      standard: standard state
+      source: NEA TDB-5 Table 1; GB4 4.11.1
+    - word: Standard uncertainty
+      meaning: u, the uncertainty of a value as one standard deviation. The form in which ThermoFun keeps uncertainties.
+      standard: standard uncertainty
+      source: GUM; GB4 5.1
+    - word: Status
+      meaning: How a value was made. `calculated`, `read`, `assigned` or `notdefined`.
+      source: ThermoFun
+    - word: Symbol
+      meaning: The name of a record in a database, such as `Ca+2`.
+      source: ThermoFun
+    - word: Symbolic method
+      meaning: A method that is an expression in a Method record, with no C++ code.
+      source: ThermoFun
+    - word: Terms
+      meaning: The named parts of the contribution of one method to one property, such as the Born term of G of HKF88. The catalog names them.
+      source: ThermoFun
+    - word: v2 format
+      meaning: The format since version 1.0, in YAML or JSON, with the key `thermohub`.
+      source: ThermoFun
+    - word: Variables
+      meaning: The quantities of a model that its terms come from, not summed, such as the g function of HKF88. The catalog names them.
+      source: ThermoFun
+    - word: Variant
+      meaning: "A parameter set with `default: false`. A record uses it only if it names it."
+      source: ThermoFun
+    - word: Water anchor
+      meaning: The data of liquid water that tie an equation of state of water to the values of formation. `helgeson_kirkham_1974` or `codata_1989`. Data of the dataset, not a convention, so never converted.
+      source: ThermoFun; CODATA 1989; Helgeson and Kirkham (1974)

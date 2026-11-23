@@ -119,6 +119,7 @@ void exportDatabase(py::module& m)
         .def("set", [](Database& self, const std::string& path, const py::object& value) {
             self.setValue(path, py::module_::import("json").attr("dumps")(value).cast<std::string>());
         }, py::arg("path"), py::arg("value"), "Sets a value of a record by its path (see get). The value can be a number, text, a dict or a list. A path of a record alone sets the whole record.")
+        .def("remove", &Database::removeValue, py::arg("path"), "Removes a value of a record by its path (see get): a key, or an element of a list, for example '/substances/Calcite/methods/1'")
         .def("summary", &Database::summary, "The size of the database and its substances by class and aggregate state")
         .def_property_readonly( "conventions", [](Database& db) -> const DatabaseConventions& { return db.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used by this database" )
         .def("appendData", appendData1, "Append records to the database from a file.")
@@ -181,9 +182,10 @@ void exportDatabase(py::module& m)
         .def("__str__", [](const Database& self) { std::stringstream ss; ss << self.getElements(); ss << self.getSubstances(); ss << self.getReactions(); return ss.str(); })
         ;
 
-    py::class_<DatabaseConventions>(m, "DatabaseConventions")
+    py::class_<DatabaseConventions>(m, "DatabaseConventions", "The 0.x view of the water anchor of the dataset (energy_reference.water)")
         .def(py::init<>())
-        .def_readwrite("water_triple_point_reference", &DatabaseConventions::water_triple_point_reference);
+        .def_readwrite("water_triple_point_reference", &DatabaseConventions::water_triple_point_reference,
+                       "HKF_HGK_1974 (helgeson_kirkham_1974) or NEA_HGK / NEA_IAPWS (codata_1989, the set of the water method). Setting it sets the anchor of the dataset");
 }
 
 }

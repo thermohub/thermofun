@@ -17,7 +17,6 @@ auto allRecords(const Database& db) -> model::V2Records
 {
     model::V2Records out;
     out.dataset = db.thermoDataSet();
-    out.dataset.water_triple_point_reference = db.conventions().water_triple_point_reference;
     for (const auto& item : db.mapElements())
         out.elements.push_back(*item.second.record());
     for (const auto& item : db.mapSubstances())
@@ -81,7 +80,7 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
             text += (text.empty() ? "" : ", ") + w;
         return text;
     };
-    const auto datasetReference = records.dataset.convention.energy_reference.value_or(model::EnergyReference::BensonHelgeson);
+    const auto datasetReference = records.dataset.convention.energy_reference.elements.value_or(model::EnergyReference::BensonHelgeson);
     bool hasSolvent = false;
     std::map<std::string, model::EnergyReference> references;
     for (const auto& r : records.substances)
@@ -90,12 +89,12 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
         const model::Convention own = r.convention.value_or(model::Convention{});
         std::optional<model::EnergyReference> native;
         for (const auto& a : r.methods)
-            if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); spec && spec->effects.base && spec->native_convention)
+            if (const auto* spec = model::MethodCatalog::instance().find(a.method, model::OperatesOn::Substance); spec && spec->contributes_to.base && spec->native_convention)
                 native = spec->native_convention;
-        if (native && !own.energy_reference && *native != datasetReference)
+        if (native && !own.energy_reference.elements && *native != datasetReference)
             add(Severity::Warning, "CNV-003", r.symbol, "/substances/" + r.symbol + "/methods",
                 "The method gives " + model::toString(*native) + ", the dataset uses " + model::toString(datasetReference) + ", and the record declares no convention. The values are converted.");
-        const auto reference = native ? *native : own.energy_reference.value_or(datasetReference);
+        const auto reference = native ? *native : own.energy_reference.elements.value_or(datasetReference);
         references[r.symbol] = reference;
         if (reference != model::EnergyReference::BensonHelgeson && !r.formula.empty())
         {
@@ -108,7 +107,7 @@ void checkConventions(const Database& db, const model::V2Records& records, Diagn
     }
     for (const auto& r : records.substances)
         if (r.class_ == model::SubstanceClass::AqueousSolute && !hasSolvent &&
-            mergeConvention(r.convention.value_or(model::Convention{}), records.dataset.convention).concentration_scale == model::ConcentrationScale::Molarity)
+            mergeConvention(r.convention.value_or(model::Convention{}), records.dataset.convention).standard_state.concentration_scale == model::ConcentrationScale::Molarity)
             add(Severity::Error, "CNV-002", r.symbol, "/substances/" + r.symbol + "/convention", "A solute in molarity needs a solvent, and the database has none.");
     for (const auto& r : records.reactions)
     {
@@ -147,10 +146,24 @@ auto Database::validate() const -> Diagnostics
             d.code = "CNV-007";
             d.record = record.symbol;
             d.path = "/substances/" + record.symbol;
-            d.message = "The geochemical convention defines the properties of the hydrogen ion as 0, and this record gives other values. They are used.";
+            d.message = "ions: hydrogen_ion defines the properties of the hydrogen ion as 0 at every T and P, and this record gives other values. They are not used; "
+                        "declare energy_reference: {ions: none} to use them.";
             all.add(d);
         }
     }
+    // the electron of the hydrogen electrode needs H2(g)
+    const bool hydrogenGas = std::any_of(records.substances.begin(), records.substances.end(), [](const auto& r) { return model::isHydrogenGas(r); });
+    for (const auto& record : records.substances)
+        if (!hydrogenGas && model::isHydrogenElectrode(record, records.dataset.convention))
+        {
+            Diagnostic d;
+            d.severity = Severity::Warning;
+            d.code = "CNV-011";
+            d.record = record.symbol;
+            d.path = "/substances/" + record.symbol;
+            d.message = "The electron is from the standard hydrogen electrode, 1/2 G(H2, g) - G(H+), and the database has no H2(g). The values of the record are used.";
+            all.add(d);
+        }
     checkConventions(*this, records, all);
     return all;
 }

@@ -22,42 +22,49 @@ def function(T):  # a smooth log K(T) from which the table is taken
 
 
 TABLE = dict(temperatures=TEMPERATURES, logK=[function(T) for T in TEMPERATURES])
-FORMS = [0, 3]
+FORMS = [("cubic_spline", 0), ("lagrange", 3)]   # interpolation, interpolation_order
 IDS = ["spline", "lagrange"]
 GEMS = json.loads((HERE / "data" / "sources" / "gems-lagrange.json").read_text())
 
 
-@pytest.mark.parametrize("order", FORMS, ids=IDS)
-def test_the_table_values_are_reproduced_exactly(order):
-    table = tf.methods.reactionMethod("LogKTable", lagrange_order=order, **TABLE)
+@pytest.mark.parametrize("form", FORMS, ids=IDS)
+def test_the_table_values_are_reproduced_exactly(form):
+    table = tf.methods.reactionMethod("LogKTable", interpolation=form[0], interpolation_order=form[1], **TABLE)
     for T in TEMPERATURES:
         assert table.calculate(T, 1e6).log_equilibrium_constant.val == pytest.approx(function(T), abs=1e-9)
 
 
-@pytest.mark.parametrize("order,tolerance", zip(FORMS, [5e-3, 5e-3]), ids=IDS)
-def test_between_the_points_the_interpolation_is_close_to_the_function(order, tolerance):
-    table = tf.methods.reactionMethod("LogKTable", lagrange_order=order, **TABLE)
+@pytest.mark.parametrize("form,tolerance", zip(FORMS, [5e-3, 5e-3]), ids=IDS)
+def test_between_the_points_the_interpolation_is_close_to_the_function(form, tolerance):
+    table = tf.methods.reactionMethod("LogKTable", interpolation=form[0], interpolation_order=form[1], **TABLE)
     for T in (310.0, 400.0, 480.0):
         assert table.calculate(T, 1e6).log_equilibrium_constant.val == pytest.approx(function(T), abs=tolerance)
+
+
+def test_lagrange_needs_its_order_and_a_wrong_word_says_why():
+    with pytest.raises(ValueError, match="needs interpolation_order"):
+        tf.methods.reactionMethod("LogKTable", interpolation="lagrange", **TABLE)
+    with pytest.raises(ValueError, match="lagrange"):
+        tf.methods.reactionMethod("LogKTable", interpolation="lagrang", interpolation_order=3, **TABLE)
 
 
 def test_the_lagrange_polynomial_reproduces_a_polynomial():
     points = [300.0, 350.0, 400.0, 450.0]
     cubic = lambda T: 1.0 + 0.1 * T - 1e-3 * T**2 + 2e-6 * T**3
-    table = tf.methods.reactionMethod("LogKTable", lagrange_order=3, temperatures=points, logK=[cubic(T) for T in points])
+    table = tf.methods.reactionMethod("LogKTable", interpolation="lagrange", interpolation_order=3, temperatures=points, logK=[cubic(T) for T in points])
     assert table.calculate(375.0, 1e5).log_equilibrium_constant.val == pytest.approx(cubic(375.0), rel=1e-11)
 
 
 @pytest.mark.parametrize("row", GEMS["rows"], ids=lambda r: f"order{r['order']}-{r['T']}K")
 def test_the_lagrange_polynomial_agrees_with_gems(row):
     y = [function(T) for T in GEMS["temperatures"]]
-    table = tf.methods.reactionMethod("LogKTable", lagrange_order=row["order"], temperatures=GEMS["temperatures"], logK=y)
+    table = tf.methods.reactionMethod("LogKTable", interpolation="lagrange", interpolation_order=row["order"], temperatures=GEMS["temperatures"], logK=y)
     assert table.calculate(row["T"], 1e5).log_equilibrium_constant.val == pytest.approx(row["logK"], rel=1e-12)
 
 
-@pytest.mark.parametrize("order", FORMS, ids=IDS)
-def test_the_other_properties_follow_from_the_derivatives(order):
-    table = tf.methods.reactionMethod("LogKTable", lagrange_order=order, **TABLE)
+@pytest.mark.parametrize("form", FORMS, ids=IDS)
+def test_the_other_properties_follow_from_the_derivatives(form):
+    table = tf.methods.reactionMethod("LogKTable", interpolation=form[0], interpolation_order=form[1], **TABLE)
     T, h = 400.0, 1e-3
     p = table.calculate(T, 1e6)
     dlogk = (table.calculate(T + h, 1e6).log_equilibrium_constant.val - table.calculate(T - h, 1e6).log_equilibrium_constant.val) / (2 * h)
@@ -165,18 +172,18 @@ def test_reactants_for_all_records_leaves_such_a_reaction_to_its_own_methods():
 
 def test_the_path_of_a_substance_from_its_reaction():
     engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
-    path = engine.calculationPath("Z")
-    assert path["source"] == "reaction"
-    assert [(s["role"], s["symbol"], s["source"]) for s in path["steps"]] == [("defining_reaction", "R3", "methods"), ("reactant", "Y", "reference")]
-    assert path["steps"][1]["coefficient"] == -1.0
-    assert path["steps"][0]["methods"] == ["LogKConstant"]
+    route = engine.route("Z")
+    assert route.by == "reaction"
+    assert [(n.role, n.route.symbol, n.route.by) for n in route.needs] == [("defining_reaction", "R3", "methods"), ("reactant", "Y", "reference")]
+    assert route.needs[1].coefficient == -1.0
+    assert [m.method for m in route.needs[0].route.methods] == ["LogKConstant"]
 
 
 def test_the_path_follows_the_source_and_shows_a_cycle_without_an_error():
     engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
     engine.setPropertySource("R3", "reactants")
-    assert "Z -> R3 -> Z" in engine.calculationPath("Z")["steps"][0]["problem"]
+    assert "Z -> R3 -> Z" in engine.route("Z").needs[0].route.notes[0].text
     engine.setPropertySource("R3", "record")
-    assert engine.calculationPath("R3")["source"] == "methods"
+    assert engine.route("R3").by == "methods"
     engine.setPropertySource("Z", "direct")
-    assert engine.calculationPath("Y")["source"] == "reference"
+    assert engine.route("Y").by == "reference"

@@ -4,7 +4,9 @@
 // Reads and changes a value of a record by its path (a JSON pointer), and summarizes a database.
 
 #include "DatabaseImpl.h"
+#include <ThermoFun/IO/V2/V2Keys.h>
 #include <ThermoFun/IO/V2/detail/V2WriterParts.h>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 
@@ -75,6 +77,28 @@ auto pointerOf(const std::string& rest) -> json::json_pointer
     }
 }
 
+// A key of a quantity (value, unit, uncertainty, ...). A record may write a quantity as a bare number: the path of one of its
+// keys then names the number (value) or a key that the number does not write yet (uncertainty).
+auto isQuantityKey(const std::string& key) -> bool
+{
+    namespace k = model::v2key;
+    for (const char* name : {k::value, k::unit, k::uncertainty, k::quality, k::origin, k::derivation, k::source})
+        if (key == name)
+            return true;
+    return false;
+}
+
+// The parent of the pointer if it is a quantity written as a bare number and the pointer names one of its keys
+auto bareQuantityParent(const json& record, const json::json_pointer& pointer) -> std::optional<json::json_pointer>
+{
+    if (pointer.empty() || !isQuantityKey(pointer.back()))
+        return std::nullopt;
+    const auto parent = pointer.parent_pointer();
+    if (parent.empty() || !record.contains(parent) || !record.at(parent).is_number())
+        return std::nullopt;
+    return parent;
+}
+
 } // namespace
 
 auto Database::value(const std::string& path) const -> std::string
@@ -84,6 +108,8 @@ auto Database::value(const std::string& path) const -> std::string
     if (where.rest.empty())
         return record.dump();
     const auto pointer = pointerOf(where.rest);
+    if (const auto parent = bareQuantityParent(record, pointer); parent && pointer.back() == model::v2key::value)
+        return record.at(*parent).dump();
     if (!record.contains(pointer))
         throw std::invalid_argument("The record " + where.symbol + " has no value at " + where.rest + ".");
     return record.at(pointer).dump();
@@ -107,12 +133,39 @@ auto Database::setValue(const std::string& path, const std::string& jsonValue) -
     else
         try
         {
-            record[pointerOf(where.rest)] = value;
+            const auto pointer = pointerOf(where.rest);
+            if (const auto parent = bareQuantityParent(record, pointer))
+                record[*parent] = json{{model::v2key::value, record.at(*parent)}};
+            record[pointer] = value;
         }
         catch (const json::exception& error)
         {
             throw std::invalid_argument("Cannot set " + where.rest + " in the record " + where.symbol + ": " + error.what());
         }
+    record["symbol"] = where.symbol;
+    const std::string text = record.dump();
+    if (where.section == "elements")
+        setElement(text);
+    else if (where.section == "substances")
+        setSubstance(text);
+    else
+        setReaction(text);
+}
+
+auto Database::removeValue(const std::string& path) -> void
+{
+    const auto where = splitPath(path);
+    if (where.rest.empty())
+        throw std::invalid_argument("The path " + path + " names a whole record: give the path of a value in it, for example " + path + "/methods/0.");
+    json record = recordJson(*this, where);
+    const auto pointer = pointerOf(where.rest);
+    if (!record.contains(pointer))
+        throw std::invalid_argument("The record " + where.symbol + " has no value at " + where.rest + ".");
+    auto& parent = record[pointer.parent_pointer()];
+    if (parent.is_array())
+        parent.erase(std::stoul(pointer.back()));
+    else
+        parent.erase(pointer.back());
     record["symbol"] = where.symbol;
     const std::string text = record.dump();
     if (where.section == "elements")

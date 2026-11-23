@@ -5,7 +5,7 @@
 
 namespace ThermoFun {
 
-auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& subst, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp, HKFBornTerms* born) -> ThermoPropertiesSubstanceAD
 {
     // Get the HKF thermodynamic data of the species
     const auto& hkf = subst.parameters;
@@ -54,30 +54,37 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& su
     const auto Q    = wes.bornQ*1e05; // from 1/Pa to 1/bar
     const auto X    = wes.bornX;
 
+    // The Born (solvation) terms: the parts that hold omega
+    const auto bornV = 0.4184004e2 * (-w*Q - (Z + 1)*wP);
+    const auto bornG = -w*(Z + 1) + wr*(Zr + 1) + wr*Yr*(TK - Tr);
+    const auto bornH = -w*(Z + 1) + w*TK*Y + TK*(Z + 1)*wT + wr*(Zr + 1) - wr*Tr*Yr;
+    const auto bornS = w*Y + (Z + 1)*wT - wr*Yr;
+    const auto bornCp = w*TK*X + 2*TK*Y*wT + TK*(Z + 1)*wTT;
+
     // Calculate the standard molal thermodynamic properties of the aqueous species
     auto V = 0.4184004e2 * (a1 + a2/(psi + Pbar) +
-        (a3 + a4/(psi + Pbar))/(TK - theta) - w*Q - (Z + 1)*wP);
+        (a3 + a4/(psi + Pbar))/(TK - theta)) + bornV;
 
     auto G = Gf - Sr*(TK - Tr) - c1*(TK*log(TK/Tr) - TK + Tr)
         + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
         - c2*((1.0/(TK - theta) - 1.0/(Tr - theta))*(theta - TK)/theta
         - TK/(theta*theta)*log(Tr/TK * (TK - theta)/(Tr - theta)))
         + 1.0/(TK - theta)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
-        - w*(Z + 1) + wr*(Zr + 1) + wr*Yr*(TK - Tr);
+        + bornG;
 
     auto H = Hf + c1*(TK - Tr) - c2*(1.0/(TK - theta) - 1.0/(Tr - theta))
         + a1*(Pbar - Pr) + a2*log((psi + Pbar)/(psi + Pr))
         + (2*TK - theta)/pow(TK - theta, 2)*(a3*(Pbar - Pr)
         + a4*log((psi + Pbar)/(psi + Pr)))
-        - w*(Z + 1) + w*TK*Y + TK*(Z + 1)*wT + wr*(Zr + 1) - wr*Tr*Yr;
+        + bornH;
 
     auto S = Sr + c1*log(TK/Tr) - c2/theta*(1.0/(TK - theta)
         - 1.0/(Tr - theta) + log(Tr/TK * (TK - theta)/(Tr - theta))/theta)
         + 1.0/pow(TK - theta, 2)*(a3*(Pbar - Pr) + a4*log((psi + Pbar)/(psi + Pr)))
-        + w*Y + (Z + 1)*wT - wr*Yr;
+        + bornS;
 
     auto Cp = c1 + c2/pow(TK - theta, 2) - (2*TK/pow(TK - theta, 3))*(a3*(Pbar - Pr)
-        + a4*log((psi + Pbar)/(psi + Pr))) + w*TK*X + 2*TK*Y*wT + TK*(Z + 1)*wTT;
+        + a4*log((psi + Pbar)/(psi + Pr))) + bornCp;
 
     // Convert the thermodynamic properties of the gas to the standard units
     V  *= 1e-01/**cal_to_J/bar_to_Pa*/;
@@ -85,6 +92,8 @@ auto thermoPropertiesAqSoluteHKFreaktoro(real TK, real Pbar, const HKFInputs& su
     H  *= cal_to_J;
     S  *= cal_to_J;
     Cp *= cal_to_J;
+    if (born)
+        *born = HKFBornTerms{bornG*cal_to_J, bornH*cal_to_J, bornS*cal_to_J, bornCp*cal_to_J, bornV*1e-01};
 
     ThermoPropertiesSubstanceAD tps;
     tps.volume           = V;
@@ -149,7 +158,7 @@ auto speciesElectroStateHKF(const FunctionG& g, const HKFInputs& species) -> Ele
 // (Shock et al. 1992). Below it g is held at its value at this density (owner, 2026-11-17).
 constexpr double kGDensityMin = 0.35;
 
-auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFConstants& constants) -> FunctionG
+auto functionG(real T, real P, const PropertiesSolventAD& ps, const HKFModelParameters& constants) -> FunctionG
 {
     // The function G
     FunctionG funcG;

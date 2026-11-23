@@ -47,8 +47,8 @@ auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, const ReactionInputs&
     auto BB     = ( pKwTP - pKw298*(298.15)/TK ) / zzH2O;
     auto pKTP   = pK298*(298.15/TK ) + zzA*BB;
     auto logKTP = - pKTP;
-    auto dGr    = pKTP*log(10.)*R_CONSTANT*TK;
-    auto dG298  = pK298*log(10.)*R_CONSTANT*298.15;
+    auto dGr    = pKTP*log(10.)*reaction.R*TK;
+    auto dG298  = pK298*log(10.)*reaction.R*298.15;
 
     auto I   = a*TK + b + c/TK + d/pow(TK,2.)
                + ( e*TK + f + g/TK ) * log10(RHO) - (-pKw298)*298.15;
@@ -62,9 +62,9 @@ auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, const ReactionInputs&
                + ( e*TK + f + g/TK ) * 1./(RHO*log(10.)) * d2RHOdT2;
     auto d2J = 2.*B/pow(TK,3.);
 
-    auto dSr  = R_CONSTANT*log(10.)/zzH2O * ( dI*J + dJ*I );
-    auto dCPr = R_CONSTANT*log(10.)/zzH2O * TK * ( d2I*J + 2.*dI*dJ + d2J*I );
-    auto dVr  = - R_CONSTANT*log(10.)/zzH2O * ( e*TK + f + g/TK ) * 1./(RHO*log(10.))
+    auto dSr  = reaction.R*log(10.)/zzH2O * ( dI*J + dJ*I );
+    auto dCPr = reaction.R*log(10.)/zzH2O * TK * ( d2I*J + 2.*dI*dJ + d2J*I );
+    auto dVr  = - reaction.R*log(10.)/zzH2O * ( e*TK + f + g/TK ) * 1./(RHO*log(10.))
                 * dRHOdP * ( A + B/TK);
     auto dHr  = dGr + dSr*TK;
     auto dUr  = dHr - Pbar*dVr;

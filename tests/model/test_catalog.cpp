@@ -22,7 +22,7 @@ const std::vector<std::string> substanceIds = {
     "LandauHP98", "LandauHP11", "LambdaBerman88", "ConstantVolume", "VolumeBerman88", "VolumeDorogokupets88", "BirchMurnaghan47",
     "MurnaghanHP98", "TaitHP11",
     "IdealGas", "PRSV86", "ChurakovGottschalk03", "SoaveRedlichKwong72", "SternerPitzer94", "PengRobinson78", "CorkHP91",
-    "WaterHGK84", "WaterIAPWS95", "WaterZhangDuan05", "JohnsonNorton91", "BradleyPitzer79", "HelgesonKirkham74", "SverjenskyEtAl14", "FernandezEtAl97"};
+    "WaterHGK84", "WaterLVS83", "WaterIAPWS95Gas", "WaterIAPWS95", "WaterZhangDuan05", "JohnsonNorton91", "BradleyPitzer79", "HelgesonKirkham74", "SverjenskyEtAl14", "FernandezEtAl97"};
 
 const std::vector<std::string> reactionIds = {
     "ConstantReactionProperties", "LogKPolynomial", "LogKNordstromMunoz88", "LogKConstant", "LogKZeroEntropy", "LogKVantHoff",
@@ -65,7 +65,7 @@ void testComplete()
         // no legacy name in a specification
         for (const auto& alias : s.aliases)
             CHECK(alias.find('_') == std::string::npos);
-        // a reaction method has the role of a reaction method, and the effects of its kind
+        // a reaction method has the role of a reaction method, and the contributions of its kind
         CHECK((s.operates_on == OperatesOn::Reaction) == (s.role == MethodRole::ReactionProperties));
         // the names of the parameters are unique
         std::set<std::string> parameters;
@@ -75,7 +75,7 @@ void testComplete()
             CHECK(!p.description.empty());
         }
         // a transformation reads the incoming result, and a base method does not
-        CHECK(!(s.effects.base && s.effects.transform));
+        CHECK(!(s.contributes_to.base && s.contributes_to.transform));
     }
 }
 
@@ -135,12 +135,12 @@ void testFacts()
     CHECK(catalog.find("AkinfievDiamond03")->needs.ideal_gas_water);
     CHECK(catalog.find("AndersonEtAl91")->needs.solvent_at_reference);
     CHECK(!catalog.find("CpPolynomial")->needs.solvent);
-    // effects
-    CHECK(catalog.find("CpPolynomial")->effects.base);
-    CHECK(catalog.find("LandauHP98")->effects.G == Effect::Add);
-    CHECK(catalog.find("AkinfievDiamond03")->effects.transform);
-    CHECK(catalog.find("RyzhenkoBryzgalin")->reaction_effects.final);
-    CHECK(catalog.find("ReactionConstantVolume")->reaction_effects.dV == Effect::Set);
+    // contributes_to
+    CHECK(catalog.find("CpPolynomial")->contributes_to.base);
+    CHECK(catalog.find("LandauHP98")->contributes_to.G == Contribution::Adds);
+    CHECK(catalog.find("AkinfievDiamond03")->contributes_to.transform);
+    CHECK(catalog.find("RyzhenkoBryzgalin")->reaction_contributes_to.final);
+    CHECK(catalog.find("ReactionConstantVolume")->reaction_contributes_to.dV == Contribution::Sets);
     // a count of atoms cannot be fitted
     bool found = false;
     for (const auto& p : catalog.find("TaitHP11")->parameters)

@@ -29,7 +29,7 @@ struct ElementRecord
     std::optional<Quantity> standard_entropy;    ///< J/(mol.K) (the legacy key entropy)
     std::optional<Quantity> heat_capacity;       ///< J/(mol.K)
     std::optional<Quantity> volume;              ///< m3/mol
-    std::string reference_form;                  ///< for example "graphite"
+    std::string reference_state;                 ///< the reference state of the element at Tr and p° (TDB-5 Table 7): formula unit and state, e.g. "O2(g)", "C(cr, graphite)"
     std::map<std::string, Quantity> structural;  ///< more data, for example ionic_radius
     std::vector<std::string> data_sources;
     std::string sourcetdb;

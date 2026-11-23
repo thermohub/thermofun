@@ -10,6 +10,7 @@
 
 #include <ThermoFun/Common/Ucum.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 
 #include "LegacyKeys.h"
 #include "LegacyMethodMap.h"
@@ -151,15 +152,13 @@ auto hasValueData(const Properties& properties) -> bool
 {
     return std::any_of(properties.begin(), properties.end(), [](const auto& p) {
         const auto& m = p.second.meta;
-        return m.quality || m.origin || !m.calculation_path.empty() || !m.source.empty();
+        return !m.quality.empty() || m.origin || !m.derivation.empty() || !m.source.empty();
     });
 }
 
 template <class Record>
 void reportCommon(const Record& r, Diagnostics* diagnostics)
 {
-    if (!r.data_source.empty())
-        warn(diagnostics, r.symbol, "The key data_source is not written.");
     if (r.convention)
         warn(diagnostics, r.symbol, "The convention of the record is not written.");
     if (!r.covariance.empty())
@@ -370,7 +369,7 @@ auto writeLegacyElement(const ElementRecord& r, const LegacyWriteOptions& option
     if (r.heat_capacity) out[legacy::HeatCapacity] = json{{"values", vd{r.heat_capacity->value}}};
     if (r.volume) out[legacy::Volume] = json{{"values", vd{r.volume->value * 1e5}}};
     if (!r.data_sources.empty()) out[legacy::Datasources] = sourcesOf(r.data_sources);
-    if (r.valence || !r.reference_form.empty() || !r.structural.empty())
+    if (r.valence || !r.reference_state.empty() || !r.structural.empty())
         warn(diagnostics, r.symbol, "The valence, the reference form and the structural values are not written.");
     return out.dump();
 }
@@ -381,8 +380,12 @@ auto writeLegacyDocument(const V2Records& records, const LegacyWriteOptions& opt
     root["thermodataset"] = records.dataset.symbol;
     root["datasources"] = records.dataset.legacy_datasources;
     root["date"] = records.dataset.legacy_date;
-    if (records.dataset.water_triple_point_reference != ThermoDataSetInfo{}.water_triple_point_reference)
-        root["conventions"] = json{{"water_triple_point_reference", records.dataset.water_triple_point_reference}};
+    // the anchor codata_1989 as the triple-point set of the water method of the dataset (decision 0031)
+    if (records.dataset.convention.energy_reference.water == WaterReference::Codata1989)
+    {
+        const auto* water = waterSolventOf(records.substances, records.dataset.solvent);
+        root["conventions"] = json{{"water_triple_point_reference", waterTripleSet(WaterReference::Codata1989, water ? waterEquationOf(*water) : "WaterHGK84")}};
+    }
     const auto section = [&](const char* name, const auto& list, auto write) {
         json out = json::array();
         for (const auto& record : list)

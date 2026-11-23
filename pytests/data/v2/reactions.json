@@ -12,8 +12,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -486594.0,
@@ -51,8 +50,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -586855.0,
@@ -90,8 +88,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": 0.0,
@@ -105,8 +102,7 @@
      "value": 0.0,
      "uncertainty": 0.0
     }
-   },
-   "preferred_property_source": "reaction"
+   }
   },
   "Ca+2": {
    "name": "Ca+2 ion",
@@ -115,8 +111,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -552821.0,
@@ -154,8 +149,7 @@
    "class": "component",
    "aggregate_state": "crystal",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -13106507.0,
@@ -209,8 +203,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -1308407.0,
@@ -235,8 +228,7 @@
    "class": "water_solvent",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": {
@@ -278,8 +270,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -834041.0,
@@ -323,8 +314,7 @@
     "Al+3": 6.0
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": {
@@ -367,8 +357,7 @@
     "H2O@": 2.0
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": {

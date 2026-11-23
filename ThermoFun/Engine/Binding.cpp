@@ -19,12 +19,12 @@ namespace {
 // The group of a method in the order of execution
 auto groupOf(const MethodSpec& spec) -> int
 {
-    const auto& e = spec.effects;
+    const auto& e = spec.contributes_to;
     if (e.base)
         return 0;
     if (e.transform)
         return 1;
-    const bool sets = e.G == Effect::Set || e.H == Effect::Set || e.S == Effect::Set || e.Cp == Effect::Set || e.V == Effect::Set;
+    const bool sets = e.G == Contribution::Sets || e.H == Contribution::Sets || e.S == Contribution::Sets || e.Cp == Contribution::Sets || e.V == Contribution::Sets;
     return sets ? 2 : 3;
 }
 
@@ -66,7 +66,7 @@ auto canBind(const SubstanceRecord& record, const std::map<std::string, MethodDe
         const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance);
         if (!spec)
             return false;
-        bases += spec->effects.base;
+        bases += spec->contributes_to.base;
     }
     return bases == 1;
 }
@@ -75,17 +75,43 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
 {
     Diagnostics out;
     std::vector<const MethodSpec*> specs;
+    std::vector<const MethodApplication*> apps;
     for (const auto& a : record.methods)
         if (const auto* spec = MethodCatalog::instance().find(a.method, OperatesOn::Substance))
+        {
             specs.push_back(spec);
+            apps.push_back(&a);
+        }
 
+    // Regions (decision 0028): a method used only in a region, its own (catalog flag regional) or one given in the record,
+    // needs a method of its kind without a region after it, which is used elsewhere; regions only for kinds that can be
+    // combined by region
+    auto inRegion = [&](std::size_t i) { return specs[i]->regional || !apps[i]->region.empty(); };
     std::vector<std::string> bases;
-    for (const auto* spec : specs)
-        if (spec->effects.base)
-            bases.push_back(spec->id);
+    for (std::size_t i = 0; i < specs.size(); ++i)
+    {
+        if (!apps[i]->region.empty() && !combinableByRegion(*specs[i]))
+            out.add(problem(record, "V2-MTH-027", record.symbol + ": " + specs[i]->id + " has a region, but methods of its kind cannot be combined by region.",
+                            "Remove the region: regions select among water equations of state or among dielectric models."));
+        if (inRegion(i))
+        {
+            bool followed = false;
+            for (std::size_t j = i + 1; j < specs.size(); ++j)
+                followed = followed || (specs[j]->role == specs[i]->role && !inRegion(j));
+            if (!followed && specs[i]->contributes_to.base)
+                out.add(problem(record, "V2-MTH-012", record.symbol + ": " + specs[i]->id + " is used only in its region, and no base method follows it.",
+                                "Add the base method for the rest after it, for example WaterHGK84 after WaterLVS83."));
+            else if (!followed && combinableByRegion(*specs[i]))
+                out.add(problem(record, "V2-MTH-027", record.symbol + ": " + specs[i]->id + " is used only in its region, and no method of its kind follows it.",
+                                "Add a method of the same kind without a region after it, used elsewhere."));
+        }
+        else if (specs[i]->contributes_to.base)
+            bases.push_back(specs[i]->id);
+    }
     const bool fromReaction = !record.defining_reaction.empty() || record.preferred_property_source == PropertySource::Reaction;
-    // the geochemical convention defines the properties of the hydrogen ion as 0: it needs no values there
-    if (bases.empty() && !fromReaction && record.standard_state_properties.empty() && !isZeroHydrogenIon(record, Convention{}))
+    // ions: hydrogen_ion defines the hydrogen ion as 0 and the electron from H2(g): they need no values there
+    if (bases.empty() && !fromReaction && record.standard_state_properties.empty() && !isZeroHydrogenIon(record, Convention{}) &&
+        !isHydrogenElectrode(record, Convention{}))
         out.add(problem(record, "V2-MTH-012", record.symbol + " has no base method and no reference values.",
                         "Add a base method (for example CpPolynomial) or the standard-state properties G, H, S, Cp, V."));
     if (bases.size() > 1)
@@ -94,19 +120,19 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
     // the corrections, in the order of execution; a base method sets all properties and is not one of them
     std::vector<const MethodSpec*> corrections;
     for (const auto* spec : specs)
-        if (!spec->effects.base)
+        if (!spec->contributes_to.base)
             corrections.push_back(spec);
     std::sort(corrections.begin(), corrections.end(), [](const auto* a, const auto* b) {
-        return std::make_tuple(groupOf(*a), a->effects.rank, a->id) < std::make_tuple(groupOf(*b), b->effects.rank, b->id);
+        return std::make_tuple(groupOf(*a), a->contributes_to.rank, a->id) < std::make_tuple(groupOf(*b), b->contributes_to.rank, b->id);
     });
-    struct Property { const char* name; Effect MethodEffects::*effect; };
-    const Property properties[] = {{"Gibbs energy", &MethodEffects::G}, {"enthalpy", &MethodEffects::H}, {"entropy", &MethodEffects::S},
-                                   {"heat capacity", &MethodEffects::Cp}, {"volume", &MethodEffects::V}};
+    struct Property { const char* name; Contribution SubstanceContributions::*contribution; };
+    const Property properties[] = {{"Gibbs energy", &SubstanceContributions::G}, {"enthalpy", &SubstanceContributions::H}, {"entropy", &SubstanceContributions::S},
+                                   {"heat capacity", &SubstanceContributions::Cp}, {"volume", &SubstanceContributions::V}};
     for (const auto& p : properties)
     {
         std::vector<std::string> setters;
         for (const auto* spec : corrections)
-            if (spec->effects.*p.effect == Effect::Set)
+            if (spec->contributes_to.*p.contribution == Contribution::Sets)
                 setters.push_back(spec->id);
         if (setters.size() > 1)
             out.add(problem(record, "V2-MTH-013", setters[0] + " and " + setters[1] + " both set the " + p.name + " of " + record.symbol + ".",
@@ -116,9 +142,9 @@ auto checkMethods(const SubstanceRecord& record) -> Diagnostics
     bool volumeDefined = record.standard_state_properties.count(PropertyName::V) > 0;
     for (const auto* spec : corrections)
     {
-        if (spec->effects.V == Effect::Add && !volumeDefined)
+        if (spec->contributes_to.V == Contribution::Adds && !volumeDefined)
             out.add(problem(record, "V2-MTH-014", spec->id + " adds to a volume that is not defined.", "Give V in the standard-state properties."));
-        volumeDefined = volumeDefined || spec->effects.V == Effect::Set;
+        volumeDefined = volumeDefined || spec->contributes_to.V == Contribution::Sets;
     }
 
     for (const auto* spec : specs)
@@ -156,8 +182,8 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConv
             bound->order.push_back(MethodRegistry::instance().create(a, *record));
     }
     std::stable_sort(bound->order.begin(), bound->order.end(), [](const auto& a, const auto& b) {
-        return std::make_tuple(groupOf(a->spec()), a->spec().effects.rank, a->spec().id) <
-               std::make_tuple(groupOf(b->spec()), b->spec().effects.rank, b->spec().id);
+        return std::make_tuple(groupOf(a->spec()), a->spec().contributes_to.rank, a->spec().id) <
+               std::make_tuple(groupOf(b->spec()), b->spec().contributes_to.rank, b->spec().id);
     });
 
     ConversionSubject subject;
@@ -165,15 +191,16 @@ auto bindSubstance(std::shared_ptr<const SubstanceRecord> record, const BindConv
     subject.gas = record->aggregate_state == AggregateState::Gas;
     subject.solute = record->class_ == SubstanceClass::AqueousSolute;
     subject.element_entropy = conventions.element_entropy;
+    subject.R = conventions.R;
     const Convention inherited = mergeConvention(record->convention.value_or(Convention{}), conventions.dataset);
     for (const auto& method : bound->order)
     {
         const auto& spec = method->spec();
         Convention declared;
-        declared.energy_reference = spec.native_convention;
-        if (spec.effects.base)
+        declared.energy_reference.elements = spec.native_convention;
+        if (spec.contributes_to.base)
             declared = mergeConvention(declared, inherited);
-        bound->to_canonical.push_back(spec.effects.G == Effect::Set ? shiftToCanonical(declared, subject) : ConventionShift{});
+        bound->to_canonical.push_back(spec.contributes_to.G == Contribution::Sets ? shiftToCanonical(declared, subject) : ConventionShift{});
         bound->needs.solvent = bound->needs.solvent || bound->to_canonical.back().needsSolvent();
     }
 

@@ -8,6 +8,7 @@ Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dC
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

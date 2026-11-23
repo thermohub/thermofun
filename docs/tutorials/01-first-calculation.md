@@ -14,11 +14,13 @@ kernelspec:
 
 # 1. Your first calculation
 
+This page is the Jupyter notebook [`01-first-calculation.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/01-first-calculation.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+
 You learn to calculate a substance, a reaction and water, and to read a result.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
-**Related:** [Results](../reference/results.md) · [The v2 format](../reference/format-v2.md) (the paths of a record) (what a calculation gives) · [Units](../reference/units.md) · [Methods](../reference/methods/index.md) · [Uncertainties](../reference/uncertainty.md) · [See what each method gives](../how-to/get-per-method-results.md) · [Glossary](../glossary.md)
+**Related:** [Results](../reference/results.md) · [The v2 format](../reference/format-v2.md) (the paths of a record) (what a calculation gives) · [Units](../reference/units.md) · [Methods](../reference/methods/index.md) · [Uncertainties](../reference/uncertainty.md) · [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md) · [Glossary](../glossary.md)
 
 ## Make an engine
 
@@ -83,7 +85,7 @@ assert abs(G.ddp - calcite.volume.val) < 1e-11
 assert G.sta[0] == tf.Status.calculated
 ```
 
-Always look at the status. If it is `notdefined`, a value that the calculation needs is missing, and `val` has no meaning. If `G.outside_range` is True, the model was used outside its range (for example the HKF model of aqueous species where water is not dense enough): the value is there, and `G.sta[1]` says which range.
+Always look at the status. If it is `notdefined`, a value that the calculation needs is missing, and `val` has no meaning. If `G.info.validity` is `extrapolated`, a model was used outside its range: the value is there, and `G.info.notes` say which range (see [Results](../reference/results.md#info)).
 
 ## Use the saturation pressure
 
@@ -96,7 +98,7 @@ print(engine.thermoPropertiesSubstance(473.15, 1554939.22, "Ca+2").gibbs_energy.
 
 ## Calculate a reaction
 
-Write an equation, or give the symbol of a reaction of the database.
+Write an equation with the symbols of the substances of the database, reactants on the left and products on the right, or give the symbol of a reaction of the database.
 
 ```{code-cell} ipython3
 dissolution = "Calcite = Ca+2 + CO3-2"
@@ -112,7 +114,7 @@ print("dV   ", reaction.reaction_volume.val, "m3/mol")
 assert -9.0 < reaction.log_equilibrium_constant.val < -8.0
 ```
 
-## Calculate water
+## Calculate water solvent properties
 
 ```{code-cell} ipython3
 water = engine.propertiesSolvent(298.15, 1e5, "H2O@")
@@ -130,10 +132,10 @@ assert 860.0 < engine.propertiesSolvent(473.15, 0.0, "H2O@").density.val < 870.0
 
 ## Calculate many values
 
-To calculate many values, make a table. The template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. [Output tables](06-output-tables.md) and [batch calculations](07-batch-calculations.md) tell more.
+To calculate many values at once, run a batch calculation. The batch template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. A template is a YAML file: copy it and edit it to change the properties, the units, the temperatures and pressures, or the layout of the result, as [Batch calculations](05-batch-calculations.md) shows.
 
 ```{code-cell} ipython3
-results = tf.table(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
+results = tf.batch(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
 print(results["reactions"].to_text("md"))
 ```
 
@@ -142,13 +144,14 @@ print(results["reactions"].to_text("md"))
 
 A value in a record can have an uncertainty, and the engine propagates it to every result. aq17 has none for Calcite, so add them to the record. A value of a record is found by its **path**: the section (`substances`), the symbol of the record, and the keys of the record, separated by `/`. `get` reads a value, `set` changes it. [Tutorial 3](03-change-models.md) shows more changes.
 
+For G, the value and its uncertainty are given together. For S, only the uncertainty: the path ends with `/uncertainty`, and the value stays as it is.
+
 ```{code-cell} ipython3
 database = tf.Database("aq17-thermofun.json")
 
 G0 = database.get("/substances/Calcite/standard_state_properties/G")
-S0 = database.get("/substances/Calcite/standard_state_properties/S")
 database.set("/substances/Calcite/standard_state_properties/G", {"value": G0, "uncertainty": 1500.0})
-database.set("/substances/Calcite/standard_state_properties/S", {"value": S0, "uncertainty": 0.5})
+database.set("/substances/Calcite/standard_state_properties/S/uncertainty", 15.0)
 
 calcite_engine = tf.ThermoEngine(database)
 G = calcite_engine.thermoPropertiesSubstance(373.15, 1e8, "Calcite").gibbs_energy
@@ -160,21 +163,24 @@ print(G.val, "+-", G.err, "J/mol")
 assert G.err >= 1500.0
 ```
 
-The file is not changed. Make the engine after the change: an engine that exists already keeps the records it had.
+`set` changes the records in memory, not the file `aq17-thermofun.json`. An engine copies the records when it is made: make it after the changes. An engine made before them does not see them.
 
 ## See how a result is calculated
 
-`calculationPath` shows the methods of a record, and what else the record needs. `explain` gives the properties after each method: each row is the total after that method was applied, so the last row is the result. The part that each method adds is in [See what each method gives](../how-to/get-per-method-results.md).
+`engine.route(symbol)` shows how a record is calculated, before calculating: by what (`by`), with which methods, and which other records it needs (`needs`). It prints as YAML:
 
 ```{code-cell} ipython3
-path = engine.calculationPath("Ca+2")
-print(path["symbol"], "uses the methods", path["methods"])
-print("and needs the record", path["steps"][0]["symbol"], "as", path["steps"][0]["role"])
+print(engine.route("Ca+2"))
 ```
 
+Every result carries the same route with its numbers, `result.route`: the point, and what each method contributes to G, H, S, Cp and V. The contributions add up to the result. Calcite has a base method and a method for the volume:
+
 ```{code-cell} ipython3
-pd.DataFrame(engine.explain(473.15, 1e7, "Calcite"))[["method", "G", "H", "S", "Cp", "V"]]
+calcite = engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
+print(calcite.route)
 ```
+
+The route of a record at many points, as a table: [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md).
 
 ## The same in C++
 

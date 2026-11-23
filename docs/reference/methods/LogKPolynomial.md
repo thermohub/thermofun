@@ -12,6 +12,7 @@ Source: Nordstrom and Munoz (1988); Anderson and Crerar (1993).
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

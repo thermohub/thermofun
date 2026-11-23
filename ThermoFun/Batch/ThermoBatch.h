@@ -155,7 +155,7 @@ public:
     auto selectSubstances           (const std::string &rule) const -> vstr;
     auto selectReactions            (const std::string &rule) const -> vstr;
 
-    /// What the results depend on: lines of text from the engine (see ThermoEngine::snapshot)
+    /// What the results depend on: lines of text from the engine (see ThermoEngine::summary)
     auto provenance                 () const -> vstr;
 
     auto temperatureIncrement  () -> const std::map<std::string, double>&;

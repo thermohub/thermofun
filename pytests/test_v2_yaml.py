@@ -72,7 +72,7 @@ def test_yaml_as_people_write_it():
 units: {energy: cal}
 thermodataset:
   symbol: written
-  conventions: {water_triple_point_reference: NEA_HGK}
+  energy_reference: {water: codata_1989}
 defaults: &minerals
   class: component
   aggregate_state: crystal
@@ -132,6 +132,15 @@ def test_a_symbol_with_a_slash_has_its_line(tmp_path):
     target.write_text(HEADER + 'data_sources:\n  1998HOL/POW:\n    title: t\n  my/data:\n    title: t\n')
     found = [d for d in tf.Database(str(target)).loadDiagnostics().all() if d.code == "V2-SRC-001"]
     assert found[0].line == 5
+
+
+def test_the_nea_reference_codes_give_no_warning(tmp_path):
+    # TDB-5 1.11: four-digit year (two in older volumes), one or two authors, a number for a second reference with the same code
+    codes = ["1995ROB/HEM", "1995ROB/HEM2", "1865KOP", "61ROS/ROS", "2003GUI/FAN3"]
+    target = tmp_path / "data.yaml"
+    target.write_text(HEADER + "data_sources:\n" + "".join("  %s:\n    title: t\n" % code for code in codes + ["my/data"]))
+    found = [d.record for d in tf.Database(str(target)).loadDiagnostics().all() if d.code == "V2-SRC-001"]
+    assert found == ["my/data"]
 
 
 def test_an_error_gives_its_code_and_its_line(tmp_path):
@@ -256,3 +265,14 @@ def test_yaml_of_heracles_loads_faster_than_the_legacy_json(tmp_path):
     legacy, yaml = seconds(lambda: tf.Database(path)), seconds(lambda: tf.Database(str(target)))
     assert tf.Database(str(target)).numberOfSubstances() == db.numberOfSubstances()
     assert yaml < legacy, f"YAML {yaml:.3f} s, legacy JSON {legacy:.3f} s"
+
+
+def test_a_json_file_that_is_no_database_is_refused_not_a_crash():
+    # a JSON file with no thermohub key that the detector does not take as legacy looped between the two readers until the stack
+    # ran out (segmentation fault); it is now read as v2 and refused with V2-VER-003. In a process of its own, in case it crashes.
+    import pathlib, subprocess, sys
+    target = pathlib.Path(__file__).parent / "data" / "sources" / "janaf-shomate.json"
+    code = "import thermofun as tf\ntry:\n    tf.Database(%r)\nexcept RuntimeError as e:\n    print('refused:', 'V2-VER-003' in str(e))\n" % str(target)
+    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0, done.stderr[-500:]
+    assert "refused: True" in done.stdout

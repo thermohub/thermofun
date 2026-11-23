@@ -16,14 +16,15 @@ struct FunctionG;
 /// @param species aqueous species instance
 /// @param aes electro-chemical properties of the substance
 /// @param wes electro-chemical properties of the solvent
-auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD;
+/// @param born if given, gets the Born terms of the totals
+auto thermoPropertiesAqSoluteHKFgems(real TC, real Pbar, const HKFInputs& species, const ElectroPropertiesSubstance& aes, const ElectroPropertiesSolventAD& wes, const PropertiesSolventAD& wp, HKFBornTerms* born = nullptr) -> ThermoPropertiesSubstanceAD;
 
 /// Returns the G function and its derivatives (gShock2 in gems)
 /// @ref Shock et al. (1991)
 /// @param T temparature (K)
 /// @param P pressure (Pa)
 /// @param ps solvent properties (i.e. density, alpha, beta, epsilon, etc.)
-auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFConstants& constants) -> FunctionG;
+auto gShok2(real TC, real Pbar, const PropertiesSolventAD&ps, const HKFModelParameters& constants) -> FunctionG;
 
 /// Returns the electro-chemical properties of a substance (omeg92 in GEMS)
 /// @ref Johnson et al. (1991)

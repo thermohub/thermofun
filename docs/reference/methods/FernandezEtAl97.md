@@ -10,16 +10,18 @@ Source: Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Will
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | nothing |
 | Classes | water_solvent |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
 | Has code | yes |
+| Range of the model | T 238 to 873 K, P up to 12000 bar (Fernandez et al. (1997): 238 to 873 K, up to 1200 MPa); outside of it a value is calculated with a note |
 | Legacy names | `water_diel_fern97` |
 | Other names | `Fernandez97Diel` |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, rho: kg/m3. They are not converted.
 

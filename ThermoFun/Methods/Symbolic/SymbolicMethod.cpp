@@ -67,10 +67,10 @@ auto specOf(const MethodDefinition& definition) -> MethodSpec
     spec.implemented = true;
     spec.depends_on = Dependence::TP;
     const bool base = isSymbolicBase(definition);
-    const Effect effect = base ? Effect::Set : Effect::Add;
-    spec.effects.G = spec.effects.H = spec.effects.S = spec.effects.Cp = spec.effects.V = effect;
-    spec.effects.base = base;
-    spec.effects.rank = base ? 0 : 250;
+    const Contribution effect = base ? Contribution::Sets : Contribution::Adds;
+    spec.contributes_to.G = spec.contributes_to.H = spec.contributes_to.S = spec.contributes_to.Cp = spec.contributes_to.V = effect;
+    spec.contributes_to.base = base;
+    spec.contributes_to.rank = base ? 0 : 250;
     return spec;
 }
 
@@ -117,7 +117,7 @@ public:
             if (piece == limits_.size())
                 funError("Cannot calculate the symbolic method " + spec_.id, "T = " + std::to_string(in.T.val()) + " K is outside the pieces of the record.", __LINE__, __FILE__);
         }
-        std::vector<TPReal> v = {in.T, in.P, TPReal(in.reference.T), TPReal(in.reference.P), TPReal(R_CONSTANT), in.reference.G.value_or(TPReal(0.0)), in.reference.H.value_or(TPReal(0.0)),
+        std::vector<TPReal> v = {in.T, in.P, TPReal(in.reference.T), TPReal(in.reference.P), TPReal(in.options.R), in.reference.G.value_or(TPReal(0.0)), in.reference.H.value_or(TPReal(0.0)),
                                  in.reference.S.value_or(TPReal(0.0)), in.reference.Cp.value_or(TPReal(0.0)), in.reference.V.value_or(TPReal(0.0))};
         for (std::size_t i = 0; i < per_piece_; ++i)
         {
@@ -175,22 +175,23 @@ private:
 class SymbolicReactionMethod final : public ReactionMethod
 {
 public:
-    SymbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record)
+    SymbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record, double R)
     : expression_(compile(definition.expression.at("dG"), symbolicVariables(definition), definition.symbol))
     {
         spec_.id = definition.symbol;
         spec_.operates_on = OperatesOn::Reaction;
         spec_.implemented = true;
         spec_.depends_on = Dependence::TP;
-        spec_.reaction_effects.base = true;
-        spec_.reaction_effects.logK = spec_.reaction_effects.dG = spec_.reaction_effects.dH = spec_.reaction_effects.dS = spec_.reaction_effects.dCp = spec_.reaction_effects.dV = Effect::Set;
+        spec_.reaction_contributes_to.base = true;
+        spec_.reaction_contributes_to.logK = spec_.reaction_contributes_to.dG = spec_.reaction_contributes_to.dH = spec_.reaction_contributes_to.dS = spec_.reaction_contributes_to.dCp = spec_.reaction_contributes_to.dV = Contribution::Sets;
+        R_ = R;
         Tr_ = record.reference_conditions.T;
         Pr_ = record.reference_conditions.P;
         const auto valueOf = [&](ReactionPropertyName name) { const auto it = record.reaction_properties.find(name); return it == record.reaction_properties.end() ? std::optional<double>{} : std::optional<double>(it->second.value); };
         // what the record does not give, from what it gives: dG from log K, and dG = dH - Tr dS
         auto dG = valueOf(ReactionPropertyName::dG), dH = valueOf(ReactionPropertyName::dH), dS = valueOf(ReactionPropertyName::dS);
         if (const auto logK = valueOf(ReactionPropertyName::logK); !dG && logK)
-            dG = -R_CONSTANT * Tr_ * lg_to_ln * *logK;
+            dG = -R_ * Tr_ * lg_to_ln * *logK;
         if (!dG && dH && dS)
             dG = *dH - Tr_ * *dS;
         if (!dS && dG && dH)
@@ -243,7 +244,7 @@ public:
 private:
     auto propertiesAt(const real& T, const real& P, int seeded) const -> ThermoPropertiesReactionAD
     {
-        std::vector<real> v = {T, P, real(Tr_), real(Pr_), real(R_CONSTANT)};
+        std::vector<real> v = {T, P, real(Tr_), real(Pr_), real(R_)};
         for (const double x : reference_)
             v.emplace_back(x);
         for (std::size_t i = 0; i < values_.size(); ++i)
@@ -263,7 +264,7 @@ private:
         out.reaction_enthalpy = dG + T * dS;
         out.reaction_heat_capacity_cp = -T * c.dTT.evaluate<real>(v);
         out.reaction_volume = dV;
-        out.ln_equilibrium_constant = -dG / (R_CONSTANT * T);
+        out.ln_equilibrium_constant = -dG / (R_ * T);
         out.log_equilibrium_constant = out.ln_equilibrium_constant * ln_to_lg;
         out.reaction_internal_energy = out.reaction_enthalpy - P / bar_to_Pa * dV;
         out.reaction_helmholtz_energy = out.reaction_internal_energy - T * dS;
@@ -273,6 +274,7 @@ private:
     MethodSpec spec_;
     std::shared_ptr<const Compiled> expression_;
     double Tr_ = 298.15, Pr_ = 1e5;
+    double R_ = R_CONSTANT;   ///< the gas constant of the calculation
     std::vector<double> reference_, values_;
     std::vector<std::string> names_;
 };
@@ -284,11 +286,11 @@ auto isSymbolicReactionDefinition(const MethodDefinition& definition) -> bool
     return definition.kind == MethodKind::Symbolic && definition.operates_on == OperatesOn::Reaction && definition.expression.count("dG") > 0;
 }
 
-auto symbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record) -> std::shared_ptr<const ReactionMethod>
+auto symbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record, double R) -> std::shared_ptr<const ReactionMethod>
 {
     if (!SymbolicExpression::available())
         funError("Cannot run the symbolic method " + definition.symbol, "V2-MTH-008: this build of ThermoFun has no symbolic methods. Build with TFUN_USE_SYMENGINE=ON.", __LINE__, __FILE__);
-    return std::make_shared<const SymbolicReactionMethod>(definition, application, record);
+    return std::make_shared<const SymbolicReactionMethod>(definition, application, record, R);
 }
 
 auto symbolicVariables(const MethodDefinition& definition) -> std::vector<std::string>
@@ -360,8 +362,8 @@ auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& di
 {
     if (definition.kind != MethodKind::Symbolic)
         return;
-    if (!definition.source_hash.empty() && !definition.source_json.empty() && definition.source_hash != "sha256:" + sha256(definition.source_json))
-        report(diagnostics, "V2-SYM-003", Severity::Warning, definition, "The source of the method changed after its expression was made. Run: python -m thermofun.method_tool build");
+    if (!definition.formula_hash.empty() && !definition.formula_json.empty() && definition.formula_hash != "sha256:" + sha256(definition.formula_json))
+        report(diagnostics, "V2-SYM-003", Severity::Warning, definition, "The formula of the method changed after its expression was made. Run: python -m thermofun.method_tool build");
     if (!SymbolicExpression::available())
         return;
     const auto variables = symbolicVariables(definition);

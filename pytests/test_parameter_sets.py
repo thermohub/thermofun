@@ -135,18 +135,18 @@ def test_a_constant_is_not_a_parameter_to_fit():
 
 
 def test_each_built_in_set_says_what_it_holds_and_where_it_comes_from():
-    sets = [(spec["id"], s) for spec in tf.methods.catalog() for s in spec["constant_sets"]]
+    sets = [(spec["id"], s) for spec in tf.methods.catalog() for s in spec["model_parameter_sets"]]
     assert len(sets) >= 9
     for method, s in sets:
         assert len(s["description"]) > 40, method
-        assert s["reference"], method
+        assert s["data_sources"], method
 
 
-def test_the_page_of_a_method_gives_its_constants_in_one_place():
+def test_the_page_of_a_method_gives_its_model_parameters_in_one_place():
     from thermofun import docs
-    spec = next(s for s in tf.methods.catalog() if s["id"] == "SverjenskyEtAl14")
+    spec = tf.methods.catalog("SverjenskyEtAl14")
     page = docs.method_page(spec, None)
-    assert "## Built-in coefficients" in page and spec["constant_sets"][0]["description"] in page
+    assert "## Model parameters" in page and spec["model_parameter_sets"][0]["description"] in page
     assert "| a1 |" not in page
 
 
@@ -160,7 +160,7 @@ def test_each_file_of_constants_describes_each_set():
         text = file.read_text()
         sets = len(re.findall(r"^  \w+:$", text, re.M))
         assert sets and len(re.findall(r'^    description: ".{40,}"$', text, re.M)) == sets, file.name
-        assert len(re.findall(r'^    reference: ".+"$', text, re.M)) == sets, file.name
+        assert len(re.findall(r'^    data_sources: \[".+"\]$', text, re.M)) == sets, file.name
 
 
 def water_of(doc):
@@ -312,7 +312,7 @@ def run_variant_program(folder):
 def test_a_record_chooses_a_variant_from_a_folder_of_the_environment(tmp_path):
     (tmp_path / "HKF88-test.yaml").write_text(
         "thermohub: 2.0.0-draft.1\nparameter_sets:\n  HKF88_test_variant_v1:\n    method: HKF88\n    implementation: gems\n"
-        "    default: false\n    description: a variant for this test only, with another eta\n    reference: this test\n"
+        "    default: false\n    description: a variant for this test only, with another eta\n    data_sources: [this test]\n"
         "    parameters:\n      eta: 1.7e+05\n")
     done = run_variant_program(tmp_path)
     assert done.returncode == 0, done.stderr[-500:]
@@ -332,15 +332,21 @@ def test_a_record_can_replace_the_range_of_a_model():
     assert tf.ThermoEngine(tf.Database(json.dumps(doc))).propertiesSolvent(473.15, 1e7, solvent_symbol(doc)).dynamic_viscosity == 0.0
 
 
-def test_this_build_has_the_constants_of_one_file():
+@pytest.mark.parametrize("name,file", [("codata1986", "PhysicalConstants.yaml"), ("codata2018", "PhysicalConstants-codata2018.yaml")])
+def test_each_set_of_constants_of_physics_is_its_file(name, file):
     import pathlib
     import re
-    values = tf.methods.physicalConstants()
+    values = tf.methods.physicalConstants(name)
     folder = pathlib.Path(__file__).resolve().parent.parent / "ThermoFun" / "Methods" / "ParameterSets"
-    name = {"codata1986": "PhysicalConstants.yaml", "codata2018": "PhysicalConstants-codata2018.yaml"}[values["name"]]
-    text = (folder / name).read_text()
+    text = (folder / file).read_text()
     for symbol in ("R", "NA", "F", "e", "k"):
         assert values[symbol] == float(re.search(r"^      %s: (\S+)$" % symbol, text, re.M).group(1)), symbol
+
+
+def test_the_0x_names_are_the_default_set():
+    default = tf.methods.physicalConstants()
+    assert default["name"] == "codata1986" and tf.EnginePreferences().physical_constants == "codata1986"
+    assert (tf.R_CONSTANT, tf.NA_CONSTANT, tf.F_CONSTANT, tf.e_CONSTANT, tf.k_CONSTANT) == tuple(default[k] for k in ("R", "NA", "F", "e", "k"))
 
 
 @pytest.mark.parametrize("method_id,implementation,label", [("WaterHGK84", "reaktoro", "NEA_HGK"), ("WaterHGK84", "gems", "NEA_HGK"), ("WaterIAPWS95", "reaktoro", "NEA_IAPWS")])

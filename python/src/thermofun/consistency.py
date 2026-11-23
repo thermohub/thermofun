@@ -18,7 +18,8 @@ def report(database, TP=((298.15, 1e5),), threshold=100.0):
     engine = tf.ThermoEngine(database) if not isinstance(database, tf.ThermoEngine) else database
     options = tf.ConsistencyOptions()
     options.delta_G_threshold = threshold
-    return engine.consistencyReport(list(TP), options)
+    TP = list(TP)
+    return engine.consistencyReport([t for t, _ in TP], [p for _, p in TP], options)
 
 
 def table(items):

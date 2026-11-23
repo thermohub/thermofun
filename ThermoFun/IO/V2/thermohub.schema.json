@@ -128,14 +128,15 @@
        "$ref": "#/$defs/uncertainty"
       },
       "quality": {
-       "type": "string"
+       "type": "string",
+       "description": "Free text: how far the data author trusts the value. Suggested words: core, recommended, supplemental; the word of the source compilation is fine (NEA: selected, auxiliary)."
       },
       "origin": {
        "type": "string"
       },
-      "calculation_path": {
+      "derivation": {
        "type": "string",
-       "description": "A note on how the value was made; no calculation reads it."
+       "description": "How the value was obtained, for any origin (calculated, estimated, converted, ...): free text, kept and written back; no calculation reads it."
       },
       "source": {
        "type": "string"
@@ -190,10 +191,43 @@
    },
    "description": "Default units of everything inside the level where it is."
   },
-  "convention": {
+  "standard_state": {
    "type": "object",
    "properties": {
-    "energy_reference": {
+    "pressure": {
+     "oneOf": [
+      {
+       "enum": [
+        "1bar",
+        "1atm"
+       ]
+      },
+      {
+       "$ref": "#/$defs/quantity"
+      }
+     ],
+     "description": "p\u00b0: 1bar, 1atm, or any pressure (a number in Pa, or with a unit)"
+    },
+    "concentration_scale": {
+     "enum": [
+      "molality",
+      "mole_fraction",
+      "molarity",
+      "amount_fraction",
+      "amount_concentration"
+     ]
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false,
+   "description": "The standard state of the values: the standard pressure p\u00b0 and, for solutes, the concentration scale."
+  },
+  "energy_reference": {
+   "type": "object",
+   "properties": {
+    "elements": {
      "enum": [
       "benson_helgeson",
       "berman_brown",
@@ -203,38 +237,55 @@
       "dft_formation_0K"
      ]
     },
-    "standard_pressure": {
+    "water": {
      "enum": [
-      "1bar",
-      "1atm"
-     ]
+      "helgeson_kirkham_1974",
+      "codata_1989",
+      "steam_tables",
+      "geochemical"
+     ],
+     "description": "The water anchor, data of water used inside the calculation (on the dataset or the water record): helgeson_kirkham_1974 (the default; G of liquid water at 25 degC -237181 J/mol), codata_1989 (-237140 J/mol); or steam_tables, the scale of the values of a water record. geochemical is the 0.x word of helgeson_kirkham_1974."
     },
-    "concentration_scale": {
+    "ions": {
      "enum": [
-      "molality",
-      "mole_fraction",
-      "molarity"
-     ]
-    },
-    "water_reference": {
-     "enum": [
-      "geochemical",
-      "steam_tables"
-     ]
+      "hydrogen_ion",
+      "none"
+     ],
+     "description": "hydrogen_ion (the default): H+(aq) is 0 at every T and P, and the electron is from the standard hydrogen electrode, G(e-) = 1/2 G(H2, g, p\u00b0) - G(H+) (NEA TDB-5 1.6, 1.7.e); none: the records give H+ and e-."
     }
    },
    "patternProperties": {
     "^_": {}
    },
-   "additionalProperties": false
+   "additionalProperties": false,
+   "description": "From what zero G, H and S are counted: of the elements, of water and of ions."
   },
   "reference_conditions": {
    "type": "object",
    "properties": {
     "T": {
      "$ref": "#/$defs/quantity"
+    }
+   },
+   "patternProperties": {
+    "^_": {}
+   },
+   "additionalProperties": false,
+   "description": "The reference temperature Tr. The reference pressure is the standard pressure p\u00b0 of standard_state."
+  },
+  "applicability": {
+   "type": "object",
+   "properties": {
+    "t_min": {
+     "$ref": "#/$defs/quantity"
     },
-    "P": {
+    "t_max": {
+     "$ref": "#/$defs/quantity"
+    },
+    "p_min": {
+     "$ref": "#/$defs/quantity"
+    },
+    "p_max": {
      "$ref": "#/$defs/quantity"
     }
    },
@@ -243,7 +294,7 @@
    },
    "additionalProperties": false
   },
-  "applicability": {
+  "region": {
    "type": "object",
    "properties": {
     "t_min": {
@@ -372,6 +423,9 @@
     "applicability": {
      "$ref": "#/$defs/applicability"
     },
+    "region": {
+     "$ref": "#/$defs/region"
+    },
     "table": {
      "type": "object"
     },
@@ -384,7 +438,7 @@
     "interpolation": {
      "type": "string"
     },
-    "order": {
+    "interpolation_order": {
      "type": "integer"
     }
    },
@@ -438,14 +492,23 @@
     "volume": {
      "$ref": "#/$defs/quantity"
     },
-    "reference_form": {
-     "type": "string"
+    "reference_state": {
+     "type": "string",
+     "description": "The reference state of the element at the reference temperature and the standard pressure (NEA TDB-5, Table 7): formula unit and state, for example O2(g), C(cr, graphite), Fe(cr, bcc)."
     },
     "data_sources": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "sourcetdb": {
      "oneOf": [
@@ -515,8 +578,11 @@
     "molar_mass": {
      "$ref": "#/$defs/quantity"
     },
-    "convention": {
-     "$ref": "#/$defs/convention"
+    "standard_state": {
+     "$ref": "#/$defs/standard_state"
+    },
+    "energy_reference": {
+     "$ref": "#/$defs/energy_reference"
     },
     "reference_conditions": {
      "$ref": "#/$defs/reference_conditions"
@@ -566,14 +632,19 @@
     "applicability": {
      "$ref": "#/$defs/applicability"
     },
-    "data_source": {
-     "type": "string"
-    },
     "data_sources": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "structural": {
      "type": "object"
@@ -656,20 +727,28 @@
     "level": {
      "type": "integer"
     },
-    "data_source": {
-     "type": "string"
-    },
     "data_sources": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "applicability": {
      "$ref": "#/$defs/applicability"
     },
-    "convention": {
-     "$ref": "#/$defs/convention"
+    "standard_state": {
+     "$ref": "#/$defs/standard_state"
+    },
+    "energy_reference": {
+     "$ref": "#/$defs/energy_reference"
     },
     "preferred_property_source": {
      "type": "string"
@@ -714,9 +793,6 @@
     "kind": {
      "type": "string"
     },
-    "tier": {
-     "type": "integer"
-    },
     "operates_on": {
      "type": "string"
     },
@@ -727,10 +803,25 @@
      }
     },
     "contributes_to": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+     "oneOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "type": "object",
+       "additionalProperties": {
+        "enum": [
+         "sets",
+         "adds",
+         "uses"
+        ]
+       }
+      }
+     ],
+     "description": "What the method contributes to: a mapping property -> sets (the whole value), adds (an increment) or uses (an input only); a property not listed is not touched. A list of properties is the short form: each adds."
     },
     "parameter_definitions": {
      "type": [
@@ -741,11 +832,12 @@
     "implementation_id": {
      "type": "string"
     },
-    "source": {
+    "formula": {
      "type": [
       "string",
       "object"
-     ]
+     ],
+     "description": "The formula of a symbolic method as the author writes it: form and expression."
     },
     "expression": {
      "type": [
@@ -756,17 +848,24 @@
     "generator": {
      "type": "string"
     },
-    "source_hash": {
+    "formula_hash": {
      "type": "string"
     },
     "tests": {
      "type": "array"
     },
-    "effects": {
-     "type": "object"
-    },
-    "citation": {
-     "type": "string"
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
     }
    },
    "patternProperties": {
@@ -801,11 +900,18 @@
     "parameters": {
      "$ref": "#/$defs/parameters"
     },
-    "auxiliary": {
-     "type": "object"
-    },
-    "reference": {
-     "type": "string"
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ]
     },
     "units": {
      "$ref": "#/$defs/units"
@@ -897,26 +1003,35 @@
     "solvent": {
      "type": "string"
     },
-    "data_source": {
-     "type": "string"
+    "data_sources": {
+     "oneOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     ],
+     "description": "NEA reference codes (TDB-5 1.11) of the sources, or free text; a text is a list of one. The first is the source of a value that gives none."
     },
     "defaults": {
      "type": "object"
     },
-    "conventions": {
-     "type": "object",
-     "properties": {
-      "water_triple_point_reference": {
-       "type": "string"
-      }
-     },
-     "patternProperties": {
-      "^_": {}
-     },
-     "additionalProperties": false
+    "standard_state": {
+     "$ref": "#/$defs/standard_state"
     },
-    "convention": {
-     "$ref": "#/$defs/convention"
+    "energy_reference": {
+     "$ref": "#/$defs/energy_reference"
+    },
+    "physical_constants": {
+     "enum": [
+      "codata1986",
+      "codata2018"
+     ],
+     "description": "The constants of physics the values were derived with. An engine with another set warns (CNV-012)."
     }
    },
    "patternProperties": {

@@ -36,7 +36,7 @@ namespace ThermoFun {
             s.helmholtzDDD = 0.0;
         }
 
-        auto calculateWaterHelmholtzStateHGK0(real t, real /*d*/, const HGKConstants& k) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK0(real t, real /*d*/, const HGKModelParameters& k) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
             setzeros(s);
@@ -61,7 +61,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK1(real t, real d, const HGKConstants& k) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK1(real t, real d, const HGKModelParameters& k) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -83,7 +83,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK2(real t, real d, const HGKConstants& k) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK2(real t, real d, const HGKModelParameters& k) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -144,7 +144,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK3(real t, real d, const HGKConstants& k) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK3(real t, real d, const HGKModelParameters& k) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -187,7 +187,7 @@ namespace ThermoFun {
             return s;
         }
 
-        auto calculateWaterHelmholtzStateHGK4(real t, real d, const HGKConstants& k) -> WaterHelmholtzState
+        auto calculateWaterHelmholtzStateHGK4(real t, real d, const HGKModelParameters& k) -> WaterHelmholtzState
         {
             WaterHelmholtzState s;
 			setzeros(s);
@@ -234,7 +234,7 @@ namespace ThermoFun {
 
     } // namespace
 
-auto waterHelmholtzStateHGK(real T, real D, const HGKConstants& k) -> WaterHelmholtzState
+auto waterHelmholtzStateHGK(real T, real D, const HGKModelParameters& k) -> WaterHelmholtzState
 {
 	// The dimensionless temperature and density
 	const auto t = T/k.referenceTemperature;

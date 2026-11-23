@@ -13,7 +13,7 @@ namespace ThermoFun::model {
 
 namespace {
 
-using E = Effect;
+using E = Contribution;
 using SC = SubstanceClass;
 
 auto par(const char* name, const char* si, const char* source, const char* description, bool required = true) -> ParameterSpec
@@ -47,7 +47,8 @@ struct Spec
     auto sameAs(const char* id) -> Spec& { s.same_as = id; return *this; }
     auto impl(std::vector<std::string> i) -> Spec& { s.implementations = std::move(i); return *this; }
     /// A named output beside the properties: a term or an intermediate function of the model, in SI.
-    auto output(std::string name, std::string unit, std::string description) -> Spec& { s.auxiliary_outputs.push_back({std::move(name), std::move(unit), std::move(description)}); return *this; }
+    auto term(std::string name, std::string property, std::string unit, std::string description) -> Spec& { s.terms.push_back({std::move(name), std::move(property), std::move(unit), std::move(description)}); return *this; }
+    auto variable(std::string name, std::string unit, std::string description) -> Spec& { s.variables.push_back({std::move(name), std::move(unit), std::move(description)}); return *this; }
     auto solvent(bool atReference = false) -> Spec&
     {
         s.needs.solvent = true;
@@ -56,6 +57,13 @@ struct Spec
     }
     auto dielectric() -> Spec& { s.needs.dielectric = true; return *this; }
     auto piecewise() -> Spec& { s.piecewise = true; return *this; }
+    auto regional() -> Spec& { s.regional = true; return *this; }
+    /// The published range of the model (K, Pa; an empty optional is no limit), and where it is stated.
+    auto range(std::optional<double> tMin, std::optional<double> tMax, std::optional<double> pMin, std::optional<double> pMax, std::string source) -> Spec&
+    {
+        s.range = ModelRange{tMin, tMax, pMin, pMax, std::move(source)};
+        return *this;
+    }
     auto convention(EnergyReference reference) -> Spec& { s.native_convention = reference; return *this; }
     auto notImplemented() -> Spec& { s.implemented = false; return *this; }
     auto add(ParameterSpec p) -> Spec& { s.parameters.push_back(std::move(p)); return *this; }
@@ -69,12 +77,12 @@ struct Spec
     // A base method of a substance: it sets all properties.
     auto base() -> Spec&
     {
-        s.effects = {E::Set, E::Set, E::Set, E::Set, E::Set, true, false, 0};
+        s.contributes_to = {E::Sets, E::Sets, E::Sets, E::Sets, E::Sets, true, false, 0};
         return *this;
     }
-    auto effects(E g, E h, E sEntropy, E cp, E v, int rank, bool transform = false) -> Spec&
+    auto contributes(E g, E h, E sEntropy, E cp, E v, int rank, bool transform = false) -> Spec&
     {
-        s.effects = {g, h, sEntropy, cp, v, false, transform, rank};
+        s.contributes_to = {g, h, sEntropy, cp, v, false, transform, rank};
         return *this;
     }
 
@@ -82,14 +90,14 @@ struct Spec
     auto logK(bool final = false) -> Spec&
     {
         reaction();
-        s.reaction_effects = {E::Set, E::Set, E::Set, E::Set, E::Set, E::None, true, final, 0};
+        s.reaction_contributes_to = {E::Sets, E::Sets, E::Sets, E::Sets, E::Sets, E::None, true, final, 0};
         return *this;
     }
     // A reaction method for the volume of reaction: it adds to logK, dG and dH and sets dV.
     auto volume() -> Spec&
     {
         reaction();
-        s.reaction_effects = {E::Add, E::Add, E::Add, E::None, E::None, E::Set, false, false, 200};
+        s.reaction_contributes_to = {E::Adds, E::Adds, E::Adds, E::None, E::None, E::Sets, false, false, 200};
         return *this;
     }
     auto reaction() -> Spec&
@@ -107,12 +115,12 @@ const std::vector<SC> water = {SC::WaterSolvent};
 
 auto hkfParameters() -> std::vector<ParameterSpec>
 {
-    return {par("a1", "J/(mol.Pa)", "cal/(mol.bar)", "pressure coefficient a1"),
-            par("a2", "J/mol", "cal/mol", "pressure coefficient a2"),
-            par("a3", "J.K/(mol.Pa)", "cal.K/(mol.bar)", "pressure coefficient a3"),
-            par("a4", "J.K/mol", "cal.K/mol", "pressure coefficient a4"),
-            par("c1", "J/(mol.K)", "cal/(mol.K)", "temperature coefficient c1"),
-            par("c2", "J.K/mol", "cal.K/mol", "temperature coefficient c2"),
+    return {par("a1", "J/(mol.Pa)", "cal/(mol.bar)", "parameter a1 (pressure term)"),
+            par("a2", "J/mol", "cal/mol", "parameter a2 (pressure term)"),
+            par("a3", "J.K/(mol.Pa)", "cal.K/(mol.bar)", "parameter a3 (pressure term)"),
+            par("a4", "J.K/mol", "cal.K/mol", "parameter a4 (pressure term)"),
+            par("c1", "J/(mol.K)", "cal/(mol.K)", "parameter c1 (temperature term)"),
+            par("c2", "J.K/mol", "cal.K/mol", "parameter c2 (temperature term)"),
             par("omega", "J/mol", "cal/mol", "conventional Born coefficient")};
 }
 
@@ -183,14 +191,14 @@ auto unused(std::vector<ParameterSpec> ps) -> std::vector<ParameterSpec>
     return ps;
 }
 
-/// The constants of a model: built-in, so a record does not have to give them (see Methods/ParameterSets).
-auto constants(std::vector<std::pair<const char*, const char*>> rows) -> std::vector<ParameterSpec>
+/// The model parameters: the same for every record, built in, so a record does not have to give them (see Methods/ParameterSets).
+auto modelParameters(std::vector<std::pair<const char*, const char*>> rows) -> std::vector<ParameterSpec>
 {
     std::vector<ParameterSpec> out;
     for (const auto& [name, description] : rows)
     {
         out.push_back(par(name, "1", "1", description, false));
-        out.back().constant = true;
+        out.back().model_parameter = true;
     }
     return out;
 }
@@ -201,7 +209,7 @@ auto numbered(const char* prefix, int count, const char* description) -> std::ve
     for (int i = 1; i <= count; ++i)
     {
         out.push_back(par((prefix + std::to_string(i)).c_str(), "1", "1", description, false));
-        out.back().constant = true;
+        out.back().model_parameter = true;
     }
     return out;
 }
@@ -218,7 +226,7 @@ auto builtIn(std::initializer_list<const char*> names) -> std::vector<ParameterS
     std::vector<std::pair<const char*, const char*>> rows;
     for (const auto* name : names)
         rows.emplace_back(name, "see the file of the method in Methods/ParameterSets");
-    return constants(rows);
+    return modelParameters(rows);
 }
 
 /// What the Reaktoro implementations of water share, in WaterSaturation.yaml, and their T of the triple point
@@ -229,7 +237,7 @@ auto saturation() -> std::vector<ParameterSpec>
         out.push_back(c);
     for (auto& c : numbered("sat_c", 6, "of the density of the saturated vapour"))
         out.push_back(c);
-    for (auto& c : constants({{"Tcr", "critical temperature, K"}, {"Pcr", "critical pressure, Pa"}, {"Dcr", "critical density, kg/m3"}, {"M", "molar mass, kg/mol"}, {"Ttr", "T of the triple point of the model, K"}}))
+    for (auto& c : modelParameters({{"Tcr", "critical temperature, K"}, {"Pcr", "critical pressure, Pa"}, {"Dcr", "critical density, kg/m3"}, {"M", "molar mass, kg/mol"}, {"Ttr", "T of the triple point of the model, K"}}))
         out.push_back(c);
     return out;
 }
@@ -299,28 +307,28 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
                      "Tanger and Helgeson (1988); Shock et al. (1992)")
                     .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters())
-                    .output("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species); its term f only at 155-355 C below 1000 bar, as SUPCRT92; below 350 kg/m3 of water held at its value at 350 kg/m3")
-                    .output("re", "Ao", "the effective electrostatic radius of the species at T and P (0 for a neutral species)")
-                    .output("omega", "J/mol", "the conventional Born coefficient at T and P")
-                    .output("omega_reference", "J/mol", "the Born coefficient at the reference T and P (the parameter omega)")
-                    .output("born_G", "J/mol", "the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr)")
-                    .output("born_H", "J/mol", "the Born term of H")
-                    .output("born_S", "J/(mol.K)", "the Born term of S")
-                    .output("born_Cp", "J/(mol.K)", "the Born term of Cp")
-                    .output("born_V", "m3/mol", "the Born term of V: -w Q - (Z + 1) dw/dP")
-                    .add(constants({{"eta", "constant of the Born term, A cal/mol"}, {"theta", "characteristic T of the solvent, K"}, {"psi", "characteristic P of the solvent, bar"},
+                    .variable("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species); its term f only at 155-355 C below 1000 bar, as SUPCRT92; below 350 kg/m3 of water held at its value at 350 kg/m3")
+                    .variable("re", "Ao", "the effective electrostatic radius of the species at T and P (0 for a neutral species)")
+                    .variable("omega", "J/mol", "the conventional Born coefficient at T and P")
+                    .variable("omega_reference", "J/mol", "the Born coefficient at the reference T and P (the parameter omega)")
+                    .term("born_G", "G", "J/mol", "the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr)")
+                    .term("born_H", "H", "J/mol", "the Born term of H")
+                    .term("born_S", "S", "J/(mol.K)", "the Born term of S")
+                    .term("born_Cp", "Cp", "J/(mol.K)", "the Born term of Cp")
+                    .term("born_V", "V", "m3/mol", "the Born term of V: -w Q - (Z + 1) dw/dP")
+                    .add(modelParameters({{"eta", "parameter of the Born term, A cal/mol"}, {"theta", "characteristic T of the solvent, K"}, {"psi", "characteristic P of the solvent, bar"},
                                     {"Tr", "reference T, K"}, {"Pr", "reference P, bar"}, {"Zr", "Born function Z at the reference"}, {"Yr", "Born function Y at the reference"},
-                                    {"zeta", "constant of the effective radius, A"}, {"gr", "g function at the reference"},
+                                    {"zeta", "parameter of the effective radius, A"}, {"gr", "g function at the reference"},
                                     {"ag1", "coefficient of a_g"}, {"ag2", "coefficient of a_g"}, {"ag3", "coefficient of a_g"}, {"bg1", "coefficient of b_g"}, {"bg2", "coefficient of b_g"}, {"bg3", "coefficient of b_g"},
                                     {"af1", "coefficient of f(T)"}, {"af2", "coefficient of f(P)"}, {"af3", "coefficient of f(P)"}, {"Dmax", "largest density of water of the model, g/cm3"}})));
     {
         Spec s("AkinfievDiamond03", "Model of Akinfiev and Diamond", "Calculates the properties of a dissolved gas or neutral species from those of the gas and of water.",
                "Akinfiev and Diamond (2003)");
-        s.effects(E::Read, E::Read, E::Read, E::Read, E::Set, 300, true).classes(solutes).solvent(true).impl({"gems"});
+        s.contributes(E::Uses, E::Uses, E::Uses, E::Uses, E::Sets, 300, true).classes(solutes).solvent(true).impl({"gems"});
         s.s.needs.ideal_gas_water = true;
         s.add({par("xi", "1", "1", "parameter xi"), par("a", "m3/kg", "cm3/g", "parameter a"),
                par("b", "m3.K^0.5/kg", "cm3.K^0.5/g", "parameter b")});
-        s.add(constants({{"MW", "molar mass of water of the model, g/mol"}}));
+        s.add(modelParameters({{"MW", "molar mass of water of the model, g/mol"}}));
         m.push_back(s);
     }
     m.push_back(Spec("SoluteHP98", "Aqueous solute of Holland and Powell", "Calculates the properties of an aqueous species from the density model of Holland and Powell. "
@@ -336,51 +344,51 @@ auto substanceMethods() -> std::vector<MethodSpec>
 
     // minerals
     m.push_back(Spec("LandauHP98", "Landau transition of Holland and Powell", "Adds the Landau term of a phase transition to G, H, S and Cp, and sets V. Implementation consistent (the default): the volume term is integrated from the reference pressure, and has its Cp. Implementation gems: from P = 0, without that Cp.", "Holland and Powell (1998)")
-                    .alias({"HP98Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::Set, 100).classes(minerals).impl({"consistent", "gems"})
+                    .alias({"HP98Landau"}).contributes(E::Adds, E::Adds, E::Adds, E::Adds, E::Sets, 100).classes(minerals).impl({"consistent", "gems"})
                     .add({par("Tc0", "K", "Cel", "critical temperature at 1 bar"), par("Smax", "J/(mol.K)", "J/(mol.K)", "maximum entropy of the transition"),
                           par("Vmax", "m3/mol", "J/(mol.bar)", "maximum volume of the transition")})
                     .add(expansionAndBulkModulus(false)));
     m.push_back(Spec("LandauHP11", "Landau transition of Holland and Powell (2011)", "Adds the Landau term of a phase transition to G, H, S, Cp and V, with the order parameter at the reference state.", "Holland and Powell (2011)")
-                    .alias({"HP11Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 150).classes(minerals)
+                    .alias({"HP11Landau"}).contributes(E::Adds, E::Adds, E::Adds, E::Adds, E::Adds, 150).classes(minerals)
                     .add({par("Tc0", "K", "Cel", "critical temperature at the reference pressure"), par("Smax", "J/(mol.K)", "J/(mol.K)", "maximum entropy of the transition"),
                           par("Vmax", "m3/mol", "J/(mol.bar)", "maximum volume of the transition")}));
     m.push_back(Spec("LambdaBerman88", "Lambda transition of Berman", "Adds the lambda transition of Berman.", "Berman (1988)")
-                    .alias({"Berman88Landau"}).effects(E::Add, E::Add, E::Add, E::Add, E::None, 100).classes(minerals).notImplemented());
+                    .alias({"Berman88Landau"}).contributes(E::Adds, E::Adds, E::Adds, E::Adds, E::None, 100).classes(minerals).notImplemented());
     m.push_back(Spec("ConstantVolume", "Constant molar volume", "Adds V dP to G and H, with the reference volume.")
-                    .alias({"ConMolVol"}).group("Reference properties and heat capacity").effects(E::Add, E::Add, E::None, E::None, E::Set, 200));
+                    .alias({"ConMolVol"}).group("Reference properties and heat capacity").contributes(E::Adds, E::Adds, E::None, E::None, E::Sets, 200));
     m.push_back(Spec("VolumeBerman88", "Molar volume of Berman", "Calculates V(T, P) from expansion and compressibility terms, and adds the terms to G, H and S.", "Berman (1988)")
-                    .alias({"Berman88Vol"}).effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(minerals).add(volumeParameters()));
+                    .alias({"Berman88Vol"}).contributes(E::Adds, E::Adds, E::Adds, E::None, E::Sets, 200).classes(minerals).add(volumeParameters()));
     m.push_back(Spec("VolumeDorogokupets88", "Molar volume of Dorogokupets et al.", "Calculates V(T, P) as VolumeBerman88, with another form of the coefficients.", "Dorogokupets et al. (1988)")
-                    .alias({"Dorogokupets88Vol"}).effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(minerals).add(volumeParameters()));
+                    .alias({"Dorogokupets88Vol"}).contributes(E::Adds, E::Adds, E::Adds, E::None, E::Sets, 200).classes(minerals).add(volumeParameters()));
     m.push_back(Spec("BirchMurnaghan47", "Birch-Murnaghan equation of state", "Calculates V(T, P) from the third-order Birch-Murnaghan equation, with alpha(T) = a1 + a2 T + a3/T2 and K(T) linear in T.",
                      "Birch (1947); code of M. Gottschalk")
-                    .alias({"BirchMurnaghanGottschalk97", "BirchMurnaghanGott97"}).effects(E::Add, E::Add, E::Add, E::None, E::Set, 200).classes(minerals).impl({"consistent", "gems"})
+                    .alias({"BirchMurnaghanGottschalk97", "BirchMurnaghanGott97"}).contributes(E::Adds, E::Adds, E::Adds, E::None, E::Sets, 200).classes(minerals).impl({"consistent", "gems"})
                     .add({par("a1", "1/K", "1/K", "thermal expansion, constant term"), par("a2", "1/K2", "1/K2", "thermal expansion, term a2 T", false),
                           par("a3", "K", "K", "thermal expansion, term a3 / T2", false), par("kt00", "Pa", "MPa", "bulk modulus at the reference temperature"),
                           par("dkdt", "Pa/K", "MPa/K", "temperature derivative of the bulk modulus", false), par("kp", "1", "1", "pressure derivative of the bulk modulus"),
                           par("kpp", "1/Pa", "1/MPa", "second pressure derivative of the bulk modulus; 0: computed from kp", false)}));
-    m.push_back(Spec("MurnaghanHP98", "Murnaghan equation of Holland and Powell", "Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump.", "Holland and Powell (1998)")
-                    .alias({"HP98Min"}).effects(E::Add, E::Add, E::Add, E::Add, E::Add, 200).classes(minerals).impl({"consistent", "gems"}).add(expansionAndBulkModulus(true)));
+    m.push_back(Spec("MurnaghanHP98", "Murnaghan equation of Holland and Powell", "Calculates V(T, P) from the Murnaghan equation, and adds the terms to G, H, S and Cp. Implementation consistent (the default): V is integrated from the reference pressure, at every T and P. Implementation gems: from P = 0, except at the reference point, where G and V jump. Without alpha0 or kappa0 (or with 0) V is the reference volume at every T and P, as in GEMS, and the result says so.", "Holland and Powell (1998)")
+                    .alias({"HP98Min"}).contributes(E::Adds, E::Adds, E::Adds, E::Adds, E::Adds, 200).classes(minerals).impl({"consistent", "gems"}).add(expansionAndBulkModulus(false)));
     {
-        Spec s("TaitHP11", "Tait equation of Holland and Powell", "Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp.",
+        Spec s("TaitHP11", "Tait equation of Holland and Powell", "Calculates V(T, P) from the modified Tait equation with a thermal pressure, and adds the terms to G, H, S and Cp. Without kappa0 (or with 0) V is the reference volume at every T and P, and the result says so.",
                "Holland and Powell (2011)");
-        s.alias({"HP11Tait"}).effects(E::Add, E::Add, E::Add, E::Add, E::Set, 200).classes(minerals);
+        s.alias({"HP11Tait"}).contributes(E::Adds, E::Adds, E::Adds, E::Adds, E::Sets, 200).classes(minerals);
         s.add({par("kappa0p", "1", "1", "pressure derivative of the bulk modulus"), par("kappa0pp", "1/Pa", "1/kbar", "second pressure derivative of the bulk modulus")});
         auto atoms = par("n_atoms", "1", "1", "number of atoms in the formula");
         atoms.fittable = false;
         s.add(atoms);
-        s.add(expansionAndBulkModulus(true));
+        s.add(expansionAndBulkModulus(false));
         m.push_back(s);
     }
     sections.end("Minerals");
 
     // gases and fluids
     m.push_back(Spec("IdealGas", "Ideal gas", "Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.")
-                    .alias({"IdealGasVol"}).effects(E::Add, E::None, E::Add, E::None, E::Set, 200).classes({SC::GasFluid, SC::Component}));
+                    .alias({"IdealGasVol"}).contributes(E::Adds, E::None, E::Adds, E::None, E::Sets, 200).classes({SC::GasFluid, SC::Component}));
     // consistent (the default): S = -dG/dT, H = G + T S and Cp = dH/dT of the equation of state (but no residual Cp for
     // ChurakovGottschalk03: its second derivatives are not made); gems: the formulas of GEMS,
     // with no residual Cp, and for PRSV86 below Tc, CorkHP91 of H2O and ChurakovGottschalk03 an H and S that are not those of G
-    auto fluid = [](Spec s) -> Spec { s.effects(E::Add, E::Add, E::Add, E::Add, E::Set, 200).classes(fluids).impl({"consistent", "gems"}); return s; };
+    auto fluid = [](Spec s) -> Spec { s.contributes(E::Adds, E::Adds, E::Adds, E::Adds, E::Sets, 200).classes(fluids).impl({"consistent", "gems"}); return s; };
     m.push_back(fluid(Spec("PRSV86", "Peng-Robinson-Stryjek-Vera equation of state", "Adds the pressure terms of the PRSV equation of state to G, H, S and Cp, and sets V.",
                            "Stryjek and Vera (1986); Proust and Vera (1989)")
                           .alias({"PRSV"}).add(interactionParameters()).add(builtIn({"k0_0", "k0_1", "k0_2", "k0_3", "Oa", "Ob"}))));
@@ -418,7 +426,7 @@ auto substanceMethods() -> std::vector<MethodSpec>
         out.push_back(dew);
         for (auto& c : numbered("a", 14, "coefficient of the equation of state"))
             out.push_back(c);
-        for (auto& c : constants({{"gamma", "coefficient of the exponential term"}, {"Tc", "critical temperature, K"}, {"Vc", "critical volume, cm3/mol"}, {"R", "gas constant, cm3 bar/(K mol)"},
+        for (auto& c : modelParameters({{"gamma", "coefficient of the exponential term"}, {"Tc", "critical temperature, K"}, {"Vc", "critical volume, cm3/mol"}, {"R", "gas constant, cm3 bar/(K mol)"},
                                   {"g1kb_0", "coefficient of G(T, 1 kbar) of DEW, cal/mol, the highest power of T (degC) first"}, {"g1kb_1", "coefficient of G(T, 1 kbar) of DEW"},
                                   {"g1kb_2", "coefficient of G(T, 1 kbar) of DEW"}, {"g1kb_3", "coefficient of G(T, 1 kbar) of DEW"}, {"g1kb_4", "coefficient of G(T, 1 kbar) of DEW"}, {"Tmax", "largest T of the model, K"}, {"Pmax", "largest P of the model, Pa"}, {"Pmin", "smallest P of the model, Pa"}}))
             out.push_back(c);
@@ -432,11 +440,18 @@ auto substanceMethods() -> std::vector<MethodSpec>
         s.base().role(MethodRole::SolventProperties).add(state);
         return s;
     };
-    m.push_back(waterEoS(Spec("WaterHGK84", "Water, Haar-Gallagher-Kell", "Calculates the properties of water from the HGK equation of state.", "Haar, Gallagher and Kell (1984); Levelt Sengers et al. (1983)")
+    m.push_back(waterEoS(Spec("WaterHGK84", "Water, Haar-Gallagher-Kell", "Calculates the properties of water from the HGK equation of state. Near the critical point the code of SUPCRT92 and GEMS used the equation of Levelt Sengers et al.: the method WaterLVS83, listed before this one in the record.", "Haar, Gallagher and Kell (1984)")
                              .alias({"WaterHGK", "WaterHGKGems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro", "gems"}).add(listed("A0", 18)).add(listed("A1", 5)).add(listed("yc", 4)).add(listed("ki", 36)).add(listed("li", 36)).add(listed("A3", 36)).add(listed("mi", 4)).add(listed("ni", 4)).add(listed("alpha", 4)).add(listed("beta", 4)).add(listed("ri", 4)).add(listed("ti", 4)).add(listed("A4", 4))
-                             .add(saturation()).add(constants({{"referenceTemperature", "K"}, {"referenceDensity", "kg/m3"}, {"referenceHelmholtz", "J/kg"}, {"A20", "coefficient"}, {"z0", "coefficient"}}))
-                             .add(builtIn({"visc_Pmax", "visc_P2", "visc_T2", "visc_P3", "visc_T3", "visc_Tmax", "cond_Pmax", "cond_P2", "cond_T2", "cond_P3", "cond_T3", "cond_Tmax"})).add(builtIn({"surf_Ttripl", "surf_Tcrit", "surf_Tstar", "surf_Tcstar", "surf_v", "surf_B", "surf_stref", "born_TMAX", "born_PMAX", "trans_Tstar", "trans_Dstar", "trans_Pstar", "trans_ustar", "cond_C", "crit_T", "crit_P"})).add(builtIn({"ac_wm", "ac_gascon", "ac_tz", "ac_aa", "ac_uref", "ac_sref", "ac_zb", "ac_dzb", "ac_yb", "nc_nc", "el_g1", "el_g2", "el_gf", "el_b1", "el_b2", "el_b1t", "el_b2t", "el_b1tt", "el_b2tt", "hc_tcHGK", "hc_dcHGK", "hc_pcHGK", "hb_Ttop", "hb_Tbtm", "hb_Ptop", "hb_Pbtm", "hb_Dtop", "hb_Dbtm", "li_sDli1", "li_sPli1", "li_sDli37", "li_sPli37", "li_sDIB30", "li_Tli13", "li_Pli13", "li_Dli13", "li_TnIB30", "li_DnIB30", "tt_Utri", "tt_Stri", "tt_Htri", "tt_Atri", "tt_Gtri", "tt_Ttr", "tt_Ptripl", "tt_Dltrip", "tt_Dvtrip", "cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon"})).add(listed("nc_g", 40)).add(listed("nc_ii", 40)).add(listed("nc_jj", 40)).add(listed("bc_bp", 10)).add(listed("bc_bq", 10)).add(listed("ad_atz", 4)).add(listed("ad_adz", 4)).add(listed("ad_aat", 4)).add(listed("ad_aad", 4)).add(listed("co_a", 20)).add(listed("co_q", 20)).add(listed("co_x", 11)).add(listed("psat_a", 8)).add(listed("ideal_c", 18)).add(listed("visc_a", 4)).add(listed("visc_b", 42)).add(listed("cond_aL", 4)).add(listed("cond_au", 4)).add(listed("cond_bL", 30)).add(listed("cond_bu", 30))));
+                             .add(saturation()).add(modelParameters({{"referenceTemperature", "K"}, {"referenceDensity", "kg/m3"}, {"referenceHelmholtz", "J/kg"}, {"A20", "coefficient"}, {"z0", "coefficient"}}))
+                             .add(builtIn({"visc_Pmax", "visc_P2", "visc_T2", "visc_P3", "visc_T3", "visc_Tmax", "cond_Pmax", "cond_P2", "cond_T2", "cond_P3", "cond_T3", "cond_Tmax"})).add(builtIn({"surf_Ttripl", "surf_Tcrit", "surf_Tstar", "surf_Tcstar", "surf_v", "surf_B", "surf_stref", "born_TMAX", "born_PMAX", "trans_Tstar", "trans_Dstar", "trans_Pstar", "trans_ustar", "cond_C"})).add(builtIn({"ac_wm", "ac_gascon", "ac_tz", "ac_aa", "ac_uref", "ac_sref", "ac_zb", "ac_dzb", "ac_yb", "nc_nc", "el_g1", "el_g2", "el_gf", "el_b1", "el_b2", "el_b1t", "el_b2t", "el_b1tt", "el_b2tt", "hc_tcHGK", "hc_dcHGK", "hc_pcHGK", "hb_Ttop", "hb_Tbtm", "hb_Ptop", "hb_Pbtm", "hb_Dtop", "hb_Dbtm", "li_sDli1", "li_sPli1", "li_sDli37", "li_sPli37", "li_sDIB30", "li_Tli13", "li_Pli13", "li_Dli13", "li_TnIB30", "li_DnIB30", "tt_Utri", "tt_Stri", "tt_Htri", "tt_Atri", "tt_Gtri", "tt_Ttr", "tt_Ptripl", "tt_Dltrip", "tt_Dvtrip", "cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon"})).add(listed("nc_g", 40)).add(listed("nc_ii", 40)).add(listed("nc_jj", 40)).add(listed("bc_bp", 10)).add(listed("bc_bq", 10)).add(listed("ad_atz", 4)).add(listed("ad_adz", 4)).add(listed("ad_aat", 4)).add(listed("ad_aad", 4)).add(listed("psat_a", 8)).add(listed("ideal_c", 18)).add(listed("visc_a", 4)).add(listed("visc_b", 42)).add(listed("cond_aL", 4)).add(listed("cond_au", 4)).add(listed("cond_bL", 30)).add(listed("cond_bu", 30))));
+    m.push_back(waterEoS(Spec("WaterLVS83", "Water near the critical point, Levelt Sengers", "Calculates the properties of water near its critical point from the scaling equation of Levelt Sengers et al., in its region only (SUPCRT92: about 643 to 695 K, 200 to 420 kg/m3, and its saturation from 643 K to the critical point). Elsewhere the next equation of state of the record is used; it has no metastable states.", "Levelt Sengers J.M.H., Kamgar-Parsi B., Balfour F.W., Sengers J.V. (1983) J. Phys. Chem. Ref. Data 12, 1-28")
+                             .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("co_a", 20)).add(listed("co_q", 20))
+                             .add(builtIn({"cr_Tc", "cr_rhoC", "cr_Pc", "cr_Pcon", "cr_Ucon", "cr_Scon", "cr_dPcon", "Ttr"}))
+                             .add(modelParameters({{"Tmin1", "K"}, {"Tmin2", "K"}, {"Tmax", "K"}, {"Dmin", "kg/m3"}, {"Dmax", "kg/m3"}, {"Pbase1", "MPa"}, {"Pbase2", "MPa"}, {"PTmins", "MPa/K"}, {"PTmaxs", "MPa/K"}}))));
+    m.push_back(waterEoS(Spec("WaterIAPWS95Gas", "Water vapour, gas equation of IAPWS-95", "Calculates the properties of metastable water vapour (above the saturation pressure, below 10 MPa, up to 55 kg/m3) from the gas equation of Wagner and Pruss (2002), Eq. 3.2. IAPWS-95 is not reliable there away from the saturated vapour line; the authors advise this equation, as IAPWS-IF97 does. Used in this region only, for a vapour record (state gas); elsewhere the next equation of state of the record, for example WaterIAPWS95, is used, and it gives the saturation.", "Wagner and Pruss (2002) J. Phys. Chem. Ref. Data 31, 387-535, Sects. 3, 6.3.1 and 7.3.2.3")
+                             .classes({SC::WaterSolvent, SC::GasFluid}).regional().add(listed("d", 8)).add(listed("t", 8)).add(listed("n", 8))));
     m.push_back(waterEoS(Spec("WaterIAPWS95", "Water, IAPWS-95", "Calculates the properties of water from the IAPWS-95 formulation.", "Wagner and Pruss (2002)")
+                             .range(251.165, 1273.0, std::nullopt, 1.0e9, "Wagner and Pruss (2002), Sect. 6.3.1: from the melting curve to 1273 K, up to 1000 MPa")
                              .alias({"WaterWP95", "WaterIAPWS95Gems"}).classes({SC::WaterSolvent, SC::GasFluid}).impl({"reaktoro"}).add(saturation()).add(listed("no", 9)).add(listed("gammao", 5)).add(listed("c", 55)).add(listed("d", 55)).add(listed("t", 55)).add(listed("n", 57)).add(listed("alpha", 3)).add(listed("beta", 3)).add(listed("gamma", 3)).add(listed("epsilon", 3)).add(listed("a", 2)).add(listed("b", 2)).add(listed("A", 2)).add(listed("B", 2)).add(listed("C", 2)).add(listed("F", 2)).add(listed("E", 2))));
     m.push_back(waterEoS(Spec("WaterZhangDuan05", "Water, Zhang and Duan", "Calculates the properties of water at high pressure from the equation of Zhang and Duan.", "Zhang and Duan (2005)")
                              .classes(water)
@@ -445,19 +460,22 @@ auto substanceMethods() -> std::vector<MethodSpec>
     auto dielectric = [](Spec s) -> Spec { s.role(MethodRole::SolventElectro).classes(water); return s; };
     m.push_back(dielectric(Spec("JohnsonNorton91", "Dielectric constant of Johnson and Norton", "Calculates the dielectric constant of water and the Born functions.", "Johnson and Norton (1991)")
                                .alias({"JN91Reaktoro", "JN91Gems"}).impl({"reaktoro", "gems"})
-                               .add(numbered("a", 10, "coefficient of k_i(t)")).add(constants({{"Tr", "reference temperature, K"}, {"Dr", "reference density, kg/m3"}}))));
+                               // the lower bound of 1 bar is not checked: the saturation pressure below 100 degC is lower, and SUPCRT92 calculates there
+                               .range(273.15, 1273.15, std::nullopt, 5.0e8, "Johnson et al. (1992), SUPCRT92: 0 to 1000 degC, 1 to 5000 bar")
+                               .add(numbered("a", 10, "coefficient of k_i(t)")).add(modelParameters({{"Tr", "reference temperature, K"}, {"Dr", "reference density, kg/m3"}}))));
     m.push_back(dielectric(Spec("BradleyPitzer79", "Dielectric constant of Bradley and Pitzer", "Calculates the dielectric constant of water and the Born functions from T and P, with no density of water.", "Bradley and Pitzer (1979)")
                                .add(builtIn({"U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "Tmin", "Tmax", "Tlow", "Pmax_low", "Pmax"}))));
     m.push_back(dielectric(Spec("HelgesonKirkham74", "Dielectric constant of Helgeson and Kirkham", "Calculates the dielectric constant of water and the Born functions from a polynomial in T and the density. HKF coefficients of Tanger and Helgeson (1988) and Sverjensky et al. (1997) were fitted with it.", "Helgeson and Kirkham (1974); Tanger and Helgeson (1988)")
                                .add(builtIn({"e_0_0", "e_0_1", "e_0_2", "e_0_3", "e_0_4", "e_1_0", "e_1_1", "e_1_2", "e_1_3", "e_2_0", "e_2_1", "e_2_2", "e_3_0", "e_3_1", "e_4_0"}))));
     m.push_back(dielectric(Spec("SverjenskyEtAl14", "Dielectric constant of Sverjensky et al.", "Calculates the dielectric constant of water at high pressure (DEW model). The published coefficients are for t in degC and the density in g/cm3.", "Sverjensky D.A., Harrison B., Azzolini D. (2014) Geochim. Cosmochim. Acta 129, 125-145")
                                .alias({"Sverjensky14Diel"})
-                               .add(constants({{"a1", "coefficient of t in w; t in degC"}, {"a2", "coefficient of sqrt(t) in w"}, {"a3", "constant of w"},
-                                               {"b1", "coefficient of t in u"}, {"b2", "coefficient of sqrt(t) in u"}, {"b3", "constant of u"}}))));
+                               .add(modelParameters({{"a1", "coefficient of t in w; t in degC"}, {"a2", "coefficient of sqrt(t) in w"}, {"a3", "constant term of w"},
+                                               {"b1", "coefficient of t in u"}, {"b2", "coefficient of sqrt(t) in u"}, {"b3", "constant term of u"}}))));
     m.push_back(dielectric(Spec("FernandezEtAl97", "Dielectric constant of Fernandez et al.", "Calculates the dielectric constant of water from the IAPWS formulation.", "Fernandez D.P., Goodwin A.R.H., Lemmon E.W., Levelt Sengers J.M.H., Williams R.C. (1997) J. Phys. Chem. Ref. Data 26, 1125-1166")
                                .alias({"Fernandez97Diel"})
+                               .range(238.0, 873.0, std::nullopt, 1.2e9, "Fernandez et al. (1997): 238 to 873 K, up to 1200 MPa")
                                .add(numbered("n", 12, "coefficient of g")).add(numbered("I", 11, "exponent of the density")).add(numbered("J", 11, "exponent of the temperature"))
-                               .add(constants({{"Tc", "critical temperature, K"}, {"rhoc", "critical density, kg/m3"}, {"k", "constant of Boltzmann, SI"}, {"Na", "number of Avogadro, 1/mol"},
+                               .add(modelParameters({{"Tc", "critical temperature, K"}, {"rhoc", "critical density, kg/m3"}, {"k", "constant of Boltzmann, SI"}, {"Na", "number of Avogadro, 1/mol"},
                                                {"alpha", "mean molecular polarizability, SI"}, {"epsilon0", "permittivity of vacuum, SI"}, {"mu", "dipole moment, SI"}, {"M", "molar mass, kg/mol"}}))));
     sections.end("Dielectric constant of water");
 
@@ -473,7 +491,7 @@ auto reactionMethods() -> std::vector<MethodSpec>
     Sections sections{m};
     {
         Spec s("ConstantReactionProperties", "Constant reaction properties", "Gives the reference reaction properties at every T and P.");
-        s.reaction().s.reaction_effects = {E::Set, E::Set, E::Set, E::Set, E::Set, E::Set, true, false, 0};
+        s.reaction().s.reaction_contributes_to = {E::Sets, E::Sets, E::Sets, E::Sets, E::Sets, E::Sets, true, false, 0};
         m.push_back(s);
     }
     m.push_back(Spec("LogKPolynomial", "log K polynomial",
@@ -571,7 +589,7 @@ MethodCatalog::MethodCatalog()
         {"TPTable", D::TP}, {"CpExtendedUNIQUAC", D::TP}, {"HKF88", D::TP}, {"AkinfievDiamond03", D::TP}, {"SoluteHP98", D::TP}, {"AndersonEtAl91", D::TP},
         {"LandauHP98", D::TP}, {"LandauHP11", D::TP}, {"MurnaghanHP98", D::TP}, {"TaitHP11", D::TP}, {"VolumeBerman88", D::TP}, {"VolumeDorogokupets88", D::TP}, {"BirchMurnaghan47", D::TP},
         {"PRSV86", D::TP}, {"SoaveRedlichKwong72", D::TP}, {"PengRobinson78", D::TP}, {"SternerPitzer94", D::TP}, {"CorkHP91", D::TP}, {"ChurakovGottschalk03", D::TP},
-        {"WaterHGK84", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
+        {"WaterHGK84", D::TP}, {"WaterLVS83", D::TP}, {"WaterIAPWS95Gas", D::TP}, {"WaterIAPWS95", D::TP}, {"WaterZhangDuan05", D::TP}, {"JohnsonNorton91", D::TP}, {"BradleyPitzer79", D::TP}, {"HelgesonKirkham74", D::TP}, {"SverjenskyEtAl14", D::TP}, {"FernandezEtAl97", D::TP},
         {"DolejsManning10", D::TP}, {"MarshallFranck81", D::TP}, {"RyzhenkoBryzgalin", D::TP}, {"ReactionVolumePolynomial", D::TP}};
     for (auto& spec : specs_)
         if (const auto it = depends.find(spec.id); it != depends.end())

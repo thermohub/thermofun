@@ -26,15 +26,15 @@ inline auto missingParameterMessage(const MethodSpec& spec, const ParameterSpec&
     }
     text += where;
     std::string properties;
-    const auto add = [&](Effect e, const char* name) {
-        if (e != Effect::None)
+    const auto add = [&](Contribution e, const char* name) {
+        if (e != Contribution::None)
             properties += std::string(properties.empty() ? "" : ", ") + name;
     };
-    add(spec.effects.G, "G");
-    add(spec.effects.H, "H");
-    add(spec.effects.S, "S");
-    add(spec.effects.Cp, "Cp");
-    add(spec.effects.V, "V");
+    add(spec.contributes_to.G, "G");
+    add(spec.contributes_to.H, "H");
+    add(spec.contributes_to.S, "S");
+    add(spec.contributes_to.Cp, "Cp");
+    add(spec.contributes_to.V, "V");
     if (!properties.empty())
         text += ". The method works on " + properties + " and cannot calculate without it";
     return text + ". The page of the method (reference/methods/" + spec.id + ") lists its parameters.";

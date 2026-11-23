@@ -28,8 +28,10 @@ class TestWaterEoS(unittest.TestCase):
         T = 350+273.15
         assert self.engine.propertiesSolvent(T,P, "H2O@", 1).density.val == pytest.approx(15.05176552064709, 1e-5, 1e-14)
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@", 1).epsilon.val == pytest.approx(1.1120564097130872, 1e-5, 1e-14)
-        assert self.engine.propertiesSolvent(T,P, "H2O@", 0).density.val == pytest.approx(452.42695689302792, 1e-5, 1e-14)
-        assert self.engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val == pytest.approx(9.4564825264140211, 1e-5, 1e-14)
+        # no liquid root: 40 bar is below the liquid spinodal of HGK at 350 C (between 120 and 140 bar), so the liquid record
+        # gets the other root, the vapour, as reaktoro. Before, 452.4 kg/m3, where the iteration stopped (beta < 0, Cp < 0).
+        assert self.engine.propertiesSolvent(T,P, "H2O@", 0).density.val == pytest.approx(15.05176552064709, 1e-5, 1e-14)
+        assert self.engine.electroPropertiesSolvent(T,P, "H2O@", 0).epsilon.val == pytest.approx(1.1120564097130872, 1e-5, 1e-14)
 
         assert self.engine.propertiesSolvent(T,P, "H2O@reak", 1).density.val == pytest.approx(15.043737111107781, 1e-5, 1e-14)
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@reak", 1).epsilon.val == pytest.approx(1.1119933554710066, 1e-5, 1e-14)
@@ -61,3 +63,20 @@ class TestWaterEoS(unittest.TestCase):
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@reak", 1).epsilon.val == pytest.approx(8.626211060320887, 1e-5, 1e-14)
         assert self.engine.propertiesSolvent(T,P, "H2O@reak", 0).density.val == pytest.approx(479.5064053309655, 1e-5, 1e-14)
         assert self.engine.electroPropertiesSolvent(T,P, "H2O@reak", 0).epsilon.val == pytest.approx(8.626211060320887, 1e-5, 1e-14)
+
+class TestWaterReaktoroBeyondSpinodal(unittest.TestCase):
+    """A branch with no root at P (beyond its spinodal) gives the root of the other branch, as the HGK of GEMS."""
+
+    def setUp(self):
+        self.engine = thermofun.ThermoEngine('pytests/Substances/Solvent/water-thermofun.json')
+
+    def test_vapour_record_beyond_the_vapour_spinodal_gets_the_liquid_root(self):
+        for T, P in ((473.15, 50e5), (298.15, 1e5)):
+            vapour = self.engine.propertiesSolvent(T, P, "H2O@reak", 1).density.val
+            liquid = self.engine.propertiesSolvent(T, P, "H2O@reak", 0).density.val
+            assert vapour == pytest.approx(liquid, 1e-9)
+            assert liquid > 800
+
+    def test_vapour_below_the_saturation_pressure_is_unchanged(self):
+        vapour = self.engine.propertiesSolvent(473.15, 10e5, "H2O@reak", 1).density.val
+        assert 4 < vapour < 6

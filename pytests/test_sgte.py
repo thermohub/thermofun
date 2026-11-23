@@ -18,11 +18,11 @@ DATA = json.loads((pathlib.Path(__file__).resolve().parent / "data" / "sources" 
 LETTERS = "abcdefgh"
 MAG = DATA["magnetic"]
 
-BASE = methods.build({"kind": "symbolic", "tier": 1, "operates_on": "substance",
-                      "parameter_definitions": {n: {"unit": "1"} for n in LETTERS}, "source": {"form": "sgte"}})
-MAGNETIC = methods.build({"kind": "symbolic", "tier": 1, "operates_on": "substance",
+BASE = methods.build({"kind": "symbolic", "operates_on": "substance",
+                      "parameter_definitions": {n: {"unit": "1"} for n in LETTERS}, "formula": {"form": "sgte"}})
+MAGNETIC = methods.build({"kind": "symbolic", "operates_on": "substance",
                           "parameter_definitions": {"Tc": {"unit": "K"}, "beta": {"unit": "1"}, "p": {"unit": "1"}},
-                          "source": {"form": "magnetic_ihj"}})
+                          "formula": {"form": "magnetic_ihj"}})
 
 
 def by_hand(T):
@@ -55,7 +55,7 @@ def engine():
     substance = {"formula": "Fe", "charge": 0, "class": "component", "aggregate_state": "crystal",
                  "reference_conditions": {"T": 298.15, "P": 1e5},
                  "standard_state_properties": {"G": 0.0, "H": 0.0, "S": 0.0, "Cp": 0.0, "V": 7.09e-6},
-                 "convention": {"energy_reference": "benson_helgeson"},
+                 "energy_reference": {"elements": "benson_helgeson"},
                  "methods": [{"method": "SGTE", "segments": [
                      {"t_min": p["t_min"], "t_max": p["t_max"], "parameters": {n: p[n] for n in LETTERS}} for p in DATA["base_pieces"]]},
                      {"method": "MagneticIHJ", "segments": magnetic_pieces}]}

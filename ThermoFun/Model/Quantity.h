@@ -48,9 +48,9 @@ struct Uncertainty
 /// Optional data about one value. An empty value or string means that the file gives nothing here.
 struct ValueMeta
 {
-    std::optional<Quality> quality;
+    std::string quality;           ///< free text: the trust of the data author; suggested words core, recommended, supplemental (ThermoHub O50)
     std::optional<Origin> origin;
-    std::string calculation_path;  ///< free text if origin is Calculated
+    std::string derivation;        ///< how the value was obtained, free text, for any origin (calculated, estimated, converted, ...)
     std::string source;            ///< symbol of a data source, for example "1995ROB/HEM"
 
     auto operator==(const ValueMeta&) const -> bool = default;

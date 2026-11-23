@@ -61,7 +61,7 @@ inline auto setMessage(PropertiesInfo& out, const std::string& message) -> void
 {
     for (auto* x : {&out.G, &out.H, &out.S, &out.Cp, &out.V})
         if (x->status == ValueInfo::Status::Calculated)
-            x->message += outsideRangeMessage(message) + "; ";
+            addNote(x->notes, Note{Note::Kind::Range, Note::Severity::Soft, "", message, {}});
 }
 
 /// The message of a point outside the range of the record; empty if it is inside.
@@ -71,6 +71,15 @@ inline auto boundsMessage(const std::string& model, const Applicability& a, doub
     if (pMax >= P && tMax >= T && pMin <= P && tMin <= T)
         return "";
     return model + ": out of T(" + std::to_string(tMin) + "-" + std::to_string(tMax) + " K) and P(" + std::to_string(pMin) + "-" + std::to_string(pMax) + " Pa) bounds";
+}
+
+/// The notes of a result that this one is calculated from (decision 0029), on the properties that are calculated, with the
+/// step of the path, for example "the water".
+inline auto inheritNotes(PropertiesInfo& out, const Notes& from, const std::string& step) -> void
+{
+    for (auto* x : {&out.G, &out.H, &out.S, &out.Cp, &out.V})
+        if (x->status == ValueInfo::Status::Calculated)
+            ThermoFun::inheritNotes(x->notes, from, step);
 }
 
 /// The properties of a method that calculates all of them: calculated, with no error.

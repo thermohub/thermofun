@@ -18,10 +18,10 @@ A database holds records: elements, substances, reactions, method definitions, p
 ```python
 import thermofun as tf
 
-shared = tf.ThermoEngine("examples/v2/minimal.yaml")
-mine = tf.ThermoEngine(shared)  # for one thread
-mine.preferences.round_to_uncertainty = True
-print(shared.preferences.round_to_uncertainty)
+shared_engine = tf.ThermoEngine("examples/v2/minimal.yaml")
+thread_engine = tf.ThermoEngine(shared_engine)  # for one thread
+thread_engine.preferences.round_to_uncertainty = True
+print(shared_engine.preferences.round_to_uncertainty)
 ```
 
 Output:
@@ -32,7 +32,7 @@ False
 
 <!-- check
 ```python
-assert shared.preferences.round_to_uncertainty is False
+assert shared_engine.preferences.round_to_uncertainty is False
 ```
 -->
 
@@ -42,4 +42,4 @@ In C++ the copy constructor and the copy assignment both make such a copy. A dat
 
 **Water passes its properties on.** The record of the solvent has its methods. A solute and a dielectric model read what those methods give.
 
-**Constants are data.** The constants of a model are in `ThermoFun/Methods/ParameterSets`, in the form of a database section. A model can have variants, and a record can replace a value for itself.
+**Model parameters are data.** The model parameters (the values of a model, the same for every substance) are in `ThermoFun/Methods/ParameterSets`, in the form of a database section. A model can have variants, and a record can replace a value for itself.
