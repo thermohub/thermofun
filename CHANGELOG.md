@@ -173,7 +173,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `"variables"` give them as a table with the columns `<method>:<name>`, and the option `route_terms_and_variables` puts them on
   the route of every result. The catalog lists them (`terms`, each with the property it is part of, and `variables`, with unit and
   meaning) and the method page has a section for each. First method: `HKF88` gives the Born terms of G, H, S, Cp and V (terms),
-  and the g function, the effective radius and the Born coefficient (variables). The terms agree with each other (S = -dG/dT,
+  and the g function, the effective radius and the Born coefficient (variables). The formula of the method gives them while it
+  calculates the values (no other evaluation of the model); the Born terms are the parts of G, H, S, Cp and V that the totals
+  are made of. The terms agree with each other (S = -dG/dT,
   Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity coefficient of the gas methods, the order parameter of Landau and
   the thermal pressure of Tait (CHECK-LATER item 38). A batch calculation takes them as properties, `{name: terms:HKF88:born_G,
   unit: kJ/mol}`; a record without the method gets an empty cell and a problem.

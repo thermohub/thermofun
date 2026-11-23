@@ -306,7 +306,7 @@ void exportThermoEngine(py::module& m)
                    "codata2018 (tf.methods.physicalConstantsNames()). Fitted equations keep the R of their fit. A change drops the cached results")
     .def_readwrite("route_terms_and_variables", &EnginePreferences::route_terms_and_variables,
                    "the route of a result also has the terms and variables of its methods (HKF88: the Born terms, the g function) True/False (default: False); "
-                   "they cost one more evaluation of the model. routeTable(T, P, symbol, 'terms') calculates them without it")
+                   "the formula of the method gives them as it calculates, so they cost no other evaluation. routeTable(T, P, symbol, 'terms') gives them without it")
     .def_readwrite("propagate_parameter_errors",
                    &EnginePreferences::propagate_parameter_errors,
                    "also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False)");

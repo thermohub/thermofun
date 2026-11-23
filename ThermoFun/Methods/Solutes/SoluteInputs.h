@@ -29,6 +29,13 @@ struct HKFInputs
     HKFModelParameters constants{};
 };
 
+/// The Born (solvation) terms of G, H, S, Cp and V of an HKF species, the parts of the totals that hold omega: J/mol, J/(mol K),
+/// J/bar. Written by the HKF formulas when they are given a place for them.
+struct HKFBornTerms
+{
+    real G = 0.0, H = 0.0, S = 0.0, Cp = 0.0, V = 0.0;
+};
+
 /// The reference values of a species for the density models. K, J/mol, J/(mol K), J/bar.
 struct SoluteReference
 {

@@ -89,17 +89,7 @@ public:
 
     auto info(PropertiesInfo& out, const PropertiesInfo& reference, const InfoInputs& in) const -> void override { info_(out, reference, in, parameters_); }
 
-    auto outputs(const SubstanceInputs<TPReal>& in) const -> MethodOutputs override
-    {
-        return outputs_ ? outputs_(in, parameters_) : MethodOutputs{};
-    }
-
-    /// Gives the method its terms and variables: a function of the inputs (the pass with respect to T) and the parameters.
-    using OutputsFunction = std::function<MethodOutputs(const SubstanceInputs<TPReal>&, const MethodParameters<Data>&)>;
-    auto withOutputs(OutputsFunction f) -> FunctionMethod& { outputs_ = std::move(f); return *this; }
-
 private:
-    OutputsFunction outputs_;
     const MethodSpec* spec_;
     MethodParameters<Data> parameters_;
     Formula formula_;
@@ -111,15 +101,6 @@ template <typename Data, typename Formula, typename Info>
 auto makeMethod(const char* id, MethodParameters<Data> parameters, Formula formula, Info info) -> std::shared_ptr<const SubstanceMethod>
 {
     return std::make_shared<const FunctionMethod<Data, Formula, Info>>(id, std::move(parameters), std::move(formula), std::move(info));
-}
-
-/// The same, with terms and variables, listed in `terms` and `variables` of the spec.
-template <typename Data, typename Formula, typename Info, typename Outputs>
-auto makeMethod(const char* id, MethodParameters<Data> parameters, Formula formula, Info info, Outputs outputs) -> std::shared_ptr<const SubstanceMethod>
-{
-    auto method = std::make_shared<FunctionMethod<Data, Formula, Info>>(id, std::move(parameters), std::move(formula), std::move(info));
-    method->withOutputs(std::move(outputs));
-    return method;
 }
 
 } // namespace ThermoFun::model

@@ -120,8 +120,8 @@ reactants Calcite -1.0
 | `terms` | `<method>:<name>`: the parts of the contribution of a method to one property, as its catalog entry names them (HKF88: `born_G`, ...). |
 | `variables` | `<method>:<name>`: the quantities of the model that the terms come from (HKF88: `g`, `re`, `omega`, `omega_reference`). |
 
-Terms and variables cost one more evaluation of the model: the route of a result has them only with the option
-`route_terms_and_variables`; `routeTable` calculates them always. A batch calculation takes the same columns as properties:
+The formula of a method gives its terms and variables as it calculates the values, so they cost no other evaluation of the
+model. The route of a result keeps them only with the option `route_terms_and_variables`; `routeTable` always gives them. A batch calculation takes the same columns as properties:
 `contribution:<method>:<property>`, `terms:<method>:<name>`, `variables:<method>:<name>`.
 
 ## In C++

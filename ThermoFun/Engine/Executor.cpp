@@ -94,15 +94,14 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
     {
         const auto& method = bound.order[i];
         const RouteValues before = steps ? valuesOf(a) : RouteValues{};
-        method->apply(a, wrtT);
-        method->apply(b, wrtP);
         MethodStep step;
+        // the formula writes its terms and variables as it calculates them (no other evaluation of the model)
+        wrtT.outputs = steps && withOutputs ? &step.outputs : nullptr;
+        method->apply(a, wrtT);
+        wrtT.outputs = nullptr;
+        method->apply(b, wrtP);
         if (steps)
-        {
             step.contribution = valuesOf(a) - before;
-            if (withOutputs)
-                step.outputs = method->outputs(wrtT);
-        }
         if (i < bound.to_canonical.size() && !bound.to_canonical[i].identity())
         {
             const RouteValues after = steps ? valuesOf(a) : RouteValues{};

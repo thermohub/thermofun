@@ -103,6 +103,16 @@ auto hkf88Info(PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs&
     inheritNotes(out, wes.info.notes, "the water");
 }
 
+/// The terms and variables of HKF88 (see its catalog entry), SI, from the values its formula calculated: the Born terms of G, H, S,
+/// Cp and V, the g function, the effective radius (0 for a neutral species and H+), the Born coefficient and its reference value.
+auto writeHKF88Outputs(MethodOutputs& out, const HKFBornTerms& born, const FunctionG& g, const ElectroPropertiesSubstance& aes, const TPReal& wr, const HKFInputs& species) -> void
+{
+    const auto val = [](const TPReal& x) { return static_cast<double>(x[0]); };
+    const double re = species.charge == 0.0 || species.hydrogen_ion ? 0.0 : val(aes.re);
+    out.terms = {{"born_G", val(born.G)}, {"born_H", val(born.H)}, {"born_S", val(born.S)}, {"born_Cp", val(born.Cp)}, {"born_V", val(born.V) * jPerBarToM3}};
+    out.variables = {{"g", val(g.g)}, {"re", re}, {"omega", val(aes.w) * cal_to_J}, {"omega_reference", val(wr) * cal_to_J}};
+}
+
 template <typename Scalar>
 auto hkf88Reaktoro(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in, const HKFParameters& p) -> void
 {
@@ -119,7 +129,10 @@ auto hkf88Reaktoro(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>&
         const Scalar p = in.P / bar_to_Pa;
         FunctionG g = functionG(t, p, in.solvent->properties, inputs.constants);
         const ElectroPropertiesSubstance aes = parameters.empty() ? ElectroPropertiesSubstance{} : speciesElectroStateHKF(g, inputs);
-        setFromModel(state, thermoPropertiesAqSoluteHKFreaktoro(t, p, inputs, aes, in.solvent->electro, in.solvent->properties));
+        HKFBornTerms born;
+        setFromModel(state, thermoPropertiesAqSoluteHKFreaktoro(t, p, inputs, aes, in.solvent->electro, in.solvent->properties, in.outputs ? &born : nullptr));
+        if (in.outputs)
+            writeHKF88Outputs(*in.outputs, born, g, aes, parameters[6], inputs);
     }
 }
 
@@ -139,7 +152,10 @@ auto hkf88Gems(SubstanceState<Scalar>& state, const SubstanceInputs<Scalar>& in,
         const Scalar p = in.P / bar_to_Pa;
         FunctionG g = gShok2(t, p, in.solvent->properties, inputs.constants);
         const ElectroPropertiesSubstance aes = parameters.empty() ? ElectroPropertiesSubstance{} : omeg92(g, inputs);
-        setFromModel(state, thermoPropertiesAqSoluteHKFgems(t, p, inputs, aes, in.solvent->electro, in.solvent->properties));
+        HKFBornTerms born;
+        setFromModel(state, thermoPropertiesAqSoluteHKFgems(t, p, inputs, aes, in.solvent->electro, in.solvent->properties, in.outputs ? &born : nullptr));
+        if (in.outputs)
+            writeHKF88Outputs(*in.outputs, born, g, aes, parameters[6], inputs);
     }
 }
 
@@ -208,56 +224,12 @@ auto akinfievDiamond03Info(PropertiesInfo& out, const InfoInputs& in) -> void
 
 } // namespace
 
-/// The g function, the effective radius, the Born coefficient and the Born terms of G, H, S, Cp and V of the species, SI (see the
-/// catalog of HKF88). gems: with the g function and the Born coefficient of the GEMS implementation (gShok2, omeg92), else those of
-/// Reaktoro. The Born terms have the same formulas in both.
-auto hkf88Outputs(const SubstanceInputs<TPReal>& in, const HKFParameters& p, bool gems) -> MethodOutputs
-{
-    if (!in.solvent || p.values.empty())
-        return {};
-    const auto val = [](const auto& x) { return static_cast<double>(x[0]); };
-    std::vector<TPReal> parameters;
-    for (std::size_t i = 0; i < p.values.size(); ++i)
-        parameters.push_back(p.value(i, in) * hkfFactor[i]);
-    const auto inputs = hkfInputs(parameters, p.data, in);
-    const TPReal T = in.T;
-    const TPReal Pbar = in.P / bar_to_Pa;
-    const auto& c = inputs.constants;
-    const FunctionG g = gems ? gShok2(T - C_to_K, Pbar, in.solvent->properties, c) : functionG(T, Pbar, in.solvent->properties, c);
-    const ElectroPropertiesSubstance aes = gems ? omeg92(g, inputs) : speciesElectroStateHKF(g, inputs);
-    const auto wr = parameters[6];
-    // the effective radius: omeg92 does not keep it
-    TPReal re = aes.re;
-    if (gems)
-    {
-        const double z = inputs.charge;
-        re = TPReal(0.0);
-        if (z != 0.0 && !inputs.hydrogen_ion)
-            re = z * z / (wr / c.eta + z / (c.zeta + c.gr)) + std::abs(z) * g.g;
-    }
-    const auto& wes = in.solvent->electro;
-    const auto w = aes.w, wT = aes.wT, wTT = aes.wTT;
-    const auto wP = aes.wP * 1e05;                 // from 1/Pa to 1/bar
-    const auto Z = wes.bornZ, Y = wes.bornY, X = wes.bornX;
-    const auto Q = wes.bornQ * 1e05;
-    const auto G = -w * (Z + 1) + wr * (c.Zr + 1) + wr * c.Yr * (T - c.Tr);
-    const auto H = -w * (Z + 1) + w * T * Y + T * (Z + 1) * wT + wr * (c.Zr + 1) - wr * c.Tr * c.Yr;
-    const auto S = w * Y + (Z + 1) * wT - wr * c.Yr;
-    const auto Cp = w * T * X + 2 * T * Y * wT + T * (Z + 1) * wTT;
-    const auto V = 0.4184004e2 * (-w * Q - (Z + 1) * wP) * 1e-1 * jPerBarToM3;   // cm3/mol to J/bar to m3/mol
-    MethodOutputs out;
-    out.terms = {{"born_G", val(G) * cal_to_J}, {"born_H", val(H) * cal_to_J}, {"born_S", val(S) * cal_to_J}, {"born_Cp", val(Cp) * cal_to_J}, {"born_V", val(V)}};
-    out.variables = {{"g", val(g.g)}, {"re", val(re)}, {"omega", val(w) * cal_to_J}, {"omega_reference", val(wr) * cal_to_J}};
-    return out;
-}
-
 auto hkf88ReaktoroMethod(std::vector<double> parameters, HKFSpecies species, HKFModelParameters constants) -> std::shared_ptr<const SubstanceMethod>
 {
     species.constants = constants;
     return makeMethod("HKF88", HKFParameters{std::move(parameters), std::move(species)},
                       [](auto& state, const auto& in, const HKFParameters& p) { hkf88Reaktoro(state, in, p); },
-                      [](PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFParameters& p) { hkf88Info(out, ref, in, p.data); },
-                      [](const SubstanceInputs<TPReal>& in, const HKFParameters& p) { return hkf88Outputs(in, p, false); });
+                      [](PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFParameters& p) { hkf88Info(out, ref, in, p.data); });
 }
 
 auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFModelParameters constants) -> std::shared_ptr<const SubstanceMethod>
@@ -265,8 +237,7 @@ auto hkf88GemsMethod(std::vector<double> parameters, HKFSpecies species, HKFMode
     species.constants = constants;
     return makeMethod("HKF88", HKFParameters{std::move(parameters), std::move(species)},
                       [](auto& state, const auto& in, const HKFParameters& p) { hkf88Gems(state, in, p); },
-                      [](PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFParameters& p) { hkf88Info(out, ref, in, p.data); },
-                      [](const SubstanceInputs<TPReal>& in, const HKFParameters& p) { return hkf88Outputs(in, p, true); });
+                      [](PropertiesInfo& out, const PropertiesInfo& ref, const InfoInputs& in, const HKFParameters& p) { hkf88Info(out, ref, in, p.data); });
 }
 
 auto soluteHP98Method(std::vector<double> parameters, std::string symbol) -> std::shared_ptr<const SubstanceMethod>

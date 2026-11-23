@@ -124,6 +124,9 @@ struct SubstanceInputs
     const SubstanceState<Scalar>* ideal_gas_water = nullptr;
     int seeded_parameter = -1;                      ///< the parameter of this method that the pass derives by; -1: none
     SubstanceOptions options{};
+    /// Set if the terms and variables of the method are asked for (decision 0030; only in the pass with respect to T): a method
+    /// that has them writes them here as its formula calculates them, in SI, with the names of its spec. Null: not asked for.
+    MethodOutputs* outputs = nullptr;
 };
 
 /// What the status and the errors of a method depend on. K, Pa.
@@ -161,11 +164,6 @@ public:
 
     /// The status and the error of what the method gives. out holds those of the incoming properties.
     virtual auto info(PropertiesInfo& /*out*/, const PropertiesInfo& /*reference*/, const InfoInputs&) const -> void {}
-
-    /// The terms and variables of the method (decision 0030), in SI, for the state of the inputs (the pass with respect to T: the
-    /// values only). The names are those of the spec (terms, variables). Calculated only on request (the option
-    /// route_terms_and_variables, routeTable): they cost one more evaluation of the model. Empty if the method has none.
-    virtual auto outputs(const SubstanceInputs<TPReal>&) const -> MethodOutputs { return {}; }
 };
 
 } // namespace ThermoFun::model
