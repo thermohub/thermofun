@@ -59,6 +59,28 @@ def test_a_region_on_a_method_of_a_substance_is_refused():
         tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"Na+": na}}))
 
 
+def test_validate_finds_a_region_on_a_method_of_a_substance():
+    # CodeRabbit (PR #102) thought validate missed it: Database.validate runs the check of the methods of each substance too
+    # loading a file refuses it already; a record changed after loading is checked by validate alone
+    mineral = {"formula": "Ca", "class": "component", "aggregate_state": "crystal", "standard_state_properties": {"G": -1.0e6, "S": 40.0, "Cp": 25.0},
+               "methods": [{"method": "ConstantCp"}]}
+    db = tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"A": mineral}})
+    db.set("/substances/A/methods/0/region", {"t_max": 500.0})
+    found = [d for d in db.validate().all() if d.code == "V2-MTH-027"]
+    assert len(found) == 1 and "ConstantCp has a region" in found[0].message   # once: from the check of the methods
+    # water equations and dielectric models keep their regions
+    water = engine([HGK, dict(BP, region={"t_max": 343.15, "p_min": 1.0e8}), HK]).database()
+    assert not [d for d in water.validate().all() if d.code == "V2-MTH-027"]
+
+
+@pytest.mark.parametrize("region, word", [({"t_min": 400.0, "t_max": 300.0}, "t_min"), ({"p_min": 2.0e8, "p_max": 1.0e8}, "p_min")])
+def test_an_inverted_region_is_reported(region, word):
+    # a region whose minimum is at or above its maximum holds nowhere: its method would never be used, without a word
+    db = engine([HGK, dict(BP, region=region), HK]).database()
+    found = [d for d in db.validate().all() if d.code == "V2-APP-001"]
+    assert found and found[0].path.endswith("/region") and word in found[0].message
+
+
 def test_a_method_in_a_region_needs_one_of_its_kind_after_it():
     with pytest.raises(RuntimeError, match="V2-MTH-027"):
         engine([HGK, HK, dict(BP, region={"t_max": 343.15})])

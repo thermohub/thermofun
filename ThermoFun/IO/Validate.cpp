@@ -29,7 +29,9 @@ void report(Diagnostics& diag, const char* code, const std::string& record, cons
     diag.add(d);
 }
 
-void checkRange(Diagnostics& diag, const Applicability& a, const std::string& record, const std::string& path)
+// The bounds of an applicability or of a region: a minimum at or above its maximum holds nowhere
+template <class Bounds>
+void checkRange(Diagnostics& diag, const Bounds& a, const std::string& record, const std::string& path)
 {
     if (a.t_min && a.t_max && !(*a.t_min < *a.t_max))
         report(diag, "V2-APP-001", record, path, "t_min is not below t_max.");
@@ -84,6 +86,8 @@ void checkMethods(Diagnostics& diag, const V2Records& records, const std::vector
         if (!spec->implemented)
             report(diag, "V2-MTH-008", record, where, "The method " + spec->id + " is known but does nothing.");
         checkRange(diag, app.applicability, record, where + "/applicability");
+        checkRange(diag, app.region, record, where + "/region");   // an inverted region is never used: say so
+        // a substance gets the same check from the binding (checkMethods, in Database::validate); a reaction only here
         if (operatesOn == OperatesOn::Reaction && !app.region.empty())
             report(diag, "V2-MTH-027", record, where + "/region",
                    spec->id + " has a region, but methods of its kind cannot be combined by region: regions select among water equations of state or among dielectric models.");
