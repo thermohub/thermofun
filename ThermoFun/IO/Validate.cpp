@@ -311,9 +311,11 @@ void checkLogKInputs(Diagnostics& diag, const ReactionRecord& r, const std::stri
     for (std::size_t i = 0; i < r.methods.size(); ++i)
     {
         const std::string& id = r.methods[i].method;
+        const std::string where = path + "/methods/" + std::to_string(i);
+        if (readsReferenceValues(r.methods[i]) && r.methods[i].implementation != "gems")
+            checkDerivedValues(diag, r, id, where);
         if (id != "LogKVantHoff" && id != "LogKConstantCp" && id != "LogKZeroEntropy")
             continue;
-        const std::string where = path + "/methods/" + std::to_string(i);
         if (!energy)
             report(diag, "V2-MTH-024", r.symbol, where, "The method " + id + " needs log K or dG at the reference temperature; the record gives neither.");
         else if (id == "LogKVantHoff" && !heat)
@@ -321,8 +323,6 @@ void checkLogKInputs(Diagnostics& diag, const ReactionRecord& r, const std::stri
         else if (id == "LogKConstantCp" && (!heat || !has(ReactionPropertyName::dCp)))
             report(diag, "V2-MTH-024", r.symbol, where,
                    std::string("LogKConstantCp needs dH or dS, and dCp: it falls back to ") + (heat ? "van 't Hoff (no dCp term)." : "a constant log K."));
-        if (r.methods[i].implementation != "gems")
-            checkDerivedValues(diag, r, id, where);
     }
 }
 

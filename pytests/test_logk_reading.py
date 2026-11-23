@@ -126,3 +126,18 @@ def test_validate_reports_a_derived_value_that_differs():
     assert [d.path for d in off] == ["/reactions/R/methods/0"] * 2
     assert "derives dS from log K and dH" in off[1].message and "derives dG from log K" in off[0].message
     assert not codes(one_reaction(dict(agree, dS=agree["dS"] + 0.5), implementation="gems"))
+
+
+def test_validate_checks_log_k_constant():
+    def codes(database):
+        return [d for d in database.validate().all() if d.code == "V2-MTH-029"]
+
+    assert codes(one_reaction({"logK": 2.0, "dG": 0.0}, method="LogKConstant"))           # dG is derived from log K, not read
+    assert not codes(one_reaction({"logK": 2.0, "dG": -R * TR * LN10 * 2.0}, method="LogKConstant"))
+    assert not codes(one_reaction({"logK": 2.0, "dG": 0.0}, method="LogKConstant", implementation="gems"))
+
+
+def test_the_route_of_a_result_names_the_implementation_in_effect():
+    engine = gems(tf.ThermoEngine(PSI))
+    route = engine.thermoPropertiesReaction(373.15, 1e5, "FeOH+2").route
+    assert [(m.method, m.implementation) for m in route.methods] == [("LogKConstantCp", "gems")]

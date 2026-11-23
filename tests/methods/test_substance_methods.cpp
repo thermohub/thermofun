@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <fstream>
 #include <initializer_list>
+#include <limits>
 #include <map>
 #include <string>
 
@@ -21,6 +22,7 @@
 #include "IO/Legacy/LegacyReader.h"
 #include "Methods/Evaluate.h"
 #include "Methods/MethodRegistry.h"
+#include "Methods/Reactions/ReactionMethods.h"
 #include "Methods/Minerals/CpPolynomial.h"
 #include "Methods/Minerals/ReferenceMethods.h"
 #include "Methods/MethodCatalog.h"
@@ -455,6 +457,28 @@ void testHydrogenIon()
     CHECK(!isHydrogenIon(r));
 }
 
+/// The errors of a method of log K come from the values it reads (PR 105, CodeRabbit): a value whose derivative is 0 adds
+/// nothing, also with an error not known (NaN), so it cannot spoil the known error of log K.
+void testLogKErrorsOfValuesNotRead()
+{
+    ThermoFun::ReactionInputs in;
+    in.reference.log_equilibrium_constant = 2.0;
+    in.reference.log_equilibrium_constant.err = 0.02;
+    in.reference.log_equilibrium_constant.sta = {Reaktoro_::Status::read, ""};
+    in.reference.reaction_entropy = 5.0;  // LogKConstant does not read dS
+    in.reference.reaction_entropy.err = std::numeric_limits<double>::quiet_NaN();
+    in.reference.reaction_entropy.sta = {Reaktoro_::Status::read, ""};
+    const auto constant = logKProperties(in, ThermoFun::LogKForm::Constant, 373.15, 1e5);
+    CHECK(std::abs(constant.log_equilibrium_constant.err - 0.02) < 1e-15);
+    // a value that is read with an error not known: the error of the result is not known either
+    in.reference.reaction_enthalpy = 10000.0;
+    in.reference.reaction_enthalpy.err = std::numeric_limits<double>::quiet_NaN();
+    in.reference.reaction_enthalpy.sta = {Reaktoro_::Status::read, ""};
+    const auto vantHoff = logKProperties(in, ThermoFun::LogKForm::VantHoff, 373.15, 1e5);
+    CHECK(std::isnan(vantHoff.log_equilibrium_constant.err));
+    // at Tr, log K does not depend on dH: the error of the given log K, and the dS given (derived, not read) adds nothing
+    CHECK(std::abs(logKProperties(in, ThermoFun::LogKForm::VantHoff, 298.15, 1e5).log_equilibrium_constant.err - 0.02) < 1e-15);
+}
 
 } // namespace
 
@@ -470,4 +494,5 @@ void runSubstanceMethods()
     testConflictMessages();
     testSolvent();
     testHydrogenIon();
+    testLogKErrorsOfValuesNotRead();
 }

@@ -29,14 +29,6 @@ auto toSI(ThermoPropertiesReaction d) -> ThermoPropertiesReaction
     return d;
 }
 
-/// The methods of log K that always read the reference values of the record by logKReading (a polynomial reads them only
-/// without its coefficients a0 to a6)
-auto isLogKMethod(const std::string& id) -> bool
-{
-    static const char* const ids[] = {"LogKConstant", "LogKZeroEntropy", "LogKVantHoff", "LogKConstantCp"};
-    return std::find(std::begin(ids), std::end(ids), id) != std::end(ids);
-}
-
 auto joined(const std::vector<std::string>& names) -> std::string
 {
     std::string out;
@@ -62,15 +54,15 @@ auto ThermoEngine::Impl::logKValueNotRead(const ParameterRef& ref) const -> std:
     if (!ref.method.empty() || !database.containsReaction(ref.symbol) || !(ref.parameter == "logK" || ref.parameter == "dG" || ref.parameter == "dH" || ref.parameter == "dS"))
         return {};
     const auto bound = boundReaction(database.getReaction(ref.symbol));
-    if (!bound || !bound->base || !isLogKMethod(bound->base->spec().id))
+    if (!bound || !bound->base)
         return {};
+    const auto application = std::find_if(bound->record->methods.begin(), bound->record->methods.end(), [&](const auto& a) { return a.method == bound->base->spec().id; });
+    if (application == bound->record->methods.end() || !model::readsReferenceValues(*application))
+        return {};
+    const bool gems = application->implementation == "gems";
     const auto& properties = bound->record->reaction_properties;
     using N = model::ReactionPropertyName;
     const auto has = [&](N name) { return properties.count(name) > 0; };
-    bool gems = false;
-    for (const auto& a : bound->record->methods)
-        if (a.method == bound->base->spec().id)
-            gems = a.implementation == "gems";
     const auto read = logKReading(LogKReading{has(N::logK), has(N::dG), has(N::dH), has(N::dS)}, gems);
     const bool given = has(ref.parameter == "logK" ? N::logK : ref.parameter == "dG" ? N::dG : ref.parameter == "dH" ? N::dH : N::dS);
     const bool isRead = ref.parameter == "logK" ? read.logK : ref.parameter == "dG" ? read.dG : ref.parameter == "dH" ? read.dH : read.dS;

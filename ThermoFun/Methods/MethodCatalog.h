@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <ThermoFun/Methods/MethodSpec.h>
+#include <ThermoFun/Model/MethodApplication.h>
 
 namespace ThermoFun::model {
 
@@ -32,6 +33,11 @@ private:
     MethodCatalog();
     std::vector<MethodSpec> specs_;
 };
+
+/// Whether a method of a reaction reads the reference values of the record (log K, dG, dH, dS) by the rule of logKReading:
+/// LogKConstant, LogKZeroEntropy, LogKVantHoff and LogKConstantCp always; LogKPolynomial (LogKNordstromMunoz88) only without
+/// a0 to a6, when it makes its terms from dCp and the reference values.
+auto readsReferenceValues(const MethodApplication& application) -> bool;
 
 } // namespace ThermoFun::model
 

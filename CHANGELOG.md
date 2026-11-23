@@ -125,7 +125,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   log K and dH are the selected values (NEA TDB) and dS is derived. Values change by the rounding of the given dS (PSI 2020 3e-5
   in log K, cemdata18 3e-7, psinagra `(UO2)3(CO3)6-6` 0.0014), more where log K, dH and dS do not agree; `validate` reports a
   given dS or dG that differs from the derived one (V2-MTH-029). The implementation `gems` of `LogKConstant`, `LogKZeroEntropy`,
-  `LogKVantHoff`, `LogKConstantCp`, `LogKPolynomial` and `ReactionCpPolynomial` keeps the rule of GEMS (the golden references
+  `LogKVantHoff`, `LogKConstantCp` and `LogKPolynomial` keeps the rule of GEMS (the golden references
   are reproduced exactly with it, apart from the uncertainties); `selected` is the default. `method_implementation` of the
   engine now reaches the methods of reactions too. `parameterSensitivities` refuses a value that is derived, with the reason,
   and `engine.parameters(symbol)` does not list it. `LogKConstant` with dG and no log K gives log K from dG.

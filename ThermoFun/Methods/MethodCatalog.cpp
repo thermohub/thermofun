@@ -536,7 +536,7 @@ auto reactionMethods() -> std::vector<MethodSpec>
                           par("e", "J/(mol.K)", "J/(mol.K)", "density term")}));
     sections.end("Reactions: log K");
     m.push_back(Spec("ReactionCpPolynomial", "Heat capacity of reaction", "Gives dCp = a + b T + c/T2 + d/sqrt(T) + e T2; the log K methods use it.")
-                    .alias({"DrCpIntegration"}).reaction().impl({"selected", "gems"}).add(reactionCpCoefficients(true)));
+                    .alias({"DrCpIntegration"}).reaction().add(reactionCpCoefficients(true)));
     m.push_back(Spec("ReactionVolumePolynomial", "Volume of reaction, T and P", "Calculates dV(T, P) from expansion and compressibility terms, and adds the terms to log K, dG and dH.")
                     .alias({"DrVolumeFT"}).volume().add(volumeParameters()));
     m.push_back(Spec("ReactionConstantVolume", "Constant volume of reaction", "Adds dV dP to dG and dH, and the same term to log K.")
@@ -643,6 +643,19 @@ auto MethodCatalog::suggest(const std::string& unknown) const -> std::string
         }
     }
     return best;
+}
+
+auto readsReferenceValues(const MethodApplication& application) -> bool
+{
+    const auto& id = application.method;
+    if (id == "LogKConstant" || id == "LogKZeroEntropy" || id == "LogKVantHoff" || id == "LogKConstantCp")
+        return true;
+    if (id != "LogKPolynomial" && id != "LogKNordstromMunoz88")  // ReactionCpPolynomial alone is no base method
+        return false;
+    for (const char* a : {"a0", "a1", "a2", "a3", "a4", "a5", "a6"})
+        if (application.parameters.count(a))
+            return false;  // as MethodRegistry: any of a0 to a6 makes the coefficients of log K
+    return true;
 }
 
 } // namespace ThermoFun::model

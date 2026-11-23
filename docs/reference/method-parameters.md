@@ -87,7 +87,7 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 
 | Id | What it is | Parameters, with the SI unit | Implementations |
 |---|---|---|---|
-| `ReactionCpPolynomial` | Heat capacity of reaction | `a` [J/(mol.K)]<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | `selected`, `gems` |
+| `ReactionCpPolynomial` | Heat capacity of reaction | `a` [J/(mol.K)]<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | one |
 | `ReactionVolumePolynomial` | Volume of reaction, T and P | `a1` [1/K]<br>`a2` [1/K2]<br>`a3` [1/K3]<br>`b1` [1/Pa]<br>`b2` [1/Pa2] | one |
 | `ReactionConstantVolume` | Constant volume of reaction | none | one |
 

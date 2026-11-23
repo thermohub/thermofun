@@ -381,7 +381,8 @@ auto setLogKErrors(ThermoPropertiesReaction& tpr, const ReactionInputs& reaction
                             a.reaction_enthalpy[1], a.reaction_entropy[1], a.reaction_heat_capacity_cp[1],
                             a.reaction_volume[1], a.reaction_internal_energy[1], a.reaction_helmholtz_energy[1]};
         for (std::size_t k = 0; k < std::size(out); ++k)
-            variance[k] += d[k] * d[k] * x->err * x->err;  // an error NaN (not known) makes it NaN
+            if (d[k] != 0.0)  // a value that the result does not depend on adds nothing, also with an error not known (NaN)
+                variance[k] += d[k] * d[k] * x->err * x->err;  // else an error NaN makes it NaN
     }
     for (std::size_t k = 0; k < std::size(out); ++k)
         if (out[k]->sta.first != Reaktoro_::Status::notdefined)
