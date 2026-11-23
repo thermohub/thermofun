@@ -162,7 +162,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (Shvarov 2015) for omega of HKF. `Result.weighted_rms` and `Result.constraint_residuals` are new; the covariance keeps to the
   directions the constraints leave free. Test: the UO2+2 example of OptimB (`pytests/test_fitting_hkf.py`). How-to:
   "Fit parameters to measured data", section 6, whose printed outputs are now tested.
-- `Database::value(path)` and `setValue(path, json)` (Python `get(path)` and `set(path, value)`) read and change a value of a record by
+- `Database::value(path)`, `setValue(path, json)` and `removeValue(path)` (Python `get(path)`, `set(path, value)` and `remove(path)`) read, change and remove a value of a record by
   its path, a JSON pointer such as `/substances/Calcite/standard_state_properties/G`. Python takes and gives Python objects, so a
   record is changed without `json.dumps`. `Database(dict)` reads a dict in the v2 format. `Database::summary()` gives the size of
   a database and its substances by class and aggregate state.

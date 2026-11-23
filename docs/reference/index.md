@@ -33,6 +33,7 @@ Facts and the reasons behind them, in six sections. The pages of the methods, th
 ## Results and units
 
 - [Results](results.md): what a calculation gives.
+- [Routes](routes.md): how a result was calculated.
 - [Units](units.md)
 - [Derivatives](derivatives.md)
 - [Uncertainties and rounding](uncertainty.md)
@@ -89,6 +90,7 @@ diagnostics
 :maxdepth: 1
 
 results
+routes
 units
 derivatives
 uncertainty

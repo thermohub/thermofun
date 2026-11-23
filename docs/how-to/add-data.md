@@ -133,13 +133,13 @@ A record with no method and no reaction has its reference properties at all T an
 Add more data to this database:
 
 ```python
-db = tf.Database("small.yaml")
+database = tf.Database("small.yaml")
 one = '{"symbol": "Corundum", "formula": "X", "standard_state_properties": {"G": 1}}'
-db.addSubstance(one)       # the symbol is there: nothing changes
-print(db.getSubstance("Corundum").formula())   # Al2O3
+database.addSubstance(one)       # the symbol is there: nothing changes
+print(database.getSubstance("Corundum").formula())   # Al2O3
 
-db.setSubstance(one)       # the record is replaced
-print(db.getSubstance("Corundum").formula())   # X
+database.setSubstance(one)       # the record is replaced
+print(database.getSubstance("Corundum").formula())   # X
 ```
 
 Output:
@@ -151,7 +151,7 @@ X
 
 <!-- check
 ```python
-assert db.getSubstance("Corundum").formula() == "X"
+assert database.getSubstance("Corundum").formula() == "X"
 ```
 -->
 
@@ -230,7 +230,7 @@ A molar volume can also be in J/bar. That is the unit of the legacy data: 1 J/ba
 | `defining_reaction` | The symbol of a reaction that gives the properties. |
 | `preferred_property_source` | `direct` (the methods) or `reaction` (the defining reaction). |
 | `applicability` | `{t_min, t_max, p_min, p_max}`. |
-| `data_source`, `data_sources` | The symbols of the citations. |
+| `data_sources` | The reference codes of the sources (NEA TDB-5 1.11), or texts; one code alone is a list of one. |
 | `covariances` | The correlations between values (Section 8). |
 | `structural` | Other named values, for example an ionic radius. |
 
@@ -632,14 +632,14 @@ substances:
     methods:
       - {method: WaterHGK84, implementation: reaktoro}
       - {method: JohnsonNorton91, implementation: reaktoro}
-    data_source: 1998HOL/POW
+    data_sources: [1998HOL/POW]
 ```
 
 ```python
-db = tf.Database("dataset.yaml")
-print(db.thermoDataSet().symbol)
-print(db.dataSources()["1998HOL/POW"].year)
-print(tf.ThermoEngine(db).solventSymbol())
+database = tf.Database("dataset.yaml")
+print(database.thermoDataSet().symbol)
+print(database.dataSources()["1998HOL/POW"].year)
+print(tf.ThermoEngine(database).solventSymbol())
 ```
 
 Output:
@@ -652,10 +652,10 @@ WATER
 
 <!-- check
 ```python
-assert db.thermoDataSet().symbol == "my-data"
-assert db.dataSources()["1998HOL/POW"].year == 1998
-assert tf.ThermoEngine(db).solventSymbol() == "WATER"
-assert abs(db.getElement("Ca").molarMass() - 40.078) < 1e-9
+assert database.thermoDataSet().symbol == "my-data"
+assert database.dataSources()["1998HOL/POW"].year == 1998
+assert tf.ThermoEngine(database).solventSymbol() == "WATER"
+assert abs(database.getElement("Ca").molarMass() - 40.078) < 1e-9
 ```
 -->
 

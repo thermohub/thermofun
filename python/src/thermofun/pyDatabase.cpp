@@ -119,6 +119,7 @@ void exportDatabase(py::module& m)
         .def("set", [](Database& self, const std::string& path, const py::object& value) {
             self.setValue(path, py::module_::import("json").attr("dumps")(value).cast<std::string>());
         }, py::arg("path"), py::arg("value"), "Sets a value of a record by its path (see get). The value can be a number, text, a dict or a list. A path of a record alone sets the whole record.")
+        .def("remove", &Database::removeValue, py::arg("path"), "Removes a value of a record by its path (see get): a key, or an element of a list, for example '/substances/Calcite/methods/1'")
         .def("summary", &Database::summary, "The size of the database and its substances by class and aggregate state")
         .def_property_readonly( "conventions", [](Database& db) -> const DatabaseConventions& { return db.conventions(); }, py::return_value_policy::reference_internal, "Access the thermodynamic conventions used by this database" )
         .def("appendData", appendData1, "Append records to the database from a file.")

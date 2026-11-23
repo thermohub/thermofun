@@ -162,12 +162,12 @@ To compare models for many records and conditions, a batch calculation does it i
 
 ## Remove a method
 
-Without the transition, G of Calcite is different. Here the method `LandauHP98` is taken out of the list.
+Without the transition, G of Calcite is different. Here the method `LandauHP98`, the second of the list (`methods/1`), is removed by its path.
 
 ```{code-cell} ipython3
 database = tf.Database("mineral-methods.yaml")
-methods = database.get("/substances/Calcite/methods")
-database.set("/substances/Calcite/methods", [m for m in methods if m["method"] != "LandauHP98"])
+print(database.get("/substances/Calcite/methods/1/method"))
+database.remove("/substances/Calcite/methods/1")
 without = tf.ThermoEngine(database).thermoPropertiesSubstance(473.15, 1e7, "Calcite")
 print(result.gibbs_energy.val, "->", without.gibbs_energy.val, "J/mol")
 ```

@@ -121,3 +121,16 @@ def test_the_class_has_clearer_aliases_that_are_written_with_the_word_of_the_for
     assert database.get("/substances/M/class") == "component"
     assert database.get("/substances/W/class") == "water_solvent"
     assert not [d for d in database.loadDiagnostics().all() if d.code == "V2-VOC-001"]
+
+
+def test_a_value_is_removed_by_its_path():
+    database = tf.Database("examples/v2/mineral-methods.yaml")
+    assert database.get("/substances/Calcite/methods/1/method") == "LandauHP98"
+    database.remove("/substances/Calcite/methods/1")
+    assert [m["method"] for m in database.get("/substances/Calcite/methods")] == ["CpPolynomial", "MurnaghanHP98"]
+    database.remove("/substances/Calcite/standard_state_properties/V")
+    assert "V" not in database.get("/substances/Calcite/standard_state_properties")
+    with pytest.raises(ValueError, match="no value at"):
+        database.remove("/substances/Calcite/methods/7")
+    with pytest.raises(ValueError, match="names a whole record"):
+        database.remove("/substances/Calcite")

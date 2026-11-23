@@ -328,6 +328,11 @@ public:
     /// @throws std::invalid_argument if the path or the text is not valid
     auto setValue(const std::string& path, const std::string& jsonValue) -> void;
 
+    /// Removes a value of a record by its path (see value): a key, or an element of a list, for example
+    /// `/substances/Calcite/methods/1`; the record is then set again (see setSubstance).
+    /// @throws std::invalid_argument if the path is not a path of a value of a record of this database
+    auto removeValue(const std::string& path) -> void;
+
     /// All problems of the database, also those that a load does not refuse because a record can come from another file.
     auto validate() const -> Diagnostics;
 

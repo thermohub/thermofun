@@ -12,11 +12,23 @@ the standard state and the energy reference in two blocks:
 
 | Block and field | Words | Default |
 |---|---|---|
-| `standard_state.pressure` | `1bar`, `1atm` | `1bar` |
+| `standard_state.pressure` | `1bar`, `1atm`, or any pressure | `1bar` |
 | `standard_state.concentration_scale` | `molality`, `molarity`, `mole_fraction` | `molality` |
 | `energy_reference.elements` | `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, ... | `benson_helgeson` |
 | `energy_reference.water` | `helgeson_kirkham_1974`, `codata_1989`, `steam_tables` | `helgeson_kirkham_1974` |
 | `energy_reference.ions` | `hydrogen_ion`, `none` | `hydrogen_ion` |
+
+**What G, H and S of a record mean.** The keys of `standard_state_properties` are the same in every energy reference; their
+meaning at the reference temperature Tr follows it (decision 0031). NEA data are `benson_helgeson` as published (dfG°m, dfH°m,
+S°m); `dfG` and `dfH` are read as G and H of `benson_helgeson`.
+
+| `energy_reference.elements` | G at Tr | H at Tr | S |
+|---|---|---|---|
+| `benson_helgeson` | dfG° (of formation from the elements) | dfH° | absolute (third law) |
+| `gibbs_helmholtz_formation` | dfG° | dfH° | dfS° (of formation) |
+| `berman_brown`, `ser`, `assigned_enthalpy`, `dft_formation_0K` | dfH° - Tr S° | dfH° | absolute |
+
+Cp and V are absolute in every energy reference.
 
 **The engine has one inside convention.** Each record says what it is in, and the engine converts it to the canonical convention. So species with different conventions can be in one reaction. Results go out in the convention that you ask for.
 

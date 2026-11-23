@@ -5,8 +5,8 @@
 
     python -m thermofun.docs generate docs/reference [--check] [--data Resources/databases]
 
-The pages are methods/index.md, one page for each method, diagnostics.md and engine-preferences.md. The examples come from the
-records of the bundled databases. With --check nothing is written: the command compares the files and exits with 1 if one differs.
+The pages are methods/index.md, one page for each method, diagnostics.md, engine-preferences.md, format-v2-schema.md, and
+vocabulary.md with ../glossary.md from docs/reference/vocabulary.yaml. The examples come from the records of the bundled databases. With --check nothing is written: the command compares the files and exits with 1 if one differs.
 """
 
 import argparse
@@ -21,6 +21,8 @@ import thermofun as tf
 DATA = "Resources/databases"
 # examples from published sources, written by hand and checked by pytests/test_method_examples.py
 EXAMPLES = "docs/reference/method-examples.yaml"
+# the words of ThermoFun: the allowed words and the glossary (decisions 0030-0032)
+VOCABULARY = "docs/reference/vocabulary.yaml"
 
 
 
@@ -467,14 +469,46 @@ def schema_page():
     return "\n".join(lines)
 
 
+def vocabulary(path=VOCABULARY):
+    """The words of docs/reference/vocabulary.yaml."""
+    import yaml  # only to generate the pages
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def vocabulary_page(words):
+    allowed = words["allowed_words"]
+    lines = ["# Allowed words", "", NOTICE + " The words are in `docs/reference/vocabulary.yaml`.", "", allowed["intro"].strip(), ""]
+    for section in allowed["sections"]:
+        lines += ["## " + section["title"], "", "| Field | Allowed words |", "|---|---|"]
+        for field in section["fields"]:
+            name = field["field"] if "`" in field["field"] else "`%s`" % field["field"]
+            lines.append("| %s | %s |" % (name, _cell(field["words"])))
+        lines.append("")
+        if section.get("after"):
+            lines += [section["after"].strip(), ""]
+    return "\n".join(lines)
+
+
+def glossary_page(words):
+    glossary = words["glossary"]
+    lines = ["# Glossary", "", NOTICE + " The words are in `docs/reference/vocabulary.yaml`.", "", glossary["intro"].strip(), "",
+             "| Word | Meaning | Term of the standard | Source |", "|---|---|---|---|"]
+    for w in sorted(glossary["words"], key=lambda w: w["word"].lower()):
+        lines.append("| %s | %s | %s | %s |" % (w["word"], _cell(w["meaning"]), _cell(w.get("standard", "")), _cell(w["source"])))
+    lines.append("")
+    return "\n".join(lines)
+
+
 def pages(data=DATA):
     """The files as a dictionary: path relative to the folder of the reference -> text."""
     catalog = list(tf.methods.catalog())  # the order of the catalog gives the order of the groups
     specs = [s for s in catalog if not s["same_as"]]  # another name of a method: a note on the page of that method
     found = examples(data)
     written = published_examples()
+    words = vocabulary()
     out = {"methods/index.md": index_page(specs), "diagnostics.md": diagnostics_page(), "engine-preferences.md": preferences_page(),
-           "format-v2-schema.md": schema_page()}
+           "format-v2-schema.md": schema_page(), "vocabulary.md": vocabulary_page(words), "../glossary.md": glossary_page(words)}
     for s in specs:
         out["methods/%s.md" % s["id"]] = method_page(s, found.get(_key(s)), [o for o in catalog if o["same_as"] == s["id"]], written.get(s["id"]), data)
     for g, members in groups(specs).items():

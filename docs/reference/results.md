@@ -29,7 +29,7 @@ uncertainty.
 | `validity` | `Validity.within`: inside the range of every model and data that the value depends on. `Validity.extrapolated`: calculated, but one of them is used outside its range; the notes say which. `Validity.undefined`: there is no value. |
 | `status` | `notdefined`, `read`, `assigned` or `calculated`, as in `sta`. |
 | `error` | Whether `err` can be trusted. `ErrorState.known`: the uncertainty of the data, propagated. `ErrorState.partial`: a contribution could not be propagated, and `err` is not a number. `ErrorState.unknown`: the data give no uncertainty; `err` is 0, which does not mean that the value is exact. |
-| `source` | Where the value came from: `methods`, `reaction` (a record defined by a reaction), `reactants` (a reaction from its species), `reference`, `water`, `hydrogen_ion`. |
+| `route` | How the result was calculated (decision 0030): `route.by` is where the values came from (`methods`, `reaction` for a record defined by a reaction, `reactants` for a reaction from its species, `reference`, `water`, `hydrogen_ion`, `hydrogen_electrode`), with the methods and their contributions, the records it needed and the conversions. See [Routes](routes.md). |
 | `pressure` | The pressure used, in Pa. At P = 0 it is the saturation pressure of water. |
 | `notes` | The list of notes behind the other members. |
 
@@ -58,8 +58,9 @@ import thermofun as tf
 engine = tf.ThermoEngine("aq17-thermofun.json")
 G = engine.thermoPropertiesSubstance(1373.15, 1e8, "Na+").gibbs_energy
 print(G.info.validity, G.info.route.by, G.info.pressure)
-for note in G.info.notes:
-    print(note)
+print(G.info.notes[0])
+print(G.info.notes[1])
+print(G.info.notes[2])
 ```
 
 Output:

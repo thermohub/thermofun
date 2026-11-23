@@ -152,6 +152,30 @@ auto Database::setValue(const std::string& path, const std::string& jsonValue) -
         setReaction(text);
 }
 
+auto Database::removeValue(const std::string& path) -> void
+{
+    const auto where = splitPath(path);
+    if (where.rest.empty())
+        throw std::invalid_argument("The path " + path + " names a whole record: give the path of a value in it, for example " + path + "/methods/0.");
+    json record = recordJson(*this, where);
+    const auto pointer = pointerOf(where.rest);
+    if (!record.contains(pointer))
+        throw std::invalid_argument("The record " + where.symbol + " has no value at " + where.rest + ".");
+    auto& parent = record[pointer.parent_pointer()];
+    if (parent.is_array())
+        parent.erase(std::stoul(pointer.back()));
+    else
+        parent.erase(pointer.back());
+    record["symbol"] = where.symbol;
+    const std::string text = record.dump();
+    if (where.section == "elements")
+        setElement(text);
+    else if (where.section == "substances")
+        setSubstance(text);
+    else
+        setReaction(text);
+}
+
 auto Database::formatVersion() -> std::string
 {
     return model::v2writer::formatVersion;

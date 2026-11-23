@@ -254,13 +254,19 @@ void exportMethods(py::module& parent)
     }, "All built-in methods (a list), or with an id one method: id, title, what it contributes to, what it needs, its parameters and "
        "model parameters", py::arg("id") = "");
 
-    m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference, int lagrangeOrder) {
+    m.def("reactionMethod", [](const std::string& id, const py::dict& parameters, py::object temperatures, py::object logK, const py::dict& reference,
+                               const std::string& interpolation, int interpolationOrder) {
             auto a = makeApplication(id, "", parameters);
-            if (lagrangeOrder > 0)
+            if (!interpolation.empty())
             {
-                a.interpolation = Interpolation::Lagrange;
-                a.interpolation_order = lagrangeOrder;
+                const auto word = fromString<Interpolation>(interpolation);
+                if (!word)
+                    throw py::value_error(unknownWordMessage<Interpolation>(interpolation));
+                a.interpolation = *word;
             }
+            a.interpolation_order = interpolationOrder;
+            if (a.interpolation == Interpolation::Lagrange && interpolationOrder < 1)
+                throw py::value_error("interpolation lagrange needs interpolation_order, the order of the polynomial (1 or more).");
             if (!temperatures.is_none())
             {
                 TableData table;
@@ -280,8 +286,10 @@ void exportMethods(py::module& parent)
             }
             return std::const_pointer_cast<ReactionMethod>(MethodRegistry::instance().createReaction(a, record));
         }, "A method of a reaction, for example reactionMethod(\"LogKTable\", temperatures=[...], logK=[...]). "
-           "parameters in SI; lagrange_order above 0 for the Lagrange polynomial of LogKTable; reference: logK, dG, dH, dS, dCp, dV in SI.",
-        py::arg("id"), py::arg("parameters") = py::dict(), py::arg("temperatures") = py::none(), py::arg("logK") = py::none(), py::arg("reference") = py::dict(), py::arg("lagrange_order") = 0);
+           "parameters in SI; interpolation of LogKTable: cubic_spline (the default) or lagrange with interpolation_order, the order of the polynomial, as the "
+           "keys of a method application; reference: logK, dG, dH, dS, dCp, dV in SI.",
+        py::arg("id"), py::arg("parameters") = py::dict(), py::arg("temperatures") = py::none(), py::arg("logK") = py::none(), py::arg("reference") = py::dict(),
+        py::arg("interpolation") = "", py::arg("interpolation_order") = 0);
     m.def("substanceMethod", [](const std::string& id, const std::string& implementation, const py::dict& parameters, const std::string& symbol, int charge) {
             SubstanceRecord record;
             record.symbol = symbol;

@@ -263,7 +263,8 @@ task = fitting.Task(tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "
     "template": "HKF88", "record": "UO2+2", "preset": "psat_only",
     "given": {"Cp": "10.04 cal/(mol*K)", "V": "6.1 cm3/mol"},
     "data": {"property": "G", "unit": "kJ/mol", "columns": ["T_C", "P_bar", "value", "uncertainty"],
-             "rows": [[t, 0, g, u] for t, g, u in hovey]}})
+             "rows": [[10, 0, -954.45, 0.5], [25, 0, -952.95, 0.5], [40, 0, -951.48, 0.5], [50, 0, -950.52, 1.0], [55, 0, -950.04, 0.5],
+                      [100, 0, -945.78, 1.0], [150, 0, -941.02, 1.0], [200, 0, -936.02, 1.0], [250, 0, -930.6, 2.0], [300, 0, -924.6, 2.0]]}})
 print(task.free, task.constraints_on, task.warnings)
 result = task.solve()
 shown = task.report(result)
