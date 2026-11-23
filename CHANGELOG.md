@@ -156,7 +156,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   method needs (the parameters and their units, the searched one, the constraints of the method as switches, conventions,
   rules that warn, plausible ranges, presets); a task names the template, a record, a preset, given values and data (rows or
   CSV), as a dict, YAML or JSON. `fitting.Task(engine, task)` builds the `Problem`; `task.solve()`, `task.report(result)` in the
-  units of the template, `task.warnings`. Constraints are expressions linear in the parameters (`fitting.evaluate`: arithmetic
+  units of the template, `task.warnings`. `fitting.catalog()` lists the fit templates, as `tf.batch.catalog()` the batch templates
+  and `tf.methods.catalog()` the methods (rows; with a name, one row); `fitting.template(name)` gives one. Constraints are expressions linear in the parameters (`fitting.evaluate`: arithmetic
   only). The `fitting` extra now also installs PyYAML. How-to: "Fit parameters to measured data", section 7.
 - **`thermofun.fitting`: exact constraints and a searched parameter.** `PropertyConstraint(symbol, property, T, P, value, terms)`
   holds a property at T, P at a given value (for example Cp and V of an HKF species at 25 °C); `Relation(terms, value)` holds a
@@ -249,16 +250,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `THERMOFUN_PARAMETER_PATH`: a folder with more variants, read with no rebuild.
 - The constants of physics are chosen at run time: the engine option `physical_constants`, `codata1986` (the default, as 0.x:
   most stored G and log K values were derived with its R) or `codata2018` (R about 6e-6 lower). It is the R of the
-  calculation (G and log K of a reaction, RT ln(P/p°) of a gas, the conversions of conventions, the log K methods); fitted
-  equations (NASA9, the fluid equations of state, Akinfiev-Diamond, Zhang-Duan, the ideal gas of water) keep the R of their fit.
+  calculation (G and log K of a reaction, RT ln(P/p°) of a gas, the conversions of conventions, the log K methods, and the cubic
+  equations of state of gases, Peng-Robinson, PRSV and Soave-Redlich-Kwong, where R is a physical constant); fitted equations
+  (NASA9, CORK, Sterner-Pitzer, Churakov-Gottschalk, Akinfiev-Diamond, Zhang-Duan, the ideal gas of water) keep the R of their fit.
   A dataset can say which set its values were derived with (`physical_constants`); an engine with another set warns (CNV-012).
   `tf.methods.physicalConstants(name)` gives a set. `R_CONSTANT` and the other 0.x names keep the CODATA 1986 values.
 - The dielectric models `HelgesonKirkham74` and `BradleyPitzer79` (issue 82). The HKF coefficients of Tanger and Helgeson (1988) now give their published volume and heat capacity.
 - Symbolic methods of substances and reactions, with the CMake option `TFUN_USE_SYMENGINE`, and `python -m thermofun.method_tool` with its source forms.
-- **The route of a result** (decision 0030): every result, and each of its values, says how it was calculated, `x.info.route`
-  (`ThermoFun::Route`, `Common/Route.h`): where the values came from (`by`: methods, reaction, reactants, water, reference,
-  hydrogen_ion, hydrogen_electrode), each method with what it contributed to G, H, S, Cp and V, the other records it needed with
-  their routes (solvent, defining reaction, reactants), and the conversions after the methods (conventions, options of gases,
+- **The route of a result**: every result says how it was calculated, `result.route` in Python (also `x.info.route` of each
+  value; `ThermoFun::Route`, `Common/Route.h`): where the values came from (`by`: methods, reaction, reactants, water, reference,
+  hydrogen_ion, hydrogen_electrode), each method with what it contributed to G, H, S, Cp and V (logK, dG, dH, dS, dCp, dV of a
+  reaction), the other records it needed with their routes (defining reaction, reactants, and the solvent at the same T and P with
+  the density and the dielectric constant that the methods used), and the conversions after the methods (conventions, options of gases,
   fallback, rounding). For each property the result is the sum of the contributions and the conversions. `ThermoEngine::route(symbol)`
   gives the route without numbers, before calculating; `routeTable(T, P, symbol, part)` gives it at many points; a route prints
   as YAML (`str(route)`, `toYaml`). It costs nothing measurable.
@@ -269,7 +272,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   with `show: value | uncertainty | ddt | ddp | status`) and `output` (units and digits also of T and P, `layout: long | wide | grid`,
   `file`, `provenance`). A block at the top is the default of every result, which can give its own. `compare` calculates a result
   with other databases, methods or engine settings, and `compare_difference` adds the difference to the first. Batch templates
-  (`tf.templates()`, `tf.template(name)`), among them `blank`, whose `<...>` placeholders must be filled (an error names their
+  (`tf.batch.catalog()`, `tf.template(name)`), among them `blank`, whose `<...>` placeholders must be filled (an error names their
   paths), and fragments for the conditions and the output. Values by path: `setup.set("/results/0/name", ...)`. Each result writes
   as CSV, Markdown or LaTeX, with its provenance (the database, the templates and `ThermoEngine::summary()`). `python -m thermofun.batch`.
   A setup can also give a `ThermoBatch` (`setup.batch()`, `setup.apply_to(batch)`), the 0.x batch API, which stays unchanged.

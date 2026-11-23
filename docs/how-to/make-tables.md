@@ -63,7 +63,7 @@ assert species.columns[0]["label"] == "G(kJ/mol)"
 ```
 -->
 
-`tf.templates()` lists them, and `python -m thermofun.batch --list` too. The batch templates are listed in [Batch setups](../reference/batch.md#batch-templates).
+`tf.batch.catalog()` lists them (`pandas.DataFrame(tf.batch.catalog())` is a table), and `python -m thermofun.batch --list` too. The batch templates are listed in [Batch setups](../reference/batch.md#batch-templates).
 
 ## 2. Change any setting of a template
 
@@ -213,7 +213,7 @@ results:
 import os
 os.environ["THERMOFUN_TEMPLATE_PATH"] = "my-templates"
 
-print(tf.templates()["my-table"])
+print(tf.batch.catalog("my-table")["summary"])
 results = tf.batch(template="my-table", database="aq17-thermofun.json", substances=["Ca+2"])
 ```
 
@@ -225,13 +225,13 @@ G and S at 25 and 50 degC, for my group
 
 <!-- check
 ```python
-assert tf.templates()["my-table"] == "G and S at 25 and 50 degC, for my group"
-assert tf.batch.template_source("my-table") == os.path.join("my-templates", "my-table.yaml")
+assert tf.batch.catalog("my-table")["summary"] == "G and S at 25 and 50 degC, for my group"
+assert tf.batch.catalog("my-table")["source"] == os.path.join("my-templates", "my-table.yaml")
 del os.environ["THERMOFUN_TEMPLATE_PATH"]
 ```
 -->
 
-A file with the name of a template of the library replaces it. `template_source` says which one you have, and the output names the path. The first folder that has a name wins.
+A file with the name of a template of the library replaces it. The `source` of `tf.batch.catalog(name)` says which one you have, and the output names the path. The first folder that has a name wins.
 
 Any setup can start from templates, with the key `template`. What comes later replaces what comes before, and your own settings come last:
 

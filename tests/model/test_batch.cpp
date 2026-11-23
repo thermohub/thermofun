@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <algorithm>
 #include <cmath>
 
 #include "Batch/BatchSetup.h"
@@ -63,7 +64,14 @@ void runBatch()
     }
     CHECK(said);
 
-    CHECK(BatchSetup::templates().count("logk-grid") == 1);
+    // the catalog: one row for each template, with the blocks it gives; a fragment has no results
+    const auto catalog = BatchSetup::catalog();
+    CHECK(std::count_if(catalog.begin(), catalog.end(), [](const BatchTemplateInfo& t) { return t.name == "logk-grid"; }) == 1);
+    const auto grid = BatchSetup::catalog("logk-grid");
+    CHECK(grid.source == "library" && !grid.summary.empty());
+    CHECK(std::find(grid.blocks.begin(), grid.blocks.end(), "results") != grid.blocks.end());
+    CHECK(BatchSetup::catalog("output-publication").blocks == std::vector<std::string>{"output"});
+    CHECK(BatchSetup::catalog("conditions-grid").blocks == std::vector<std::string>{"conditions"});
 
     // a value by its path, and the placeholders of blank name their paths
     auto blank = BatchSetup::fromTemplate("blank");

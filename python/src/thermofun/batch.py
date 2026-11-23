@@ -163,14 +163,11 @@ def load(setup):
     return BatchSetup(_tf.BatchSetupCore.fromFile(text) if os.path.isfile(text) else _tf.BatchSetupCore.fromText(text))
 
 
-def templates():
-    """The batch templates, each with what it makes."""
-    return dict(_tf.BatchSetupCore.templates())
-
-
-def template_source(name):
-    """Where a template comes from: the path of its file, or "library"."""
-    return _tf.BatchSetupCore.templateSource(name)
+def catalog(name=""):
+    """The batch templates (a list of rows, pandas.DataFrame(catalog()) is a table), or with a name one template: name, summary
+    (what it makes), blocks (database, engine, conditions, results, output: a fragment has conditions or output only), source
+    (the path of its file, or "library")."""
+    return _tf.BatchSetupCore.catalog(name)
 
 
 def template_folders():
@@ -212,8 +209,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.list:
-            for name, what in templates().items():
-                print(f"{name}: {what}")
+            for row in catalog():
+                print(f"{row['name']}: {row['summary']}")
             return 0
         if args.template:
             sys.stdout.write(_tf.BatchSetupCore.templateText(args.template))

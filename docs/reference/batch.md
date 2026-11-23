@@ -53,7 +53,8 @@ setup (the template `blank` has them) is an error that names its paths.
 
 ## Batch templates
 
-`tf.templates()` and `python -m thermofun.batch --list` list them; `tf.template(name)` gives the setup of one, which prints as
+`tf.batch.catalog()` lists them (a row each: `name`, `summary`, `blocks`, `source`; with a name, one row), and
+`python -m thermofun.batch --list` too; `tf.template(name)` gives the setup of one, which prints as
 YAML. Folders of your own go in `THERMOFUN_TEMPLATE_PATH`; a file there with the name of a template of the library replaces it.
 
 | Template | What it makes | You give |

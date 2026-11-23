@@ -35,10 +35,11 @@ os.makedirs("output", exist_ok=True)
 
 ## Which templates are there
 
-The first line of a template says what it makes.
+`tf.batch.catalog()` lists them: what each makes (the first line of its file), the blocks it gives, and where it comes from.
+A template without `results` is a fragment.
 
 ```{code-cell} ipython3
-pd.Series(tf.templates(), name="what it makes").to_frame()
+pd.DataFrame(tf.batch.catalog())
 ```
 
 ## See what a template says
@@ -149,12 +150,12 @@ results:
 ''')
 
 os.environ["THERMOFUN_TEMPLATE_PATH"] = "output/my-templates"
-print(tf.templates()["our-table"])
-print(tf.batch.template_source("our-table"), "|", tf.batch.template_source("logk-grid"))
+print(tf.batch.catalog("our-table"))
+print(tf.batch.catalog("logk-grid")["source"])
 print(tf.batch(template="our-table", database=AQ, substances=["Ca+2"])["ours"].to_text("md"))
 del os.environ["THERMOFUN_TEMPLATE_PATH"]
 ```
 
-A file with the name of a template of the library replaces that template. `template_source` says which one you have.
+A file with the name of a template of the library replaces that template. The `source` of the catalog says which one you have.
 
 **Next:** [7. Fit parameters](07-fit-parameters.md).

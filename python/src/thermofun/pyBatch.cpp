@@ -130,9 +130,25 @@ void ThermoFun::exportBatch(py::module& m)
         .def_static("fromText", &BatchSetup::fromText, "From YAML or JSON text")
         .def_static("fromFile", &BatchSetup::fromFile, "From a file")
         .def_static("fromTemplate", &BatchSetup::fromTemplate, "From a batch template")
-        .def_static("templates", &BatchSetup::templates, "The batch templates: name and what it makes")
+        .def_static("catalog", [](const std::string& name) -> py::object {
+                const auto rowOf = [](const BatchTemplateInfo& t) {
+                    py::dict row;
+                    row["name"] = t.name;
+                    row["summary"] = t.summary;
+                    row["blocks"] = t.blocks;
+                    row["source"] = t.source;
+                    return row;
+                };
+                if (!name.empty())
+                    return rowOf(BatchSetup::catalog(name));
+                py::list out;
+                for (const auto& t : BatchSetup::catalog())
+                    out.append(rowOf(t));
+                return out;
+            }, py::arg("name") = "",
+            "The batch templates (a list), or with a name one template: name, summary (what it makes), blocks (database, engine, "
+            "conditions, results, output), source (the path of its file, or library)")
         .def_static("templateText", &BatchSetup::templateText, "The YAML text of a template")
-        .def_static("templateSource", &BatchSetup::templateSource, "Where a template comes from: the path of its file, or library")
         .def_static("templateFolders", &BatchSetup::templateFolders, "The folders of THERMOFUN_TEMPLATE_PATH")
         .def("useTemplate", &BatchSetup::useTemplate, py::arg("name"), "Puts a template under the settings")
         .def("setDatabase", py::overload_cast<const Database&>(&BatchSetup::setDatabase))

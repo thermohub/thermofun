@@ -6,6 +6,7 @@
 
 import copy
 import json
+import os
 
 import pytest
 
@@ -28,11 +29,17 @@ def task(**changes):
 
 
 def test_the_templates_of_thermofun():
-    assert "HKF88" in fitting.template_names()
-    template = fitting.load_template("HKF88")
+    row = fitting.catalog("HKF88")
+    assert [r["name"] for r in fitting.catalog()] == ["HKF88"]
+    assert row["method"] == "HKF88" and row["presets"] == ["psat_only", "wide_TP"] and row["summary"].startswith("HKF parameters")
+    assert row["source"] == os.path.join(fitting.TEMPLATE_FOLDER, "HKF88.yaml")
+    template = fitting.template("HKF88")
     assert template["method"] == "HKF88" and "a2_a4_SH88" in template["constraints"]
+    assert fitting.template(row["source"]) == template
+    with pytest.raises(ValueError, match="No fit template 'NoSuchMethod'. ThermoFun has: HKF88"):
+        fitting.template("NoSuchMethod")
     with pytest.raises(ValueError, match="No fit template"):
-        fitting.load_template("NoSuchMethod")
+        fitting.catalog("NoSuchMethod")
 
 
 def test_a_task_gives_the_fit_written_by_hand():
@@ -110,7 +117,7 @@ def test_start_values_in_the_units_of_the_template():
 
 
 def test_plausible_ranges_warn_after_the_fit():
-    template = copy.deepcopy(fitting.load_template("HKF88"))
+    template = copy.deepcopy(fitting.template("HKF88"))
     template["plausible"] = {"omega": [2.0, 3.0]}            # display units: omega*1e-5 cal/mol
     t = fitting.Task(hkf.engine(), task(template=template))
     t.solve()

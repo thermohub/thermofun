@@ -94,12 +94,16 @@ def test_a_misspelled_key_says_why():
 def test_a_template_of_your_own(tmp_path, monkeypatch):
     (tmp_path / "my-table.yaml").write_text("# My own table\nconditions:\n  T: {values: [25], unit: degC}\n  P: {values: [1], unit: bar}\nresults:\n  - name: mine\n    properties: [G]\n")
     (tmp_path / "species-properties.yaml").write_text("# Mine replaces it\nconditions:\n  T: {values: [50], unit: degC}\n  P: {values: [1], unit: bar}\nresults:\n  - name: species\n    properties: [S]\n")
-    assert "my-table" not in tf.templates()
+    assert "my-table" not in [row["name"] for row in tf.batch.catalog()]
     monkeypatch.setenv("THERMOFUN_TEMPLATE_PATH", str(tmp_path))
     assert tf.batch.template_folders() == [str(tmp_path)]
-    assert tf.templates()["my-table"] == "My own table"
-    assert tf.batch.template_source("my-table") == str(tmp_path / "my-table.yaml")
-    assert tf.batch.template_source("logk-grid") == "library"
+    assert tf.batch.catalog("my-table") == {"name": "my-table", "summary": "My own table", "blocks": ["conditions", "results"],
+                                            "source": str(tmp_path / "my-table.yaml")}
+    assert tf.batch.catalog("species-properties")["summary"] == "Mine replaces it"
+    assert tf.batch.catalog("logk-grid")["source"] == "library"
+    assert tf.batch.catalog("output-publication")["blocks"] == ["output"]
+    with pytest.raises(tf.batch.BatchSetupError, match="There is no template no-such. Use one of: .*logk-grid"):
+        tf.batch.catalog("no-such")
     results = tf.batch(template="my-table", database=AQ, substances=["Ca+2"])
     assert results["mine"].rows[0][0] == "Ca+2"
     assert any(str(tmp_path) in t for t in results["mine"].provenance.templates)

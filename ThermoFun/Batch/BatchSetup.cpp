@@ -1465,7 +1465,7 @@ struct BatchSetup::Impl
         if (document.contains("from_templates"))
             for (const auto& name : document["from_templates"])
             {
-                const auto where = BatchSetup::templateSource(name.get<std::string>());
+                const auto where = BatchSetup::catalog(name.get<std::string>()).source;
                 p.templates.push_back(name.get<std::string>() + (where == "library" ? "" : " (" + where + ")"));
             }
         json settings = spec.contains("_setup") ? spec["_setup"] : spec;
@@ -1726,30 +1726,53 @@ auto BatchSetup::fromFile(const std::string& path) -> BatchSetup
     return setup;
 }
 
-auto BatchSetup::templates() -> std::map<std::string, std::string>
+auto BatchSetup::catalog() -> std::vector<BatchTemplateInfo>
 {
-    std::map<std::string, std::string> out;
+    std::map<std::string, BatchTemplateInfo> rows;
+    const auto add = [&](const std::string& name, const std::string& text, const std::string& source) {
+        BatchTemplateInfo row{name, describedBy(text), {}, source};
+        try
+        {
+            const json document = parseText(text);
+            for (const char* block : {"database", "engine", "conditions", "results", "output"})
+                if (document.is_object() && document.contains(block))
+                    row.blocks.emplace_back(block);
+        }
+        catch (const std::exception&)
+        {
+            // a file that cannot be read is listed without its blocks; using it gives the error
+        }
+        rows[name] = std::move(row);
+    };
     for (unsigned long i = 0; i < model::detail::builtin_table_template_count; ++i)
     {
         const auto& file = model::detail::builtin_table_templates[i];
-        out[std::filesystem::path(file.name).stem().string()] = describedBy(textOf(file));
+        add(std::filesystem::path(file.name).stem().string(), textOf(file), "library");
     }
     for (const auto& item : userTemplateFiles())
-        out[item.first] = describedBy(readFile(item.second.string()));
+        add(item.first, readFile(item.second.string()), item.second.string());
+    std::vector<BatchTemplateInfo> out;
+    for (auto& item : rows)
+        out.push_back(std::move(item.second));
     return out;
+}
+
+auto BatchSetup::catalog(const std::string& name) -> BatchTemplateInfo
+{
+    std::string names;
+    for (auto& row : catalog())
+    {
+        if (row.name == name)
+            return row;
+        names += (names.empty() ? "" : ", ") + row.name;
+    }
+    fail("There is no template " + name + ". Use one of: " + names + ".");
+    return {};
 }
 
 auto BatchSetup::templateFolders() -> std::vector<std::string>
 {
     return folderList();
-}
-
-auto BatchSetup::templateSource(const std::string& name) -> std::string
-{
-    const auto files = userTemplateFiles();
-    if (const auto it = files.find(name); it != files.end())
-        return it->second.string();
-    return templateFile(name) ? "library" : "";
 }
 
 auto BatchSetup::templateText(const std::string& name) -> std::string
@@ -1759,12 +1782,7 @@ auto BatchSetup::templateText(const std::string& name) -> std::string
         return readFile(it->second.string());
     const auto* file = templateFile(name);
     if (!file)
-    {
-        std::string names;
-        for (const auto& item : templates())
-            names += (names.empty() ? "" : ", ") + item.first;
-        fail("There is no template " + name + ". Use one of: " + names + ".");
-    }
+        catalog(name);  // fails, with the names there are
     return textOf(*file);
 }
 

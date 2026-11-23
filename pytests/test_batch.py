@@ -247,8 +247,9 @@ def test_the_command_writes_the_files(tmp_path, monkeypatch, capsys):
 
 
 def test_each_template_makes_its_results(tmp_path):
-    names = tf.templates()
-    assert set(names) == {"species-properties", "reaction-properties", "logk-grid", "logk-saturation", "water-properties", "uncertainties", "derivatives",
+    catalog = tf.batch.catalog()
+    names = [row["name"] for row in catalog]
+    assert len(names) == len(set(names)) and set(names) == {"species-properties", "reaction-properties", "logk-grid", "logk-saturation", "water-properties", "uncertainties", "derivatives",
                           "model-comparison", "database-comparison", "species-grid", "blank", "conditions-grid", "conditions-reference",
                           "conditions-saturation", "output-all-digits", "output-publication"}
     calcite = "Calcite = Ca+2 + CO3-2"

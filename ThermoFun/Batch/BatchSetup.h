@@ -143,6 +143,16 @@ private:
 };
 
 /// One result of a setup as a calculation of ThermoBatch, the 0.x batch API.
+/// A row of the catalog of the batch templates.
+struct BatchTemplateInfo
+{
+    std::string name;
+    std::string summary;              ///< what it makes: the first line of the file
+    std::vector<std::string> blocks;  ///< the blocks it gives, in the order of a setup: database, engine, conditions, results, output;
+                                      ///< a fragment has one of conditions or output, and no results
+    std::string source;               ///< the path of its file, or "library"
+};
+
 class BatchCalculation
 {
 public:
@@ -188,13 +198,13 @@ public:
     static auto fromFile(const std::string& path) -> BatchSetup;
     /// From a batch template.
     static auto fromTemplate(const std::string& name) -> BatchSetup;
-    /// The batch templates: name and what it makes. Those of the folders of THERMOFUN_TEMPLATE_PATH come with those of the library,
-    /// and replace one of the library that has the same name.
-    static auto templates() -> std::map<std::string, std::string>;
+    /// The catalog of the batch templates, by name. Those of the folders of THERMOFUN_TEMPLATE_PATH come with those of the
+    /// library, and replace one of the library that has the same name.
+    static auto catalog() -> std::vector<BatchTemplateInfo>;
+    /// One template of the catalog; an error names those there are
+    static auto catalog(const std::string& name) -> BatchTemplateInfo;
     /// The YAML text of a template.
     static auto templateText(const std::string& name) -> std::string;
-    /// Where a template comes from: the path of its file, or "library".
-    static auto templateSource(const std::string& name) -> std::string;
     /// The folders of THERMOFUN_TEMPLATE_PATH.
     static auto templateFolders() -> std::vector<std::string>;
 

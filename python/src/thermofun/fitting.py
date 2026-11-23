@@ -468,21 +468,30 @@ def _read_document(source, key):
     return document.get(key, document)
 
 
-def load_template(name_or_path):
-    """A fit template: a name of the templates of ThermoFun (template_names()), a path, or a dict."""
+def template(name_or_path):
+    """A fit template as a dict: a name of the catalog of ThermoFun (catalog()), a path, or a dict."""
     if isinstance(name_or_path, str) and not _os.path.exists(name_or_path):
         path = _os.path.join(TEMPLATE_FOLDER, f"{name_or_path}.yaml")
         if not _os.path.exists(path):
-            raise ValueError(f"No fit template {name_or_path!r}. ThermoFun has: {', '.join(template_names())}.")
+            raise ValueError(f"No fit template {name_or_path!r}. ThermoFun has: {', '.join(row['name'] for row in catalog())}.")
         name_or_path = path
     return _read_document(name_or_path, "fit_template")
 
 
-def template_names():
-    """The fit templates that come with ThermoFun."""
-    if not _os.path.isdir(TEMPLATE_FOLDER):
-        return []
-    return sorted(f[:-5] for f in _os.listdir(TEMPLATE_FOLDER) if f.endswith(".yaml"))
+def catalog(name=""):
+    """The fit templates of ThermoFun (a list of rows, pandas.DataFrame(catalog()) is a table), or with a name one template:
+    name, method, summary, presets, source (the path of its file)."""
+    def row(file):
+        path = _os.path.join(TEMPLATE_FOLDER, file)
+        t = _read_document(path, "fit_template")
+        return {"name": t["name"], "method": t.get("method", ""), "summary": " ".join(str(t.get("description", "")).split()),
+                "presets": list(t.get("presets", {})), "source": path}
+    files = sorted(f for f in _os.listdir(TEMPLATE_FOLDER) if f.endswith(".yaml")) if _os.path.isdir(TEMPLATE_FOLDER) else []
+    if not name:
+        return [row(f) for f in files]
+    if f"{name}.yaml" not in files:
+        raise ValueError(f"No fit template {name!r}. ThermoFun has: {', '.join(f[:-5] for f in files)}.")
+    return row(f"{name}.yaml")
 
 
 def _unit(text):
@@ -502,7 +511,7 @@ def _to_si(quantity, si_unit):
 class Task:
     """A fit set up from a template and a task (a dict or a YAML or JSON file under the key fit_task):
 
-        template: HKF88                  # a name of template_names(), a path, or a dict
+        template: HKF88                  # a name of catalog(), a path, or a dict
         record: UO2+2
         preset: psat_only                # optional: the free parameters and the constraints that are on
         free: [a1, a4, c1, c2, omega]    # optional: instead of those of the preset
@@ -524,7 +533,7 @@ class Task:
         spec = _read_document(task, "fit_task")
         self.engine = engine
         self.spec = spec
-        self.template = load_template(spec["template"])
+        self.template = template(spec["template"])
         t = self.template
         self.record = spec["record"]
         self.method = t["method"]

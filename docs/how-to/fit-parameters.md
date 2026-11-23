@@ -53,7 +53,35 @@ assert derivatives["G"]["Qtz/S"] == -(500.0 - 298.15)
 -->
 
 The result has the properties first and the parameters second, so `pandas.DataFrame(derivatives)` gives a table. For a reaction, give
-its symbol: the results are then logK, lnK, dG, dH, dS, dCp and dV. A substance and a reaction with the same symbol: `kind="reaction"`.
+its symbol: the results are then logK, lnK, dG, dH, dS, dCp and dV.
+
+A substance defined by a reaction often has the symbol of the reaction. The symbol then names two records, and `kind` says
+which one you want: `"substance"` (the default) or `"reaction"`, as in `engine.route(symbol, kind)`. The parameter needs no
+kind: `logK` is a value of a reaction, `G` a value of a substance.
+
+```python
+data["substances"]["SiO2@"] = {"class": "aqueous_solute", "aggregate_state": "aqueous", "formula": "SiO2", "charge": 0, "defining_reaction": "SiO2@"}
+data["reactions"] = {"SiO2@": {"equation": "Qtz = SiO2@", "reaction_properties": {"logK": -4.0, "dH": 22000.0}, "methods": [{"method": "LogKVantHoff"}]}}
+engine = tf.ThermoEngine(tf.Database(data))
+
+of_substance = engine.parameterSensitivities(373.15, 1e5, "SiO2@", [("SiO2@", "", "logK")])
+of_reaction = engine.parameterSensitivities(373.15, 1e5, "SiO2@", [("SiO2@", "", "logK")], kind="reaction")
+print("dG/dlogK of the substance", round(of_substance["G"]["SiO2@/logK"], 3), "J/mol")
+print("dlogK/dlogK of the reaction", round(of_reaction["logK"]["SiO2@/logK"], 6))
+```
+
+Output:
+
+```text
+dG/dlogK of the substance -7143.907 J/mol
+dlogK/dlogK of the reaction 1.0
+```
+
+The first is -RT ln 10 at 373.15 K: G of SiO2@ is G of Qtz minus RT ln 10 log K.
+
+The methods of log K (LogKVantHoff, LogKConstantCp, ...) calculate from dH and dS at Tr, and dCp. logK (or dG) is read only
+to give the one of dH and dS that the record lacks. A record that gives logK, dH and dS has derivatives by dH and dS, and 0
+by logK: give logK and dH, without dS, to fit logK.
 
 The derivatives follow the same path as the values: see [Choose where properties come from](add-data.md#10-choose-where-properties-come-from). A substance from its defining reaction
 has derivatives by the reaction and by the other species. A substance from its methods has none by them. An unknown parameter is an error, and not a derivative of 0.
@@ -254,10 +282,79 @@ With them, omega is 96871 cal/mol: OptimB gives 96374 with its own water model.
 
 ## 7. Fit from a template and a task
 
-A **fit template** holds what a fit of one method needs: which parameters can be fitted and in which units, which is
-searched, the constraints of the method (each one a switch), conventions such as the Born functions above, warnings
-for fits the data cannot carry, and presets. ThermoFun has `HKF88` (`fitting.template_names()` lists them). A **task**
-names the template, the record, a preset, the given values and the data. The fit of section 6, as a task:
+Section 6 set up a fit by hand: the free parameters, the constraints, the searched parameter and its step. What is the
+same for every fit of one method goes in a **fit template**. What belongs to one fit goes in a **task**: the record, the
+given values and the data.
+
+ThermoFun has one fit template, `HKF88`: the file `HKF88.yaml` in the folder `fit_templates` of the installed package
+(`fitting.TEMPLATE_FOLDER`). `fitting.catalog()` lists the fit templates (a row each: `name`, `method`, `summary`,
+`presets`, `source`), and `fitting.template(name)` gives one as a dict. The fit of section 6 takes its pieces from here:
+
+| Section 6, by hand | Section 7 |
+|---|---|
+| `free = [a1, a4, c1, c2, omega]` | template: preset `psat_only` |
+| `PropertyConstraint(..., "Cp", 298.15, 1e5, 10.04 * CAL)` | template: constraint `Cp_reference`; task: `given: {Cp: ...}` |
+| `PropertyConstraint(..., "V", 298.15, 1e5, 6.1e-6)` | template: constraint `V_reference`; task: `given: {V: ...}` |
+| `Relation({a4: 1.0, a2: 4.134}, -27790 * CAL)` | template: constraint `a2_a4_SH88` |
+| `search=omega`, `search_step=1000 * CAL` | template: `omega: {search: {step: 1000}}` |
+| the Born functions of another program (`terms=`) | template: convention `born_reference`; task: `conventions` |
+| `fitting.observations(...)` | task: `data` |
+| the record | task: `record` |
+
+The part of `HKF88.yaml` that this task uses (the file also has the parameters G, S, a2, a3, two more constraints, the
+rules for the warnings and a second preset):
+
+```yaml
+fit_template:
+  name: HKF88
+  method: HKF88
+  parameters:
+    a1:    {unit: cal/(mol*bar), display_scale: 10}
+    a4:    {unit: cal*K/mol, display_scale: 1.0e-4}
+    c1:    {unit: cal/(mol*K)}
+    c2:    {unit: cal*K/mol, display_scale: 1.0e-4}
+    omega: {unit: cal/mol, display_scale: 1.0e-5, search: {step: 1000, tol: 0.01}}   # step and tol in cal/mol
+  conventions:
+    born_reference:
+      default: solvent
+      choices:
+        solvent: {}
+        SH88_fixed: {Q: 5.903e-12, X: -3.09e-7}
+  constraints:
+    Cp_reference:
+      property: Cp
+      value: given.Cp
+      terms: {omega: "-Tr*(solvent.bornX - born_reference.X)"}
+    V_reference:
+      property: V
+      value: given.V
+      terms: {omega: "solvent.bornQ - born_reference.Q"}
+    a2_a4_SH88:
+      relation: {a4: 1, a2: 4.134}
+      value: "-27790*cal"
+  presets:
+    psat_only:
+      free: [a1, a4, c1, c2, omega]
+      constraints: [Cp_reference, V_reference, a2_a4_SH88]
+```
+
+With the default convention `solvent`, the terms with the Born functions are 0, and Cp and V are those of section 6. With
+`SH88_fixed` they are the terms of "Values from another program" above.
+
+<!-- check
+```python
+import os
+assert os.path.isfile(os.path.join(fitting.TEMPLATE_FOLDER, "HKF88.yaml"))
+template = fitting.template("HKF88")
+assert template["presets"]["psat_only"] == {"free": ["a1", "a4", "c1", "c2", "omega"], "constraints": ["Cp_reference", "V_reference", "a2_a4_SH88"]}
+assert template["parameters"]["omega"] == {"unit": "cal/mol", "display_scale": 1.0e-5, "search": {"step": 1000, "tol": 0.01}}
+assert template["constraints"]["a2_a4_SH88"]["relation"] == {"a4": 1, "a2": 4.134}
+assert template["constraints"]["Cp_reference"]["terms"] == {"omega": "-Tr*(solvent.bornX - born_reference.X)"}
+assert template["conventions"]["born_reference"]["choices"]["SH88_fixed"] == {"Q": 5.903e-12, "X": -3.09e-7}
+```
+-->
+
+The task, with the data of section 6:
 
 ```python
 task = fitting.Task(tf.ThermoEngine(tf.Database({"thermohub": "2.0.0-draft.1", "substances": {"H2O@": water, "UO2+2": uo2}})), {
@@ -301,6 +398,6 @@ A task is also a YAML or JSON file with the same keys under `fit_task`: `fitting
 pressure) and values outside the plausible ranges after it. `task.report(result)` gives the values in the units of the
 template, times `display_scale`: a1×10, a2×10⁻², a4×10⁻⁴, c2×10⁻⁴, omega×10⁻⁵, as in SUPCRT and OptimB.
 
-The template itself is a YAML file in `thermofun/fit_templates`. Its constraints are written as expressions linear in
-the parameters, in SI, for example `value: "2037*given.Cp - 30346*cal"`; the names they may use are listed at the top
-of `HKF88.yaml`.
+To write your own template, copy `HKF88.yaml` and give `Task` its path as `template`. The constraints are expressions
+linear in the parameters, in SI, for example `value: "2037*given.Cp - 30346*cal"`; the names they may use are listed at
+the top of `HKF88.yaml`.
