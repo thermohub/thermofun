@@ -2,7 +2,7 @@
 
 log K of van 't Hoff.
 
-Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change with T (dCp = 0). Reads log K or dG, and dH or dS, at Tr (the third of log K, dH, dS follows from the other two); without dH and dS, log K stays constant. It is LogKPolynomial with two terms: a0 = dS / (R ln 10), a2 = -dH / (R ln 10).
+Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change with T (dCp = 0). Reads log K (or dG without log K) and dH at Tr, and derives dS from them; dS is read only without dH. Implementation gems: the given dH and dS are read, and log K or dG only completes them (the rule of GEMS). Without dH and dS, log K stays constant. It is LogKPolynomial with two terms: a0 = dS / (R ln 10), a2 = -dH / (R ln 10).
 
 | | |
 |---|---|
@@ -15,6 +15,10 @@ Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change wit
 | Has code | yes |
 | Legacy names | `logk_2_term_extrap` |
 | Other names | `LogKExtrap2T` |
+
+## Implementations
+
+`selected`, `gems`. The default is `selected`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

@@ -2,7 +2,7 @@
 
 Constant log K.
 
-Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or dG at Tr. It is LogKPolynomial with one term: a0 = log K(Tr).
+Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K at Tr, or dG without log K (gems: dG if given). It is LogKPolynomial with one term: a0 = log K(Tr).
 
 | | |
 |---|---|
@@ -15,6 +15,10 @@ Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or
 | Has code | yes |
 | Legacy names | `logk_1_term_extrap0` |
 | Other names | `LogKExtrap1T0` |
+
+## Implementations
+
+`selected`, `gems`. The default is `selected`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

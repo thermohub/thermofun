@@ -72,12 +72,12 @@ These tables come from the code. A parameter without a unit has no unit. A metho
 | Id | What it is | Parameters, with the SI unit | Implementations |
 |---|---|---|---|
 | `ConstantReactionProperties` | Constant reaction properties | none | one |
-| `LogKPolynomial` | log K polynomial | `a0`<br>`a1` [1/K] (optional)<br>`a2` [K] (optional)<br>`a3` (optional)<br>`a4` [K2] (optional)<br>`a5` [1/K2] (optional)<br>`a6` [K^0.5] (optional)<br>`a` [J/(mol.K)] (optional)<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | one |
-| `LogKNordstromMunoz88` | The same as `LogKPolynomial` (a legacy name) | as `LogKPolynomial` | one |
-| `LogKConstant` | Constant log K | none | one |
-| `LogKZeroEntropy` | log K with zero entropy of reaction | none | one |
-| `LogKVantHoff` | log K of van 't Hoff | none | one |
-| `LogKConstantCp` | log K with constant heat capacity of reaction | none | one |
+| `LogKPolynomial` | log K polynomial | `a0`<br>`a1` [1/K] (optional)<br>`a2` [K] (optional)<br>`a3` (optional)<br>`a4` [K2] (optional)<br>`a5` [1/K2] (optional)<br>`a6` [K^0.5] (optional)<br>`a` [J/(mol.K)] (optional)<br>`b` [J/(mol.K2)] (optional)<br>`c` [J.K/mol] (optional)<br>`d` [J/(mol.K^0.5)] (optional)<br>`e` [J/(mol.K3)] (optional) | `selected`, `gems` |
+| `LogKNordstromMunoz88` | The same as `LogKPolynomial` (a legacy name) | as `LogKPolynomial` | `selected`, `gems` |
+| `LogKConstant` | Constant log K | none | `selected`, `gems` |
+| `LogKZeroEntropy` | log K with zero entropy of reaction | none | `selected`, `gems` |
+| `LogKVantHoff` | log K of van 't Hoff | none | `selected`, `gems` |
+| `LogKConstantCp` | log K with constant heat capacity of reaction | none | `selected`, `gems` |
 | `LogKTable` | Table of log K | none | one |
 | `MarshallFranck81` | Ion product of water of Marshall and Franck (needs the solvent) | `a`<br>`b` [K]<br>`c` [K2]<br>`d` [K3]<br>`e`<br>`f` [K]<br>`g` [K2] | one |
 | `RyzhenkoBryzgalin` | Model of Ryzhenko and Bryzgalin (needs the solvent) | `pK298`<br>`A`<br>`B`<br>`a` (optional)<br>`b` (optional)<br>`c` (optional)<br>`d` (optional)<br>`e` (optional)<br>`f` (optional)<br>`g` (optional)<br>`RHO298` (optional)<br>`zzH2O` (optional) | one |

@@ -37,6 +37,20 @@ auto ThermoEngine::Impl::withImplementations(std::shared_ptr<const model::Substa
     return copy;
 }
 
+/// A record of a reaction with the implementations of the preferences (the log K methods: gems)
+auto ThermoEngine::Impl::withImplementations(std::shared_ptr<const model::ReactionRecord> record) const -> std::shared_ptr<const model::ReactionRecord>
+{
+    record = model::withParameterSets(std::move(record), database.parameterSets());
+    if (preferences.method_implementation.empty())
+        return record;
+    auto copy = std::make_shared<model::ReactionRecord>(*record);
+    for (const auto& [id, implementation] : preferences.method_implementation)
+        for (auto& a : copy->methods)
+            if (a.method == model::MethodCatalog::instance().find(id)->id)
+                a.implementation = implementation;
+    return copy;
+}
+
 /// The methods of a substance. Null if they give no one base method: then no method runs.
 auto ThermoEngine::Impl::boundMethods(const Substance& substance) const -> std::shared_ptr<const model::BoundSubstance>
 {

@@ -24,10 +24,10 @@ DS = (DH - DG) / Tr
 
 
 def method(form, expression=None, parameters=None):
-    source = {"form": form}
+    formula = {"form": form}
     if expression:
-        source["expression"] = expression
-    return tool.build({"kind": "symbolic", "operates_on": "reaction", "parameter_definitions": {k: {"unit": v} for k, v in (parameters or {}).items()}, "source": source})
+        formula["expression"] = expression
+    return tool.build({"kind": "symbolic", "operates_on": "reaction", "parameter_definitions": {k: {"unit": v} for k, v in (parameters or {}).items()}, "formula": formula})
 
 
 def reaction(definition, values=None, properties=None):

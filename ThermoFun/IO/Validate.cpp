@@ -8,9 +8,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <set>
 #include <vector>
 
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 
 namespace ThermoFun::model {
@@ -270,6 +272,35 @@ void checkCovariances(Diagnostics& diag, const Record& record, const Properties&
 
 namespace {
 
+/// A method of log K reads log K (or dG without it) and dH, and derives dS and dG from them (logKReading): a given dS or dG that
+/// differs from the derived one more than by rounding is not used, and is likely out of date. R of CODATA 1986: the R of
+/// another set changes dG by about 6e-6 of its value, far below the limit.
+void checkDerivedValues(Diagnostics& diag, const ReactionRecord& r, const std::string& id, const std::string& where)
+{
+    const auto value = [&](ReactionPropertyName name) -> const Quantity* {
+        const auto it = r.reaction_properties.find(name);
+        return it == r.reaction_properties.end() ? nullptr : &it->second;
+    };
+    const auto* logK = value(ReactionPropertyName::logK);
+    const auto* dG = value(ReactionPropertyName::dG);
+    const auto* dH = value(ReactionPropertyName::dH);
+    const auto* dS = value(ReactionPropertyName::dS);
+    const double Tr = r.reference_conditions.T;
+    const double fromLogK = logK ? -R_CODATA1986 * Tr * std::log(10.0) * logK->value : 0.0;
+    const auto number = [](double x) { char b[32]; std::snprintf(b, sizeof b, "%.6g", x); return std::string(b); };
+    if (logK && dG && std::fabs(dG->value - fromLogK) > 1.0)
+        report(diag, "V2-MTH-029", r.symbol, where, "The method " + id + " derives dG from log K: dG = " + number(fromLogK) + " J/mol, the record gives "
+               + number(dG->value) + " J/mol, which is not read.");
+    const double anchor = logK ? fromLogK : dG ? dG->value : 0.0;
+    if ((logK || dG) && dH && dS)
+    {
+        const double derived = (dH->value - anchor) / Tr;
+        if (std::fabs(dS->value - derived) > 0.01)
+            report(diag, "V2-MTH-029", r.symbol, where, "The method " + id + " derives dS from " + (logK ? "log K" : "dG") + " and dH: dS = " + number(derived)
+                   + " J/(mol K), the record gives " + number(dS->value) + " J/(mol K), which is not read.");
+    }
+}
+
 /// What a method of log K can calculate from the reference values of the record (review of v2, B2): log K or dG is needed,
 /// and dH or dS for van 't Hoff, and also dCp for constant dCp; else the method falls back to a simpler form.
 void checkLogKInputs(Diagnostics& diag, const ReactionRecord& r, const std::string& path)
@@ -280,9 +311,11 @@ void checkLogKInputs(Diagnostics& diag, const ReactionRecord& r, const std::stri
     for (std::size_t i = 0; i < r.methods.size(); ++i)
     {
         const std::string& id = r.methods[i].method;
+        const std::string where = path + "/methods/" + std::to_string(i);
+        if (readsReferenceValues(r.methods[i]) && r.methods[i].implementation != "gems")
+            checkDerivedValues(diag, r, id, where);
         if (id != "LogKVantHoff" && id != "LogKConstantCp" && id != "LogKZeroEntropy")
             continue;
-        const std::string where = path + "/methods/" + std::to_string(i);
         if (!energy)
             report(diag, "V2-MTH-024", r.symbol, where, "The method " + id + " needs log K or dG at the reference temperature; the record gives neither.");
         else if (id == "LogKVantHoff" && !heat)

@@ -149,10 +149,34 @@ void testFacts()
     CHECK(found);
 }
 
+/// Which methods read the reference values of a reaction (PR 105, CodeRabbit): a polynomial only without a0 to a6
+void testReadsReferenceValues()
+{
+    MethodApplication a;
+    for (const char* id : {"LogKConstant", "LogKZeroEntropy", "LogKVantHoff", "LogKConstantCp"})
+    {
+        a.method = id;
+        CHECK(readsReferenceValues(a));
+    }
+    a.method = "LogKPolynomial";
+    a.parameters["a"] = Quantity{10.0};  // dCp only: the terms come from dCp and the reference values
+    CHECK(readsReferenceValues(a));
+    a.method = "LogKNordstromMunoz88";
+    CHECK(readsReferenceValues(a));
+    a.parameters["a2"] = Quantity{-1000.0};  // a coefficient of log K: no reference value is read
+    CHECK(!readsReferenceValues(a));
+    a.method = "ReactionCpPolynomial";  // no base method
+    a.parameters.clear();
+    CHECK(!readsReferenceValues(a));
+    a.method = "LogKTable";
+    CHECK(!readsReferenceValues(a));
+}
+
 } // namespace
 
 void runCatalog()
 {
+    testReadsReferenceValues();
     testApprovedIds();
     testNamesAreUnique();
     testComplete();

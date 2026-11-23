@@ -42,10 +42,28 @@ LogKForm determineMethod(const Reaktoro_::ThermoProperty& dGr,
     return LogKForm::Constant;
 }
 
+auto logKReading(LogKReading given, bool gems) -> LogKReading
+{
+    if (gems)
+        return given;
+    LogKReading read;
+    read.logK = given.logK;
+    read.dG = given.dG && !given.logK;
+    read.dH = given.dH;
+    read.dS = given.dS && !((given.logK || given.dG) && given.dH);
+    return read;
+}
+
+auto logKReading(const ThermoPropertiesReaction& reference, bool gems) -> LogKReading
+{
+    const auto has = [](const Reaktoro_::ThermoProperty& x) { return x.sta.first != Reaktoro_::Status::notdefined; };
+    return logKReading({has(reference.log_equilibrium_constant), has(reference.reaction_gibbs_energy), has(reference.reaction_enthalpy),
+                        has(reference.reaction_entropy)}, gems);
+}
+
 auto prepareLogK_fT(const ReactionInputs& reaction, double T, LogKForm CE) -> LogKInputs
 {
     using Status = Reaktoro_::Status;
-
     const auto& ref_tpr = reaction.reference;
     LogKInputs in;
     in.dVr  = ref_tpr.reaction_volume;
@@ -55,36 +73,33 @@ auto prepareLogK_fT(const ReactionInputs& reaction, double T, LogKForm CE) -> Lo
     in.dGr  = ref_tpr.reaction_gibbs_energy;
     in.lgK  = ref_tpr.log_equilibrium_constant;
 
-    // The reference values at Tr, completed (review of v2, B2): dG from log K or log K from dG; then a missing dH or dS
-    // from the other two at Tr. Before, dG was not derived from log K, and dH or dS were filled at the T of the call.
+    // The reference values at Tr: those that are read (logKReading), and the others derived from them, also when the record
+    // gives them. The errors here are those of a value alone; the errors of the results come from all the values read, with
+    // the derivatives of the formula (logKProperties), which keep the correlation of a derived value with those it comes from.
     const double Tr = reaction.Tr;
     in.R = reaction.R;
     const double RTrln10 = reaction.R * Tr * lg_to_ln;
-    const bool has_lgK = in.lgK.sta.first != Status::notdefined;
-    bool has_dGr  = in.dGr.sta.first  != Status::notdefined;
-    if (has_lgK && !has_dGr)
+    const auto read = logKReading(ref_tpr, reaction.gems);
+    if (read.logK && !read.dG)
     {
         in.dGr.val = -RTrln10 * in.lgK.val;
         in.dGr.propagateFrom(in.lgK);
         in.dGr.setError({{RTrln10, in.lgK.err}});
-        has_dGr = true;
     }
-    else if (has_dGr && !has_lgK)
+    else if (read.dG && !read.logK)
     {
         in.lgK.val = -in.dGr.val / RTrln10;
         in.lgK.propagateFrom(in.dGr);
         in.lgK.setError({{1.0 / RTrln10, in.dGr.err}});
     }
-    const bool has_dHr  = in.dHr.sta.first  != Status::notdefined;
-    const bool has_dSr  = in.dSr.sta.first  != Status::notdefined;
-
-    if(has_dSr && has_dGr && !has_dHr)
+    const bool anchor = read.logK || read.dG;
+    if (anchor && read.dS && !read.dH)
     {
         in.dHr.val = in.dGr.val + in.dSr.val * Tr;
         in.dHr.propagateFrom(in.dGr, in.dSr);
         in.dHr.setError({{1.0, in.dGr.err}, {Tr, in.dSr.err}});
     }
-    if(has_dHr && has_dGr && !has_dSr)
+    if (anchor && read.dH && !read.dS)
     {
         in.dSr.val = (in.dHr.val - in.dGr.val) / Tr;
         in.dSr.propagateFrom(in.dHr, in.dGr);
@@ -162,7 +177,6 @@ auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& in, doubl
 auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& reaction, LogKForm CE) -> ThermoPropertiesReactionAD
 {
     ThermoPropertiesReactionAD tpr;
-    using Status = Reaktoro_::Status;
 
     auto Rln10   = reaction.R * lg_to_ln;
     auto R_T     = TK * reaction.R;
@@ -179,21 +193,18 @@ auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& 
     auto Tr      = reaction.Tr;
 
 
-    const bool has_dHr  = ref_tpr.reaction_enthalpy.sta.first  != Status::notdefined;
-    const bool has_dSr  = ref_tpr.reaction_entropy.sta.first  != Status::notdefined;
-    const bool has_lgK  = ref_tpr.log_equilibrium_constant.sta.first != Status::notdefined;
-    bool has_dGr  = ref_tpr.reaction_gibbs_energy.sta.first != Status::notdefined;
-
-    // the reference values at Tr, completed as in prepareLogK_fT (autodiff numbers: the derivatives by the parameters follow)
-    if (has_lgK && !has_dGr)
-    {
+    // the reference values at Tr, those read and those derived, as in prepareLogK_fT (autodiff numbers: the derivatives by
+    // the parameters follow; a value that is derived has none of its own)
+    const auto read = logKReading(ref_tpr, reaction.gems);
+    if (read.logK && !read.dG)
         dGr = -Rln10 * Tr * lgK;
-        has_dGr = true;
-    }
-    if(has_dSr && has_dGr && !has_dHr)
+    else if (read.dG && !read.logK)
+        lgK = -dGr / (Rln10 * Tr);
+    const bool anchor = read.logK || read.dG;
+    if (anchor && read.dS && !read.dH)
         dHr = dGr + dSr * Tr;
-    if(has_dHr && has_dGr && !has_dSr)
-        dSr = (dHr-dGr)/Tr;
+    if (anchor && read.dH && !read.dS)
+        dSr = (dHr - dGr) / Tr;
 
     // the method CE was determined from the reference properties (see prepareLogK_fT)
 

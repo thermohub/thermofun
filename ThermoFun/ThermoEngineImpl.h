@@ -202,6 +202,7 @@ struct ThermoEngine::Impl
 
     /// A record with the implementations of the preferences
     auto withImplementations(std::shared_ptr<const model::SubstanceRecord> record) const -> std::shared_ptr<const model::SubstanceRecord>;
+    auto withImplementations(std::shared_ptr<const model::ReactionRecord> record) const -> std::shared_ptr<const model::ReactionRecord>;
 
     /// The sum of the entropies of the elements of a formula, for a change of the energy reference. A value that a record of the
     /// database does not give comes from the element table of ChemicalFun, with a warning.
@@ -459,6 +460,7 @@ struct ThermoEngine::Impl
     //=================================================================================================
 
     auto checkParameter(const ParameterRef& ref) const -> void;
+    auto logKValueNotRead(const ParameterRef& ref) const -> std::string;
 
     auto seedOf(const model::BoundSubstance& bound, const ParameterRef& ref) const -> model::ParameterSeed;
 

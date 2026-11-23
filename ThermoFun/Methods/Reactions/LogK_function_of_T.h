@@ -18,6 +18,18 @@ struct LogKInputs
     double R = R_CONSTANT;   ///< the gas constant of the calculation
 };
 
+/// Which given reference values the forms of log K read; the others are derived from them at Tr, a given one too.
+/// The default reads log K (else dG) and dH, and derives dS: the values that data compilations select (NEA TDB); dS is read
+/// only without dH, dH is derived from dS then. gems: the rule of GEMS, given dH and dS are read and log K or dG only
+/// completes them; a given dG wins over log K.
+struct LogKReading
+{
+    bool logK = false, dG = false, dH = false, dS = false;
+};
+auto logKReading(const ThermoPropertiesReaction& reference, bool gems) -> LogKReading;
+/// The same from which values the record gives
+auto logKReading(LogKReading given, bool gems) -> LogKReading;
+
 /// Prepare the calculation of the properties of a reaction from the reference properties: the enthalpy or entropy
 /// are calculated if missing and the method is determined if it is the 3-term one
 auto prepareLogK_fT(const ReactionInputs& reaction, double T, LogKForm CE) -> LogKInputs;

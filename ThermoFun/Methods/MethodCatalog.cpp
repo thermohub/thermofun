@@ -497,26 +497,29 @@ auto reactionMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("LogKPolynomial", "log K polynomial",
                      "Calculates log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T), and dH, dS and dCp from its derivatives. "
                      "Without a0 to a6, it calculates them from the dCp coefficients a to e and the reference dH and dS: "
-                     "this equation is the integral of dCp = a + b T + c/T2 + d/sqrt(T) + e T2.",
+                     "this equation is the integral of dCp = a + b T + c/T2 + d/sqrt(T) + e T2. "
+                     "Reads log K (or dG without log K) and dH at Tr, and derives dS from them; dS is read only without dH. Implementation gems: the given dH and dS are read, and log K or dG only completes them (the rule of GEMS).",
                      "Nordstrom and Munoz (1988); Anderson and Crerar (1993)")
-                    .alias({"LogKAnalytic"}).logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
+                    .alias({"LogKAnalytic"}).logK().impl({"selected", "gems"}).add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
     m.push_back(Spec("LogKNordstromMunoz88", "log K of Nordstrom and Munoz",
                      "The same calculation as LogKPolynomial, with the same parameters. The id comes from the legacy code logk_nordstrom_munoz88, "
                      "which named the equation after its source. Use LogKPolynomial in new records.", "Nordstrom and Munoz (1988)")
-                    .sameAs("LogKPolynomial").logK().add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
-    m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K or dG at Tr. It is LogKPolynomial with one term: a0 = log K(Tr).")
-                    .alias({"LogKExtrap1T0"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
-    m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K or dG at Tr. It is LogKPolynomial with one term: a2 = -dG(Tr) / (R ln 10).")
-                    .alias({"LogKExtrap1T1"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
+                    .sameAs("LogKPolynomial").logK().impl({"selected", "gems"}).add(logKCoefficients(true)).add(reactionCpCoefficients(false)));
+    m.push_back(Spec("LogKConstant", "Constant log K", "Keeps log K at the reference value at every T: dH = dS = dCp = 0. Reads log K at Tr, or dG without log K (gems: dG if given). It is LogKPolynomial with one term: a0 = log K(Tr).")
+                    .alias({"LogKExtrap1T0"}).logK().impl({"selected", "gems"}).add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
+    m.push_back(Spec("LogKZeroEntropy", "log K with zero entropy of reaction", "Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K at Tr, or dG without log K (gems: dG if given). It is LogKPolynomial with one term: a2 = -dG(Tr) / (R ln 10).")
+                    .alias({"LogKExtrap1T1"}).logK().impl({"selected", "gems"}).add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKVantHoff", "log K of van 't Hoff", "Calculates log K = (dS - dH/T) / (R ln 10) with dH and dS that do not change with T (dCp = 0). "
-                     "Reads log K or dG, and dH or dS, at Tr (the third of log K, dH, dS follows from the other two); without dH and dS, log K stays constant. "
+                     "Reads log K (or dG without log K) and dH at Tr, and derives dS from them; dS is read only without dH. Implementation gems: the given dH and dS are read, and log K or dG only completes them (the rule of GEMS). "
+                     "Without dH and dS, log K stays constant. "
                      "It is LogKPolynomial with two terms: a0 = dS / (R ln 10), a2 = -dH / (R ln 10).")
-                    .alias({"LogKExtrap2T"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
+                    .alias({"LogKExtrap2T"}).logK().impl({"selected", "gems"}).add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKConstantCp", "log K with constant heat capacity of reaction",
                      "Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. "
-                     "Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K. "
+                     "Reads log K (or dG without log K) and dH at Tr, and derives dS from them; dS is read only without dH. Implementation gems: the given dH and dS are read, and log K or dG only completes them (the rule of GEMS). "
+                     "It reads dCp too: without dCp it is van 't Hoff, without dH and dS a constant log K. "
                      "It is LogKPolynomial with three terms: a0 = (dS - dCp (1 + ln Tr)) / (R ln 10), a2 = -(dH - dCp Tr) / (R ln 10), a3 = dCp / (R ln 10).")
-                    .alias({"LogKExtrap3T"}).logK().add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
+                    .alias({"LogKExtrap3T"}).logK().impl({"selected", "gems"}).add(unused(logKCoefficients(false))).add(unused(reactionCpCoefficients(false))));
     m.push_back(Spec("LogKTable", "Table of log K", "Interpolates a table of log K(T), with Lagrange polynomials or a cubic spline.")
                     .alias({"LogKLagrange"}).logK());
     m.push_back(Spec("MarshallFranck81", "Ion product of water of Marshall and Franck", "Calculates log K = a + b/T + c/T2 + d/T3 + (e + f/T + g/T2) log10(density of water).", "Marshall and Franck (1981)")
@@ -640,6 +643,19 @@ auto MethodCatalog::suggest(const std::string& unknown) const -> std::string
         }
     }
     return best;
+}
+
+auto readsReferenceValues(const MethodApplication& application) -> bool
+{
+    const auto& id = application.method;
+    if (id == "LogKConstant" || id == "LogKZeroEntropy" || id == "LogKVantHoff" || id == "LogKConstantCp")
+        return true;
+    if (id != "LogKPolynomial" && id != "LogKNordstromMunoz88")  // ReactionCpPolynomial alone is no base method
+        return false;
+    for (const char* a : {"a0", "a1", "a2", "a3", "a4", "a5", "a6"})
+        if (application.parameters.count(a))
+            return false;  // as MethodRegistry: any of a0 to a6 makes the coefficients of log K
+    return true;
 }
 
 } // namespace ThermoFun::model

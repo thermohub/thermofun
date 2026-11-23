@@ -2,7 +2,7 @@
 
 log K with zero entropy of reaction.
 
-Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K or dG at Tr. It is LogKPolynomial with one term: a2 = -dG(Tr) / (R ln 10).
+Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value. Reads log K at Tr, or dG without log K (gems: dG if given). It is LogKPolynomial with one term: a2 = -dG(Tr) / (R ln 10).
 
 | | |
 |---|---|
@@ -15,6 +15,10 @@ Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value
 | Has code | yes |
 | Legacy names | `logk_1_term_extrap1` |
 | Other names | `LogKExtrap1T1` |
+
+## Implementations
+
+`selected`, `gems`. The default is `selected`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

@@ -19,7 +19,7 @@ auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::s
     const auto it = bound_cache->reactions.find(record.get());
     if (it != bound_cache->reactions.end())
         return it->second;
-    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods(), physics().R) : nullptr;
+    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(withImplementations(record), &database.methods(), physics().R) : nullptr;
     bound_cache->reactions[record.get()] = bound;
     bound_cache->reaction_records.push_back(record);
     return bound;
@@ -126,7 +126,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
         const auto methodOf = [&](const model::ReactionMethod& method, const RouteValues& contribution) {
             RouteMethod m;
             m.method = method.spec().id;
-            for (const auto& a : record->methods)
+            for (const auto& a : bound->record->methods)  // with the implementations of the engine option
                 if (a.method == m.method)
                     m.implementation = a.implementation;
             m.contribution = contribution;

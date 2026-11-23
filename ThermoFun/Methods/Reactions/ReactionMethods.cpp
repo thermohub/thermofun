@@ -4,6 +4,8 @@
 #include "ReactionMethods.h"
 
 #include <algorithm>
+#include <cmath>
+#include <iterator>
 #include <utility>
 
 #include <ThermoFun/Common/Constants.h>
@@ -350,6 +352,43 @@ auto lagrangePolynomial(const std::vector<double>& x, const std::vector<double>&
     return out;
 }
 
+/// The errors of the properties from those of the reference values of the record: u^2 = sum of (dy/dx u(x))^2, with the
+/// exact derivatives of the formula that runs (a pass by each value). The path decides: a value that the formula does not
+/// read has the derivative 0, and a value that it derives (dS from log K and dH) is no input, so its correlation with the
+/// values it comes from is kept (at Tr, log K has the error of the given log K). The values of a record are independent;
+/// with propagate_parameter_errors the engine does the same with the parameters and the covariances too.
+auto setLogKErrors(ThermoPropertiesReaction& tpr, const ReactionInputs& reaction, LogKForm method, double T, double P) -> void
+{
+    const auto& ref = reaction.reference;
+    const std::pair<const Reaktoro_::ThermoProperty*, double ReferenceSeed::*> values[] = {
+        {&ref.log_equilibrium_constant, &ReferenceSeed::logK}, {&ref.reaction_gibbs_energy, &ReferenceSeed::dG},
+        {&ref.reaction_enthalpy, &ReferenceSeed::dH}, {&ref.reaction_entropy, &ReferenceSeed::dS},
+        {&ref.reaction_heat_capacity_cp, &ReferenceSeed::dCp}, {&ref.reaction_volume, &ReferenceSeed::dV}};
+    Reaktoro_::ThermoProperty* out[] = {&tpr.log_equilibrium_constant, &tpr.ln_equilibrium_constant, &tpr.reaction_gibbs_energy,
+                                        &tpr.reaction_enthalpy, &tpr.reaction_entropy, &tpr.reaction_heat_capacity_cp,
+                                        &tpr.reaction_volume, &tpr.reaction_internal_energy, &tpr.reaction_helmholtz_energy};
+    double variance[std::size(out)] = {};
+    for (const auto& [x, member] : values)
+    {
+        if (x->sta.first == Reaktoro_::Status::notdefined || x->err == 0.0)
+            continue;
+        ReactionInputs by = reaction;
+        by.seed = {};
+        by.seed.*member = 1.0;  // V: the error is in J/bar, as the value
+        const Reaktoro_::Pass pass(T, P, Reaktoro_::Wrt::None);
+        const auto a = thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, by, method);
+        const double d[] = {a.log_equilibrium_constant[1], a.ln_equilibrium_constant[1], a.reaction_gibbs_energy[1],
+                            a.reaction_enthalpy[1], a.reaction_entropy[1], a.reaction_heat_capacity_cp[1],
+                            a.reaction_volume[1], a.reaction_internal_energy[1], a.reaction_helmholtz_energy[1]};
+        for (std::size_t k = 0; k < std::size(out); ++k)
+            if (d[k] != 0.0)  // a value that the result does not depend on adds nothing, also with an error not known (NaN)
+                variance[k] += d[k] * d[k] * x->err * x->err;  // else an error NaN makes it NaN
+    }
+    for (std::size_t k = 0; k < std::size(out); ++k)
+        if (out[k]->sta.first != Reaktoro_::Status::notdefined)
+            out[k]->err = std::sqrt(variance[k]);
+}
+
 auto logKProperties(const ReactionInputs& reaction, LogKForm form, double T, double P) -> ThermoPropertiesReaction
 {
     const auto inputs = prepareLogK_fT(reaction, T, form);
@@ -357,6 +396,7 @@ auto logKProperties(const ReactionInputs& reaction, LogKForm form, double T, dou
         return thermoPropertiesReaction_LogK_fT(pass.T, pass.P / bar_to_Pa, reaction, inputs.method);
     });
     setStatusLogK_fT(tpr, inputs, T, P);
+    setLogKErrors(tpr, reaction, inputs.method, T, P);
     return tpr;
 }
 
