@@ -41,12 +41,8 @@ def test_a_substance_without_terms_gives_only_t_and_p():
     assert tf.ThermoEngine(AQ).routeTable(373.15, 1e8, "Calcite", "terms") == [{"T": 373.15, "P": 1e8}]
 
 
-def test_the_route_of_a_result_has_them_with_the_option():
+def test_the_route_of_every_result_has_them():
     engine = tf.ThermoEngine(AQ)
-    assert engine.thermoPropertiesSubstance(473.15, 1e8, "Ca+2").info.route.methods[0].terms == {}
-    preferences = engine.preferences
-    preferences.route_terms_and_variables = True
-    engine.setPreferences(preferences)
     method = engine.thermoPropertiesSubstance(473.15, 1e8, "Ca+2").info.route.methods[0]
     assert list(method.terms) == TERMS and list(method.variables) == VARIABLES
     assert "    terms: {born_G: " in str(engine.thermoPropertiesSubstance(473.15, 1e8, "Ca+2").info.route)

@@ -399,15 +399,6 @@ auto ThermoEngine::routeTable(const std::vector<double>& T, const std::vector<do
     const bool reaction = isReaction(symbol, kind);
     if (!reaction && !db.containsSubstance(symbol))
         throw std::invalid_argument("routeTable: there is no substance or reaction " + symbol + ".");
-    // terms and variables are calculated for this call: without the cache, so the result of the symbol has them
-    struct Outputs
-    {
-        Impl& impl;
-        bool before;
-        ~Outputs() { impl.with_outputs = before; }
-    } restore{*pimpl, pimpl->with_outputs};
-    pimpl->with_outputs = part != "contribution";
-
     RouteTable table;
     std::map<std::string, std::size_t> index;
     std::vector<std::map<std::size_t, double>> rows;

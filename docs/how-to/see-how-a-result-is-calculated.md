@@ -84,8 +84,7 @@ Output:
    says which methods set and which add: `tf.methods.catalog("LandauHP98")["contributes_to"]`.
 
 4. For the parts of one model, ask for its terms or variables: `engine.routeTable(T, P, symbol, "terms")`. Only some
-   methods have them, for example [HKF88](../reference/methods/HKF88.md). With the option `route_terms_and_variables` the route
-   of every result has them.
+   methods have them, for example [HKF88](../reference/methods/HKF88.md). The route of every result has them too.
 
 <!-- check
 ```python

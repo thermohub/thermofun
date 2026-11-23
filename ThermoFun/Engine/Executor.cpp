@@ -64,7 +64,7 @@ static auto valuesOf(const SubstanceState<TPReal>& s) -> RouteValues
     return {static_cast<double>(s.G[0]), static_cast<double>(s.H[0]), static_cast<double>(s.S[0]), static_cast<double>(s.Cp[0]), static_cast<double>(s.V[0])};
 }
 
-auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, std::vector<MethodStep>* steps, const SolventInputs* solvent, bool withOutputs) -> SubstanceResult
+auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, std::vector<MethodStep>* steps, const SolventInputs* solvent) -> SubstanceResult
 {
     const auto reference = toReal(bound.reference);
     TPReal Tt(T), Pp(P);
@@ -96,7 +96,7 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
         const RouteValues before = steps ? valuesOf(a) : RouteValues{};
         MethodStep step;
         // the formula writes its terms and variables as it calculates them (no other evaluation of the model)
-        wrtT.outputs = steps && withOutputs ? &step.outputs : nullptr;
+        wrtT.outputs = steps ? &step.outputs : nullptr;
         method->apply(a, wrtT);
         wrtT.outputs = nullptr;
         method->apply(b, wrtP);

@@ -76,9 +76,9 @@ void exportThermoScalar(py::module& m)
         .def_property_readonly("contribution", [values](const RouteMethod& x) { return values(x.contribution); },
                                "what the method adds to (or replaces in) G, H, S, Cp, V (dG, ... for a reaction), SI")
         .def_property_readonly("terms", [numbers](const RouteMethod& x) { return numbers(x.terms); },
-                               "parts of the contribution of the method to one property (catalog: terms); with the option route_terms_and_variables")
+                               "parts of the contribution of the method to one property (catalog: terms); empty if the method has none")
         .def_property_readonly("variables", [numbers](const RouteMethod& x) { return numbers(x.variables); },
-                               "quantities of the model that the terms come from (catalog: variables); with the option route_terms_and_variables")
+                               "quantities of the model that the terms come from (catalog: variables); empty if the method has none")
         .def("__repr__", [](const RouteMethod& x) { return "<RouteMethod " + x.method + (x.implementation.empty() ? "" : "/" + x.implementation) + ">"; });
     py::class_<RouteConversion>(m, "RouteConversion", "A change after the source of the values: what (convention, gas_options, fallback, rounding), detail, change (SI)")
         .def_readonly("what", &RouteConversion::what)

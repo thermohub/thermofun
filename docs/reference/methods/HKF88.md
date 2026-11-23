@@ -58,7 +58,7 @@ Names: `eta`, `theta`, `psi`, `Tr`, `Pr`, `Zr`, `Yr`, `zeta`, `gr`, `ag1` to `ag
 
 ## Terms
 
-Named parts of the contribution of the method to one property, in SI units, on request (the route of a result, decision 0030): `engine.routeTable(T, P, symbol, "terms")` gives them as rows (the column is `HKF88:<name>`), the option `route_terms_and_variables` puts them on the route of every result, and a batch calculation takes them as properties `terms:HKF88:<name>`.
+Named parts of the contribution of the method to one property, in SI units. The route of every result has them (`result.info.route`, decision 0030), `engine.routeTable(T, P, symbol, "terms")` gives them as rows (the column is `HKF88:<name>`), and a batch calculation takes them as properties `terms:HKF88:<name>`.
 
 | Name | Part of | SI unit | What it is |
 |---|---|---|---|
@@ -70,7 +70,7 @@ Named parts of the contribution of the method to one property, in SI units, on r
 
 ## Variables
 
-Quantities of the model that the terms come from, not summed, in SI units, on request: `engine.routeTable(T, P, symbol, "variables")` (the column is `HKF88:<name>`), the option `route_terms_and_variables`, and the properties `variables:HKF88:<name>` of a batch calculation.
+Quantities of the model that the terms come from, not summed, in SI units: on the route of every result, `engine.routeTable(T, P, symbol, "variables")` (the column is `HKF88:<name>`), and the properties `variables:HKF88:<name>` of a batch calculation.
 
 | Name | SI unit | What it is |
 |---|---|---|

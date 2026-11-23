@@ -297,16 +297,16 @@ def method_page(spec, example, same=(), published=None, data=DATA):
         lines += ["Names: %s." % ", ".join(_ranges(built_in)), ""]
     if spec.get("terms"):
         lines += ["## Terms", "",
-                  "Named parts of the contribution of the method to one property, in SI units, on request (the route of a result, decision 0030): "
-                  "`engine.routeTable(T, P, symbol, \"terms\")` gives them as rows (the column is `%s:<name>`), the option `route_terms_and_variables` puts them on "
-                  "the route of every result, and a batch calculation takes them as properties `terms:%s:<name>`." % (spec["id"], spec["id"]), "",
+                  "Named parts of the contribution of the method to one property, in SI units. The route of every result has them "
+                  "(`result.info.route`, decision 0030), `engine.routeTable(T, P, symbol, \"terms\")` gives them as rows (the column is `%s:<name>`), "
+                  "and a batch calculation takes them as properties `terms:%s:<name>`." % (spec["id"], spec["id"]), "",
                   "| Name | Part of | SI unit | What it is |", "|---|---|---|---|"]
         lines += ["| `%s` | %s | %s | %s |" % (o["name"], o["property"], o["si_unit"], o["description"]) for o in spec["terms"]]
         lines += [""]
     if spec.get("variables"):
         lines += ["## Variables", "",
-                  "Quantities of the model that the terms come from, not summed, in SI units, on request: `engine.routeTable(T, P, symbol, \"variables\")` "
-                  "(the column is `%s:<name>`), the option `route_terms_and_variables`, and the properties `variables:%s:<name>` of a batch calculation." % (spec["id"], spec["id"]), "",
+                  "Quantities of the model that the terms come from, not summed, in SI units: on the route of every result, "
+                  "`engine.routeTable(T, P, symbol, \"variables\")` (the column is `%s:<name>`), and the properties `variables:%s:<name>` of a batch calculation." % (spec["id"], spec["id"]), "",
                   "| Name | SI unit | What it is |", "|---|---|---|"]
         lines += ["| `%s` | %s | %s |" % (o["name"], o["si_unit"], o["description"]) for o in spec["variables"]]
         lines += [""]

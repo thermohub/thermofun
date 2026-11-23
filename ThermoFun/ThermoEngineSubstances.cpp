@@ -346,8 +346,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
                 P = saturationPressure(T);
             const auto solvent = solventInputs(*bound, T, P);
             std::vector<model::MethodStep> steps;
-            tps = toThermoProperties(model::executeSubstance(*bound, T, P, substanceOptions(), &steps, solvent ? &*solvent : nullptr,
-                                                             with_outputs || preferences.route_terms_and_variables));
+            tps = toThermoProperties(model::executeSubstance(*bound, T, P, substanceOptions(), &steps, solvent ? &*solvent : nullptr));
             route->by = "methods";
             addMethodSteps(*route, *bound, steps);
             if (bound->needs.solvent)

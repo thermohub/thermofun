@@ -127,7 +127,7 @@ terms[["T", "HKF88:born_G", "HKF88:born_V"]]
 assert abs(variables["HKF88:g"][0]) < 1e-10 and variables["HKF88:g"][3] < 0.0
 ```
 
-The g function is 0 at low T and becomes negative at high T, where it shrinks the effective radius of the ion and so changes its Born coefficient. Only some methods have terms and variables; for the others the rows have only T and P. The route of a result keeps them only with the option `route_terms_and_variables`. In a batch calculation, they are properties like any other: `{"name": "terms:HKF88:born_G", "unit": "kJ/mol"}` ([tutorial 5](05-batch-calculations.md)).
+The g function is 0 at low T and becomes negative at high T, where it shrinks the effective radius of the ion and so changes its Born coefficient. Only some methods have terms and variables; for the others the rows have only T and P. The route of every result has them too. In a batch calculation, they are properties like any other: `{"name": "terms:HKF88:born_G", "unit": "kJ/mol"}` ([tutorial 5](05-batch-calculations.md)).
 
 ## Change the model of a record
 

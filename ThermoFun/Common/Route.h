@@ -40,7 +40,7 @@ struct RouteMethod
     std::string implementation;   ///< empty: the default implementation
     std::string region;           ///< water and dielectric methods: the region of the method used, as text; empty: everywhere
     RouteValues contribution;     ///< what the method adds to (or replaces in) the properties: the state after it minus the state before it
-    std::vector<RouteNumber> terms;      ///< with the option route_terms_and_variables, or in routeTable
+    std::vector<RouteNumber> terms;      ///< of the methods that have them (catalog: terms)
     std::vector<RouteNumber> variables;  ///< the same
 };
 

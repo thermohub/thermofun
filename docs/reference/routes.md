@@ -121,7 +121,7 @@ reactants Calcite -1.0
 | `variables` | `<method>:<name>`: the quantities of the model that the terms come from (HKF88: `g`, `re`, `omega`, `omega_reference`). |
 
 The formula of a method gives its terms and variables as it calculates the values, so they cost no other evaluation of the
-model. The route of a result keeps them only with the option `route_terms_and_variables`; `routeTable` always gives them. A batch calculation takes the same columns as properties:
+model; the route of every result has them. A batch calculation takes the same columns as properties:
 `contribution:<method>:<property>`, `terms:<method>:<name>`, `variables:<method>:<name>`.
 
 ## In C++

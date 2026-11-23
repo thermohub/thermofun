@@ -333,9 +333,6 @@ struct ThermoEngine::Impl
     // Routes (decision 0030): ThermoEngineRoute.cpp
     //=================================================================================================
 
-    /// Terms and variables of the methods are calculated also without the option route_terms_and_variables (set by routeTable)
-    mutable bool with_outputs = false;
-
     /// G, H, S, Cp, V of a result in SI; volume: the factor of V to m3/mol (1e-5 inside the engine, J/bar; 1 for a public result)
     static auto routeValues(const ThermoPropertiesSubstance& tps, double volume = 1e-5) -> RouteValues;
     static auto routeValues(const ThermoPropertiesReaction& tpr, double volume = 1e-5) -> RouteValues;

@@ -27,13 +27,13 @@ struct MethodStep
     RouteValues contribution;     ///< the state after the method minus the state before it, in the convention of the method
     RouteValues conversion;       ///< the change of the conversion to the canonical convention after the method; zero if none
     bool converted = false;       ///< the method has a conversion to the canonical convention
-    MethodOutputs outputs;        ///< terms and variables, if asked for
+    MethodOutputs outputs;        ///< terms and variables
 };
 
 /// Run the bound methods of a record at T (K) and P (Pa). If steps is given, it gets one step for each method, with its terms and
-/// variables if withOutputs. solvent: the state of the solvent, if a method of the record needs it.
+/// variables (written by the formula as it calculates). solvent: the state of the solvent, if a method of the record needs it.
 auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, std::vector<MethodStep>* steps = nullptr,
-                      const SolventInputs* solvent = nullptr, bool withOutputs = false) -> SubstanceResult;
+                      const SolventInputs* solvent = nullptr) -> SubstanceResult;
 
 /// The methods of a record run on properties that come from elsewhere, from a defining reaction: initial, with its derivatives. SI.
 /// steps: as for executeSubstance (no conversions, no terms).

@@ -170,8 +170,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `saturation`; the key `"saturation"` of `value()`, `scalar()` and `rows` is unchanged). A value that is calculated outside the range of
   its model (for example the HKF model outside 600-1400 kg/m3 of water) is listed in `problems` of the table, with the message.
 - **Terms and variables of a method** (the parts of a model): `ThermoEngine::routeTable(T, P, symbol, "terms")` and
-  `"variables"` give them as a table with the columns `<method>:<name>`, and the option `route_terms_and_variables` puts them on
-  the route of every result. The catalog lists them (`terms`, each with the property it is part of, and `variables`, with unit and
+  `"variables"` give them as a table with the columns `<method>:<name>`, and the route of every result has them. The catalog lists them (`terms`, each with the property it is part of, and `variables`, with unit and
   meaning) and the method page has a section for each. First method: `HKF88` gives the Born terms of G, H, S, Cp and V (terms),
   and the g function, the effective radius and the Born coefficient (variables). The formula of the method gives them while it
   calculates the values (no other evaluation of the model); the Born terms are the parts of G, H, S, Cp and V that the totals

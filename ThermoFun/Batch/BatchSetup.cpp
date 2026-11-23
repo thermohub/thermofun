@@ -383,7 +383,6 @@ auto setOption(EnginePreferences& p, const std::string& key, const json& value) 
     else if (key == "solvent_state") p.solvent_state = value.get<int>();
     else if (key == "solvent_symbol") p.solvent_symbol = value.get<std::string>();
     else if (key == "physical_constants") p.physical_constants = value.get<std::string>();
-    else if (key == "route_terms_and_variables") p.route_terms_and_variables = value.get<bool>();
     else if (key == "fallback_to_reference_properties") p.fallback_to_reference_properties = value.get<bool>();
     else if (key == "apply_pressure_correction_to_gas_props") p.apply_pressure_correction_to_gas_props = value.get<bool>();
     else if (key == "cancel_fugacity_coefficient_in_gas_props") p.cancel_fugacity_coefficient_in_gas_props = value.get<bool>();
