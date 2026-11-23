@@ -58,7 +58,12 @@ void exportThermoScalar(py::module& m)
     // the route of a result (decision 0030): read-only views of the shared route
     using RoutePtr = std::shared_ptr<Route>;
     const auto values = [](const RouteValues& v) {
-        py::dict d;
+        py::dict d;   // the words of the format: G, H, S, Cp, V; logK, dG, dH, dS, dCp, dV of a reaction
+        if (v.reaction)
+        {
+            d["logK"] = v.logK; d["dG"] = v.G; d["dH"] = v.H; d["dS"] = v.S; d["dCp"] = v.Cp; d["dV"] = v.V;
+            return d;
+        }
         d["G"] = v.G; d["H"] = v.H; d["S"] = v.S; d["Cp"] = v.Cp; d["V"] = v.V;
         return d;
     };
@@ -73,8 +78,8 @@ void exportThermoScalar(py::module& m)
         .def_readonly("method", &RouteMethod::method)
         .def_readonly("implementation", &RouteMethod::implementation, "empty: the default implementation")
         .def_readonly("region", &RouteMethod::region, "water and dielectric methods: the region of the method used; empty: everywhere")
-        .def_property_readonly("contribution", [values](const RouteMethod& x) { return values(x.contribution); },
-                               "what the method adds to (or replaces in) G, H, S, Cp, V (dG, ... for a reaction), SI")
+        .def_property_readonly("contribution", [values](const RouteMethod& x) { return std::isnan(x.contribution.G) ? py::object(py::none()) : py::object(values(x.contribution)); },
+                               "what the method adds to (or replaces in) G, H, S, Cp, V (logK, dG, dH, dS, dCp, dV of a reaction), SI")
         .def_property_readonly("terms", [numbers](const RouteMethod& x) { return numbers(x.terms); },
                                "parts of the contribution of the method to one property (catalog: terms); empty if the method has none")
         .def_property_readonly("variables", [numbers](const RouteMethod& x) { return numbers(x.variables); },

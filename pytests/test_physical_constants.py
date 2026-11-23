@@ -57,8 +57,8 @@ def test_the_ideal_gas_term_follows_r():
 
 
 @pytest.mark.parametrize("path,symbol", [(AQ17, "H2O@"), ("pytests/data/legacy-synthetic/s33-water_pvt_zhang_duan05.json", None),
-                                         ("pytests/data/legacy-synthetic/s11-fluid_soave_redlich_kwong.json", None),
-                                         ("pytests/data/legacy-synthetic/s10-fluid_churakov_gottschalk.json", None)])
+                                         ("pytests/data/legacy-synthetic/s10-fluid_churakov_gottschalk.json", None),
+                                         ("pytests/data/legacy-synthetic/s12-fluid_sterner_pitzer.json", None)])
 def test_fitted_equations_keep_the_r_of_their_fit(path, symbol):
     symbols = [symbol] if symbol else tf.Database(path).getSubstancesList()
     # without the terms of the standard state of a gas, which are thermodynamics, not the fit
@@ -72,6 +72,22 @@ def test_fitted_equations_keep_the_r_of_their_fit(path, symbol):
             b = new.thermoPropertiesSubstance(T, P, s)
             for field in ("gibbs_energy", "enthalpy", "entropy", "volume"):
                 assert getattr(b, field).val == getattr(a, field).val, (s, T, P, field)
+
+
+@pytest.mark.parametrize("path", ["pytests/data/legacy-synthetic/s11-fluid_soave_redlich_kwong.json",
+                                  "pytests/data/legacy-synthetic/s13-fluid_peng_robinson78.json"])
+def test_the_cubic_equations_follow_r(path):
+    # in Peng-Robinson, PRSV and Soave-Redlich-Kwong R is a physical constant (a = 0.457 R^2 Tc^2/Pc, ...), not a fitted value
+    symbols = tf.Database(path).getSubstancesList()
+    old, new = engine(path, standard_state_of_gases=True), engine(path, "codata2018", standard_state_of_gases=True)
+    changed = 0
+    for s in symbols:
+        a, b = old.thermoPropertiesSubstance(573.15, 1e8, s), new.thermoPropertiesSubstance(573.15, 1e8, s)
+        # with the standard state of gases G keeps no term of the equation; V and H carry it
+        for field in ("volume", "enthalpy"):
+            assert getattr(b, field).val == pytest.approx(getattr(a, field).val, rel=1e-4)   # R changed by 6e-6 only
+        changed += b.volume.val != a.volume.val and b.enthalpy.val != a.enthalpy.val
+    assert changed == len(symbols)
 
 
 def test_a_change_in_place_applies_from_the_next_calculation():

@@ -8,7 +8,7 @@
 **Related:** [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md) · [Results](results.md) · [How methods combine](how-methods-combine.md) · [Conventions](conventions.md) · [Batch setups](batch.md)
 
 Every result says how it was calculated: its **route**. Each value of a result points to it,
-`x.info.route`, and so does the result, `result.info.route`. `engine.route(symbol)` gives the same structure without numbers,
+`x.info.route`, and so does the result, `result.route`. `engine.route(symbol)` gives the same structure without numbers,
 before calculating. A route prints in full as YAML.
 
 ## The fields
@@ -25,7 +25,9 @@ before calculating. A route prints in full as YAML.
 | `notes` | In `engine.route`: what cannot be calculated. The notes of a result are in `result.info.notes`; each names its `method` and the records it came through (`via`). |
 | `total()` | The sum of the contribution of the source, of the methods and of the conversions. |
 
-The values are in SI: J/mol, J/(mol K), m3/mol. A reaction has the same keys G, H, S, Cp, V for dG, dH, dS, dCp, dV.
+The values are in SI: J/mol, J/(mol K), m3/mol. A substance has the keys G, H, S, Cp, V; a reaction has logK, dG, dH, dS, dCp, dV, and its parts of log K add up to log K like the others.
+
+**The solvent of a result** (`needs`, role `solvent`) is the water at the same T and P, with the methods used there and the values the methods of the record were given: `density` (kg/m3) on the equation of state and `epsilon` on the dielectric model. The water's own G is not calculated for a solute, so these methods have no contribution.
 
 **For each property the result is the sum of its route:** `contribution` + the contributions of the methods + the changes of
 the conversions. A method that sets a property (the base method) replaces what came before it, so its contribution holds the
@@ -61,7 +63,7 @@ A gas with a fluid equation of state: the base method gives the ideal gas, and `
 
 ```python
 co2 = engine.thermoPropertiesSubstance(373.15, 1e7, "CO2")
-print(co2.info.route)
+print(co2.route)
 ```
 
 Output:
@@ -86,8 +88,8 @@ conventions = engine.conventions
 conventions.energy_reference.elements = "berman_brown"
 engine.conventions = conventions
 quartz = engine.thermoPropertiesSubstance(373.15, 1e7, "Quartz")
-print(quartz.info.route.conversions[0].detail, round(quartz.info.route.conversions[0].change["G"], 3))
-print(round(quartz.info.route.total()["G"] - quartz.gibbs_energy.val, 6))
+print(quartz.route.conversions[0].detail, round(quartz.route.conversions[0].change["G"], 3))
+print(round(quartz.route.total()["G"] - quartz.gibbs_energy.val, 6))
 ```
 
 Output:
@@ -101,7 +103,7 @@ A reaction without methods comes from its reactants: its route needs each of the
 
 ```python
 reaction = engine.thermoPropertiesReaction(298.15, 1e5, "Calcite = Ca+2 + CO3-2")
-print(reaction.info.route.by, reaction.info.route.needs[2].route.symbol, reaction.info.route.needs[2].coefficient)
+print(reaction.route.by, reaction.route.needs[2].route.symbol, reaction.route.needs[2].coefficient)
 ```
 
 Output:

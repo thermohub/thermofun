@@ -409,7 +409,17 @@ auto ThermoEngine::routeTable(const std::vector<double>& T, const std::vector<do
         row[it->second] += value;   // a method twice in a record: one column
     };
     const auto putValues = [&](std::map<std::size_t, double>& row, const std::string& prefix, const RouteValues& v) {
-        put(row, prefix + "G", v.G);   // dG, ... of a reaction: the same names
+        if (v.reaction)   // the words of a reaction
+        {
+            put(row, prefix + "logK", v.logK);
+            put(row, prefix + "dG", v.G);
+            put(row, prefix + "dH", v.H);
+            put(row, prefix + "dS", v.S);
+            put(row, prefix + "dCp", v.Cp);
+            put(row, prefix + "dV", v.V);
+            return;
+        }
+        put(row, prefix + "G", v.G);
         put(row, prefix + "H", v.H);
         put(row, prefix + "S", v.S);
         put(row, prefix + "Cp", v.Cp);

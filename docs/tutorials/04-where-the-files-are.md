@@ -51,7 +51,8 @@ print(s["symbol"], "\n\n", s["description"], "\n\n", "; ".join(s["data_sources"]
 
 The constants of physics are an option of the engine: `codata1986` (the default: most stored G and log K values were derived
 with its R) or `codata2018`. The R of the option is the R of the calculation: G and log K of a reaction, the term RT ln(P/p°)
-of a gas, the conversions of conventions. Fitted equations, such as the equations of state of fluids and NASA polynomials,
+of a gas, the conversions of conventions, and the cubic equations of state of gases (Peng-Robinson, PRSV, Soave-Redlich-Kwong), in
+which R is a physical constant. Fitted equations, such as CORK, Sterner-Pitzer, Churakov-Gottschalk and NASA polynomials,
 keep the R of their fit. A dataset can say which set its values were derived with (`physical_constants` in `thermodataset`);
 an engine with another set gives a warning.
 

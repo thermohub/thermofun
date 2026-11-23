@@ -141,7 +141,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
             methodOf(*bound->volume, routeValues(tpr) - before);
         }
         if (bound->needs_solvent)
-            route->needs.push_back({"solvent", 1.0, staticRoute(solvent_in_use)});
+            route->needs.push_back(solventNeed(solvent ? &*solvent : nullptr, nullptr, T, P));
         // the species of the record in another standard state: to the canonical one
         const auto shift = reactionShift(reaction, model::mergeConvention(record->convention.value_or(model::Convention{}), database.thermoDataSet().convention), true);
         if (!shift.identity())

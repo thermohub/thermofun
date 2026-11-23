@@ -65,12 +65,12 @@ The route of the result gives what each method contributes, in J/mol, J/(mol K) 
 ```{code-cell} ipython3
 mineral_engine = tf.ThermoEngine("mineral-methods.yaml")
 result = mineral_engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
-print(result.info.route)
+print(result.route)
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-route = result.info.route
+route = result.route
 assert [m.method for m in route.methods] == ["CpPolynomial", "LandauHP98", "MurnaghanHP98"]
 assert abs(route.total()["G"] - result.gibbs_energy.val) < 1e-6
 ```

@@ -350,7 +350,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             route->by = "methods";
             addMethodSteps(*route, *bound, steps);
             if (bound->needs.solvent)
-                route->needs.push_back({"solvent", 1.0, staticRoute(solvent_in_use)});
+                route->needs.push_back(solventNeed(solvent ? &*solvent : nullptr, T, P));
         }
 
         // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the
@@ -696,7 +696,7 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
         const auto out = model::executeOn(valuesOf(tps), *corrections, T, P, substanceOptions(), solvent ? &*solvent : nullptr, &steps);
         addMethodSteps(route, *corrections, steps);
         if (corrections->needs.solvent)
-            route.needs.push_back({"solvent", 1.0, staticRoute(solvent_in_use)});
+            route.needs.push_back(solventNeed(solvent ? &*solvent : nullptr, T, P));
         auto keep = [](Reaktoro_::ThermoProperty& to, const model::PropertyValue& value, double factor = 1.0) {
             to.val = value.val * factor;
             to.ddt = value.ddt * factor;

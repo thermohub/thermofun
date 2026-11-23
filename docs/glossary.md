@@ -46,7 +46,7 @@ Each word has one meaning in these pages. The source is the standard that define
 | Reference temperature | The temperature of the values of a record (Tr, `reference_conditions.T`), 298.15 K by default. | reference temperature | NEA TDB-5 3.3 |
 | Reference values | The values of a record at its reference temperature and its standard pressure. The key is `standard_state_properties`. |  | ThermoFun |
 | Result table | One result of a batch calculation (`ResultTable`). A row for each record and point, a column for each property and each variant of `compare`. |  | ThermoFun |
-| Route | How a result was calculated (`result.info.route`). Where its values came from (`by`), the methods with their contributions, the records it needed (`needs`), the conversions. `engine.route(symbol)` gives it without numbers. |  | ThermoFun |
+| Route | How a result was calculated (`result.route`). Where its values came from (`by`), the methods with their contributions, the records it needed (`needs`), the conversions. `engine.route(symbol)` gives it without numbers. |  | ThermoFun |
 | Segment | A T interval of a method, with its own parameters. |  | ThermoFun |
 | Solute | A substance dissolved in water. Its class is `aqueous_solute`. | solute | IUPAC GB4 2.10 |
 | Solvent | The water record that solutes read. `engine.solventSymbol()` gives its symbol. | solvent | IUPAC GB4 2.10 |

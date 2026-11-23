@@ -49,6 +49,8 @@ void exportThermoPropertiesSubstance(py::module& m)
 
     py::class_<ThermoPropertiesSubstance>(m, "ThermoPropertiesSubstance", "Standard molar properties of a substance")
         .def(py::init<>())
+        .def_property_readonly("route", [](const ThermoPropertiesSubstance& r) { return std::const_pointer_cast<ThermoFun::Route>(r.info.route); },
+                               "how the result was calculated: print it to see it in full; the same as info.route")
         .def_property_readonly("info", [](const ThermoPropertiesSubstance& r) { return infoOf(r.info); }, "the notes of all values, the source and the pressure; extrapolated if one value is")
         .def_readwrite("gibbs_energy", &ThermoPropertiesSubstance::gibbs_energy)
         .def_readwrite("helmholtz_energy", &ThermoPropertiesSubstance::helmholtz_energy)
@@ -65,6 +67,8 @@ void exportThermoPropertiesReaction(py::module& m)
 {
     py::class_<ThermoPropertiesReaction>(m, "ThermoPropertiesReaction", "Standard molar properties of a reaction")
         .def(py::init<>())
+        .def_property_readonly("route", [](const ThermoPropertiesReaction& r) { return std::const_pointer_cast<ThermoFun::Route>(r.info.route); },
+                               "how the result was calculated: print it to see it in full; the same as info.route")
         .def_property_readonly("info", [](const ThermoPropertiesReaction& r) { return infoOf(r.info); }, "the notes of all values, the source and the pressure; extrapolated if one value is")
         .def_readwrite("ln_equilibrium_constant",   &ThermoPropertiesReaction::ln_equilibrium_constant)
         .def_readwrite("log_equilibrium_constant",  &ThermoPropertiesReaction::log_equilibrium_constant)

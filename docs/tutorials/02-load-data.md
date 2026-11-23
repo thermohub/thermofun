@@ -119,7 +119,7 @@ The reaction has no methods, so its properties come from its reactants.
 
 ```{code-cell} ipython3
 reaction = engine.thermoPropertiesReaction(298.15, 1e5, "Halite-dissolution")
-print(reaction.reaction_gibbs_energy.val, "J/mol, by", reaction.info.route.by)
+print(reaction.reaction_gibbs_energy.val, "J/mol, by", reaction.route.by)
 G_halite = my_data.get("/substances/Halite/standard_state_properties/G")
 G_sodium = my_data.get("/substances/Na+/standard_state_properties/G")
 G_chloride = my_data.get("/substances/Cl-/standard_state_properties/G")

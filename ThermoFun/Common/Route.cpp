@@ -12,6 +12,7 @@ namespace ThermoFun {
 auto Route::total() const -> RouteValues
 {
     RouteValues sum = contribution;
+    sum.reaction = kind == "reaction";
     for (const auto& m : methods)
         sum += m.contribution;
     for (const auto& c : conversions)
@@ -52,9 +53,12 @@ auto text(const std::string& s) -> std::string
     return out + "\"";
 }
 
-/// G, H, S, Cp, V (dG, ... of a reaction: the same keys)
+/// G, H, S, Cp, V of a substance; logK, dG, dH, dS, dCp, dV of a reaction
 auto values(const RouteValues& v) -> std::string
 {
+    if (v.reaction)
+        return "{logK: " + number(v.logK) + ", dG: " + number(v.G) + ", dH: " + number(v.H) + ", dS: " + number(v.S) + ", dCp: " + number(v.Cp) +
+               ", dV: " + number(v.V) + "}";
     return "{G: " + number(v.G) + ", H: " + number(v.H) + ", S: " + number(v.S) + ", Cp: " + number(v.Cp) + ", V: " + number(v.V) + "}";
 }
 
@@ -89,7 +93,7 @@ auto write(std::string& out, const Route& r, const std::string& pad) -> void
                 out += pad + "    implementation: " + text(m.implementation) + "\n";
             if (!m.region.empty())
                 out += pad + "    region: " + text(m.region) + "\n";
-            if (numbersKnown)
+            if (numbersKnown && !std::isnan(m.contribution.G))
                 out += pad + "    contribution: " + values(m.contribution) + "\n";
             if (!m.terms.empty())
                 out += pad + "    terms: " + numbers(m.terms) + "\n";

@@ -54,7 +54,28 @@ auto ThermoEngine::Impl::routeValues(const ThermoPropertiesSubstance& tps, doubl
 
 auto ThermoEngine::Impl::routeValues(const ThermoPropertiesReaction& tpr, double volume) -> RouteValues
 {
-    return {tpr.reaction_gibbs_energy.val, tpr.reaction_enthalpy.val, tpr.reaction_entropy.val, tpr.reaction_heat_capacity_cp.val, tpr.reaction_volume.val * volume};
+    return {tpr.reaction_gibbs_energy.val, tpr.reaction_enthalpy.val, tpr.reaction_entropy.val, tpr.reaction_heat_capacity_cp.val, tpr.reaction_volume.val * volume,
+            tpr.log_equilibrium_constant.val, true};
+}
+
+auto ThermoEngine::Impl::solventNeed(const PropertiesSolvent* properties, const ElectroPropertiesSolvent* electro, double T, double P) const -> RouteNeed
+{
+    if (!properties || !database.containsSubstance(solvent_in_use))
+        return {"solvent", 1.0, staticRoute(solvent_in_use)};
+    auto route = std::make_shared<Route>(*staticRoute(solvent_in_use));
+    route->T = T;
+    route->P = static_cast<double>(properties->pressure.val) > 0.0 ? static_cast<double>(properties->pressure.val) : P;
+    route->methods = waterMethods(*database.getSubstance(solvent_in_use).record(), T, P);
+    for (auto& m : route->methods)
+        if (const auto* spec = model::MethodCatalog::instance().find(m.method, model::OperatesOn::Substance))
+        {
+            m.contribution.G = std::numeric_limits<double>::quiet_NaN();   // not calculated here: the solute uses the values below
+            if (spec->role == model::MethodRole::SolventProperties)
+                m.variables.push_back({"density", static_cast<double>(properties->density.val)});   // kg/m3
+            else if (spec->role == model::MethodRole::SolventElectro && electro)
+                m.variables.push_back({"epsilon", static_cast<double>(electro->epsilon.val)});
+        }
+    return {"solvent", 1.0, std::shared_ptr<const Route>(std::move(route))};
 }
 
 auto ThermoEngine::Impl::waterMethods(const model::SubstanceRecord& record, double T, double P) const -> std::vector<RouteMethod>
@@ -119,13 +140,15 @@ auto ThermoEngine::Impl::routeOfReaction(const std::string& symbol, std::vector<
         problem(*route, "There is no such reaction.");
         return route;
     }
-    if (std::find(above.begin(), above.end(), symbol) != above.end())
+    // a reaction and a substance can have the same symbol (the substance defined by it): the kind is part of the mark
+    const std::string mark = symbol + " (reaction)";
+    if (std::find(above.begin(), above.end(), mark) != above.end())
     {
-        problem(*route, loopFrom(above, symbol));
+        problem(*route, loopFrom(above, mark));
         return route;
     }
     const auto reaction = database.getReaction(symbol);
-    above.push_back(symbol);
+    above.push_back(mark);
     try
     {
         if (reactionFromReactants(reaction))

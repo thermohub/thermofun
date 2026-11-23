@@ -16,7 +16,8 @@ AQ17 = "Resources/databases/aq17-thermofun.json"
 PSI = "pytests/PsiTDB2020-subset-thermofun.json"
 MINERALS = "docs/tutorials/mineral-methods.yaml"
 FIELDS = {"G": "gibbs_energy", "H": "enthalpy", "S": "entropy", "Cp": "heat_capacity_cp", "V": "volume"}
-REACTION_FIELDS = {"G": "reaction_gibbs_energy", "H": "reaction_enthalpy", "S": "reaction_entropy", "Cp": "reaction_heat_capacity_cp", "V": "reaction_volume"}
+REACTION_FIELDS = {"logK": "log_equilibrium_constant", "dG": "reaction_gibbs_energy", "dH": "reaction_enthalpy", "dS": "reaction_entropy",
+                   "dCp": "reaction_heat_capacity_cp", "dV": "reaction_volume"}
 POINTS = [(298.15, 1e5), (373.15, 0.0), (523.15, 5e7), (873.15, 2e8)]
 
 
@@ -114,6 +115,22 @@ def test_a_record_from_its_defining_reaction_needs_the_reaction_and_the_other_re
     assert reaction.kind == "reaction" and reaction.T == 373.15
 
 
+def test_a_reaction_with_the_symbol_of_its_substance_is_not_a_cycle():
+    """FeOH+2 is a substance and its defining reaction: the static route goes on into the reaction, as the calculated one."""
+    engine = tf.ThermoEngine(PSI)
+
+    def notes(route):
+        return [str(n) for n in route.notes] + [x for need in route.needs for x in notes(need.route)]
+
+    same = [s for s in engine.database().getSubstancesList() if engine.database().containsReaction(s)]
+    assert "FeOH+2" in same
+    for symbol in same:
+        assert not [n for n in notes(engine.route(symbol)) if "cycle" in n], symbol
+    reaction = engine.route("FeOH+2").needs[0].route
+    calculated = engine.thermoPropertiesSubstance(323.15, 1e5, "FeOH+2").info.route.needs[0].route
+    assert (reaction.kind, reaction.by, [m.method for m in reaction.methods]) == (calculated.kind, calculated.by, [m.method for m in calculated.methods]) == ("reaction", "methods", ["LogKConstantCp"])
+
+
 def test_a_reaction_from_its_reactants_needs_each_with_its_coefficient():
     engine = tf.ThermoEngine(AQ17)
     result = engine.thermoPropertiesReaction(373.15, 1e5, "Calcite + 2H+ = Ca+2 + CO2@ + H2O@")
@@ -199,7 +216,9 @@ def test_a_reaction_has_a_route_table():
     symbol = engine.database().getReactionsList()[0]
     row = engine.routeTable(373.15, 1e5, symbol, kind="reaction")[0]   # a substance has the same symbol
     assert engine.route(symbol, "reaction").kind == "reaction" and engine.route(symbol).kind == "substance"
-    assert row["G"] == pytest.approx(engine.thermoPropertiesReaction(373.15, 1e5, symbol).reaction_gibbs_energy.val)
+    result = engine.thermoPropertiesReaction(373.15, 1e5, symbol)
+    assert row["dG"] == pytest.approx(result.reaction_gibbs_energy.val)
+    assert row["logK"] == pytest.approx(result.log_equilibrium_constant.val)
 
 
 def test_the_catalog_says_which_methods_set_and_which_add():

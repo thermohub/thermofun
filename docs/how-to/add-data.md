@@ -328,7 +328,7 @@ substances:
 ```python
 engine = tf.ThermoEngine("aqueous.yaml")
 ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
-print(ca.info.route.methods[0].method)
+print(ca.route.methods[0].method)
 ```
 
 Output:
@@ -339,7 +339,7 @@ HKF88
 
 <!-- check
 ```python
-assert ca.info.route.methods[0].method == "HKF88"
+assert ca.route.methods[0].method == "HKF88"
 ```
 -->
 
@@ -494,7 +494,7 @@ reactions:
 ```python
 engine = tf.ThermoEngine("defined.yaml")
 b = engine.thermoPropertiesSubstance(298.15, 1e5, "B")
-print(b.info.route.by)
+print(b.route.by)
 ```
 
 Output:
@@ -506,7 +506,7 @@ reaction
 <!-- check
 ```python
 assert abs(b.gibbs_energy.val - (-1000 - 8.31451 * 298.15 * 2.302585093)) < 1
-assert b.info.route.by == "reaction"
+assert b.route.by == "reaction"
 ```
 -->
 
@@ -804,7 +804,7 @@ A substance and its defining reaction often have the same symbol. Each one keeps
 
 To get a substance from its methods and the reaction from its reactants, give `direct` and then `reactants`. To get a substance from its reaction and the reaction from its reactants, the reaction must not use that substance: ThermoFun raises an error that names the cycle.
 
-Derivatives and propagated errors use the same route as the values. The route of a result says where it came from: `result.info.route.by` (decision 0030).
+Derivatives and propagated errors use the same route as the values. The route of a result says where it came from: `result.route.by`.
 
 
 ```python

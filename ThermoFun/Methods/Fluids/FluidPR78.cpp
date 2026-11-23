@@ -12,7 +12,7 @@ namespace ThermoFun {
 
 namespace {
 
-const real R_CONST = R_CODATA1986;
+// the gas constant is an argument: the engine option physical_constants (a physical constant in a cubic equation, not fitted)
 
 /// The places of the constants of the model: the order of the catalog, and of its file in Methods/ParameterSets.
 enum Constant
@@ -50,7 +50,7 @@ void cardano( real a2, real a1, real a0, real &z1, real &z2, real &z3 )
 }
 
 /// The attractive (a) and repulsive (b) parameters of the equation of state, and the T derivatives of a.
-void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apure, real &bpure, real &da, real &d2a, const double* con )
+void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apure, real &bpure, real &da, real &d2a, const double* con , double R_CONST)
 {
     real Tred, k, alph, ac, sqa, dsqa, d2sqa;
 
@@ -74,7 +74,7 @@ void ab(const real& Tk,  real Tcrit, real Pcrit, real omg, real /*N*/, real &apu
 
 /// The fugacity and the residual functions of a pure fluid. eos: Tcrit, Pcrit, omg, N. pure: a, b, da/dT, d2a/dT2.
 /// out: fugacity coefficient, G, H, S of the residual, volume, Cp of the residual.
-void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, const double* con, real* out)
+void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real* pure, const double* con, real* out, double R_CONST)
 {
     real Tcrit, Pcrit, Tred, apr, bpr, alph, da, d2a, k, A, B, a2, a1, a0,
             z1, z2, z3, vol1, vol2, vol3, lnf1, lnf2, lnf3, z, vol, lnf;
@@ -170,7 +170,7 @@ void fugacityPure(const real& Tk, const real& Pbar, const real* eos, const real*
 }
 
 /// The same with the check of the range: outside of it, the fluid is an ideal gas.
-void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const real* eos, const double* con, real* out)
+void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const real* eos, const double* con, real* out, double R_CONST)
 {
     if ((Tk >= Tmin) && (Tk < 1e4) && (Pbar >= 1e-5) && (Pbar < 1e5))
     {
@@ -179,16 +179,16 @@ void fugacityProperties(const real& Tk, const real& Pbar, double Tmin, const rea
         const real omg = eos[2];
         const real N = eos[3];
         real apure, bpure, da, d2a;
-        ab(Tk, Tcrit, Pcrit, omg, N, apure, bpure, da, d2a, con);
+        ab(Tk, Tcrit, Pcrit, omg, N, apure, bpure, da, d2a, con, R_CONST);
         const real pure[4] = {apure, bpure, da, d2a};
-        fugacityPure(Tk, Pbar, eos, pure, con, out);
+        fugacityPure(Tk, Pbar, eos, pure, con, out, R_CONST);
     }
     else
     {
         for (int i = 1; i < 6; i++)
             out[i] = 0.;
         out[0] = 1.;
-        out[4] = R_CODATA1986*Tk/Pbar;
+        out[4] = R_CONST*Tk/Pbar;
     }
 }
 
@@ -206,10 +206,10 @@ auto thermoPropertiesFluidPR78(real TK, real Pbar, const FluidInputs& subst, The
         CPg[i] = i < subst.parameters.size() ? subst.parameters[i] : real(0.0);
     }
 
-    fugacityProperties(TK, Pbar, TClow, CPg, subst.constants.data(), FugProps);
+    fugacityProperties(TK, Pbar, TClow, CPg, subst.constants.data(), FugProps, subst.R);
 
     // increment thermodynamic properties
-    tps.gibbs_energy += R_CODATA1986 * (TK) * log( FugProps[0] );
+    tps.gibbs_energy += subst.R * (TK) * log( FugProps[0] );
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
     if (!subst.gems)
@@ -219,7 +219,7 @@ auto thermoPropertiesFluidPR78(real TK, real Pbar, const FluidInputs& subst, The
     // back correction
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
     if (cancel_fugacity)
-        tps.gibbs_energy -= R_CODATA1986 * (TK) * log(Fug/Pbar);
+        tps.gibbs_energy -= subst.R * (TK) * log(Fug/Pbar);
 
     return tps;
 }

@@ -34,12 +34,12 @@ methods:
   - method: MurnaghanHP98
 ```
 
-2. Read the route of a result: `info.route` of the result or of any of its values. It has the point and the
+2. Read the route of a result: `result.route`, also `info.route` of any of its values. It has the point and the
    contribution of each method, in J/mol, J/(mol K) and m3/mol.
 
 ```python
 calcite = engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
-print(calcite.info.route)
+print(calcite.route)
 ```
 
 Output:
@@ -88,7 +88,7 @@ Output:
 
 <!-- check
 ```python
-route = calcite.info.route
+route = calcite.route
 assert [m.method for m in route.methods] == ["CpPolynomial", "LandauHP98", "MurnaghanHP98"]
 assert abs(route.total()["G"] - calcite.gibbs_energy.val) < 1e-6
 assert abs(table["Cp"][1] - table.iloc[1, 2:].sum()) < 1e-9

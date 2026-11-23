@@ -234,7 +234,7 @@ glossary:
       meaning: One result of a batch calculation (`ResultTable`). A row for each record and point, a column for each property and each variant of `compare`.
       source: ThermoFun
     - word: Route
-      meaning: How a result was calculated (`result.info.route`). Where its values came from (`by`), the methods with their contributions, the records it needed (`needs`), the conversions. `engine.route(symbol)` gives it without numbers.
+      meaning: How a result was calculated (`result.route`). Where its values came from (`by`), the methods with their contributions, the records it needed (`needs`), the conversions. `engine.route(symbol)` gives it without numbers.
       source: ThermoFun
     - word: Segment
       meaning: A T interval of a method, with its own parameters.

@@ -173,11 +173,11 @@ assert G.err >= 1500.0
 print(engine.route("Ca+2"))
 ```
 
-Every result carries the same route with its numbers, `result.info.route`: the point, and what each method contributes to G, H, S, Cp and V. The contributions add up to the result. Calcite has a base method and a method for the volume:
+Every result carries the same route with its numbers, `result.route`: the point, and what each method contributes to G, H, S, Cp and V. The contributions add up to the result. Calcite has a base method and a method for the volume:
 
 ```{code-cell} ipython3
 calcite = engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
-print(calcite.info.route)
+print(calcite.route)
 ```
 
 The route of a record at many points, as a table: [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md).

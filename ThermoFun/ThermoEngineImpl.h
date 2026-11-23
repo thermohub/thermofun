@@ -344,6 +344,15 @@ struct ThermoEngine::Impl
     /// the last); all of them with their regions if T is NaN
     auto waterMethods(const model::SubstanceRecord& record, double T, double P) const -> std::vector<RouteMethod>;
 
+    /// The solvent on the route of a result at T, P: the water methods used there, with the density (variable of the equation of state)
+    /// and the dielectric constant (variable of the dielectric model) that the methods of the record were given; the route without
+    /// numbers if there are no solvent inputs
+    auto solventNeed(const PropertiesSolvent* properties, const ElectroPropertiesSolvent* electro, double T, double P) const -> RouteNeed;
+    auto solventNeed(const model::SolventInputs* solvent, double T, double P) const -> RouteNeed
+    {
+        return solvent ? solventNeed(&solvent->properties, &solvent->electro, T, P) : solventNeed(nullptr, nullptr, T, P);
+    }
+
     /// The route of a substance or a reaction without numbers (engine.route), built once for each symbol and kept with the bound methods
     auto staticRoute(const std::string& symbol, bool reaction = false) const -> std::shared_ptr<const Route>;
 
