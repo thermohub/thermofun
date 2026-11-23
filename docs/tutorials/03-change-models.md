@@ -127,7 +127,7 @@ terms[["T", "HKF88:born_G", "HKF88:born_V"]]
 assert abs(variables["HKF88:g"][0]) < 1e-10 and variables["HKF88:g"][3] < 0.0
 ```
 
-The g function is 0 at low T and becomes negative at high T, where it shrinks the effective radius of the ion and so changes its Born coefficient. Only some methods have terms and variables; for the others the rows have only T and P. They cost one more evaluation of the model, so the route of a result has them only with the option `route_terms_and_variables`. In a table, they are properties like any other: `{"property": "terms:HKF88:born_G", "unit": "kJ/mol"}` ([tutorial 6](06-output-tables.md)).
+The g function is 0 at low T and becomes negative at high T, where it shrinks the effective radius of the ion and so changes its Born coefficient. Only some methods have terms and variables; for the others the rows have only T and P. They cost one more evaluation of the model, so the route of a result has them only with the option `route_terms_and_variables`. In a batch calculation, they are properties like any other: `{"name": "terms:HKF88:born_G", "unit": "kJ/mol"}` ([tutorial 5](05-batch-calculations.md)).
 
 ## Change the model of a record
 
@@ -158,7 +158,7 @@ print("V  (m3/mol)    JohnsonNorton91:", ion_jn91.volume.val, "  HelgesonKirkham
 print("Cp (J/(mol K)) JohnsonNorton91:", ion_jn91.heat_capacity_cp.val, "  HelgesonKirkham74:", ion_hk74.heat_capacity_cp.val)
 ```
 
-To compare models for many records and conditions, a table can do it in one setup: see [Make tables](../how-to/make-tables.md).
+To compare models for many records and conditions, a batch calculation does it in one setup, with the difference: see [Batch calculations](05-batch-calculations.md#compare-two-models-and-two-databases).
 
 ## Remove a method
 

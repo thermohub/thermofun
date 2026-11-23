@@ -132,10 +132,10 @@ assert 860.0 < engine.propertiesSolvent(473.15, 0.0, "H2O@").density.val < 870.0
 
 ## Calculate many values
 
-To calculate many values, make a table. The template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. A template is a YAML file: copy it and edit it to change the columns, the units, the temperatures and pressures, or the format of the table, as [Output tables](06-output-tables.md) shows. [Batch calculations](07-batch-calculations.md) calculate many substances and points from your code.
+To calculate many values at once, run a batch calculation. The batch template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. A template is a YAML file: copy it and edit it to change the properties, the units, the temperatures and pressures, or the layout of the result, as [Batch calculations](05-batch-calculations.md) shows.
 
 ```{code-cell} ipython3
-results = tf.table(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
+results = tf.batch(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
 print(results["reactions"].to_text("md"))
 ```
 

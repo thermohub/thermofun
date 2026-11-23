@@ -132,22 +132,22 @@ def test_validate_gives_exit_code_1_for_an_error(tmp_path, capsys):
     assert "CNV-005" in capsys.readouterr().out
 
 
-# --- the snapshot ---------------------------------------------------------------------------------------------------------
+# --- the summary of an engine ---------------------------------------------------------------------------------------------------------
 
-def test_the_snapshot_names_the_data():
-    s = tf.ThermoEngine(str(LEGACY)).snapshot()
+def test_the_summary_names_the_data():
+    s = tf.ThermoEngine(str(LEGACY)).summary()
     assert s.format_version == "legacy" and s.thermofun_version
     assert len(s.content_hash) == 64 and set(s.content_hash) <= set("0123456789abcdef")
 
 
 def test_the_hash_is_stable_and_follows_the_records():
     a, b = tf.ThermoEngine(str(LEGACY)), tf.ThermoEngine(str(LEGACY))
-    assert a.snapshot().content_hash == b.snapshot().content_hash
+    assert a.summary().content_hash == b.summary().content_hash
     substance = a.database().getSubstance("Quartz")
     substance.setName("Quartz changed")
     a.database().setSubstance(substance)
     a2 = tf.ThermoEngine(a.database())
-    assert a2.snapshot().content_hash != b.snapshot().content_hash
+    assert a2.summary().content_hash != b.summary().content_hash
 
 
 def test_a_v2_file_gives_its_dataset_and_the_implementations():
@@ -155,7 +155,7 @@ def test_a_v2_file_gives_its_dataset_and_the_implementations():
     p = tf.EnginePreferences()
     p.method_implementation = {"HKF88": "gems"}
     e.setPreferences(p)
-    s = e.snapshot()
+    s = e.summary()
     assert s.format_version.startswith("2.") and s.dataset == "minimal" and s.implementations == {"HKF88": "gems"}
 
 

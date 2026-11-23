@@ -68,12 +68,12 @@ print(database.get("/substances/Ca+2/methods/0/method"), database.get("/substanc
 
 ## Choose records by a rule
 
-A rule gives the symbols of the records that fit. It is shorter than a list, and tables and batch calculations use it too.
+A rule gives the symbols of the records that fit. It is shorter than a list, and batch calculations use it too.
 
 ```{code-cell} ipython3
-print(tf.tables.select_substances(database, {"class": "aqueous_solute", "elements": ["Ca"]}))
-print(tf.tables.select_substances(database, {"only_elements": ["Ca", "C", "O"], "aggregate_state": "crystal"}))
-print(tf.tables.select_substances(database, {"match": "Ca*", "exclude": ["CaC*"]}))
+print(tf.batch.select_substances(database, {"class": "aqueous_solute", "elements": ["Ca"]}))
+print(tf.batch.select_substances(database, {"only_elements": ["Ca", "C", "O"], "aggregate_state": "crystal"}))
+print(tf.batch.select_substances(database, {"match": "Ca*", "exclude": ["CaC*"]}))
 ```
 
 ## Write your own data

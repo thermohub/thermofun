@@ -20,7 +20,7 @@ You learn where ThermoFun finds databases, the model parameters and the template
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
-**Related:** [Add data](../how-to/add-data.md) · [Methods](../reference/methods/index.md) · [Units](../reference/units.md) · [Make tables](../how-to/make-tables.md) · [Glossary](../glossary.md)
+**Related:** [Add data](../how-to/add-data.md) · [Methods](../reference/methods/index.md) · [Units](../reference/units.md) · [Run a batch calculation](../how-to/make-tables.md) · [Glossary](../glossary.md)
 
 | What | Where | How to change it |
 |---|---|---|
@@ -71,20 +71,20 @@ print(engine.preferences.physical_constants)
 Two environment variables name your folders. Separate several folders with `:`, or with `;` on Windows.
 
 - `THERMOFUN_PARAMETER_PATH`: variants of the model parameters of a method. A record uses a variant with `parameter_set`. A file here changes nothing until a record names it.
-- `THERMOFUN_TEMPLATE_PATH`: your templates. See [5. Templates](05-templates.md).
+- `THERMOFUN_TEMPLATE_PATH`: your templates. See [6. Batch templates](06-batch-templates.md).
 
 ```{code-cell} ipython3
 print("parameters:", os.environ.get("THERMOFUN_PARAMETER_PATH"))
-print("templates: ", os.environ.get("THERMOFUN_TEMPLATE_PATH"), tf.tables.template_folders())
+print("templates: ", os.environ.get("THERMOFUN_TEMPLATE_PATH"), tf.batch.template_folders())
 ```
 
-## Which data did a calculation use
+## Which data and settings a calculation used
 
-The snapshot of an engine names the version, the data, and the models of water. The SHA-256 changes when any value of the records changes.
+The summary of an engine names the version, the constants of physics, the data, the models of water, the conventions, and the options that are not at their default. The SHA-256 changes when any value of the records changes. A batch calculation writes the same lines at the top of its files.
 
 ```{code-cell} ipython3
 engine = tf.ThermoEngine("aq17-thermofun.json")
-print("\n".join(engine.snapshot().lines()))
+print(engine.summary())
 ```
 
-**Next:** [5. Templates](05-templates.md).
+**Next:** [5. Batch calculations](05-batch-calculations.md).

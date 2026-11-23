@@ -139,19 +139,20 @@ void exportThermoEngine(py::module& m)
         return out;
     }, "The valid words of the options of the engine");
 
-    py::class_<CalculationSnapshot>(m, "CalculationSnapshot", "What a calculation depends on")
-        .def_readonly("thermofun_version", &CalculationSnapshot::thermofun_version)
-        .def_readonly("format_version", &CalculationSnapshot::format_version)
-        .def_readonly("dataset", &CalculationSnapshot::dataset)
-        .def_readonly("dataset_version", &CalculationSnapshot::dataset_version)
-        .def_readonly("content_hash", &CalculationSnapshot::content_hash)
-        .def_readonly("implementations", &CalculationSnapshot::implementations)
-        .def_readonly("physical_constants", &CalculationSnapshot::physical_constants)
-        .def_readonly("water_symbol", &CalculationSnapshot::water_symbol)
-        .def_readonly("water_methods", &CalculationSnapshot::water_methods)
-        .def_readonly("options", &CalculationSnapshot::options)
-        .def_readonly("conventions", &CalculationSnapshot::conventions)
-        .def("lines", &snapshotLines, "The snapshot as short lines of text");
+    py::class_<EngineSummary>(m, "EngineSummary", "What the results of an engine depend on: engine.summary()")
+        .def_readonly("thermofun_version", &EngineSummary::thermofun_version)
+        .def_readonly("format_version", &EngineSummary::format_version)
+        .def_readonly("dataset", &EngineSummary::dataset)
+        .def_readonly("dataset_version", &EngineSummary::dataset_version)
+        .def_readonly("content_hash", &EngineSummary::content_hash)
+        .def_readonly("implementations", &EngineSummary::implementations)
+        .def_readonly("physical_constants", &EngineSummary::physical_constants)
+        .def_readonly("water_symbol", &EngineSummary::water_symbol)
+        .def_readonly("water_methods", &EngineSummary::water_methods)
+        .def_readonly("options", &EngineSummary::options)
+        .def_readonly("conventions", &EngineSummary::conventions)
+        .def("text", &EngineSummary::text, "The summary as short lines of text")
+        .def("__str__", &EngineSummary::text);
 
     const auto sensitivities = [](const std::vector<std::tuple<std::string, std::string, std::string>>& parameters) {
         std::vector<ParameterRef> out;
@@ -246,7 +247,7 @@ void exportThermoEngine(py::module& m)
              }, py::arg("parameters"), py::arg("covariance"),
              "Gives parameters a covariance, SI, row after row: one block for each record. Returns the number of the values dropped, between different records")
         .def("numberOfCachedResults", &ThermoEngine::numberOfCachedResults, "The number of results kept in the caches")
-        .def("snapshot", &ThermoEngine::snapshot, "What the results depend on: versions, dataset, SHA-256 of the records, implementations")
+        .def("summary", &ThermoEngine::summary, "What the results depend on: versions, dataset, SHA-256 of the records, water, conventions, options, implementations")
         .def("consistencyReport", [](const ThermoEngine& self, const py::object& T, const py::object& P, const ConsistencyOptions& options) {
                  return self.consistencyReport(numbersOf(T), numbersOf(P), options);
              }, py::arg("T"), py::arg("P"), py::arg("options") = ConsistencyOptions{},

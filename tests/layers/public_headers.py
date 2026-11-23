@@ -16,7 +16,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "The
 CMAKE = os.path.join(ROOT, "PublicHeaders.cmake")
 PUBLIC = [
     "ThermoFun.h", "ThermoEngine.h", "Database.h", "Substance.h", "Reaction.h", "Element.h",
-    "Batch/ThermoBatch.h", "Batch/Tables.h", "Common/Diagnostics.h", "Methods/MethodCatalog.h", "Methods/Evaluate.h",
+    "Batch/ThermoBatch.h", "Batch/BatchSetup.h", "Common/Diagnostics.h", "Methods/MethodCatalog.h", "Methods/Evaluate.h",
 ]
 INCLUDE = re.compile(r'#\s*include\s*[<"]([^>"]+)[>"]')
 

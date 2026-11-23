@@ -471,9 +471,9 @@ auto ThermoEngine::routeTable(const std::vector<double>& T, const std::vector<do
     return table;
 }
 
-auto ThermoEngine::snapshot() const -> CalculationSnapshot
+auto ThermoEngine::summary() const -> EngineSummary
 {
-    CalculationSnapshot s;
+    EngineSummary s;
 #ifdef THERMOFUN_VERSION_STRING
     s.thermofun_version = THERMOFUN_VERSION_STRING;
 #endif
@@ -515,8 +515,9 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     return s;
 }
 
-auto snapshotLines(const CalculationSnapshot& s) -> std::vector<std::string>
+auto EngineSummary::text() const -> std::string
 {
+    const auto& s = *this;
     const auto joined = [](const std::map<std::string, std::string>& items) {
         std::string out;
         for (const auto& [key, value] : items)
@@ -541,7 +542,10 @@ auto snapshotLines(const CalculationSnapshot& s) -> std::vector<std::string>
         lines.push_back("options: " + joined(s.options));
     if (!s.implementations.empty())
         lines.push_back("implementations: " + joined(s.implementations));
-    return lines;
+    std::string out;
+    for (const auto& line : lines)
+        out += line + "\n";
+    return out;
 }
 
 auto ThermoEngine::consistencyReport(const std::vector<double>& T, const std::vector<double>& P, const ConsistencyOptions& options) const -> std::vector<ConsistencyItem>

@@ -175,12 +175,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   meaning) and the method page has a section for each. First method: `HKF88` gives the Born terms of G, H, S, Cp and V (terms),
   and the g function, the effective radius and the Born coefficient (variables). The terms agree with each other (S = -dG/dT,
   Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity coefficient of the gas methods, the order parameter of Landau and
-  the thermal pressure of Tait (CHECK-LATER item 38). A table takes them as columns, `{property: terms:HKF88:born_G, unit: kJ/mol}`;
-  a record without the method gets an empty cell and a problem.
+  the thermal pressure of Tait (CHECK-LATER item 38). A batch calculation takes them as properties, `{name: terms:HKF88:born_G,
+  unit: kJ/mol}`; a record without the method gets an empty cell and a problem.
 - **A value outside the range of its model is marked:** `ThermoScalar.outside_range` (C++ `ThermoFun::outsideRange`). All methods
   write such messages with one function, which starts them with "Outside the range of the model:"; the status stays `calculated`.
   Tables list these values in `problems` by that mark, not by the words of the message.
-- `Table::pressureUsed` (Python `pressure_used(record, T, "saturation")`): the pressure that a row used.
+- `ResultTable::pressureUsed` (Python `pressure_used(record, T, "saturation")`): the pressure that a row used.
 - `class` accepts `condensed_species` for `component` and `solvent` for `water_solvent`; the record is written with the word of the
   format. The `gems` implementation of HKF88 gives the same terms and variables, from its own g function and Born coefficient.
 - Test that every record of `psinagra-12-07` calculates without a crash. The released 0.6.x library crashed on it (segmentation
@@ -189,7 +189,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   reading, then a summary (`minimal.yaml: no problems`, `aq17-thermofun.json: 4 errors, 0 warnings`). A file that cannot be
   read gives its diagnostics without the frame of the C++ message. Before, it printed nothing for a file in order and the raw
   exception for one that could not be read.
-- `python -m thermofun.tables` no longer prints a RuntimeWarning of Python: `thermofun.tables` is imported on first use.
+- `python -m thermofun.batch` prints no RuntimeWarning of Python: `thermofun.batch` is imported on first use.
 - The how-to pages show what each step prints: an `Output:` block under a code block, and `console` blocks with the commands
   of `thermofun.convert`, `thermofun.validate` and `thermofun.method_tool` and what they print. The tests run them and
   compare (`pytests/docs_outputs.py`), so the shown outputs stay true.
@@ -259,7 +259,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   gives the route without numbers, before calculating; `routeTable(T, P, symbol, part)` gives it at many points; a route prints
   as YAML (`str(route)`, `toYaml`). It costs nothing measurable.
 - Derivatives by a built-in constant, also through the water into a solute.
-- `TableSetup` (C++ and Python): tables from a YAML setup or a template of the library, in the layouts long, transposed and grid, as CSV, Markdown or LaTeX. `python -m thermofun.tables`, and `tf.table` in Python.
+- **Batch calculations** (decision 0032; `BatchSetup`, `ThermoFun/Batch/BatchSetup.h`, and `tf.batch` in Python): many records at many
+  conditions at once, from a setup in four blocks, `database` and `engine` (options, conventions, property sources), `conditions`
+  (T and P, `points: grid | pairs`, `vary_first`), `results` (substances or reactions, by symbol or by a rule, and properties
+  with `show: value | uncertainty | ddt | ddp | status`) and `output` (units and digits also of T and P, `layout: long | wide | grid`,
+  `file`, `provenance`). A block at the top is the default of every result, which can give its own. `compare` calculates a result
+  with other databases, methods or engine settings, and `compare_difference` adds the difference to the first. Batch templates
+  (`tf.templates()`, `tf.template(name)`), among them `blank`, whose `<...>` placeholders must be filled (an error names their
+  paths), and fragments for the conditions and the output. Values by path: `setup.set("/results/0/name", ...)`. Each result writes
+  as CSV, Markdown or LaTeX, with its provenance (the database, the templates and `ThermoEngine::summary()`). `python -m thermofun.batch`.
+  A setup can also give a `ThermoBatch` (`setup.batch()`, `setup.apply_to(batch)`), the 0.x batch API, which stays unchanged.
 - Tutorials, how-to pages, a glossary, and reference and explanation pages in `docs/`.
 
 ### Changed
@@ -327,7 +336,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `HKF_HGK_1974`. A record file now has no `thermodataset` block (`V2WriterOptions::dataset_block`).
 - `ThermoBatch` wrote every volume as 0.000 by default: its 3 decimals were those of J/bar. The default is 8 decimals
   of m3/mol, the same resolution.
-- On macOS, errors of a table setup reached Python as RuntimeError, not `TableSetupError`: its type information is now
+- On macOS, errors of a batch setup reached Python as RuntimeError, not `BatchSetupError`: its type information is now
   in the library only. And without `from_chars` for double (libc++ before 16), a number in a text was read to its last
   point, so "1.5.2 J/mol" was 1.5 J/mol and not an error.
 - The library links spdlog itself when it uses the compiled spdlog (and so fmt), not only through ChemicalFun (review N9).

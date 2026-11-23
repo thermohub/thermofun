@@ -10,7 +10,7 @@
 Fitting is under development. It will move to a separate library, ThermoFit; ThermoFun will keep the sensitivities and the contributions of the methods. The interface of `thermofun.fitting` can change.
 ```
 
-**Related:** [Tutorial 8: Fit parameters](../tutorials/08-fit-parameters.md) · [HKF88](../reference/methods/HKF88.md) · [Derivatives with autodiff](../reference/derivatives.md) · [Uncertainties](../reference/uncertainty.md)
+**Related:** [Tutorial 7: Fit parameters](../tutorials/07-fit-parameters.md) · [HKF88](../reference/methods/HKF88.md) · [Derivatives with autodiff](../reference/derivatives.md) · [Uncertainties](../reference/uncertainty.md)
 
 This page tells you how to fit the parameters of a record to measured properties, and how to read the uncertainty of the result.
 

@@ -3,12 +3,12 @@
 
 #include <cmath>
 
-#include "Batch/Tables.h"
+#include "Batch/BatchSetup.h"
 #include "Database.h"
 #include "ThermoEngine.h"
 #include "check.h"
 
-void runTables()
+void runBatch()
 {
     using namespace ThermoFun;
 
@@ -17,14 +17,14 @@ void runTables()
     Database database(data);
 
     // a template, changed with functions
-    auto setup = TableSetup::fromTemplate("species-properties");
+    auto setup = BatchSetup::fromTemplate("species-properties");
     setup.setDatabase(database);
-    setup.setRecords({"X"});
+    setup.setSubstances({"X"});
     setup.setTemperatures({298.15, 400.0}, "K");
     setup.setPressures({1.0}, "bar");
-    setup.setColumn("G", "J/mol", 2);
-    setup.removeColumn("H");
-    setup.addColumn("U", "kJ/mol", 1);
+    setup.setProperty("G", "J/mol", 2);
+    setup.removeProperty("H");
+    setup.addProperty("U", "kJ/mol", 1);
     const auto results = setup.run();
     const auto& table = results.at("species");
     CHECK(table.rows().size() == 2);
@@ -41,13 +41,13 @@ void runTables()
     CHECK(table.toText("csv").rfind("Symbol,T(K),P(bar),G(J/mol)", 0) == 0);
     CHECK(table.toText("md").rfind("| Symbol |", 0) == 0);
     CHECK(table.toText("tex").find("\\begin{tabular}") != std::string::npos);
-    setup.setLayout("transposed");
+    setup.setLayout("wide");
     CHECK(setup.run().at("species").lines().front().front() == "Property");
     setup.setLayout("grid");
     CHECK(setup.run().at("species").propertyGrids().size() == 5);
 
     // it reads back what it writes
-    auto again = TableSetup::fromText(setup.toYaml());
+    auto again = BatchSetup::fromText(setup.toYaml());
     again.setDatabase(database);
     CHECK(again.run().at("species").toText() == setup.run().at("species").toText());
 
@@ -55,15 +55,32 @@ void runTables()
     bool said = false;
     try
     {
-        TableSetup::fromTemplate("no-such-template");
+        BatchSetup::fromTemplate("no-such-template");
     }
-    catch (const TableSetupError& error)
+    catch (const BatchSetupError& error)
     {
         said = std::string(error.what()).find("species-properties") != std::string::npos;
     }
     CHECK(said);
 
-    CHECK(TableSetup::templates().count("logk-grid") == 1);
+    CHECK(BatchSetup::templates().count("logk-grid") == 1);
+
+    // a value by its path, and the placeholders of blank name their paths
+    auto blank = BatchSetup::fromTemplate("blank");
+    bool placeholders = false;
+    try
+    {
+        blank.run();
+    }
+    catch (const BatchSetupError& error)
+    {
+        placeholders = std::string(error.what()).find("/database (<path of the database>)") != std::string::npos;
+    }
+    CHECK(placeholders);
+    blank.setDatabase(database).set("/conditions/T/values", "[298.15]").set("/conditions/T/unit", "\"K\"").set("/conditions/P/values", "[1]");
+    blank.set("/results/0/name", "\"b\"").set("/results/0/substances", "[\"X\"]");
+    CHECK(blank.get("/results/0/name") == "\"b\"");
+    CHECK(blank.run().at("b").rows().size() == 1);
 
     // a rule instead of a list, from a template and settings of another
     const std::string more = R"({"thermohub": "2.0.0-draft.1", "substances": {
@@ -79,19 +96,19 @@ void runTables()
     {
         selectSubstances(two, "{elements: [K]}");
     }
-    catch (const TableSetupError& error)
+    catch (const BatchSetupError& error)
     {
         empty = std::string(error.what()).find("chooses no substance") != std::string::npos;
     }
     CHECK(empty);
 
-    auto chosen = TableSetup::fromTemplate("species-properties");
-    chosen.useTemplate("batch-reference").setDatabase(two);
-    chosen.setRecordRule("{match: 'Y'}");
+    auto chosen = BatchSetup::fromTemplate("species-properties");
+    chosen.useTemplate("conditions-reference").setDatabase(two);
+    chosen.setSubstanceRule("{match: 'Y'}");
     const auto chosenResults = chosen.run();
     const auto& one = chosenResults.at("species");
     CHECK(one.rows().size() == 1 && one.rows()[0].record == "Y");
-    CHECK(one.provenance().templates == (std::vector<std::string>{"species-properties", "batch-reference"}));
+    CHECK(one.provenance().templates == (std::vector<std::string>{"species-properties", "conditions-reference"}));
     CHECK(!one.provenance().calculations.empty() && one.provenance().calculations[0].second.content_hash.size() == 64);
     CHECK(one.toText("csv", true).rfind("# database: given in memory", 0) == 0);
 

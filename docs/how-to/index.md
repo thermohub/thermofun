@@ -9,7 +9,8 @@ Steps for one job. The guides are in four groups: using ThermoFun to calculate, 
 
 ## Calculate
 
-- [Make tables](make-tables.md): from a YAML setup or a template, in C++ and Python.
+- [Run a batch calculation](make-tables.md): many records at many conditions, from a YAML setup or a batch template, in C++ and Python.
+- [Use ThermoBatch, the 0.x batch API](use-thermobatch.md)
 - [Choose water models](choose-water-models.md)
 - [Choose conventions](choose-conventions.md)
 - [Propagate uncertainties](propagate-uncertainties.md)
@@ -39,6 +40,7 @@ Steps for one job. The guides are in four groups: using ThermoFun to calculate, 
 :hidden:
 
 make-tables
+use-thermobatch
 choose-water-models
 choose-conventions
 propagate-uncertainties

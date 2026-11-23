@@ -3,7 +3,7 @@
 set(THERMOFUN_PUBLIC_HEADERS
     Batch/OutputBatch.h
     Batch/RecordRules.h
-    Batch/Tables.h
+    Batch/BatchSetup.h
     Batch/ThermoBatch.h
     Common/Constants.h
     Common/Diagnostics.h
@@ -19,7 +19,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Element.h
     Engine/Consistency.h
     Engine/Sensitivity.h
-    Engine/Snapshot.h
+    Engine/Summary.h
     GlobalVariables.h
     Methods/Evaluate.h
     Methods/Method.h

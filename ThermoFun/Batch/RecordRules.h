@@ -14,15 +14,15 @@ class Database;
 
 /// A setup that cannot run. The message says why. Its type information is in the library only (the destructor is defined
 /// there) and visible: on macOS a type that each binary makes for itself is not caught as the same type, so the Python
-/// module got a RuntimeError instead of TableSetupError.
+/// module got a RuntimeError instead of BatchSetupError.
 #if defined(_WIN32)
-struct TableSetupError : std::runtime_error
+struct BatchSetupError : std::runtime_error
 #else
-struct __attribute__((visibility("default"))) TableSetupError : std::runtime_error
+struct __attribute__((visibility("default"))) BatchSetupError : std::runtime_error
 #endif
 {
     using std::runtime_error::runtime_error;
-    ~TableSetupError() override;
+    ~BatchSetupError() override;
 };
 
 /// The substances of a database that a rule chooses, in the order of their symbols. The rule is YAML or JSON text:

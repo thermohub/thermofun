@@ -98,12 +98,12 @@ def test_the_two_implementations_give_nearly_the_same_terms():
         assert values["gems"]["HKF88:" + name] == pytest.approx(values["reaktoro"]["HKF88:" + name], rel=2e-3, abs=1.0), name
 
 
-def test_a_term_is_a_column_of_a_table_with_its_unit():
+def test_a_term_is_a_property_of_a_batch_with_its_unit():
     setup = {"database": AQ, "conditions": {"T": {"values": [200], "unit": "degC"}, "P": {"values": [1000], "unit": "bar"}},
-             "tables": [{"name": "born", "records": ["Ca+2", "Calcite"],
-                         "columns": [{"property": "terms:HKF88:born_G", "unit": "kJ/mol"}, {"property": "variables:HKF88:g"},
-                                     {"property": "contribution:HKF88:G"}]}]}
-    results = tf.table(setup)
+             "results": [{"name": "born", "substances": ["Ca+2", "Calcite"],
+                          "properties": [{"name": "terms:HKF88:born_G", "unit": "kJ/mol"}, {"name": "variables:HKF88:g"},
+                                         {"name": "contribution:HKF88:G"}]}]}
+    results = tf.batch(setup)
     table = results["born"]
     assert [c["label"] for c in table.columns] == ["terms:HKF88:born_G(kJ/mol)", "variables:HKF88:g(Ao)", "contribution:HKF88:G(J/mol)"]
     engine = tf.ThermoEngine(AQ)
@@ -114,10 +114,10 @@ def test_a_term_is_a_column_of_a_table_with_its_unit():
     assert any(p[1] == "Calcite" and "does not use that method" in p[-1] for p in results.problems)
 
 
-@pytest.mark.parametrize("column, text", [({"property": "terms:HKF88:nope"}, "has no term nope"),
-                                          ({"property": "variables:HKF88:g", "show": "ddt"}, "a value only"),
-                                          ({"property": "contribution:HKF88:logK"}, "a contribution is to G, H, S, Cp or V")])
-def test_a_wrong_column_of_a_route_says_why(column, text):
-    setup = {"database": AQ, "conditions": {"T": [298.15], "P": [1e5]}, "tables": [{"name": "x", "records": ["Ca+2"], "columns": [column]}]}
-    with pytest.raises(tf.tables.SetupError, match=text):
-        tf.table(setup)
+@pytest.mark.parametrize("property, text", [({"name": "terms:HKF88:nope"}, "has no term nope"),
+                                            ({"name": "variables:HKF88:g", "show": "ddt"}, "a value only"),
+                                            ({"name": "contribution:HKF88:logK"}, "a contribution is to G, H, S, Cp or V")])
+def test_a_wrong_property_of_a_route_says_why(property, text):
+    setup = {"database": AQ, "conditions": {"T": [298.15], "P": [1e5]}, "results": [{"name": "x", "substances": ["Ca+2"], "properties": [property]}]}
+    with pytest.raises(tf.BatchSetupError, match=text):
+        tf.batch(setup)

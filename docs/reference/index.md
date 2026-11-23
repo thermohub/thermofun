@@ -17,7 +17,7 @@ Facts and the reasons behind them, in six sections. The pages of the methods, th
 
 - [Options of the engine](engine-preferences.md) and its conventions.
 - [Conventions](conventions.md): what the zero of an energy is, and the standard states.
-- [Batch options](batch.md)
+- [Batch setups](batch.md)
 
 ## Formats
 

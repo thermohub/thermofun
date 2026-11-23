@@ -6,7 +6,7 @@
 #include <ThermoFun/Engine/Consistency.h>
 #include <ThermoFun/Common/Route.h>
 #include <ThermoFun/Engine/Sensitivity.h>
-#include <ThermoFun/Engine/Snapshot.h>
+#include <ThermoFun/Engine/Summary.h>
 #include <ThermoFun/Model/Convention.h>
 #include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoProperties.h>
@@ -246,8 +246,8 @@ public:
     auto routeTable(const std::vector<double>& T, const std::vector<double>& P, const std::string& symbol, const std::string& part = "contribution", const std::string& kind = "") const -> RouteTable;
 
     /// What the results depend on: the version of ThermoFun, the format and dataset of the loaded data, the SHA-256 of all records,
-    /// and the implementations that the preferences ask for.
-    auto snapshot() const -> CalculationSnapshot;
+    /// the water, the conventions, the options that are not at their default, and the implementations that the preferences ask for.
+    auto summary() const -> EngineSummary;
 
     /// The exact derivatives of the properties of a substance or a reaction (the symbol decides, as in route) by the given parameters,
     /// through its defining reaction and the other species of that reaction. Results of a substance: G, H, S, Cp, V, U, A; of a
