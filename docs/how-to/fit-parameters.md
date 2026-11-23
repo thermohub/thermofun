@@ -102,10 +102,10 @@ The handle needs its engine. `engine.parameters("Qtz")` gives the handles of all
 from thermofun import fitting
 
 # measured: here calculated with known values, to see the fit find them
-truth = tf.ThermoEngine(tf.Database(data))
+true_engine = tf.ThermoEngine(tf.Database(data))
 T = [300.0, 500.0, 700.0, 900.0]
-measured = (fitting.calculated(truth, "Qtz", "Cp", T, 1e5, uncertainty=0.5)
-            + fitting.calculated(truth, "Qtz", "G", T, 1e5, uncertainty=50.0))
+measured = (fitting.calculated(true_engine, "Qtz", "Cp", T, 1e5, uncertainty=0.5)
+            + fitting.calculated(true_engine, "Qtz", "G", T, 1e5, uncertainty=50.0))
 
 engine = tf.ThermoEngine(tf.Database(data))
 engine.parameter("Qtz", "CpPolynomial", "a0").setValue(80.0)   # a wrong start

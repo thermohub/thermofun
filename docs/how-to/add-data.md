@@ -170,7 +170,7 @@ Every number in a file can have one of these forms:
 | `{value: -237183, uncertainty: {expanded: 200, coverage_factor: 2}}` | An expanded uncertainty and its coverage factor. |
 | `{value: -237183, uncertainty: {half_width: 300, distribution: uniform}}` | A rectangular distribution of half-width 300: u = 300/√3. `triangular`: u = a/√6. |
 | `{value: -237183, derivation: "from the log K of R1"}` | A note on how the value was made. It is kept and written back; no calculation reads it. |
-| `{value: -237183, quality: core, origin: calculated, source: 2018LOT/MAT}` | Data about the value. |
+| `{value: -237183, quality: core, origin: calculated, source: 2018LOT/MAT}` | Data about the value. `quality` is free text, how far the author trusts the value: the words `core`, `recommended`, `supplemental` are suggested, and the word of the source compilation is fine (NEA: `selected`, `auxiliary`). `source` is the NEA reference code of the publication. |
 
 **Default units.** Standard-state properties are in J/mol, J/(mol K) and m3/mol. Reaction properties use the same units. Molar
 mass is in g/mol. Temperature is in K. Pressure is in Pa. A method parameter has the SI unit of [Parameters of all methods](../reference/method-parameters.md).

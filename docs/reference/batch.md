@@ -7,7 +7,7 @@
 
 **Related:** [Tutorial 5: Batch calculations](../tutorials/05-batch-calculations.md) · [Tutorial 6: Batch templates](../tutorials/06-batch-templates.md) · [Run a batch calculation](../how-to/make-tables.md) · [Use ThermoBatch](../how-to/use-thermobatch.md) · [Options of the engine](engine-preferences.md) · [Units](units.md)
 
-A **batch calculation** calculates many records at many conditions at once (decision 0032). Its **setup** has four blocks, plus
+A **batch calculation** calculates many records at many conditions at once. Its **setup** has four blocks, plus
 `template`. A block at the top is the default of every result; a result can give its own `engine`, `conditions` or `output`,
 which replace the defaults key by key (the groups of `engine` and the maps `units` and `digits` one level further).
 

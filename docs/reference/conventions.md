@@ -19,7 +19,7 @@ the standard state and the energy reference in two blocks:
 | `energy_reference.ions` | `hydrogen_ion`, `none` | `hydrogen_ion` |
 
 **What G, H and S of a record mean.** The keys of `standard_state_properties` are the same in every energy reference; their
-meaning at the reference temperature Tr follows it (decision 0031). NEA data are `benson_helgeson` as published (dfG°m, dfH°m,
+meaning at the reference temperature Tr follows it. NEA data are `benson_helgeson` as published (dfG°m, dfH°m,
 S°m); `dfG` and `dfH` are read as G and H of `benson_helgeson`.
 
 | `energy_reference.elements` | G at Tr | H at Tr | S |
@@ -29,6 +29,17 @@ S°m); `dfG` and `dfH` are read as G and H of `benson_helgeson`.
 | `berman_brown`, `ser`, `assigned_enthalpy`, `dft_formation_0K` | dfH° - Tr S° | dfH° | absolute |
 
 Cp and V are absolute in every energy reference.
+
+**The concentration scales of solutes.** The standard state of a solute is the hypothetical ideal-dilute solute at a
+standard composition (NEA TDB-5, Table 1 and 3.1; IUPAC GB4 4.11.1):
+
+| `concentration_scale` | Composition | Standard value | Depends on T and P |
+|---|---|---|---|
+| `molality` | amount of solute per **mass of solvent**, mol/kg ("0.1 molal", "0.1 m") | m° = 1 mol/kg | no |
+| `molarity` | amount of solute per **volume of the solution**, mol/dm3 ("0.1 molar", "0.1 M"); IUPAC: amount concentration | c° = 1 mol/dm3 | yes, through the density of water |
+| `mole_fraction` | amount of solute per total amount, x = n/sum(n); IUPAC: amount fraction | x° = 1 | no |
+
+A change to or from `molarity` therefore needs the water record of the database (CNV-002).
 
 **The engine has one inside convention.** Each record says what it is in, and the engine converts it to the canonical convention. So species with different conventions can be in one reaction. Results go out in the convention that you ask for.
 
@@ -41,7 +52,7 @@ Cp and V are absolute in every energy reference.
 | `molality` to `molarity` | - RT ln(rho/1000), rho in kg/m3 | follows | H follows rho(T) |
 | 1 bar to 1 atm (gases) | + RT ln(1.01325) | - R ln(1.01325) | no change |
 
-Two of these are approximations. `dft_formation_0K` takes a formation energy at 0 K from a DFT calculation as the enthalpy of formation at 298.15 K, with no zero-point or thermal term: an estimate, typically within a few kJ/mol per atom, and the reader warns (CNV-008). `gibbs_helmholtz_formation` uses T S_el(Tr) for the elements at every T, which is exact only if their heat capacities were zero.
+Two of these are approximations. `dft_formation_0K` takes a formation energy at 0 K from a DFT calculation as the enthalpy of formation at 298.15 K, with no zero-point or thermal term: an estimate, typically within a few kJ/mol per atom, and the reader warns (CNV-008). `gibbs_helmholtz_formation` is the convention of the Extended UNIQUAC tables: they give dfG° and dfH° at 25 °C and a Cp of the species, and get G at other T from the Gibbs-Helmholtz equation, d(G/T)/dT = -H/T², applied to these values of formation. So the element term is T S_el at every T, which is exact only if the heat capacities of the elements were zero: it equals `benson_helgeson` at Tr, and the two drift apart by (T - Tr) S_el.
 
 U and A follow H, not G: U = H - P V and A = U - T S. With `benson_helgeson`, A is therefore not G - P V: the two differ by 298.15 S_el. This is the "apparent" Helmholtz and internal energy of Berman (1988) (Dolejš 2013, Eqs. 21-26), the same in every energy reference.
 

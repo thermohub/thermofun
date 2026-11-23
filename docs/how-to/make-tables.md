@@ -9,7 +9,7 @@
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
-A batch calculation calculates many records at many conditions at once (decision 0032). It comes from a **batch setup**: a YAML file, a batch template, or a dict in Python, with four blocks: `database` and `engine` (with what), `conditions` (T and P), `results` (one entry for each result table) and `output` (units, digits, layout, file). All the work is in the library (`ThermoFun/Batch/BatchSetup.h`), so C++ and Python have the same setups and templates. The same setup can also run as a `ThermoBatch`, the 0.x batch API: see section 7.
+A batch calculation calculates many records at many conditions at once. It comes from a **batch setup**: a YAML file, a batch template, or a dict in Python, with four blocks: `database` and `engine` (with what), `conditions` (T and P), `results` (one entry for each result table) and `output` (units, digits, layout, file). All the work is in the library (`ThermoFun/Batch/BatchSetup.h`), so C++ and Python have the same setups and templates. The same setup can also run as a `ThermoBatch`, the 0.x batch API: see section 7.
 
 ## 1. Use a template
 

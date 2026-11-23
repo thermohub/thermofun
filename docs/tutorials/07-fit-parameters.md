@@ -35,9 +35,9 @@ This tutorial makes its own data, so that you can see the fit find the known val
 import thermofun as tf
 from thermofun import fitting
 
-truth = tf.ThermoEngine("mineral-methods.yaml")
+true_engine = tf.ThermoEngine("mineral-methods.yaml")
 # Cp of Calcite at five T (K) and 1 bar, with the uncertainty 0.5 J/(mol K)
-measured = fitting.calculated(truth, "Calcite", "Cp", [600.0, 800.0, 1000.0, 1100.0, 1200.0], 1e5, uncertainty=0.5)
+measured = fitting.calculated(true_engine, "Calcite", "Cp", [600.0, 800.0, 1000.0, 1100.0, 1200.0], 1e5, uncertainty=0.5)
 ```
 
 ## Start from a wrong value
@@ -51,7 +51,7 @@ Smax.setValue(7.0)
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-assert truth.parameter("Calcite", "LandauHP98", "Smax").value() == 10.0
+assert true_engine.parameter("Calcite", "LandauHP98", "Smax").value() == 10.0
 ```
 
 ## Look at the derivative

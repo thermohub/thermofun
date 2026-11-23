@@ -29,7 +29,7 @@ uncertainty.
 | `validity` | `Validity.within`: inside the range of every model and data that the value depends on. `Validity.extrapolated`: calculated, but one of them is used outside its range; the notes say which. `Validity.undefined`: there is no value. |
 | `status` | `notdefined`, `read`, `assigned` or `calculated`, as in `sta`. |
 | `error` | Whether `err` can be trusted. `ErrorState.known`: the uncertainty of the data, propagated. `ErrorState.partial`: a contribution could not be propagated, and `err` is not a number. `ErrorState.unknown`: the data give no uncertainty; `err` is 0, which does not mean that the value is exact. |
-| `route` | How the result was calculated (decision 0030): `route.by` is where the values came from (`methods`, `reaction` for a record defined by a reaction, `reactants` for a reaction from its species, `reference`, `water`, `hydrogen_ion`, `hydrogen_electrode`), with the methods and their contributions, the records it needed and the conversions. See [Routes](routes.md). |
+| `route` | How the result was calculated: `route.by` is where the values came from (`methods`, `reaction` for a record defined by a reaction, `reactants` for a reaction from its species, `reference`, `water`, `hydrogen_ion`, `hydrogen_electrode`), with the methods and their contributions, the records it needed and the conversions. See [Routes](routes.md). |
 | `pressure` | The pressure used, in Pa. At P = 0 it is the saturation pressure of water. |
 | `notes` | The list of notes behind the other members. |
 
@@ -75,7 +75,7 @@ Outside the range of the model: via the water: JohnsonNorton91: T = 1373.15 K, P
 The first note is of the HKF model itself; the other two come from the water, which is outside the range of its equation
 of state and of its dielectric model at 1100 degC.
 
-Each note names its method and the records it came through (`via`). The route of the result (`G.info.route`, decision 0030)
+Each note names its method and the records it came through (`via`). The route of the result (`G.info.route`)
 says how it was calculated; the notes are not in the route.
 
 In C++: `x.info` (`Reaktoro_::Info`: `notes`, `route`, `pressure`) of each `ThermoScalar`, `ThermoFun::validity(x)` and

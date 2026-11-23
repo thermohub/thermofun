@@ -7,7 +7,7 @@
 
 **Related:** [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md) · [Results](results.md) · [How methods combine](how-methods-combine.md) · [Conventions](conventions.md) · [Batch setups](batch.md)
 
-Every result says how it was calculated: its **route** (decision 0030). Each value of a result points to it,
+Every result says how it was calculated: its **route**. Each value of a result points to it,
 `x.info.route`, and so does the result, `result.info.route`. `engine.route(symbol)` gives the same structure without numbers,
 before calculating. A route prints in full as YAML.
 
@@ -118,7 +118,7 @@ reactants Calcite -1.0
 |---|---|
 | `contribution` (default) | `G`, `H`, `S`, `Cp`, `V` (the result); `<by>:G` (the source, if it is not the methods); `<method>:G`; `<what>(<detail>):G` for each conversion. The columns of a property add up to it. |
 | `terms` | `<method>:<name>`: the parts of the contribution of a method to one property, as its catalog entry names them (HKF88: `born_G`, ...). |
-| `variables` | `<method>:<name>`: the quantities of the model that the terms come from (HKF88: `g`, `re`, `omega`, `omega_reference`). |
+| `variables` | `<method>:<name>`: the quantities of the model that the terms come from (HKF88: `g`, `re`, `omega`, `omega_reference`). They are not summed: omega is in J/mol, like G, but it is not a part of G; the catalog, not the unit, says which outputs are terms. |
 
 The formula of a method gives its terms and variables as it calculates the values, so they cost no other evaluation of the
 model; the route of every result has them. A batch calculation takes the same columns as properties:

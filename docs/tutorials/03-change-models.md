@@ -46,7 +46,7 @@ catalog[catalog.operates_on == "reaction"][["id", "title"]]
 
 ## Which models does a record use
 
-The route of a record names its methods and the records it needs (decision 0030). Ca+2 uses `HKF88`, which needs the water record `H2O@` with its two models:
+The route of a record names its methods and the records it needs. Ca+2 uses `HKF88`, which needs the water record `H2O@` with its two models:
 
 ```{code-cell} ipython3
 print(engine.route("Ca+2"))
@@ -63,8 +63,8 @@ A record can have several methods. In `mineral-methods.yaml`, Calcite has three:
 The route of the result gives what each method contributes, in J/mol, J/(mol K) and m3/mol. The contributions add up to the result.
 
 ```{code-cell} ipython3
-minerals = tf.ThermoEngine("mineral-methods.yaml")
-result = minerals.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
+mineral_engine = tf.ThermoEngine("mineral-methods.yaml")
+result = mineral_engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
 print(result.info.route)
 ```
 
@@ -97,7 +97,7 @@ The reasons are in [How methods combine](../reference/how-methods-combine.md).
 `routeTable` gives the route at as many T and P as you like, one row for each point. A column such as `LandauHP98:G` is what that method contributed to G, in J/mol. A conversion after the methods (a convention of the results, an option of gases) has its own column, `<what>(<detail>):G`. The columns of a property add up to its value `G`. A method that sets a property (the base method) also removes what was there before it, so its column holds the whole value.
 
 ```{code-cell} ipython3
-contributions = pd.DataFrame(minerals.routeTable([473.15, 800.0, 1300.0], 1e7, "Calcite"))
+contributions = pd.DataFrame(mineral_engine.routeTable([473.15, 800.0, 1300.0], 1e7, "Calcite"))
 contributions[["T", "G", "CpPolynomial:G", "LandauHP98:G", "MurnaghanHP98:G"]]
 ```
 

@@ -14,7 +14,7 @@ Some fields of a record take one word of a fixed list, for example `class: compo
 
 ### What `class` means
 
-The class says which family of rules ThermoFun applies to a substance (for example, the methods for aqueous species need the solvent), and each class has its standard state (decision 0031). The aggregate state says only the state of matter. A substance has both.
+The class says which family of rules ThermoFun applies to a substance (for example, the methods for aqueous species need the solvent), and each class has its standard state. The aggregate state says only the state of matter. A substance has both.
 
 | `class` | What it is | Standard state | Examples |
 |---|---|---|---|

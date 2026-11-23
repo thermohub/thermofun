@@ -18,10 +18,10 @@ A database holds records: elements, substances, reactions, method definitions, p
 ```python
 import thermofun as tf
 
-shared = tf.ThermoEngine("examples/v2/minimal.yaml")
-mine = tf.ThermoEngine(shared)  # for one thread
-mine.preferences.round_to_uncertainty = True
-print(shared.preferences.round_to_uncertainty)
+shared_engine = tf.ThermoEngine("examples/v2/minimal.yaml")
+thread_engine = tf.ThermoEngine(shared_engine)  # for one thread
+thread_engine.preferences.round_to_uncertainty = True
+print(shared_engine.preferences.round_to_uncertainty)
 ```
 
 Output:
@@ -32,7 +32,7 @@ False
 
 <!-- check
 ```python
-assert shared.preferences.round_to_uncertainty is False
+assert shared_engine.preferences.round_to_uncertainty is False
 ```
 -->
 

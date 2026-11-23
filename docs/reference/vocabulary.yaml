@@ -29,7 +29,7 @@ allowed_words:
       after: |
         ### What `class` means
 
-        The class says which family of rules ThermoFun applies to a substance (for example, the methods for aqueous species need the solvent), and each class has its standard state (decision 0031). The aggregate state says only the state of matter. A substance has both.
+        The class says which family of rules ThermoFun applies to a substance (for example, the methods for aqueous species need the solvent), and each class has its standard state. The aggregate state says only the state of matter. A substance has both.
 
         | `class` | What it is | Standard state | Examples |
         |---|---|---|---|
@@ -110,13 +110,13 @@ glossary:
       source: ThermoFun
     - word: Batch calculation
       meaning: Many records at many conditions at once, from a batch setup. `tf.batch(setup)` gives the results, one result table for each entry of `results`.
-      source: ThermoFun (decision 0032)
+      source: ThermoFun
     - word: Batch setup
       meaning: "What a batch calculation does, in four blocks: `database` and `engine`, `conditions`, `results`, `output`. A dict, a YAML file or a `BatchSetup`."
-      source: ThermoFun (decision 0032)
+      source: ThermoFun
     - word: Batch template
       meaning: A file with some blocks of a batch setup. A **fragment** has one block only, such as the conditions. `blank` has a placeholder `<...>` for each value to give.
-      source: ThermoFun (decision 0032)
+      source: ThermoFun
     - word: Canonical convention
       meaning: The convention that the engine calculates in. `benson_helgeson`, molality, 1 bar, `hydrogen_ion`, and the anchor of water of the dataset.
       source: ThermoFun
@@ -132,16 +132,16 @@ glossary:
       source: CODATA
     - word: Contributes to
       meaning: "What a method does to each property of a record: `sets` the whole value, `adds` an increment, or `uses` it as an input. The page of each method gives it."
-      source: ThermoFun (decision 0031)
+      source: ThermoFun
     - word: Contribution
       meaning: What one method adds to (or replaces in) G, H, S, Cp, V of a result. The result is the sum of the contributions and the changes of the conversions.
-      source: ThermoFun (decision 0030)
+      source: ThermoFun
     - word: Conversion
       meaning: A change after the source of the values, on the route of a result. A convention (a method in another convention, the conventions of the results), an option of gases, the fallback to the values of the record, the rounding to the uncertainty.
-      source: ThermoFun (decision 0030)
+      source: ThermoFun
     - word: Convention
       meaning: How values are defined. The standard state (standard pressure, concentration scale) and the energy reference (of the elements, of water, of the ions).
-      source: ThermoFun (decision 0031)
+      source: ThermoFun
     - word: Data source
       meaning: Where a record comes from. `data_sources` is a list of reference codes of the NEA form (`92GRE/FUG`) or texts.
       standard: reference code
@@ -154,7 +154,7 @@ glossary:
       source: ThermoFun
     - word: Derivation
       meaning: How a value of a record was obtained (`quantity.derivation`), whatever its origin.
-      source: ThermoFun (decision 0031)
+      source: ThermoFun
     - word: Dielectric model
       meaning: A method that gives the dielectric constant of water and the Born functions.
       source: ThermoFun
@@ -164,7 +164,7 @@ glossary:
       source: NEA TDB-5 1.7.e
     - word: Energy reference
       meaning: From what zero G, H and S of a record are counted. `elements` (such as `benson_helgeson`), `water` (the anchor) and `ions` (`hydrogen_ion`).
-      source: ThermoFun (decision 0031)
+      source: ThermoFun
     - word: Engine
       meaning: The object that calculates. `ThermoEngine`. Its summary (`engine.summary()`) names what the results depend on.
       source: ThermoFun
@@ -211,7 +211,7 @@ glossary:
       source: ThermoFun
     - word: Provenance
       meaning: How a result of a batch calculation was made. The database and the SHA-256 of its records, the templates, and the summary of each engine.
-      source: ThermoFun (decision 0032)
+      source: ThermoFun
     - word: Reactant
       meaning: A substance in a reaction, with its coefficient. The coefficient is negative on the left side of the equation.
       standard: stoichiometric number
@@ -232,10 +232,10 @@ glossary:
       source: ThermoFun
     - word: Result table
       meaning: One result of a batch calculation (`ResultTable`). A row for each record and point, a column for each property and each variant of `compare`.
-      source: ThermoFun (decision 0032)
+      source: ThermoFun
     - word: Route
       meaning: How a result was calculated (`result.info.route`). Where its values came from (`by`), the methods with their contributions, the records it needed (`needs`), the conversions. `engine.route(symbol)` gives it without numbers.
-      source: ThermoFun (decision 0030)
+      source: ThermoFun
     - word: Segment
       meaning: A T interval of a method, with its own parameters.
       source: ThermoFun
@@ -270,16 +270,16 @@ glossary:
       source: ThermoFun
     - word: Terms
       meaning: The named parts of the contribution of one method to one property, such as the Born term of G of HKF88. The catalog names them.
-      source: ThermoFun (decision 0030)
+      source: ThermoFun
     - word: v2 format
       meaning: The format since version 1.0, in YAML or JSON, with the key `thermohub`.
       source: ThermoFun
     - word: Variables
       meaning: The quantities of a model that its terms come from, not summed, such as the g function of HKF88. The catalog names them.
-      source: ThermoFun (decision 0030)
+      source: ThermoFun
     - word: Variant
       meaning: "A parameter set with `default: false`. A record uses it only if it names it."
       source: ThermoFun
     - word: Water anchor
       meaning: The data of liquid water that tie an equation of state of water to the values of formation. `helgeson_kirkham_1974` or `codata_1989`. Data of the dataset, not a convention, so never converted.
-      source: ThermoFun (decision 0031); CODATA 1989; Helgeson and Kirkham (1974)
+      source: ThermoFun; CODATA 1989; Helgeson and Kirkham (1974)
