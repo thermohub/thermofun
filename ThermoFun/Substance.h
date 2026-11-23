@@ -13,6 +13,8 @@
 #include <ThermoFun/GlobalVariables.h>
 
 namespace ThermoFun {
+
+namespace model { struct SubstanceRecord; }
 struct ThermoParametersSubstance;
 
 /// A type used to describe a chemical substance (species, dependent components) 
@@ -180,6 +182,13 @@ public:
      */
     auto charge() const -> int;
 
+    /// The record of this object, in SI units, if it was read from a legacy JSON text and not changed since.
+    /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
+    auto record() const -> std::shared_ptr<const model::SubstanceRecord>;
+
+    /// An object of a record of any format.
+    explicit Substance(std::shared_ptr<const model::SubstanceRecord> record);
+
     /**
      * @brief jonString
      * @return record in json string
@@ -212,14 +221,6 @@ auto operator==(const Substance& lhs, const Substance& rhs) -> bool;
 
 auto operator<<(std::ostream& stream, const Substance& subst) -> std::ostream&;
 
-/// Lower temperature bound of a substance's first T interval, for models that need one.
-/// thermoParameters().temperature_intervals is populated only from a cp_ft_equation TPMethod
-/// (see ParseJsonToData), so a substance whose T dependence comes from, say,
-/// standard_entropy_cp_integration alone has none - falling back to its own reference
-/// temperature (Tst, "properties.Tst" in the source record - the temperature the record's
-/// S298/CP298/etc were measured/reported at, 298.15 K unless overridden). @param model name of
-/// the calling model, used only in the warning message.
-auto lowerTemperatureBound(const Substance& subst, const std::string& model) -> double;
 
 } // namespace ThermoFun
 

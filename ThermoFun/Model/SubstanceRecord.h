@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
+#ifndef THERMOFUN_MODEL_SUBSTANCERECORD_H
+#define THERMOFUN_MODEL_SUBSTANCERECORD_H
+
+#include <map>
+#include <optional>
+#include <string>
+#include <vector>
+
+#include <ThermoFun/Model/Convention.h>
+#include <ThermoFun/Model/Covariance.h>
+#include <ThermoFun/Model/Applicability.h>
+#include <ThermoFun/Model/DataFormat.h>
+#include <ThermoFun/Model/MethodApplication.h>
+#include <ThermoFun/Model/Quantity.h>
+#include <ThermoFun/Model/ReferenceConditions.h>
+#include <ThermoFun/Model/Vocabulary.h>
+
+namespace ThermoFun::model {
+
+/// A substance of the database, as the file says. All values are in SI units.
+struct SubstanceRecord
+{
+    // identity
+    std::string symbol;                  ///< unique in a dataset
+    SubstanceClass class_ = SubstanceClass::Other;
+    std::string sourcetdb;
+
+    // description
+    std::string name;
+    std::string formula;                 ///< a formula of ChemicalFun
+    std::optional<int> charge;           ///< the legacy key formula_charge
+    AggregateState aggregate_state = AggregateState::Other;
+    std::optional<Quantity> molar_mass;  ///< kg/mol (the legacy key mass_per_mole is in g/mol)
+
+    // standard state
+    std::optional<Convention> convention;    ///< empty: inherited
+    ReferenceConditions reference_conditions;
+    std::map<PropertyName, Quantity> standard_state_properties;   ///< G, H, S, Cp, V
+
+    // how the properties at T and P come
+    std::vector<MethodApplication> methods;     ///< in the order of the file
+    std::string defining_reaction;              ///< symbol of a reaction; the legacy key reaction
+    Applicability applicability;                ///< the range of the record; the legacy key limitsTP of the record
+    std::optional<PropertySource> preferred_property_source;   ///< Direct or Reaction; empty: the default rule
+    std::map<std::string, Quantity> structural; ///< more data for methods that use it
+    std::vector<CovarianceBlock> covariance;    ///< correlations between values and parameters
+
+    // origin
+    std::vector<std::string> data_sources;      ///< NEA reference codes (TDB-5 1.11) of the sources, or free text; the first is the source of a value that gives none
+    bool deprecated = false;
+    std::string deprecated_in_favour_of;
+
+    // to write the record back
+    std::string extra_json;                     ///< fields that the format does not define, as JSON text
+    FileOrigin file;                            ///< the file it was read from; not data
+
+    auto operator==(const SubstanceRecord&) const -> bool = default;
+};
+
+} // namespace ThermoFun::model
+
+#endif

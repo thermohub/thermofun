@@ -4,19 +4,23 @@
 // The analytical derivatives of the Zhang-Duan water and of the Sverjensky and Fernandez dielectric constants against independent
 // references: exact derivatives with autodiff higher-order dual numbers (reference/Jets.hpp), which do not share any formula with the
 // analytical ones. Also against central finite differences of the values.
+#include "Methods/MethodCatalog.h"
+#include "Model/BuiltinParameterSets.h"
 #include <cmath>
 #include <cstdio>
 #include <functional>
 
 #include "Database.h"
-#include "ElectroModelsSolvent.h"
 #include "ThermoEngine.h"
-#include "ThermoModelsSolvent.h"
+#include <memory>
+
+#include "Methods/MethodRegistry.h"
+#include "Methods/Water/WaterMethods.h"
 #include "ThermoProperties.h"
 #include "Substance.h"
 #include "reference/Jets.hpp"
 #include "reference/CGFexact.hpp"
-#include "Substances/Gases/CGFpure.hpp"
+#include "Methods/Fluids/CGFpure.hpp"
 
 using namespace ThermoFun;
 
@@ -104,12 +108,12 @@ int main(int argc, char** argv)
 {
     // --- Zhang and Duan -------------------------------------------------------------------------------------------------
     {
-        Substance water; water.setSymbol("H2O@");
-        WaterZhangDuan2005 model(water);
+        const auto model = model::MethodRegistry::instance().createSolvent(ThermoFun::model::MethodApplication{"WaterZhangDuan05"});
         for (auto tp : {std::make_pair(400.0, 3e8), std::make_pair(600.0, 5e8), std::make_pair(800.0, 1e9)})
         {
             const double T = tp.first, P = tp.second;
-            const auto x = model.propertiesSolvent(T, P, 0);
+            double Pwork = P;
+            const auto x = model->properties(T, Pwork, 0);
             const auto j = jets::jet(zd::density, T, P);
             const double tol = 1e-9;
             expectClose("ZD density", x.density.val, j.f, tol);
@@ -143,8 +147,13 @@ int main(int argc, char** argv)
                     ro[1] = direction == 1 ? 1.0 : 0.0;
                     for (int i = 0; i < 12; ++i) cc[i] = real(c[i]);
 
+                    std::vector<double> values;
+                    for (const auto& p : model::MethodCatalog::instance().find("ChurakovGottschalk03", model::OperatesOn::Substance)->parameters)
+                        if (p.model_parameter)
+                            values.push_back(model::builtinModelParameters("ChurakovGottschalk03")->parameters.at(p.name).value);
+                    const cgf::Constants constants(values);
                     cgf::PureFluidDerivatives o;
-                    cgf::pureFluid(T, ro, cc, o);
+                    cgf::pureFluid(T, ro, cc, constants, o);
 
                     using namespace cgfref;
                     using M = Up<Dual0>;
@@ -170,9 +179,7 @@ int main(int argc, char** argv)
 
     // --- GEMS HGK water: densityPP and densityTP (were not set) against central finite differences of the first derivatives ---------
     {
-        Substance water; water.setSymbol("H2O@");
-        WaterHGK model(water);
-        auto ps = [&](double t, double p) { double pp = p; return model.propertiesSolvent(t, pp, 0, "NEA_HGK"); };
+        auto ps = [&](double t, double p) { double pp = p; return model::waterHGK84GemsProperties(t, pp, 0, "NEA_HGK"); };
         // 640 K, 2e7 Pa is in the critical region (LVS equation), the others in the HGK region
         for (auto tp : {std::make_pair(450.0, 5e7), std::make_pair(700.0, 3e8), std::make_pair(900.0, 1e9), std::make_pair(640.0, 2e7),
                         std::make_pair(700.0, 2.3e7), std::make_pair(647.5, 2.2e7), std::make_pair(650.0, 2.25e7)})
@@ -203,18 +210,16 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         ThermoEngine engine(argv[1]);
-        Database database(argv[1]);
-        const auto water = database.getSubstance("H2O@");
-        WaterElectroSverjensky2014 sverjensky(water);
-        WaterElectroFernandez1997 fernandez(water);
+        const auto sverjensky = model::MethodRegistry::instance().createDielectric(ThermoFun::model::MethodApplication{"SverjenskyEtAl14"});
+        const auto fernandez = model::MethodRegistry::instance().createDielectric(ThermoFun::model::MethodApplication{"FernandezEtAl97"});
 
-        auto check = [&](const char* name, auto& model, jets::Dual (*epsilon)(jets::Dual, jets::Dual), double T, double P) {
+        auto check = [&](const char* name, const std::shared_ptr<const model::DielectricMethod>& model, jets::Dual (*epsilon)(jets::Dual, jets::Dual), double T, double P) {
             double p = P;
             const auto psol = engine.propertiesSolvent(T, p, "H2O@", 0);
             const auto rho = jets::densityJet(psol);
             auto f = [&](jets::Dual t, jets::Dual pp) -> jets::Dual { return epsilon(t, jets::taylor(rho, t - T, pp - P)); };
             const auto e = jets::jet(f, T, P);
-            const auto x = model.electroPropertiesSolvent(T, P, 0);
+            const auto x = model->properties(T, P, psol, 0);
             const double bar = 1e5, tol = 1e-9;
             auto label = [&](const char* what) { static char buf[200]; std::snprintf(buf, sizeof buf, "%s %s (T=%g P=%g)", name, what, T, P); return buf; };
             expectClose(label("epsilon"), x.epsilon.val, e.f, tol);

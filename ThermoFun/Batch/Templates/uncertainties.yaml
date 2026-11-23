@@ -1,0 +1,15 @@
+# Values with their uncertainties, for substances.
+conditions:
+  T: {from: 25, to: 300, step: 25, unit: degC}
+  P: {values: [saturation], unit: bar}
+engine:
+  options: {propagate_parameter_errors: true}
+results:
+  - name: uncertainties
+    substances: []
+    properties:
+      - {name: G, unit: kJ/mol, digits: 3}
+      - {name: G, show: uncertainty, unit: kJ/mol, digits: 3}
+      - {name: S, unit: J/K/mol, digits: 2}
+      - {name: S, show: uncertainty, unit: J/K/mol, digits: 2}
+    output: {file: uncertainties.csv}

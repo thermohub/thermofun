@@ -1,0 +1,13 @@
+{
+ "thermohub": "2.0.0-draft.1",
+ "methods": {
+  "HKF88": {
+   "operates_on": "substance",
+   "parameter_definitions": {
+    "zz": {
+     "unit": "J/mol"
+    }
+   }
+  }
+ }
+}

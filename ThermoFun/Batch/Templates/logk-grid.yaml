@@ -1,0 +1,10 @@
+# log K of reactions on a grid: T down and P across.
+conditions:
+  T: {from: 25, to: 500, step: 25, unit: degC}
+  P: {values: [500, 1000, 2000, 5000], unit: bar}
+results:
+  - name: logk
+    reactions: []
+    properties:
+      - {name: logK, digits: 3}
+    output: {file: logk.csv, layout: grid}

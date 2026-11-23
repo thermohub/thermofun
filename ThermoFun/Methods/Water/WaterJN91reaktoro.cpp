@@ -1,0 +1,28 @@
+#include "Methods/Water/WaterJN91reaktoro.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include "Methods/Water/Reaktoro/WaterElectroState.hpp"
+
+namespace ThermoFun {
+
+auto electroPropertiesWaterJNreaktoro(const WaterElectroState& wts) -> ElectroPropertiesSolventAD
+{
+    ElectroPropertiesSolventAD eps;
+
+    eps.bornN = wts.bornN;
+    eps.bornQ = wts.bornQ;
+    eps.bornU = wts.bornU;
+    eps.bornX = wts.bornX;
+    eps.bornY = wts.bornY;
+    eps.bornZ = wts.bornZ;
+
+    eps.epsilon   = wts.epsilon;
+    eps.epsilonP  = wts.epsilonP;
+    eps.epsilonPP = wts.epsilonPP;
+    eps.epsilonT  = wts.epsilonT;
+    eps.epsilonTP = wts.epsilonTP;
+    eps.epsilonTT = wts.epsilonTT;
+
+    return eps;
+}
+
+}

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
+#include <sstream>
 #include "ThermoBatch.h"
+#include <ThermoFun/Batch/RecordRules.h>
+#include <ThermoFun/Engine/Summary.h>
 
 // C++ includes
 #include <algorithm>
@@ -565,6 +568,25 @@ const BatchPreferences& ThermoBatch::preferences() const {
 auto ThermoBatch::setSolventSymbol(const std::string solventSymbol) -> void
 {
     pimpl->thermo.setSolventSymbol(solventSymbol);
+}
+
+auto ThermoBatch::selectSubstances(const std::string &rule) const -> vstr
+{
+    return ThermoFun::selectSubstances(pimpl->thermo.database(), rule);
+}
+
+auto ThermoBatch::selectReactions(const std::string &rule) const -> vstr
+{
+    return ThermoFun::selectReactions(pimpl->thermo.database(), rule);
+}
+
+auto ThermoBatch::provenance() const -> vstr
+{
+    vstr lines = pimpl->outSettings.provenanceNotes;
+    std::stringstream engine(pimpl->thermo.summary().text());
+    for (std::string line; std::getline(engine, line);)
+        lines.push_back(line);
+    return lines;
 }
 
 auto ThermoBatch::setTemperatureIncrement (const double& Tmin, const double& Tmax, const double& Tstep) -> void

@@ -1,0 +1,15 @@
+# The tools of the site of the documentation (docs/conf.py). ThermoFun itself comes from the build.
+#
+# Build and serve the site locally (from the repo root; <build> is a CMake build dir configured with
+# -DTFUN_BUILD_PYTHON=ON; <pypkg> is an empty dir; <site> is the output dir):
+#   ln -sfn <build>/python/src/thermofun <pypkg>/thermofun
+#   PYTHONPATH=<pypkg> LD_PRELOAD=<build>/ThermoFun/libThermoFun.so python -m sphinx -W --keep-going -b html docs <site>
+#   python3 -m http.server 8000 --bind 127.0.0.1 --directory <site>   # then open http://127.0.0.1:8000/
+# LD_PRELOAD must be an absolute path, and the docs venv needs the packages listed below.
+sphinx>=8
+myst-nb>=1.2
+pydata-sphinx-theme>=0.16
+sphinx-copybutton
+jupytext
+matplotlib
+pandas

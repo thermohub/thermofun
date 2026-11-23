@@ -1,0 +1,185 @@
+{
+ "thermodataset": "s12-fluid_sterner_pitzer",
+ "datasources": [
+  "Synthetic legacy fixture of the golden suite (pytests/golden/make_synthetic_fixtures.py)"
+ ],
+ "date": "2026-10-28",
+ "substances": [
+  {
+   "Pst": 100000,
+   "TPMethods": [
+    {
+     "limitsTP": {
+      "lowerT": 273.15,
+      "range": true,
+      "upperT": 1500.15
+     },
+     "m_heat_capacity_ft_coeffs": {
+      "names": [
+       "a0",
+       "a1",
+       "a2",
+       "a3",
+       "a4",
+       "a5",
+       "a6",
+       "a7",
+       "a8",
+       "a9",
+       "a10"
+      ],
+      "units": [
+       "J/(mol*K)",
+       "J/(mol*K^2)",
+       "(J*K)/mol",
+       "J/(mol*K^0.5)",
+       "J/(mol*K^3)",
+       "J/(mol*K^4)",
+       "J/(mol*K^5)",
+       "(J*K^2)/mol",
+       "J/mol",
+       "J/(mol*K^1.5)",
+       "J/(mol*K)"
+      ],
+      "values": [
+       15.821200370788574,
+       0.017857100814580917,
+       49847.1015625,
+       136.177001953125,
+       -4.883900146523956e-06,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "method": {
+      "0": "cp_ft_equation"
+     }
+    },
+    {
+     "method": {
+      "12": "fluid_sterner_pitzer"
+     },
+     "eos_gas_crit_props": {
+      "values": [
+       132.91000366211,
+       34.959999084473,
+       0.048300001770258,
+       0.042789999395609,
+       0,
+       0,
+       0
+      ],
+      "units": [
+       "K",
+       "bar",
+       "",
+       ""
+      ],
+      "names": [
+       "Tcr",
+       "Pcr",
+       "W",
+       "k1"
+      ]
+     }
+    }
+   ],
+   "Tst": 298.15,
+   "aggregate_state": {
+    "0": "AS_GAS"
+   },
+   "class_": {
+    "1": "SC_GASFLUID"
+   },
+   "formula": "C|2|O",
+   "formula_charge": 0,
+   "m_compressibility": {
+    "units": [
+     "1e-05/K"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "m_expansivity": {
+    "units": [
+     "kbar"
+    ],
+    "values": [
+     1.1754943508222875e-38
+    ]
+   },
+   "mass_per_mole": {
+    "units": [
+     "g/mol"
+    ],
+    "values": [
+     28.01020050048828
+    ]
+   },
+   "name": "CO-stp",
+   "sm_enthalpy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -110520
+    ]
+   },
+   "sm_entropy_abs": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     197.64999389648438
+    ]
+   },
+   "sm_gibbs_energy": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/mol"
+    ],
+    "values": [
+     -137157
+    ]
+   },
+   "sm_heat_capacity_p": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/(mol*K)"
+    ],
+    "values": [
+     29.15999984741211
+    ]
+   },
+   "sm_volume": {
+    "errors": [
+     0
+    ],
+    "units": [
+     "J/bar"
+    ],
+    "values": [
+     2478.969970703125
+    ]
+   },
+   "symbol": "CO-stp",
+   "_comment": "Cp and reference values of CO in tests/gems_export/gems_export_data.json"
+  }
+ ]
+}

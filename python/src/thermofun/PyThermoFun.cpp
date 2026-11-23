@@ -24,8 +24,10 @@ using namespace ThermoFun;
 PYBIND11_MODULE(PyThermoFun, m)
 {
     update_loggers(false, "thermofun.log", 2);
-    // False if built with -DTFUN_USE_AUTODIFF=OFF: the derivatives ddt, ddp are then 0
-    m.attr("with_autodiff") = Reaktoro_::kWithAutodiff;
+    // Always True since 1.0 (the option TFUN_USE_AUTODIFF is gone); kept for scripts that read it
+    m.attr("with_autodiff") = true;
+    // The unit of the volumes of the results (volume, reaction_volume): m3/mol since 1.0, J/bar before (THERMOFUN_VOLUME_SI in C++)
+    m.attr("volume_unit") = "m3/mol";
     // Enumerations (before the classes that use them)
     exportGlobalVariables(m);
     // Common module
@@ -41,18 +43,24 @@ PYBIND11_MODULE(PyThermoFun, m)
     // Parameters
     exportThermoParametersReaction(m);
     exportThermoParametersSubstance(m);
+    // Records
+    exportQuantity(m);
+    exportRecords(m);
+    exportRecordBuilder(m);
+    exportDiagnostics(m);
     // Core module
     exportThermoEngine(m);
+    exportBatch(m);
     exportThermoBatch(m);
     exportBatchPreferences(m);
     exportOutput(m);
     // Data
+    exportMethods(m);
     exportDatabase(m);
     exportSubstance(m);
     exportReaction(m);
     exportElement(m);
     // Models, units and parsing
-    exportModels(m);
     exportUtilities(m);
 
     m.def("availableSubstanceTPMethods", availableSubstanceTPMethods, "list of JSONs templates of available substance methods.");

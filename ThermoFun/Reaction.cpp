@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
+#include <ThermoFun/Common/OutsideRange.h>
 #include "Reaction.h"
+#include "Compat/SubstanceCompat.h"
 
 // C++ includes
 #include <map>
@@ -13,152 +15,104 @@
 #include "ThermoProperties.h"
 #include "ThermoParameters.h"
 #include "Common/Exception.h"
-#include "Common/ParseJsonToData.h"
+#include "Common/ThermoPropertiesStatus.h"
+#include "IO/Equation.h"
+#include "IO/FormatDetect.h"
+#include "IO/Legacy/LegacyReader.h"
+#include "IO/Legacy/LegacyWriter.h"
+#include "IO/V2/V2Writer.h"
+#include "IO/V2/V2Reader.h"
 
 namespace ThermoFun {
 
 struct Reaction::Impl
 {
-    /// The name of the chemical Reaction
-    std::string name;
+    /// Changes a copy of the record: a reference to the old record stays valid.
+    template <class Change>
+    void edit(Change change)
+    {
+        auto copy = std::make_shared<model::ReactionRecord>(*record);
+        change(*copy);
+        copy->file.text.clear();
+        record = copy;
+        jString.clear();
+    }
 
-    /// The chemical formula of the chemical Reaction
-    std::string equation;
+    auto parameters() const -> ThermoParametersReaction
+    {
+        auto out = compat::thermoParameters(*record);
+        compat::addWaiting(out, waiting_parameters);
+        return out;
+    }
 
-    /// The symbol of the chemical reaction
-    std::string symbol;
+    auto codes() const -> compat::MethodCodes
+    {
+        auto out = compat::methodCodes(*record);
+        if (codes_without_method.general)
+            out.general = codes_without_method.general;
+        if (codes_without_method.temperature)
+            out.temperature = codes_without_method.temperature;
+        if (codes_without_method.pressure)
+            out.pressure = codes_without_method.pressure;
+        return out;
+    }
 
-    std::map<std::string, double> reactants;
+    /// Replaces the methods. A code that a method does not give back is kept beside the record, for the getters.
+    void setMethods(const compat::MethodCodes& wanted, const ThermoParametersReaction& parameters)
+    {
+        edit([&](model::ReactionRecord& r) {
+            compat::setMethods(r, wanted, parameters);
+            const auto held = compat::methodCodes(r);
+            codes_without_method = {};
+            if (wanted.general != held.general)
+                codes_without_method.general = wanted.general;
+            if (wanted.temperature != held.temperature)
+                codes_without_method.temperature = wanted.temperature;
+            if (wanted.pressure != held.pressure)
+                codes_without_method.pressure = wanted.pressure;
+        });
+    }
 
-    ThermoPropertiesReaction thermo_ref_prop;
+    /// The record
+    std::shared_ptr<const model::ReactionRecord> record;
 
-    ThermoParametersReaction thermo_parameters;
+    /// The old codes that a method of the record does not give back (for example CPM_NUL)
+    compat::MethodCodes codes_without_method;
 
-    /// General method (or equation of state for both T and P correction)
-    MethodGenEoS_Thrift::type method_genEoS;
+    /// Arrays that an old setter gave and no method of the record reads yet: it can set them before the method
+    ThermoParametersReaction waiting_parameters;
 
-    /// Method of temperature correction of thermodynamic properties
-    MethodCorrT_Thrift::type  method_T;
-
-    /// Method of pressure correction of thermodynamic properties
-    MethodCorrP_Thrift::type  method_P;
-
-    /// Type of calculation used for determining the reaction properties
-    /// using a defined PT correction model or from reactants
-    RectionThermoCalculationType::type thermo_calculation_type = RectionThermoCalculationType::type::REACTANTS;
-
-    /// Reference temperature (in K)
-    double reference_T = 298.15;
-
-    /// Reference pressure (in Pa)
-    double reference_P = 1e5;
-
-    /// Lower temperature limit (in K)
-    double lower_T;
-
-    /// Lower pressure limit (in Pa)
-    double lower_P;
-
-    /// Upper temperature limit (in K)
-    double upper_T;
-
-    /// Upper pressure limit (in Pa)
-    double upper_P;
-
+    /// The text of the record as it was read; empty after an edit: then the writer of its format gives it
     std::string jString;
-
-    void strip_all(std::string& str, const std::string& valof)
-    {
-      if( str.empty())
-       return;
-      std::string::size_type pos1 = str.find_first_not_of(valof);
-      std::string::size_type pos2 = str.find_last_not_of(valof);
-      str = str.substr( (pos1 == std::string::npos ? 0 : pos1),
-        (pos2 == std::string::npos ? str.length() - 1 : pos2 - pos1 + 1));
-      str.erase(remove(str.begin(), str.end(), ' '), str.end());
-      str.erase(remove(str.begin(), str.end(), '\n'), str.end());
-      str.erase(remove(str.begin(), str.end(), '\t'), str.end());
-    }
-
-    //  Function that can be used to split text using regexp
-    std::vector<std::string> regexp_split(const std::string& str, std::string rgx_str)
-    {
-      std::vector<std::string> lst;
-
-      std::regex rgx(rgx_str);
-
-      std::sregex_token_iterator iter(str.begin(), str.end(), rgx, -1);
-      std::sregex_token_iterator end;
-
-      while (iter != end)
-      {
-        lst.push_back(*iter);
-        strip_all(lst.back(), "\u0020\t\n");
-        ++iter;
-      }
-
-      return lst;
-    }
-
-    // Extract coefficient from strings like +10.7H2O
-    std::string extractCoef( const std::string& data, double& coef )
-    {
-      coef = 1.;
-      if( data.empty() || isalpha( data[0] ) || data[0] == '('  )
-       return data;
-      if( data[0] == '+' && ( isalpha( data[1] ) || data[1] == '(')  )
-       return data.substr(1);
-      if( data[0] == '-' && ( isalpha( data[1] ) || data[1] == '(')  )
-      {  coef = -1.; return data.substr(1); }
-
-      std::string::size_type sz;
-      coef = stod(data,&sz);
-      return data.substr(sz);
-    }
-
-    auto fromEquation(const std::string &reactionEquation) -> void
-    {
-        equation = reactionEquation;
-
-        if (symbol.empty())
-            symbol = reactionEquation;
-
-        std::size_t eqpos = equation.find("=");
-        std::string  str_reactants = equation.substr(0, eqpos);
-        std::string  str_products = equation.substr( eqpos+1);
-        double coef = 1.;
-        std::string reactant;
-
-        std::vector<std::string> parts = regexp_split(str_reactants,  "\\s+\\+\\s+" /*"\\s+"*/ );
-        for( const auto& el: parts)
-        {
-            reactant = extractCoef( el, coef );
-            thfun_logger->trace(" extractCoef data: {} reactant: {} coef: {}", el, reactant, coef);
-            if(!reactant.empty())
-                reactants[reactant] = coef*(-1.);
-        }
-
-        parts = regexp_split(str_products, "\\s+\\+\\s+" /*"\\s+"*/ );
-        for( const auto& el: parts)
-        {
-            reactant = extractCoef( el, coef );
-            thfun_logger->trace(" extractCoef data: {} reactant: {} coef: {}", el, reactant, coef);
-            if(!reactant.empty())
-                reactants[reactant] = coef;
-        }
-    }
 };
 
 Reaction::Reaction()
 : pimpl(new Impl())
-{}
+{
+    pimpl->record = std::make_shared<const model::ReactionRecord>();
+}
 
 Reaction::Reaction(std::string jsonReaction)
 : pimpl(new Impl())
 {
-    Reaction other = parseReaction(jsonReaction);
-    pimpl = std::move(other.pimpl);
-    setJsonString(jsonReaction);
+    Diagnostics diagnostics;
+    if (model::detectRecordFormat(jsonReaction) == model::DataFormat::V2)
+    {
+        pimpl->record = std::make_shared<const model::ReactionRecord>(model::readV2Reaction(jsonReaction, diagnostics));
+        if (!diagnostics.ok())
+            funError("The record cannot be read", diagnostics.toString(), __LINE__, __FILE__);
+    }
+    else
+        pimpl->record = std::make_shared<const model::ReactionRecord>(model::readLegacyReaction(jsonReaction, {}, &diagnostics));
+    model::checkReading(diagnostics);
+    pimpl->jString = jsonReaction;
+}
+
+Reaction::Reaction(std::shared_ptr<const model::ReactionRecord> record)
+: pimpl(new Impl())
+{
+    pimpl->record = std::move(record);
+    pimpl->jString = pimpl->record->file.text;
 }
 
 Reaction::Reaction(const Reaction& other)
@@ -176,77 +130,84 @@ auto Reaction::operator=(Reaction other) -> Reaction&
 
 auto Reaction::setName(std::string name) -> void
 {
-    pimpl->name = name;
+    pimpl->edit([&](model::ReactionRecord& r) { r.name = name; });
 }
 
 auto Reaction::setSymbol(std::string symbol) -> void
 {
-    pimpl->symbol = symbol;
+    pimpl->edit([&](model::ReactionRecord& r) { r.symbol = symbol; });
 }
 
 auto Reaction::setReactants(std::map<std::string, double> reactants) -> void
 {
-    pimpl->reactants = reactants;
+    pimpl->edit([&](model::ReactionRecord& r) { r.stoichiometry.assign(reactants.begin(), reactants.end()); });
 }
 
 auto Reaction::setReferenceT(double T) -> void
 {
-    pimpl->reference_T = T;
+    pimpl->edit([&](model::ReactionRecord& r) { r.reference_conditions.T = T; });
 }
 
 auto Reaction::setReferenceP(double P) -> void
 {
-    pimpl->reference_P = P;
+    pimpl->edit([&](model::ReactionRecord& r) { r.reference_conditions.P = P; });
 }
 
 auto Reaction::setLowerT(double T) -> void
 {
-    pimpl->lower_T = T;
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.t_min = T; });
 }
 
 auto Reaction::setLowerP(double P) -> void
 {
-    pimpl->lower_P = P;
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.p_min = P; });
 }
 
 auto Reaction::setUpperT(double T) -> void
 {
-    pimpl->upper_T = T;
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.t_max = T; });
 }
 
 auto Reaction::setUpperP(double P) -> void
 {
-    pimpl->upper_P = P;
+    pimpl->edit([&](model::ReactionRecord& r) { r.applicability.p_max = P; });
 }
 
 auto Reaction::setMethodGenEoS(MethodGenEoS_Thrift::type method_genEoS) -> void
 {
-    pimpl->method_genEoS = method_genEoS;
+    auto codes = pimpl->codes();
+    codes.general = method_genEoS;
+    pimpl->setMethods(codes, pimpl->parameters());
 }
 
 auto Reaction::setMethod_T(MethodCorrT_Thrift::type method_T) -> void
 {
-    pimpl->method_T = method_T;
+    auto codes = pimpl->codes();
+    codes.temperature = method_T;
+    pimpl->setMethods(codes, pimpl->parameters());
 }
 
 auto Reaction::setMethod_P(MethodCorrP_Thrift::type method_P) -> void
 {
-    pimpl->method_P = method_P;
+    auto codes = pimpl->codes();
+    codes.pressure = method_P;
+    pimpl->setMethods(codes, pimpl->parameters());
 }
 
 auto Reaction::setThermoReferenceProperties(ThermoPropertiesReaction refprop) -> void
 {
-    pimpl->thermo_ref_prop = refprop;
+    pimpl->edit([&](model::ReactionRecord& r) { compat::setThermoReferenceProperties(r, refprop); });
 }
 
 auto Reaction::setThermoParameters(ThermoParametersReaction param) -> void
 {
-    pimpl->thermo_parameters = param;
+    pimpl->setMethods(pimpl->codes(), param);
+    pimpl->waiting_parameters = param;
 }
 
 auto Reaction::setEquation(std::string equation) -> void
 {
-    pimpl->equation = equation;
+    pimpl->edit([&](model::ReactionRecord& r) { r.equation = equation; });
 }
 
 auto Reaction::setJsonString(const std::string &jString) ->void
@@ -256,115 +217,133 @@ auto Reaction::setJsonString(const std::string &jString) ->void
 
 auto Reaction::name() const -> std::string
 {
-    return pimpl->name;
+    return pimpl->record->name;
 }
 
 auto Reaction::symbol() const -> std::string
 {
-    return pimpl->symbol;
+    return pimpl->record->symbol;
 }
 
 auto Reaction::reactants() const -> std::map<std::string, double>
 {
-    return pimpl->reactants;
+    return compat::reactants(*pimpl->record);
 }
 
 auto Reaction::thermo_ref_prop() const -> ThermoPropertiesReaction
 {
-    return pimpl->thermo_ref_prop;
+    return thermoReferenceProperties();
 }
 
 
 auto Reaction::thermoReferenceProperties() const -> ThermoPropertiesReaction
 {
-    return pimpl->thermo_ref_prop;
+    return compat::thermoReferenceProperties(*pimpl->record);
 }
 
 auto Reaction::thermoParameters() const -> ThermoParametersReaction
 {
-    return pimpl->thermo_parameters;
+    return pimpl->parameters();
 }
 
 auto Reaction::referenceT() const -> double
 {
-    return pimpl->reference_T;
+    return pimpl->record->reference_conditions.T;
 }
 
 auto Reaction::referenceP() const -> double
 {
-    return pimpl->reference_P;
+    return pimpl->record->reference_conditions.P;
 }
 
 auto Reaction::lowerT( ) const -> double
 {
-    return pimpl->lower_T;
+    return pimpl->record->applicability.t_min.value_or(0.0);
 }
 
 auto Reaction::lowerP( ) const -> double
 {
-    return pimpl->lower_P;
+    return pimpl->record->applicability.p_min.value_or(0.0);
 }
 
 auto Reaction::upperT( ) const -> double
 {
-    return pimpl->upper_T;
+    return pimpl->record->applicability.t_max.value_or(0.0);
 }
 
 auto Reaction::upperP() const -> double
 {
-    return pimpl->upper_P;
+    return pimpl->record->applicability.p_max.value_or(0.0);
 }
 
 auto Reaction::methodGenEOS() const -> MethodGenEoS_Thrift::type
 {
-    return pimpl->method_genEoS;
+    return pimpl->codes().general;
 }
 
 auto Reaction::method_T() const -> MethodCorrT_Thrift::type
 {
-    return pimpl->method_T;
+    return pimpl->codes().temperature;
 }
 
 auto Reaction::method_P() const -> MethodCorrP_Thrift::type
 {
-    return pimpl->method_P;
+    return pimpl->codes().pressure;
 }
 
 auto Reaction::equation() const -> std::string
 {
-    return pimpl->equation;
+    return pimpl->record->equation;
+}
+
+auto Reaction::record() const -> std::shared_ptr<const model::ReactionRecord>
+{
+    return pimpl->record;
 }
 
 auto Reaction::jsonString() const -> std::string
 {
-    return pimpl->jString;
+    if (!pimpl->jString.empty())
+        return pimpl->jString;
+    // an edited record: written from its fields, in the format it came from
+    return pimpl->record->file.format == model::DataFormat::V2 ? model::writeV2Reaction(*pimpl->record) : model::writeLegacyReaction(*pimpl->record);
 }
 
 auto Reaction::fromEquation(const std::string &reactionEquation) -> void
 {
-    pimpl->fromEquation(reactionEquation);
+    pimpl->edit([&](model::ReactionRecord& r) {
+        r.equation = reactionEquation;
+        if (r.symbol.empty())
+            r.symbol = reactionEquation;
+        // the coefficients of the equation are added to those that the record has
+        auto all = compat::reactants(r);
+        for (const auto& [symbol, coefficient] : model::stoichiometryOfEquation(reactionEquation))
+            all[symbol] = coefficient;
+        r.stoichiometry.assign(all.begin(), all.end());
+    });
 }
 
 auto Reaction::checkCalcMethodBounds(std::string modelName, double T, double P, ThermoPropertiesReaction &tpr) -> void
 {
-    if (pimpl->upper_P<(P) || pimpl->upper_T<(T) ||
-        pimpl->lower_P>(P) || pimpl->lower_T>(T))
+    if (upperP()<(P) || upperT()<(T) ||
+        lowerP()>(P) || lowerT()>(T))
     {
         std::string message = modelName +": out of "
-                                    "T(" + std::to_string(pimpl->lower_T) + "-" + std::to_string(pimpl->upper_T) +" K) and "
-                                    "P(" + std::to_string(pimpl->lower_P) + "-" + std::to_string(pimpl->upper_P) +" Pa) bounds";
+                                    "T(" + std::to_string(lowerT()) + "-" + std::to_string(upperT()) +" K) and "
+                                    "P(" + std::to_string(lowerP()) + "-" + std::to_string(upperP()) +" Pa) bounds";
 
-        setMessage(Reaktoro_::Status::calculated, message, tpr );
+        // a note on the result and on each calculated value, whose message says it as the methods do (decision 0029)
+        markOutsideRange(tpr, Note{Note::Kind::Range, Note::Severity::Soft, "", message, {}, {}});
     }
 }
 
 auto Reaction::convert_CpfT_to_logKfT() -> ThermoPropertiesReaction
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
-    real TK          = pimpl->reference_T;
-    auto CpCoeff    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
-    auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
-    auto ref_prop   = pimpl->thermo_ref_prop;
+    real TK          = referenceT();
+    auto CpCoeff    = thermoParameters().reaction_Cp_fT_coeff;
+    auto K_fT_Coeff = thermoParameters().reaction_logK_fT_coeff;
+    auto ref_prop   = thermoReferenceProperties();
 
     if (CpCoeff.size() < 5)
     {
@@ -415,11 +394,11 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 {
 
     auto Rln10      = R_CONSTANT * lg_to_ln;
-    real TK         = pimpl->reference_T;
-    auto CpCoeff    = pimpl->thermo_parameters.reaction_Cp_fT_coeff;
-    auto K_fT_Coeff = pimpl->thermo_parameters.reaction_logK_fT_coeff;
-    auto ref_prop   = pimpl->thermo_ref_prop;
-    auto method_T   = pimpl->method_T;
+    real TK         = referenceT();
+    auto CpCoeff    = thermoParameters().reaction_Cp_fT_coeff;
+    auto K_fT_Coeff = thermoParameters().reaction_logK_fT_coeff;
+    auto ref_prop   = thermoReferenceProperties();
+    auto method_T   = this->method_T();
 
     real Sr = Reaktoro_::constant(ref_prop.reaction_entropy);
 //    auto Gr = ref_prop.reaction_gibbs_energy;
@@ -467,10 +446,10 @@ auto Reaction::convert_logKfT_toCpfT(/*MethodCorrT_Thrift::type methodT*/) -> Th
 auto Reaction::calc_logK_fT_coefficients() -> vd
 {
     auto Rln10      = R_CONSTANT * lg_to_ln;
-    real TK         = pimpl->reference_T;
+    real TK         = referenceT();
     vd K_fT_Coeff   = {0.0,0.0,0.0,0.0,0.0,0.0,0.0};
-    auto ref_prop   = pimpl->thermo_ref_prop;
-    auto method_T   = pimpl->method_T;
+    auto ref_prop   = thermoReferenceProperties();
+    auto method_T   = this->method_T();
 
     real Sr = Reaktoro_::constant(ref_prop.reaction_entropy);
     real Hr = Reaktoro_::constant(ref_prop.reaction_enthalpy);

@@ -1,0 +1,103 @@
+<!--
+ SPDX-License-Identifier: LGPL-3.0-or-later
+ Copyright (C) 2026 ThermoFun contributors
+-->
+
+# Choose water models
+
+**You need:** ThermoFun, and a water record in your database.
+
+A water record has two methods: an equation of state and a dielectric model.
+
+| Equation of state | Use it for |
+|---|---|
+| `WaterIAPWS95` | The current standard for water. |
+| `WaterHGK84` | Data that were fitted with Haar-Gallagher-Kell, such as SUPCRT data. |
+| `WaterZhangDuan05` | High pressure: 1 kbar to about 30 GPa, up to 2000 K. |
+
+| Dielectric model | Use it for |
+|---|---|
+| `JohnsonNorton91` | The usual model up to 5 kbar. |
+| `HelgesonKirkham74` | The HKF coefficients of Tanger and Helgeson (1988) and Sverjensky et al. (1997), which were fitted with it. |
+| `BradleyPitzer79` | 0 to 350 degC. Tanger and Helgeson used it at low T above 1 kbar. It does not read the density. |
+| `FernandezEtAl97` | The IAPWS formulation. |
+| `SverjenskyEtAl14` | High pressure, in the Deep Earth Water model. |
+
+1. Write the two methods in the record of water.
+2. Set `implementation` only to reproduce the results of another code. `WaterHGK84` and `JohnsonNorton91` have `reaktoro` and `gems`.
+3. To reproduce SUPCRT92 and GEMS, list `WaterLVS83` before `WaterHGK84` with `implementation: gems`. `WaterLVS83` is the equation of
+   Levelt Sengers et al. (1983) near the critical point, and it is used only in its region: about 643 to 695 K between two
+   isochores, and the saturation from 643 K to the critical point. `WaterHGK84` gives the water everywhere else. A record of
+   GEMS in the old format gets both methods when it is read.
+4. For a record of water vapour (`aggregate_state: gas`), list `WaterIAPWS95Gas` before `WaterIAPWS95`. `WaterIAPWS95Gas` is the gas
+   equation of Wagner and Pruss (2002). It is used only for the metastable vapour (above the saturation pressure, below
+   10 MPa, up to 55 kg/m3), where IAPWS-95 is not reliable away from the saturated vapour line and may have no vapour root.
+   Stable vapour, the saturation (`P = 0`) and a record of liquid water get `WaterIAPWS95`. Close to the saturated vapour
+   line the two agree to 4e-4 in the volume; farther away the gas equation is the one to trust only for small densities,
+   so give it a `region` to limit it.
+5. To use two dielectric models, or two equations of state, each in a region, give the first a `region`. See
+   [Methods by region](../reference/how-methods-combine.md#methods-by-region).
+
+```yaml
+H2O@:
+  formula: H2O@
+  class: water_solvent
+  aggregate_state: aqueous
+  methods:
+    - method: WaterLVS83
+    - {method: WaterHGK84, implementation: gems}
+    - {method: JohnsonNorton91, implementation: gems}
+```
+
+The dielectric model changes the volume and the heat capacity of a solute. Use the model that its coefficients were fitted with:
+
+```python
+import thermofun as tf
+
+water = tf.methods.solventMethod("WaterHGK84", implementation="reaktoro").properties(298.15, 1e5, 0)
+born_hk74 = tf.methods.dielectricMethod("HelgesonKirkham74").properties(298.15, 1e5, water, 0)
+born_jn91 = tf.methods.dielectricMethod("JohnsonNorton91", implementation="reaktoro").properties(298.15, 1e5, water, 0)
+print(born_hk74.bornQ.val, born_jn91.bornQ.val)   # the Born function Q in 1/Pa: 5.90e-12 and 6.63e-12
+```
+
+Output:
+
+```text
+5.902710719960798e-12 6.634151525225638e-12
+```
+
+<!-- check
+```python
+assert abs(born_hk74.bornQ.val - 5.90e-12) < 0.01e-12
+assert abs(born_jn91.bornQ.val - 6.63e-12) < 0.01e-12
+```
+-->
+
+The solvent of your engine is the record that you changed.
+
+```python
+engine = tf.ThermoEngine("examples/v2/minimal.yaml")
+print(engine.solventSymbol())
+print(engine.route("Na+").needs[0].route)
+```
+
+Output:
+
+```text
+H2O@
+symbol: "H2O@"
+kind: substance
+by: water
+methods:
+  - method: WaterIAPWS95
+  - method: JohnsonNorton91
+```
+
+<!-- check
+```python
+assert engine.solventSymbol() == "H2O@"
+assert [m.method for m in engine.route("Na+").needs[0].route.methods] == ["WaterIAPWS95", "JohnsonNorton91"]
+```
+-->
+
+Use `engine.setSolventSymbol("...")` if your database has another name for water.

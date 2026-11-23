@@ -29,7 +29,7 @@ if(TFUN_BUILD_ALL MATCHES ON)
     set(TFUN_BUILD_PYTHON           ON)
 endif()
 
-option(TFUN_USE_AUTODIFF "Calculate the derivatives of the properties with autodiff. If OFF the models use plain numbers (faster, no autodiff dependency): all derivatives ddt and ddp are 0." ON)
+option(TFUN_USE_SYMENGINE "Run the symbolic methods of Method records. Needs SymEngine." OFF)
 
 if (TFUN_WASM MATCHES ON)
     # Define which types of libraries to build
@@ -117,6 +117,7 @@ if(TFUN_BUILD_TESTS)
     add_subdirectory(tests/autodiff)
     add_subdirectory(tests/extra_models)
     add_subdirectory(tests/gems_export)
+    add_subdirectory(tests/model)
 
     # Every installed header must compile against the install prefix alone ("|" stands for ";" in the list of prefixes,
     # a ";" would split the argument)

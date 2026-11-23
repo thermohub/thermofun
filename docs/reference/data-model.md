@@ -1,0 +1,45 @@
+<!--
+ SPDX-License-Identifier: LGPL-3.0-or-later
+ Copyright (C) 2026 ThermoFun contributors
+-->
+
+# The data model
+
+A database holds records: elements, substances, reactions, method definitions, parameter sets and data sources. The records come first. The formats and the old API are only ways in and out.
+
+**Values are in SI inside.** A reader converts each value from the unit of its file. The formulas receive the units they need. So a record has one meaning, whatever file it came from.
+
+**Missing is not zero.** A value that is not known is not there. A method that needs it gives the status `notdefined`.
+
+**A record does not change.** An engine binds a record to method objects once, and keeps them. A change makes a new record. An edit of a parameter through a `ParameterHandle` clears only the results that depend on it; any other change of the database, of a setting or of a convention clears all results of the engine, which are then calculated again.
+
+**One engine for each thread.** An engine keeps results and settings, and a calculation writes them, so threads must not share one engine. Copy it: a copy has its own settings and results, and shares the records, which do not change. Copying is cheap.
+
+```python
+import thermofun as tf
+
+shared_engine = tf.ThermoEngine("examples/v2/minimal.yaml")
+thread_engine = tf.ThermoEngine(shared_engine)  # for one thread
+thread_engine.preferences.round_to_uncertainty = True
+print(shared_engine.preferences.round_to_uncertainty)
+```
+
+Output:
+
+```text
+False
+```
+
+<!-- check
+```python
+assert shared_engine.preferences.round_to_uncertainty is False
+```
+-->
+
+In C++ the copy constructor and the copy assignment both make such a copy. A database can be shared by threads that only read it.
+
+**A method belongs to a record.** A record lists its methods. The class or the aggregate state of a substance does not decide a calculation. For example, a gas has a pressure term because its record has a fluid method or `IdealGas`.
+
+**Water passes its properties on.** The record of the solvent has its methods. A solute and a dielectric model read what those methods give.
+
+**Model parameters are data.** The model parameters (the values of a model, the same for every substance) are in `ThermoFun/Methods/ParameterSets`, in the form of a database section. A model can have variants, and a record can replace a value for itself.

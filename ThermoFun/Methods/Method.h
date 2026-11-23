@@ -1,0 +1,171 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
+#ifndef THERMOFUN_METHODS_METHOD_H
+#define THERMOFUN_METHODS_METHOD_H
+
+#include <cmath>
+#include <cstddef>
+#include <initializer_list>
+#include <map>
+#include <memory>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <ThermoFun/Common/Notes.h>
+#include <ThermoFun/Common/PhysicalConstants.h>
+#include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Common/Route.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Methods/MethodSpec.h>
+
+namespace ThermoFun::model {
+
+/// The terms and variables of a method at one point (decision 0030), SI, in the order of the spec
+struct MethodOutputs
+{
+    std::vector<RouteNumber> terms;
+    std::vector<RouteNumber> variables;
+};
+
+/// The number type of a pass with derivatives: the derivative is with respect to T, to P or to one parameter.
+using TPReal = ThermoFun::real;
+
+/// The properties of a substance during an evaluation. SI: J/mol, J/mol, J/(mol K), J/(mol K), m3/mol.
+template <typename Scalar>
+struct SubstanceState
+{
+    Scalar G{}, H{}, S{}, Cp{}, V{};
+    bool outside_range = false;  ///< the method used a value outside its range, for example the nearest T segment
+};
+
+/// The reference state of a record: T and P (K, Pa), and the standard-state values that the record gives (SI).
+template <typename Scalar>
+struct ReferenceState
+{
+    double T = 298.15;
+    double P = 1e5;
+    std::optional<Scalar> G, H, S, Cp, V;
+};
+
+/// How far a value can be trusted: its status and its error.
+struct ValueInfo
+{
+    enum class Status { NotDefined, Read, Calculated, Assigned };
+    Status status = Status::NotDefined;
+    double err = 0.0;
+    Notes notes;  ///< why the value can be doubted (decision 0029); the status message is made from them
+
+    /// The status and the error of a value calculated from others: the errors add in quadrature, and it is not defined if one of them is not.
+    template <typename... Values>
+    auto propagateFrom(const Values&... values) -> ValueInfo&
+    {
+        status = Status::Calculated;
+        err = 0.0;
+        ((status = (status == Status::NotDefined || values.status == Status::NotDefined) ? Status::NotDefined : Status::Calculated,
+          err = std::sqrt(err * err + values.err * values.err)), ...);
+        return *this;
+    }
+
+    /// The error of a value from the errors of others with their factors: {factor, error}, ...
+    auto setError(std::initializer_list<std::pair<double, double>> terms) -> ValueInfo&
+    {
+        double sum = 0.0;
+        for (const auto& [factor, error] : terms)
+            sum += factor * factor * error * error;
+        err = std::sqrt(sum);
+        return *this;
+    }
+};
+
+/// The status and the error of each property.
+struct PropertiesInfo
+{
+    ValueInfo G, H, S, Cp, V;
+};
+
+/// The state of the water solvent at one T and P, with the derivatives of the pass.
+template <typename Scalar>
+struct SolventState
+{
+    PropertiesSolventT<Scalar> properties;
+    ElectroPropertiesSolventT<Scalar> electro;
+    ThermoPropertiesSubstanceT<Scalar> water;             ///< water as a substance; only for a method that needs it
+    ThermoPropertiesSubstanceT<Scalar> ideal_gas_water;   ///< only for a method that needs it
+};
+
+/// The state of the solvent in plain numbers with derivatives, as the engine calculates it, for one calculation.
+struct SolventInputs
+{
+    PropertiesSolvent properties, properties_at_reference;
+    ElectroPropertiesSolvent electro;
+    ThermoPropertiesSubstance water, water_at_reference, ideal_gas_water, ideal_gas_water_at_reference;
+};
+
+/// The options of an evaluation that change what a method does.
+struct SubstanceOptions
+{
+    bool apply_pressure_correction = true;   ///< a method for the pressure of a gas: G has RT ln(P/Pr), and S has -R ln(P/Pr)
+    bool cancel_fugacity_coefficient = false; ///< fluids: G does not have RT ln(phi)
+    double R = R_CONSTANT;                    ///< the gas constant of the calculation, J/(mol K): of the engine option physical_constants
+};
+
+/// What a substance method gets at each call.
+template <typename Scalar>
+struct SubstanceInputs
+{
+    Scalar T;                                       ///< K
+    Scalar P;                                       ///< Pa
+    const ReferenceState<Scalar>& reference;
+    const SolventState<Scalar>* solvent = nullptr;  ///< set if the method needs it
+    const SolventState<Scalar>* solvent_at_reference = nullptr;
+    const SubstanceState<Scalar>* ideal_gas_water = nullptr;
+    int seeded_parameter = -1;                      ///< the parameter of this method that the pass derives by; -1: none
+    SubstanceOptions options{};
+    /// Set if the terms and variables of the method are asked for (decision 0030; only in the pass with respect to T): a method
+    /// that has them writes them here as its formula calculates them, in SI, with the names of its spec. Null: not asked for.
+    MethodOutputs* outputs = nullptr;
+};
+
+/// What the status and the errors of a method depend on. K, Pa.
+struct InfoInputs
+{
+    double T = 0.0, P = 0.0, Tr = 298.15, Pr = 1e5;
+    double Vr = 0.0;       ///< the reference volume, J/bar
+    bool outside = false;  ///< the method used a value outside its range
+    SubstanceOptions options{};
+    const SolventInputs* solvent = nullptr;  ///< set if a method of the record needs it
+};
+
+/// A substance method, bound to its parameter values. Immutable. Independent of the database, the engine and the records.
+class SubstanceMethod
+{
+public:
+    virtual ~SubstanceMethod() = default;
+
+    /// The specification of the method.
+    virtual auto spec() const -> const MethodSpec& = 0;
+
+    /// Apply the method to the incoming state, as its effects declare.
+    virtual auto apply(SubstanceState<double>& state, const SubstanceInputs<double>& in) const -> void = 0;
+    virtual auto apply(SubstanceState<TPReal>& state, const SubstanceInputs<TPReal>& in) const -> void = 0;
+
+    /// The parameters in SI. A method with T segments gives those of one segment after the other.
+    virtual auto parameterValues() const -> std::vector<double> = 0;
+
+    /// The names of the parameters, in the order of parameterValues. "": a place that the formula does not use. a0[1]: a0 of the second T segment.
+    /// Empty if the values have no names, for example the coefficients of a table.
+    virtual auto parameterNames() const -> std::vector<std::string> { return {}; }
+
+    /// A copy of this method with one parameter changed (SI). The original does not change.
+    virtual auto withParameter(std::size_t index, double value_si) const -> std::shared_ptr<const SubstanceMethod> = 0;
+
+    /// The status and the error of what the method gives. out holds those of the incoming properties.
+    virtual auto info(PropertiesInfo& /*out*/, const PropertiesInfo& /*reference*/, const InfoInputs&) const -> void {}
+};
+
+} // namespace ThermoFun::model
+
+#endif

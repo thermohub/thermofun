@@ -175,6 +175,13 @@ def test_rounding_functions_follow_the_nea_rules():
     assert (v, e) == (1234.567, 0.0)
     v, e = tf.round_to_uncertainty(-1129178.3, 100.0, 2)
     assert (v, e) == (pytest.approx(-1129180.0), pytest.approx(100.0))
+    # the uncertainty goes to the nearest (TDB-3 sect. 4), not always up: only a half goes up (1.05 -> 1.1 above)
+    v, e = tf.round_to_uncertainty(-1133193.6479607779, 1500.4686767806918, 2)
+    assert (v, e) == (pytest.approx(-1133200.0), pytest.approx(1500.0))
+    assert tf.round_to_uncertainty(0.0, 1549.0, 2)[1] == pytest.approx(1500.0)
+    assert tf.round_to_uncertainty(0.0, 1550.0, 2)[1] == pytest.approx(1600.0)
+    assert tf.round_to_uncertainty(0.0, 1551.0, 2)[1] == pytest.approx(1600.0)
+    assert tf.round_to_uncertainty(0.0, 0.0249, 1)[1] == pytest.approx(0.02)
 
 
 def test_rounding_preference_of_the_engine(data, tmp_path):
@@ -234,6 +241,9 @@ def test_an_incomplete_parameter_uncertainty_is_not_reported_as_complete(data, t
     assert math.isnan(tps.gibbs_energy.err)
     assert "incomplete" in tps.gibbs_energy.sta[1]
     assert math.isfinite(tps.gibbs_energy.val)
+    # one note of the result says it, with the properties it is about (decision 0029)
+    notes = [n for n in tps.info.notes if n.kind == tf.Note.Kind.Uncertainty]
+    assert len(notes) == 1 and "G" in notes[0].properties and "incomplete" in notes[0].text
 
 
 def test_too_many_coefficients_are_rejected(data, tmp_path):
@@ -245,9 +255,11 @@ def test_too_many_coefficients_are_rejected(data, tmp_path):
         make_engine(data, False, tmp_path)
 
 
-def test_the_gas_pressure_correction_flag_is_restored_after_a_failed_calculation(data, tmp_path):
-    reaction_data(data, {"Cal": -1.0, "No-such-substance": 1.0})
-    eng = make_engine(data, False, tmp_path)
-    with pytest.raises(RuntimeError):
-        eng.thermoPropertiesReactionFromReactants(298.15, 1e5, "test-reaction")
-    assert eng.preferences.apply_pressure_correction_to_gas_props is False
+def test_info_says_whether_err_can_be_trusted(data, tmp_path):
+    """known: the uncertainty of the data; partial: one could not be propagated; unknown: none given (err 0 is not exact)."""
+    eng = make_engine(data, True, tmp_path)
+    tps = eng.thermoPropertiesSubstance(298.15, 1e5, "Cal")
+    assert tps.gibbs_energy.err > 0 and tps.gibbs_energy.info.error == tf.ErrorState.known
+    substance(data, "Cal")["sm_gibbs_energy"]["errors"] = [1e308]
+    eng = make_engine(data, True, tmp_path)
+    assert eng.thermoPropertiesSubstance(298.15, 1e5, "Cal").gibbs_energy.info.error == tf.ErrorState.partial

@@ -310,6 +310,8 @@ map<string, DerivedUnit> derivedUnitsMap =
     {"MJ"           , {{mega, "J", 1}}},
     {"erg"          , {{1 , "dyne" , 1}, {1 , "cm" , 1}}},
     {"cal"          , {{4.184 , "J", 1}}},
+    {"cal_IT"       , {{4.1868 , "J", 1}}},
+    {"cal_th"       , {{1, "cal", 1}}},
     {"kcal"         , {{kilo , "cal", 1}}},
     {"eV"           , {{1.60217657e-19 , "J", 1}}},
     {"keV"          , {{kilo , "eV" , 1}}},

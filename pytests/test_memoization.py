@@ -4,7 +4,7 @@
 import thermofun as thermofun
 import unittest
 
-# Regression coverage for the memoization cache in ThermoFun/OptimizationUtils.h,
+# Regression coverage for the memoization cache in ThermoFun/Engine/ResultCache.h,
 # exercised through the public Python API (which is the same path GEMS3K uses via
 # TNode::load_all_thermodynamic_from_thermo - see CLAUDE.md).
 #
@@ -88,3 +88,19 @@ class TestMemoization(unittest.TestCase):
         for _ in range(5):
             again = self.engine.thermoPropertiesSubstance(873.15, 5000e5, "Quartz").gibbs_energy.val
             assert again == first
+
+
+def test_a_small_total_cache_gives_the_same_results():
+    """max_cache_size is for the four caches together (review of v2, Q11): with 3 entries in all, the results are those
+    of an engine without a limit, also for substances that need water and reactions."""
+    import thermofun as tf
+    path = "pytests/test-aq17-gem-lma-thermofun.json"
+    small, unlimited = tf.ThermoEngine(path), tf.ThermoEngine(path)
+    small.preferences.max_cache_size = 3
+    unlimited.preferences.max_cache_size = 0
+    for _ in range(2):
+        for T, P in [(298.15, 1e5), (373.15, 1e7), (473.15, 0.0)]:
+            for symbol in ("Ca+2", "Calcite", "CO3-2", "H2O@"):
+                assert small.thermoPropertiesSubstance(T, P, symbol).gibbs_energy.val == unlimited.thermoPropertiesSubstance(T, P, symbol).gibbs_energy.val
+            reaction = "Calcite = Ca+2 + CO3-2"
+            assert small.thermoPropertiesReaction(T, P, reaction).log_equilibrium_constant.val == unlimited.thermoPropertiesReaction(T, P, reaction).log_equilibrium_constant.val

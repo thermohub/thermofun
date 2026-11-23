@@ -1,0 +1,284 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
+// Tests of Model/Quantity.h, Model/Vocabulary.h and IO/Legacy/LegacyVocabulary.h: every value of every list goes
+// round trip, aliases, unknown words and the legacy codes.
+
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+#include "IO/Legacy/LegacyVocabulary.h"
+#include "Model/Quantity.h"
+#include "Model/Vocabulary.h"
+#include "Model/WaterAnchor.h"
+#include "Conventions/HydrogenIon.h"
+#include "ThermoEngine.h"
+#include "Common/Numbers.h"
+#include "check.h"
+
+using namespace ThermoFun;
+
+namespace {
+
+void testQuantity()
+{
+    model::Quantity q;
+    CHECK(q.isBare());
+    q.value = 5.0;
+    CHECK(q.isBare());  // a value alone is bare
+    q.written.single_precision = true;
+    CHECK(q.isBare());  // it changes how the number is written, nothing else
+    q.written.unit = "kJ/mol";
+    CHECK(!q.isBare());
+    q.written.unit.clear();
+    q.uncertainty = model::Uncertainty{};
+    CHECK(!q.isBare());
+    q.uncertainty.reset();
+    q.meta.source = "1995ROB/HEM";
+    CHECK(!q.isBare());
+    q.meta.source.clear();
+    q.meta.quality = "core";
+    CHECK(!q.isBare());
+    q.meta.quality.clear();
+    q.meta.origin = model::Origin::Measured;
+    CHECK(!q.isBare());
+}
+
+// Each value must go round trip, and the list of the test must be the whole list of the library.
+template <class E>
+void roundTrip(const std::vector<E>& values, const std::vector<std::string>& expected)
+{
+    CHECK(values.size() == expected.size());
+    CHECK(model::words<E>() == expected);
+    for (size_t i = 0; i < values.size(); ++i)
+    {
+        CHECK(model::toString(values[i]) == expected[i]);
+        CHECK(model::fromString<E>(expected[i]) == values[i]);
+        CHECK(model::fromString<E>(model::toString(values[i])) == values[i]);
+    }
+    CHECK(!model::fromString<E>("no_such_word"));
+    CHECK(!model::fromString<E>(""));
+    CHECK(!model::vocabularyName<E>().empty());
+}
+
+void testLists()
+{
+    using namespace model;
+    using PN = PropertyName;
+    roundTrip<PN>({PN::G, PN::H, PN::S, PN::Cp, PN::V, PN::U, PN::A, PN::Cv}, {"G", "H", "S", "Cp", "V", "U", "A", "Cv"});
+    using RP = ReactionPropertyName;
+    roundTrip<RP>({RP::logK, RP::lnK, RP::dG, RP::dH, RP::dS, RP::dCp, RP::dV, RP::dU, RP::dA},
+                  {"logK", "lnK", "dG", "dH", "dS", "dCp", "dV", "dU", "dA"});
+    roundTrip<Origin>({Origin::Measured, Origin::Entered, Origin::Calculated, Origin::Estimated, Origin::Converted},
+                      {"measured", "entered", "calculated", "estimated", "converted"});
+    roundTrip<PropertySource>({PropertySource::Direct, PropertySource::Reaction, PropertySource::Reactants, PropertySource::Record},
+                              {"direct", "reaction", "reactants", "record"});
+    roundTrip<DatasetStatus>({DatasetStatus::Draft, DatasetStatus::Published}, {"draft", "published"});
+    roundTrip<MethodKind>({MethodKind::Symbolic, MethodKind::Reference, MethodKind::Composite}, {"symbolic", "reference", "composite"});
+    roundTrip<OperatesOn>({OperatesOn::Substance, OperatesOn::Reaction}, {"substance", "reaction"});
+    using SC = model::SubstanceClass;
+    roundTrip<SC>({SC::Component, SC::GasFluid, SC::AqueousSolute, SC::WaterSolvent, SC::SurfaceSpecies, SC::SiteMoiety, SC::Other},
+                  {"component", "gas_fluid", "aqueous_solute", "water_solvent", "surface_species", "site_moiety", "other"});
+    using AS = model::AggregateState;
+    roundTrip<AS>({AS::Gas, AS::Liquid, AS::Glass, AS::Crystal, AS::Aqueous, AS::Surface, AS::IonExchange, AS::Plasma, AS::Solid,
+                   AS::Condensed, AS::Fluid, AS::LiquidCrystal, AS::AmorphousSolid, AS::Monomeric, AS::Polymeric,
+                   AS::SolidSolution, AS::Other},
+                  {"gas", "liquid", "glass", "crystal", "aqueous", "surface", "ion_exchange", "plasma", "solid", "condensed", "fluid",
+                   "liquid_crystal", "amorphous_solid", "monomeric", "polymeric", "solid_solution", "other"});
+    roundTrip<ElementClass>({ElementClass::Element, ElementClass::Charge, ElementClass::Other}, {"element", "charge", "other"});
+    roundTrip<Interpolation>({Interpolation::Lagrange, Interpolation::CubicSpline, Interpolation::Bilinear},
+                             {"lagrange", "cubic_spline", "bilinear"});
+    using ER = EnergyReference;
+    roundTrip<ER>({ER::BensonHelgeson, ER::BermanBrown, ER::SER, ER::AssignedEnthalpy, ER::GibbsHelmholtzFormation, ER::DFTFormation0K},
+                  {"benson_helgeson", "berman_brown", "ser", "assigned_enthalpy", "gibbs_helmholtz_formation", "dft_formation_0K"});
+    roundTrip<StandardPressure>({StandardPressure::OneBar, StandardPressure::OneAtm}, {"1bar", "1atm"});
+    roundTrip<ConcentrationScale>({ConcentrationScale::Molality, ConcentrationScale::MoleFraction, ConcentrationScale::Molarity},
+                                  {"molality", "mole_fraction", "molarity"});
+    roundTrip<WaterReference>({WaterReference::HelgesonKirkham1974, WaterReference::Codata1989, WaterReference::SteamTables},
+                              {"helgeson_kirkham_1974", "codata_1989", "steam_tables"});
+}
+
+void testAliasesAndCase()
+{
+    using namespace model;
+    CHECK(fromString<model::AggregateState>("crystalline") == model::AggregateState::Crystal);
+    CHECK(fromString<Interpolation>("spline") == Interpolation::CubicSpline);
+    CHECK(fromString<StandardPressure>("1 bar") == StandardPressure::OneBar);
+    CHECK(fromString<StandardPressure>("1 atm") == StandardPressure::OneAtm);
+    // the words of the old engine conventions
+    CHECK(fromString<EnergyReference>("BERMAN_BROWN") == EnergyReference::BermanBrown);
+    CHECK(fromString<EnergyReference>("BENSON_HELGESON") == EnergyReference::BensonHelgeson);
+    CHECK(fromString<WaterReference>("STEAM_TABLES") == WaterReference::SteamTables);
+    CHECK(fromString<WaterReference>("GEOCHEMICAL") == WaterReference::HelgesonKirkham1974);   // the 0.x word
+    // any case, and '-' for '_'
+    CHECK(fromString<model::AggregateState>("GAS") == model::AggregateState::Gas);
+    CHECK(fromString<WaterReference>("Steam-Tables") == WaterReference::SteamTables);
+    CHECK(fromString<EnergyReference>("dft_formation_0k") == EnergyReference::DFTFormation0K);
+    // a writer writes the canonical word, never the alias
+    CHECK(toString(*fromString<model::AggregateState>("crystalline")) == "crystal");
+}
+
+void testUnknownWords()
+{
+    using namespace model;
+    CHECK(nearestWord<model::AggregateState>("crystl") == "crystal");
+    CHECK(nearestWord<EnergyReference>("berman_browne") == "berman_brown");
+    CHECK(nearestWord<WaterReference>("steam_table") == "steam_tables");
+    CHECK(nearestWord<model::AggregateState>("xxxxxxxxxx").empty());  // nothing near
+    CHECK(nearestWord<PropertyName>("X").empty());                 // no guess for one letter
+    CHECK(nearestWord<model::AggregateState>("cristalline") == "crystal");  // near an alias: the canonical word
+
+    const auto message = unknownWordMessage<WaterReference>("steam_table");
+    CHECK(message == "\"steam_table\" is not a value of water_reference. Did you mean \"steam_tables\"? "
+                     "Allowed: helgeson_kirkham_1974, codata_1989, steam_tables.");
+    CHECK(unknownWordMessage<WaterReference>("zzzzzzzz").find("Did you mean") == std::string::npos);
+}
+
+void testUnits()
+{
+    using namespace model;
+    CHECK(siUnit(PropertyName::G) == "J/mol");
+    CHECK(siUnit(PropertyName::S) == "J/(mol.K)");
+    CHECK(siUnit(PropertyName::V) == "m3/mol");
+    CHECK(siUnit(ReactionPropertyName::logK) == "1");
+    CHECK(siUnit(ReactionPropertyName::dCp) == "J/(mol.K)");
+    CHECK(siUnit(ReactionPropertyName::dV) == "m3/mol");
+}
+
+void testLegacy()
+{
+    // every word has a code, and the code gives the word back
+    for (const auto& word : model::words<model::SubstanceClass>())
+    {
+        const auto value = *model::fromString<model::SubstanceClass>(word);
+        CHECK(substanceClassFromLegacy(static_cast<int>(toLegacy(value))) == value);
+    }
+    for (const auto& word : model::words<model::AggregateState>())
+    {
+        const auto value = *model::fromString<model::AggregateState>(word);
+        CHECK(aggregateStateFromLegacy(static_cast<int>(toLegacy(value))) == value);
+    }
+    for (const auto& word : model::words<model::ElementClass>())
+    {
+        const auto value = *model::fromString<model::ElementClass>(word);
+        CHECK(elementClassFromLegacy(toLegacy(value)) == value);
+    }
+    CHECK(toLegacy(model::SubstanceClass::AqueousSolute) == SubstanceClass::AQSOLUTE);
+    CHECK(toLegacy(model::AggregateState::Gas) == AggregateState::GAS);
+    CHECK(toLegacy(model::ElementClass::Charge) == 4);
+    // a code that is not known gives Other
+    CHECK(substanceClassFromLegacy(77) == model::SubstanceClass::Other);
+    CHECK(aggregateStateFromLegacy(77) == model::AggregateState::Other);
+    CHECK(elementClassFromLegacy(2) == model::ElementClass::Other);
+    CHECK(toLegacy(model::ElementClass::Other) == 101);
+    // the keys of legacy records
+    CHECK(legacyKey(model::PropertyName::G) == "sm_gibbs_energy");
+    CHECK(legacyKey(model::PropertyName::V) == "sm_volume");
+    CHECK(legacyKey(model::PropertyName::U).empty());
+    CHECK(legacyKey(model::ReactionPropertyName::logK) == "logKr");
+    CHECK(legacyKey(model::ReactionPropertyName::dU).empty());
+}
+
+} // namespace
+
+// The old words of the conventions are read in C++ too: the fields are empty after a call of the engine (review Q9)
+void testOldWordsOfTheConventions()
+{
+    ThermoFun::EngineConventions c;
+    CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON" && c.waterPropertiesWord() == "GEOCHEMICAL");
+    c.energy_reference.elements = ThermoFun::model::EnergyReference::BermanBrown;
+    c.energy_reference.water = ThermoFun::model::WaterReference::SteamTables;
+    CHECK(c.apparentPropertiesWord() == "BERMAN_BROWN" && c.waterPropertiesWord() == "STEAM_TABLES");
+    c.apparent_properties = "BENSON_HELGESON";   // a word not yet applied is the answer
+    CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON");
+    // GEOCHEMICAL is the water of the dataset, whichever its anchor (as in 0.x): no value
+    c.setWaterPropertiesWord("GEOCHEMICAL");
+    CHECK(!c.energy_reference.water && c.waterPropertiesWord() == "GEOCHEMICAL");
+    c.setWaterPropertiesWord("codata_1989");
+    CHECK(c.energy_reference.water == ThermoFun::model::WaterReference::Codata1989 && c.waterPropertiesWord() == "CODATA_1989");
+}
+
+// The parser by hand (macOS before libc++ 16) reads as from_chars: it read "1.5.2" as a number to its end (review S10)
+void testTheNumberParserByHand()
+{
+    for (const char* text : {"1.5.2 J/mol", "1.5 J/mol", "-2.5e3 x", "1e J", "abc", "1,5", ".5 x", "5. x", ". x", "-", "-.e1",
+                             "12", "0.000001", "6.02214076e23", "1e-310", "+3.25", " 7 bar"})
+    {
+        std::size_t usedLibrary = 0, usedHand = 0;
+        const std::string_view t = text;
+        const double a = ThermoFun::numbers::parseDouble(t, usedLibrary);
+        std::size_t start = 0;
+        while (start < t.size() && t[start] == ' ')
+            ++start;
+        const double b = ThermoFun::numbers::parseDoubleByHand(t, start < t.size() && t[start] == '+' ? start + 1 : start, usedHand);
+        CHECK(usedLibrary == usedHand);
+        CHECK(usedLibrary == 0 || a == b);
+    }
+}
+
+// The water anchors (decision 0031): helgeson_kirkham_1974 is one set for every equation, codata_1989 the set of the equation
+void testWaterAnchors()
+{
+    using namespace ThermoFun::model;
+    CHECK(waterTripleSet(WaterReference::HelgesonKirkham1974, "WaterIAPWS95") == "HKF_HGK_1974");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterIAPWS95") == "NEA_IAPWS");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterIAPWS95Gas") == "NEA_IAPWS");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterHGK84") == "NEA_HGK");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterLVS83") == "NEA_HGK");
+    const auto& data = ThermoFun::waterTripleData();
+    CHECK(waterTripleOf("codata_1989", "WaterIAPWS95").Htr == data.at("NEA_IAPWS").Htr);
+    CHECK(waterTripleOf("helgeson_kirkham_1974", "WaterIAPWS95").Gtr == data.at("HKF_HGK_1974").Gtr);
+    CHECK(waterTripleOf("NEA_HGK", "WaterIAPWS95").Htr == data.at("NEA_HGK").Htr);   // a set is used as it is
+    CHECK(waterAnchorOfSet("NEA_IAPWS") == WaterReference::Codata1989 && waterAnchorOfSet("HKF_HGK_1974") == WaterReference::HelgesonKirkham1974);
+    CHECK(!waterAnchorOfSet("NEA") && !anchorOf(WaterReference::SteamTables) && anchorOf(WaterReference::Codata1989));
+    for (const char* wrong : {"steam_tables", "NEA"})
+    {
+        bool thrown = false;
+        try { waterTripleOf(wrong, "WaterHGK84"); }
+        catch (const std::invalid_argument&) { thrown = true; }
+        CHECK(thrown);
+    }
+}
+
+// ions (decision 0031, row 6): the words, and how the hydrogen ion, the electron and H2(g) are recognized
+void testIons()
+{
+    using namespace ThermoFun::model;
+    roundTrip<Ions>({Ions::HydrogenIon, Ions::None}, {"hydrogen_ion", "none"});
+    CHECK(withoutValences("H|0|2") == "H2" && withoutValences("Fe|3|2O3") == "Fe2O3" && withoutValences("H2") == "H2");
+    SubstanceRecord gas;
+    gas.aggregate_state = ThermoFun::model::AggregateState::Gas;
+    gas.formula = "H|0|2";
+    CHECK(isHydrogenGas(gas));
+    SubstanceRecord e;
+    e.class_ = ThermoFun::model::SubstanceClass::AqueousSolute;
+    e.formula = "-";
+    CHECK(isElectron(e) && isHydrogenElectrode(e, Convention{}));
+    e.convention = Convention{};
+    e.convention->energy_reference.ions = Ions::None;
+    CHECK(!isHydrogenElectrode(e, Convention{}));
+    SubstanceRecord h;
+    h.class_ = ThermoFun::model::SubstanceClass::AqueousSolute;
+    h.formula = "H+";
+    h.convention = Convention{};
+    h.convention->energy_reference.elements = EnergyReference::BermanBrown;   // ions do not follow the elements
+    CHECK(isZeroHydrogenIon(h, Convention{}));
+    Convention none;
+    none.energy_reference.ions = Ions::None;
+    CHECK(!isZeroHydrogenIon(h, none));
+}
+
+void runVocabulary()
+{
+    testWaterAnchors();
+    testIons();
+    testTheNumberParserByHand();
+    testOldWordsOfTheConventions();
+    testQuantity();
+    testLists();
+    testAliasesAndCase();
+    testUnknownWords();
+    testUnits();
+    testLegacy();
+}

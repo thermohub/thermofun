@@ -19,6 +19,10 @@ description = "The Python interface of the ThermoFun library."
 license = "LGPL-3.0-or-later"
 keywords = ["element", "substance", "reaction", "HKF equation", "solvent", "liquid"]
 
+[project.optional-dependencies]
+fitting = ["scipy", "pyyaml"]
+authoring = ["sympy", "pyyaml"]
+
 [project.urls]
 Homepage = "https://thermohub.org/"
 Repository = "https://github.com/thermohub/thermofun.git"
@@ -27,4 +31,4 @@ Repository = "https://github.com/thermohub/thermofun.git"
 where = ["src"]
 
 [tool.setuptools.package-data]
-thermofun = ["PyThermoFun*"]
+thermofun = ["PyThermoFun*", "fit_templates/*.yaml"]

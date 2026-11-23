@@ -13,6 +13,8 @@
 namespace ThermoFun { struct ThermoPropertiesSubstance; struct ThermoPropertiesReaction; struct PropertiesSolvent; }
 
 #include "ThermoEngine.h"
+#include "ThermoFun.h"
+#include <type_traits>
 #include "ThermoProperties.h"
 
 static int failures = 0;
@@ -26,6 +28,10 @@ static bool close(double a, double b, double tol = 1e-12)
 {
     return std::fabs(a - b) <= tol * (1.0 + std::fabs(b));
 }
+
+// The model was in ThermoFun::v2 before 1.0: the name stays an alias of ThermoFun::model until 2.0
+static_assert(std::is_same_v<ThermoFun::v2::SubstanceRecord, ThermoFun::model::SubstanceRecord>);
+static_assert(std::is_same_v<ThermoFun::v2::EnergyReference, ThermoFun::model::EnergyReference>);
 
 int main(int argc, char** argv)
 {
@@ -57,7 +63,8 @@ int main(int argc, char** argv)
         ref = 7.0;
         check(plain == 5.0 && z.val() == 7.0, "conversion to double and to double&");
         check(std::sqrt(z.val) == std::sqrt(7.0), "val as a double argument");
-        check(sizeof(Reaktoro_::ThermoScalar) == sizeof(double) * 4 + sizeof(Reaktoro_::StatusMessage), "layout");
+        // val, ddt, ddp, err, the status and the info of the value (decision 0029); no code copies the layout
+        check(sizeof(Reaktoro_::ThermoScalar) == sizeof(double) * 4 + sizeof(Reaktoro_::StatusMessage) + sizeof(Reaktoro_::Info), "layout");
         const Reaktoro_::ThermoScalar c = z;
         check(c.val() == 7.0 && c.val == 7.0, "val and val() of a const instance");
     }

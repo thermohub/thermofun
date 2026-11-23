@@ -1,416 +1,27 @@
 ﻿// SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
-#include "Database.h"
-
-// ThermoFun includes
-#include "ChemicalFun/FormulaParser/ChemicalData.h"
-#include "Common/Exception.h"
-#include "Common/ParseJsonToData.h"
-#include "Substance.h"
-#include "Reaction.h"
-#include "Element.h"
-
-#include <nlohmann/json.hpp>
-#include <fstream>
-
-using json = nlohmann::json;
+#include "DatabaseImpl.h"
 
 namespace ThermoFun {
 
-[[ noreturn ]] auto errorNonExistent(std::string type, std::string name, int line) -> void
+auto readConventions(const std::string &data) -> DatabaseConventions
 {
-    Exception exception;
-    exception.error << "Cannot get an instance of the " << type << " `" << name << "` in the database.";
-    exception.reason << "There is no such " << type << " in the database.";
-    exception.line = line;
-    RaiseError(exception)
+    DatabaseConventions c;
+
+    try {
+    const auto& jc = json::parse(data);
+
+    if (jc.contains("water_triple_point_reference") && !jc["water_triple_point_reference"].is_null())
+        c.water_triple_point_reference = jc["water_triple_point_reference"].get<std::string>();
+    }
+    catch (json::exception &ex)
+    {
+        thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
+    }
+
+    return c;
 }
-
-struct Database::Impl
-{
-    /// The map of all aqueous species in the database
-    SubstancesMap substances_map;
-
-    /// The map of all reactions in the database
-    ReactionsMap reactions_map;
-
-    /// The map of all elements in the database
-    ElementsMap elements_map;
-
-    /// Downloaded elements data for formula parser
-    ChemicalFun::DBElements all_elements;
-    //char type_ = jsonio::FileTypes::Undef_;
-
-    /// For calculating and outputting properties of a database e.g., the water triple properties
-    mutable DatabaseConventions conventions;
-
-    Impl()
-    {}
-
-    Impl(std::string filename)
-    {
-        //jsonio::FJson file (filename);
-        //type_ = file.Type();
-        fromFile(filename);
-        setDBElements(elements_map);
-    }
-
-    Impl(std::vector<std::string> jsons, std::string _label)
-    {
-        fromJSONs(jsons, _label);
-        setDBElements(elements_map);
-    }
-
-    template<typename Key, typename Value>
-    auto collectValues(const std::map<Key, Value>& map) const -> std::vector<Value>
-    {
-        std::vector<Value> collection;
-        collection.reserve(map.size());
-        for(const auto& pair : map)
-            collection.push_back(pair.second);
-        return collection;
-    }
-
-    auto setDBElement(Element& element) -> void
-    {
-        ChemicalFun::ElementValues eldata;
-        auto elkey = element.toElementKey(eldata);
-        all_elements.addElement(elkey, eldata);
-    }
-
-    auto setDBElements(ElementsMap elements) -> void
-    {
-        thfun_logger->debug("Database::setDBElements() elements {}", elements.size());
-        for (auto& e : elements) {
-            setDBElement(e.second);
-        }
-    }
-
-    auto elementKeyToElement(ChemicalFun::ElementKey elementKey) -> Element
-    {
-        auto itrdb = all_elements.elements().find(elementKey);
-        if (itrdb == all_elements.elements().end())
-            funError("Invalid symbol", elementKey.Symbol(), __LINE__, __FILE__);
-        return Element(elementKey, itrdb->second);
-    }
-
-    auto addElement(const Element& element) -> void
-    {
-        elements_map.insert({element.symbol(), element});
-        setDBElement(elements_map[element.symbol()]);
-    }
-
-    auto setElement(const Element& element) -> void
-    {
-        checkIfSymbolExists(elements_map, "element", element.symbol());
-        elements_map[element.symbol()] = element;
-        setDBElement(elements_map[element.symbol()]);
-    }
-
-    auto addSubstance(const Substance& substance) -> void
-    {
-        substances_map.insert({substance.symbol(), substance});
-    }
-
-    auto setSubstance(const Substance& substance) -> void
-    {
-        checkIfSymbolExists(substances_map, "substance", substance.symbol());
-        substances_map[substance.symbol()] = substance;
-    }
-
-    auto addMapElements(const ElementsMap& elements) -> void
-    {
-        elements_map = elements;
-        setDBElements(elements_map);
-    }
-
-    auto addMapSubstances(const SubstancesMap& substances) -> void
-    {
-        substances_map = substances;
-    }
-
-    auto setMapElements(const ElementsMap& elements) -> void
-    {
-        for (const auto& element : elements)
-        {
-            elements_map[element.first] = element.second;
-            setDBElement(elements_map[element.first]);
-        }
-    }
-
-    auto setMapSubstances(const SubstancesMap& substances) -> void
-    {
-        for (const auto& substance : substances)
-            substances_map[substance.first] = substance.second;
-    }
-
-    auto setMapReactions(const ReactionsMap& reactions) -> void
-    {
-        for (const auto& reaction : reactions)
-            reactions_map[reaction.first] = reaction.second;
-    }
-
-    auto addReaction(const Reaction& reaction) -> void
-    {
-        reactions_map.insert({reaction.symbol(), reaction});
-    }
-
-    auto setReaction(const Reaction& reaction) -> void
-    {
-        checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
-        reactions_map[reaction.symbol()] = reaction;
-    }
-
-    auto addMapReactions(const ReactionsMap& reactions) -> void
-    {
-        reactions_map = reactions;
-    }
-
-    auto getElements() const -> std::vector<Element>
-    {
-        return collectValues(elements_map);
-    }
-
-    auto getSubstances() const -> std::vector<Substance>
-    {
-        return collectValues(substances_map);
-    }
-
-    auto getReactions() const -> std::vector<Reaction>
-    {
-        return collectValues(reactions_map);
-    }
-
-    auto numberOfElements() const -> size_t
-    {
-        return elements_map.size();
-    }
-
-    auto numberOfSubstances() const -> size_t
-    {
-        return substances_map.size();
-    }
-
-    auto numberOfReactions() const -> size_t
-    {
-        return reactions_map.size();
-    }
-
-    auto getElement(std::string symbol) -> const Element&
-    {
-        if(!containsElement(symbol)) {
-            errorNonExistent("element", symbol, __LINE__);
-        }
-        return elements_map[symbol];
-    }
-
-    auto getSubstance(std::string symbol) -> const Substance&
-    {
-        if(!containsSubstance(symbol)) {
-            errorNonExistent("substance", symbol, __LINE__);
-        }
-        return substances_map[symbol];
-    }
-
-    auto getReaction(std::string symbol) -> const Reaction&
-    {
-        if(!containsReaction(symbol)) {
-            errorNonExistent("reaction", symbol, __LINE__);
-        }
-        return reactions_map[symbol];
-    }
-
-    auto element(std::string symbol) -> Element&
-    {
-        if(!containsElement(symbol)) { // try restore data from defaults
-            auto el_key =ChemicalFun::ElementKey(symbol,0);
-            Element empty_element;
-            if( all_elements.elements().find(el_key) != all_elements.elements().end()) {
-                empty_element = elementKeyToElement(el_key);
-            }
-            else {
-                empty_element.setSymbol(symbol);
-                empty_element.setName(symbol);
-            }
-            elements_map[symbol] = empty_element;
-        }
-        return elements_map[symbol];
-    }
-
-    auto substance(std::string symbol) -> Substance&
-    {
-        if(!containsSubstance(symbol)) {
-            Substance empty_subst;
-            empty_subst.setSymbol(symbol);
-            empty_subst.setName(symbol);
-            // ... set other default data
-            substances_map[symbol]=empty_subst;
-        }
-        return substances_map[symbol];
-    }
-
-    auto reaction(std::string symbol) -> Reaction&
-    {
-        if(!containsReaction(symbol))
-        {
-            Reaction empty_react;
-            empty_react.setSymbol(symbol);
-            empty_react.setName(symbol);
-            // ... set other default data
-            reactions_map[symbol]=empty_react;
-        }
-        return reactions_map[symbol];
-    }
-
-    auto mapElements() -> ElementsMap&
-    {
-        return elements_map;
-    }
-
-    auto mapSubstances() -> SubstancesMap&
-    {
-        return substances_map;
-    }
-
-    auto mapReactions() -> ReactionsMap&
-    {
-        return reactions_map;
-    }
-
-    auto containsElement(std::string symbol) const -> bool
-    {
-        return elements_map.count(symbol) != 0;
-    }
-
-    auto containsSubstance(std::string symbol) const -> bool
-    {
-        return substances_map.count(symbol) != 0;
-    }
-
-    auto containsReaction(std::string symbol) const -> bool
-    {
-        return reactions_map.count(symbol) != 0;
-    }
-
-    template<class T>
-    auto checkIfSymbolExists(std::map<std::string, T> map_, std::string record_type, std::string symbol) -> void
-    {
-        auto it = map_.find(symbol);
-        if (it != map_.end()) {
-            thfun_logger->warn("The {} with symbol {} is already in the database. Overwriting ... \n"
-                               "To add it to the database as a separate record assign it a different symbol.", record_type, symbol);
-       }
-    }
-
-    auto addRecord(json j, std::string _label) -> void
-    {
-        auto props= j;
-
-        if (j.contains("properties"))
-            if (!j["properties"].is_null())
-                props = j["properties"];
-        if (j.contains("_label"))
-            if (!j["_label"].is_null())
-                _label = j["_label"].get<std::string>();
-
-        props = props.dump();
-
-        if (_label == "substance")
-        {
-            Substance substance = parseSubstance(props);
-            substance.setJsonString(props);
-            checkIfSymbolExists(substances_map, "substance", substance.symbol());
-            substances_map[substance.symbol()] = substance;
-        } else
-        if (_label == "reaction")
-        {
-           Reaction reaction = parseReaction(props);
-           reaction.setJsonString(props);
-           checkIfSymbolExists(reactions_map, "reaction", reaction.symbol());
-           reactions_map[reaction.symbol()] = reaction;
-        } else
-        if (_label == "element")
-        {
-            Element element = parseElement(props);
-            element.setJsonString(props);
-            checkIfSymbolExists(elements_map, "element", element.symbol());
-            elements_map[element.symbol()] = element;
-        } else
-        {
-            Exception exception;
-            exception.error << "Unknown JSON type " << _label << " ";
-            exception.reason << "The JSON object needs to be an element, a substance or a reaction. ";
-            exception.line = __LINE__;
-            RaiseError(exception)
-        }
-    }
-
-    auto addRecords(json j, std::string _label = "unknown label") -> void
-    {
-        for(auto it = j.begin(); it != j.end(); ++it)
-        {
-            addRecord(it.value(), _label);
-        }
-    }
-
-    /// Parses the JSON file (or string) and puts the data into the internal data structure
-    /// @param filename name of the file (in the working directory)
-    auto fromFile(std::string filename) -> void
-    {
-        try {
-
-            json j;
-
-            try
-            {
-                // trying to see if the string is a valid json
-                j = json::parse(filename);
-            }
-            catch (json::parse_error &e)
-            {
-                std::ifstream ifs(filename);
-                if (!ifs.good())
-                    funError("File reading error", std::string("Database file " + filename + " not found!"), __LINE__, __FILE__);
-                j = json::parse(ifs);
-            }
-
-            if (j.contains("conventions"))
-                conventions = readConventions(j["conventions"].dump());
-            if (j.contains("elements"))
-                addRecords(j["elements"], "element");
-            if (j.contains("substances"))
-                addRecords(j["substances"], "substance");
-            if (j.contains("reactions"))
-                addRecords(j["reactions"], "reaction");
-
-            // if the file just contains an array of records containing key "_label" on on the type of record
-            if (j.is_array())
-                addRecords(j);
-        }     catch (json::exception &ex)
-        {
-            thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
-        }
-
-    }
-
-    auto fromJSONs(std::vector<std::string> jsons, std::string _label) -> void
-    {
-        try {
-
-            if (jsons.size()>0) // bugfix for unknown json parse crash, DM 06.12.2019
-                json j = json::parse(jsons[0]);
-            for (size_t i=0; i<jsons.size(); i++)
-            {
-                json j = json::parse(jsons[i]);
-                addRecord(j, _label);
-            }
-        }      catch (json::exception &ex)
-        {
-            thfun_logger->error(" exception id:  {} message: {}", ex.id, ex.what());
-        }
-    }
-};
 
 Database::Database()
 : pimpl(new Impl())
@@ -436,6 +47,7 @@ auto Database::operator=(Database other) -> Database&
 
 auto Database::appendData(std::string filename) -> void
 {
+    pimpl->changed();
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromFile(filename);
     if (elements_number != pimpl->mapElements().size())
@@ -444,6 +56,7 @@ auto Database::appendData(std::string filename) -> void
 
 auto Database::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
 {
+    pimpl->changed();
     auto elements_number = pimpl->mapElements().size();
     pimpl->fromJSONs(jsonRecords, _label);
     if (elements_number != pimpl->mapElements().size())
@@ -452,92 +65,110 @@ auto Database::appendData(std::vector<std::string> jsonRecords, std::string _lab
 
 auto Database::addElement(const Element& element) -> void
 {
+    pimpl->changed();
     pimpl->addElement(element);
 }
 
 auto Database::setElement(const Element& element) -> void
 {
+    pimpl->changed();
     pimpl->setElement(element);
 }
 
 auto Database::addElement(const std::string& jsonElement) -> void
 {
+    pimpl->changed();
     pimpl->addElement(Element(jsonElement));
 }
 
 auto Database::setElement(const std::string& jsonElement) -> void
 {
+    pimpl->changed();
     pimpl->setElement(Element(jsonElement));
 }
 
 
 auto Database::addMapElements(const ElementsMap& elements) -> void
 {
+    pimpl->changed();
     pimpl->addMapElements(elements);
 }
 
 auto Database::setMapElements(const ElementsMap& elements) -> void
 {
+    pimpl->changed();
     pimpl->setMapElements(elements);
 }
 
 auto Database::setMapSubstances(const SubstancesMap& substances) -> void
 {
+    pimpl->changed();
     pimpl->setMapSubstances(substances);
 }
 
 auto Database::setMapReactions(const ReactionsMap& reactions) -> void
 {
+    pimpl->changed();
     pimpl->setMapReactions(reactions);
 }
 
 auto Database::addSubstance(const Substance& substance) -> void
 {
+    pimpl->changed();
     pimpl->addSubstance(substance);
 }
 
 auto Database::setSubstance(const Substance& substance) -> void
 {
+    pimpl->changed();
     pimpl->setSubstance(substance);
 }
 
 auto Database::addSubstance(const std::string &jsonSubstance) -> void
 {
+    pimpl->changed();
     pimpl->addSubstance(Substance(jsonSubstance));
 }
 
 auto Database::setSubstance(const std::string &jsonSubstance) -> void
 {
+    pimpl->changed();
     pimpl->setSubstance(Substance(jsonSubstance));
 }
 
 auto Database::addMapSubstances(const SubstancesMap& substances) -> void
 {
+    pimpl->changed();
     pimpl->addMapSubstances(substances);
 }
 
 auto Database::addReaction(const Reaction& reaction) -> void
 {
+    pimpl->changed();
     pimpl->addReaction(reaction);
 }
 
 auto Database::setReaction(const Reaction& reaction) -> void
 {
+    pimpl->changed();
     pimpl->setReaction(reaction);
 }
 
 auto Database::addReaction(const std::string &jsonReaction) -> void
 {
+    pimpl->changed();
     pimpl->addReaction(Reaction(jsonReaction));
 }
 
 auto Database::setReaction(const std::string &jsonReaction) -> void
 {
+    pimpl->changed();
     pimpl->setReaction(Reaction(jsonReaction));
 }
 
 auto Database::addMapReactions(const ReactionsMap& reactions) -> void
 {
+    pimpl->changed();
     pimpl->addMapReactions(reactions);
 }
 
@@ -558,16 +189,19 @@ auto Database::getReaction(std::string symbol) const -> const Reaction&
 
 auto Database::element(std::string symbol) -> Element&
 {
+    pimpl->changed();
     return pimpl->element(symbol);
 }
 
 auto Database::substance(std::string symbol) -> Substance&
 {
+    pimpl->changed();
     return pimpl->substance(symbol);
 }
 
 auto Database::reaction(std::string symbol) -> Reaction&
 {
+    pimpl->changed();
     return pimpl->reaction(symbol);
 }
 
@@ -632,10 +266,76 @@ auto Database::getReactionsList() const -> std::vector<std::string>
    return list;
 }
 
-DatabaseConventions& Database::conventions() { 
+auto Database::Impl::syncConventions() const -> void
+{
+    if (conventions == conventions_seen && conventions_revision == revision)
+        return;
+    auto& water = dataset_info.convention.energy_reference.water;
+    if (conventions != conventions_seen)
+    {
+        const auto anchor = model::waterAnchorOfSet(conventions.water_triple_point_reference);
+        if (!anchor)
+        {
+            const std::string name = conventions.water_triple_point_reference;
+            conventions = conventions_seen;
+            funError("Unknown water_triple_point_reference", "\"" + name + "\" is not HKF_HGK_1974, NEA_HGK or NEA_IAPWS.", __LINE__, __FILE__);
+        }
+        if (*anchor != model::anchorOf(water).value_or(model::WaterReference::HelgesonKirkham1974) || (water && *water == model::WaterReference::SteamTables))
+            water = anchor;
+    }
+    std::string method = "WaterHGK84";
+    const model::SubstanceRecord* solvent = nullptr;
+    for (const auto& [symbol, substance] : substances_map)
+    {
+        const auto& record = substance.record();
+        if (record && record->class_ == model::SubstanceClass::WaterSolvent && record->aggregate_state != model::AggregateState::Gas &&
+            (!solvent || symbol == dataset_info.solvent))
+            solvent = record.get();
+    }
+    if (solvent)
+        method = model::waterEquationOf(*solvent);
+    conventions.water_triple_point_reference = model::waterTripleSet(model::anchorOf(water).value_or(model::WaterReference::HelgesonKirkham1974), method);
+    conventions_seen = conventions;
+    conventions_revision = revision;
+}
+
+auto Database::thermoDataSet() const -> const model::ThermoDataSetInfo&
+{
+    pimpl->syncConventions();
+    return pimpl->dataset_info;
+}
+
+auto Database::methods() const -> const std::map<std::string, model::MethodDefinition>&
+{
+    return pimpl->methods;
+}
+
+auto Database::parameterSets() const -> const std::map<std::string, model::MethodParameterSet>&
+{
+    return pimpl->parameter_sets;
+}
+
+auto Database::dataSources() const -> const std::map<std::string, model::DataSource>&
+{
+    return pimpl->data_sources;
+}
+
+auto Database::loadDiagnostics() const -> const Diagnostics&
+{
+    return pimpl->load_diagnostics;
+}
+
+auto Database::revision() const -> std::uint64_t
+{
+    return pimpl->revision;
+}
+
+DatabaseConventions& Database::conventions() {
+    pimpl->syncConventions();
     return pimpl->conventions; }
 
-const DatabaseConventions& Database::conventions() const { 
+const DatabaseConventions& Database::conventions() const {
+    pimpl->syncConventions();
     return pimpl->conventions; }
 
 auto Database::numberOfElements() const -> size_t
@@ -690,8 +390,25 @@ auto Database::elementalEntropyFormula(std::string formula) const -> double
     return prop.elemental_entropy;
 }
 
+auto Database::elementEntropySources(const std::string& formula) const -> ElementEntropySources
+{
+    ElementEntropySources sources;
+    const auto& table = pimpl->all_elements.elements();
+    const ChemicalFun::FormulaToken token(formula);
+    for (const auto& key : token.getElementsList())
+    {
+        const auto it = table.find(key);
+        if (it == table.end() || it->second.entropy == 0.0)
+            sources.missing.push_back(key.Symbol());
+        else if (!pimpl->elements_map.count(key.Symbol()))
+            sources.from_table.push_back(key.Symbol());
+    }
+    return sources;
+}
+
 auto Database::setSubstancesChargeFromFromula() -> void
 {
+    pimpl->changed();
     for (auto& s: pimpl->substances_map)
     {
 //        auto js = s.second.jsonString();

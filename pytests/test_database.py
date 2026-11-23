@@ -27,18 +27,18 @@ class TestDatabase(unittest.TestCase):
         assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().enthalpy.val == -995581 # J/mol
         assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().entropy.val == -27.530000686646 # J/(mol*K)
         assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().heat_capacity_cp.val == 40.865230560303 # J/(mol*K)
-        assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().volume.val == 0.38507527112961 # J/bar
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[0] == 0.24940000474453003 # "cal/(mol*bar)"
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[1] == -169.08999633789
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[2] == 6.4145998954773
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[3] == -27091
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[4] == 16.743900299072
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[5] == -10465
-        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[6] == 53240
-        assert self.database.getSubstance("Quartz").thermoParameters().m_landau_phase_trans_props[2] == 0.11879999935626999
+        assert self.database.getSubstance("Al(OH)2+").thermoReferenceProperties().volume.val == pytest.approx(0.38507527112961, rel=1e-14) # J/bar
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[0] == pytest.approx(0.24940000474453003, rel=1e-14) # "cal/(mol*bar)"
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[1] == pytest.approx(-169.08999633789, rel=1e-14)
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[2] == pytest.approx(6.4145998954773, rel=1e-14)
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[3] == pytest.approx(-27091, rel=1e-14)
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[4] == pytest.approx(16.743900299072, rel=1e-14)
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[5] == pytest.approx(-10465, rel=1e-14)
+        assert self.database.getSubstance("Al(OH)2+").thermoParameters().HKF_parameters[6] == pytest.approx(53240, rel=1e-14)
+        assert self.database.getSubstance("Quartz").thermoParameters().m_landau_phase_trans_props[2] == pytest.approx(0.11879999935626999, rel=1e-14)
     def test_parsing_reaction(self):
         assert self.database.getReaction("Meionite-Ca").thermoReferenceProperties().log_equilibrium_constant.val == 80.875017 # "1"
-        assert self.database.getReaction("Meionite-Ca").thermoReferenceProperties().reaction_heat_capacity_cp.val == -2598.4849980000004 # J/(mol*K)
+        assert self.database.getReaction("Meionite-Ca").thermoReferenceProperties().reaction_heat_capacity_cp.val == pytest.approx(-2598.4849980000004, rel=1e-14) # J/(mol*K)
 
     def test_append_data(self):
         self.database.appendData('pytests/Substances/Solute/test-hkf-thermofun.json')
@@ -216,6 +216,6 @@ class TestDatabase(unittest.TestCase):
         self.database.addSubstance(substLit)
         subst = thermofun.Substance(substLit)
         assert self.database.getReaction("CoCl4-2R").equation() == "Co+2 + 4Cl- = CoCl4-2R"
-        assert self.database.getSubstance("Co+2_string_lit").thermoParameters().HKF_parameters[0] == -0.12252 # "cal/(mol*bar)"
+        assert self.database.getSubstance("Co+2_string_lit").thermoParameters().HKF_parameters[0] == pytest.approx(-0.12252, rel=1e-14) # "cal/(mol*bar)"
         assert subst.thermoReferenceProperties().gibbs_energy.val == -13000.0 # J/mol
 

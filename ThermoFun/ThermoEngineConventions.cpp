@@ -1,0 +1,294 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 ThermoFun contributors
+
+// A change of convention of the results: the engine is canonical inside.
+
+#include "ThermoEngineImpl.h"
+
+namespace ThermoFun
+{
+
+/// The sum of the entropies of the elements of a formula, for a change of the energy reference. A value that a record of the
+/// database does not give comes from the element table of ChemicalFun, with a warning.
+auto ThermoEngine::Impl::elementEntropy(const std::string& formula) const -> double
+{
+    std::lock_guard<std::mutex> entropy_lock(bound_cache->entropy_mutex);
+    const auto known = bound_cache->element_entropies.find(formula);
+    if (known != bound_cache->element_entropies.end())
+        return known->second;
+    const auto sources = database.elementEntropySources(formula);
+    const auto names = [](const std::vector<std::string>& list) {
+        std::string text;
+        for (const auto& name : list)
+            text += (text.empty() ? "" : ", ") + name;
+        return text;
+    };
+    if (!sources.missing.empty())
+        throw std::runtime_error("CNV-001: a conversion for " + formula + " needs the entropies of the elements " + names(sources.missing) + ", and no source has them.");
+    static std::mutex warned_mutex;
+    static std::set<std::string> warned;
+    std::lock_guard<std::mutex> lock(warned_mutex);
+    for (const auto& element : sources.from_table)
+        if (warned.insert(element).second)
+            thfun_logger->warn("CNV-006: the entropy of the element {} comes from the element table of ChemicalFun, not from the database", element);
+    return bound_cache->element_entropies[formula] = database.elementalEntropyFormula(formula);
+}
+
+/// What a conversion needs to know about a record
+auto ThermoEngine::Impl::subjectOf(const model::SubstanceRecord& record) const -> model::ConversionSubject
+{
+    model::ConversionSubject subject;
+    subject.Tr = record.reference_conditions.T;
+    subject.gas = record.aggregate_state == model::AggregateState::Gas;
+    subject.solute = record.class_ == model::SubstanceClass::AqueousSolute;
+    const auto formula = record.formula;
+    subject.element_entropy = [this, formula] { return elementEntropy(formula); };
+    subject.R = physics().R;
+    return subject;
+}
+
+/// The convention that the engine returns
+auto ThermoEngine::Impl::outputConvention() const -> model::Convention
+{
+    return model::mergeConvention({conventions.standard_state, conventions.energy_reference}, model::canonicalConvention());
+}
+
+/// The convention of the values of a record: its own, else that of the dataset
+auto ThermoEngine::Impl::declaredConvention(const model::SubstanceRecord& record) const -> model::Convention
+{
+    return model::mergeConvention(record.convention.value_or(model::Convention{}), database.thermoDataSet().convention);
+}
+
+auto ThermoEngine::Impl::waterAnchorOf(const model::SubstanceRecord& record) const -> model::WaterReference
+{
+    if (const auto own = model::anchorOf(record.convention ? record.convention->energy_reference.water : std::nullopt))
+        return *own;
+    return model::anchorOf(database.thermoDataSet().convention.energy_reference.water).value_or(model::WaterReference::HelgesonKirkham1974);
+}
+
+auto ThermoEngine::Impl::waterTripleOf(const Substance& substance) const -> WaterTripleProperties
+{
+    const auto solvent = boundSolvent(substance);
+    const std::string method = solvent && solvent->equation_of_state ? solvent->equation_of_state->spec().id : model::waterEquationOf(*substance.record());
+    return waterTripleData().at(model::waterTripleSet(waterAnchorOf(*substance.record()), method));
+}
+
+auto ThermoEngine::Impl::checkRequestedWater() const -> void
+{
+    if (conventions.energy_reference.ions == model::Ions::None)
+        throw std::invalid_argument("energy_reference.ions: the results are always on hydrogen_ion (H+ is 0, the electron from the standard hydrogen electrode); "
+                                    "none is a word for records that give their own values of H+ and e-.");
+    const auto requested = model::anchorOf(conventions.energy_reference.water);
+    if (!requested || !database.containsSubstance(solvent_in_use))
+        return;
+    const auto declared = waterAnchorOf(*database.getSubstance(solvent_in_use).record());
+    if (*requested != declared)
+        throw std::invalid_argument("energy_reference.water: the results cannot be asked for in " + model::toString(*requested) + ": the water of this dataset is " +
+                                    model::toString(declared) + ", and the engine does not convert between the two anchors (they are data of water, and the "
+                                    "species of a dataset are consistent with its own). Declare energy_reference.water on the dataset, or ask for steam_tables.");
+}
+
+/// Water from its anchor to the steam tables (sign -1), and back (sign 1)
+auto ThermoEngine::Impl::steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign, const WaterTripleProperties& wat) const -> void
+{
+    // the entropy has a constant added, so G and A have also a term linear in T: G = G(steam) + Gtr - Str (T - Ttr). The error and status are not changed
+    const double Ttr = model::builtinModelParameters("WaterHGK84", "reaktoro")->parameters.at("Ttr").value;
+    const double linear = wat.Str * (T - Ttr);
+    tps.gibbs_energy.val += sign * (wat.Gtr - linear);
+    tps.gibbs_energy.ddt -= sign * wat.Str;
+    tps.enthalpy.val += sign * wat.Htr;
+    tps.entropy.val += sign * wat.Str;
+    tps.helmholtz_energy.val += sign * (wat.Atr - linear);
+    tps.helmholtz_energy.ddt -= sign * wat.Str;
+    tps.internal_energy.val += sign * wat.Utr;
+}
+
+/// The density terms of a change between molarity and molality at T, P. V in J/bar.
+auto ThermoEngine::Impl::molarityTermsAt(double T, double& P, const std::string& what) const -> model::MolarityTerms<Reaktoro_::ThermoScalar>
+{
+    const auto symbol = solvent_in_use;
+    if (!database.containsSubstance(symbol))
+        throw std::runtime_error("CNV-002: " + what + " needs the solvent " + symbol + " for molarity, and the database does not have it.");
+    const auto s = cachedSolvent(T, P, symbol, -1);
+    Reaktoro_::ThermoScalar Ts(T);
+    Ts.ddt = 1.0;
+    auto m = model::molarityTerms(Ts, s.density, s.densityT, s.densityP, s.densityTT, physics().R);
+    m.V *= 1e5;
+    return m;
+}
+
+/// A change of convention of the properties of a substance
+auto ThermoEngine::Impl::convert(ThermoPropertiesSubstance &tps, const model::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void
+{
+    // a constant or linear in T: the error and status are not changed. A = U - T S follows S; G0 does not enter it.
+    if (defined(tps.gibbs_energy))
+    {
+        tps.gibbs_energy.val += shift.G0 + shift.G_per_K * T;
+        tps.gibbs_energy.ddt += shift.G_per_K;
+    }
+    if (defined(tps.entropy))
+        tps.entropy.val -= shift.G_per_K;
+    if (defined(tps.helmholtz_energy))
+    {
+        tps.helmholtz_energy.val += shift.G_per_K * T;
+        tps.helmholtz_energy.ddt += shift.G_per_K;
+    }
+    if (!shift.needsSolvent())
+        return;
+    const auto m = molarityTermsAt(T, P, symbol);
+    add(tps.gibbs_energy, shift.molarity, m.G);
+    add(tps.enthalpy, shift.molarity, m.H);
+    add(tps.entropy, shift.molarity, m.S);
+    add(tps.heat_capacity_cp, shift.molarity, m.Cp);
+    add(tps.volume, shift.molarity, m.V);
+    completeThermoProperties(tps, T, P, true);
+}
+
+/// The properties in the convention that the engine returns. Inside the engine all values are canonical.
+auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, double& P, const Substance& substance) const -> ThermoPropertiesSubstance
+{
+    if (outputConvention() == model::canonicalConvention())
+        return tps;
+    const auto record = substance.record();
+    const auto before = routeValues(tps);
+    if (record->class_ == model::SubstanceClass::WaterSolvent)
+    {
+        if (outputConvention().energy_reference.water == model::WaterReference::SteamTables)
+        {
+            steamTablesShift(tps, T, -1.0, waterTripleOf(substance));
+            addConversion(tps, before, "convention", "steam_tables");
+        }
+        return tps;
+    }
+    const auto out = outputConvention();
+    const auto shift = model::shiftFromCanonical(out, subjectOf(*record));
+    if (shift.identity())
+        return tps;
+    convert(tps, shift, T, P, record->symbol);
+    std::string words;
+    const auto label = [&](const std::string& word) { words += (words.empty() ? "" : ", ") + word; };
+    if (out.energy_reference.elements != model::EnergyReference::BensonHelgeson)
+        label(model::toString(*out.energy_reference.elements));
+    if (subjectOf(*record).gas && out.standard_state.pressure != 1e5)
+        label(model::standardPressureText(*out.standard_state.pressure));
+    if (subjectOf(*record).solute && out.standard_state.concentration_scale != model::ConcentrationScale::Molality)
+        label(model::toString(*out.standard_state.concentration_scale));
+    addConversion(tps, before, "convention", words);
+    return tps;
+}
+
+/// The reference properties of a substance in the canonical convention. They are the values at the reference temperature.
+auto ThermoEngine::Impl::canonicalReference(const Substance& substance) const -> ThermoPropertiesSubstance
+{
+    auto tps = substance.thermoReferenceProperties();
+    const auto record = substance.record();
+    const auto declared = declaredConvention(*record);
+    if (record->class_ == model::SubstanceClass::WaterSolvent)
+    {
+        if (declared.energy_reference.water == model::WaterReference::SteamTables)
+            steamTablesShift(tps, substance.referenceT(), 1.0, waterTripleOf(substance));
+        return tps;
+    }
+    if (declared == model::Convention{})
+        return tps;
+    const auto shift = model::shiftToCanonical(declared, subjectOf(*record));
+    if (!shift.identity())
+    {
+        double Pr = record->reference_conditions.P;
+        convert(tps, shift, record->reference_conditions.T, Pr, record->symbol);
+    }
+    return tps;
+}
+
+/// The change of a reaction for a change of convention of its species: the sum over the species. A balanced reaction has no change for the energy
+/// reference: the standard pressure and the concentration scale are what count.
+auto ThermoEngine::Impl::reactionShift(const Reaction& reaction, const model::Convention& convention, bool toCanonical) const -> model::ConventionShift
+{
+    model::Convention state = convention;
+    state.energy_reference.elements.reset();
+    model::ConventionShift sum;
+    if ((!state.standard_state.pressure || *state.standard_state.pressure == 1e5) &&
+        (!state.standard_state.concentration_scale || *state.standard_state.concentration_scale == model::ConcentrationScale::Molality))
+        return sum;
+    for (const auto& [symbol, coefficient] : reaction.reactants())
+    {
+        const auto subject = subjectOf(*database.getSubstance(symbol).record());
+        const auto shift = toCanonical ? model::shiftToCanonical(state, subject) : model::shiftFromCanonical(state, subject);
+        sum.G_per_K += coefficient * shift.G_per_K;
+        sum.molarity += coefficient * shift.molarity;
+    }
+    return sum;
+}
+
+/// A change of convention of the properties of a reaction
+auto ThermoEngine::Impl::convert(ThermoPropertiesReaction &tpr, const model::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void
+{
+    if (defined(tpr.reaction_gibbs_energy))
+    {
+        tpr.reaction_gibbs_energy.val += shift.G_per_K * T;
+        tpr.reaction_gibbs_energy.ddt += shift.G_per_K;
+    }
+    if (defined(tpr.reaction_entropy))
+        tpr.reaction_entropy.val -= shift.G_per_K;
+    if (defined(tpr.reaction_helmholtz_energy))
+    {
+        tpr.reaction_helmholtz_energy.val += shift.G_per_K * T;
+        tpr.reaction_helmholtz_energy.ddt += shift.G_per_K;
+    }
+    if (defined(tpr.ln_equilibrium_constant))
+        tpr.ln_equilibrium_constant.val -= shift.G_per_K / physics().R;
+    if (defined(tpr.log_equilibrium_constant))
+        tpr.log_equilibrium_constant.val -= shift.G_per_K / (physics().R * lg_to_ln);
+    if (!shift.needsSolvent())
+        return;
+    const auto m = molarityTermsAt(T, P, symbol);
+    const double Pbar = P / bar_to_Pa;
+    const auto U = m.H - Pbar * m.V;
+    const auto A = U - T * m.S;
+    Reaktoro_::ThermoScalar RT(physics().R * T);
+    RT.ddt = physics().R;
+    const auto lnK = -(m.G / RT);
+    add(tpr.reaction_gibbs_energy, shift.molarity, m.G);
+    add(tpr.reaction_enthalpy, shift.molarity, m.H);
+    add(tpr.reaction_entropy, shift.molarity, m.S);
+    add(tpr.reaction_heat_capacity_cp, shift.molarity, m.Cp);
+    add(tpr.reaction_heat_capacity_cv, shift.molarity, m.Cp);
+    add(tpr.reaction_volume, shift.molarity, m.V);
+    add(tpr.reaction_internal_energy, shift.molarity, U);
+    add(tpr.reaction_helmholtz_energy, shift.molarity, A);
+    add(tpr.ln_equilibrium_constant, shift.molarity, lnK);
+    add(tpr.log_equilibrium_constant, shift.molarity / lg_to_ln, lnK);
+}
+
+auto ThermoEngine::Impl::toOutput(ThermoPropertiesReaction tpr, double T, double& P, const Reaction& reaction) const -> ThermoPropertiesReaction
+{
+    if (outputConvention() == model::canonicalConvention())
+        return tpr;
+    const auto shift = reactionShift(reaction, outputConvention(), false);
+    if (!shift.identity())
+    {
+        const auto before = routeValues(tpr);
+        convert(tpr, shift, T, P, reaction.symbol());
+        const auto out = outputConvention();
+        std::string words;
+        if (out.standard_state.pressure && *out.standard_state.pressure != 1e5)
+            words = model::standardPressureText(*out.standard_state.pressure);
+        if (out.standard_state.concentration_scale && *out.standard_state.concentration_scale != model::ConcentrationScale::Molality)
+            words += (words.empty() ? "" : ", ") + model::toString(*out.standard_state.concentration_scale);
+        addConversion(tpr, before, "convention", words);
+    }
+    return tpr;
+}
+
+auto ThermoEngine::Impl::reactionOfSymbol(const std::string& symbol) const -> Reaction
+{
+    if (!database.containsReaction(symbol) && symbol.find("=") != std::string::npos)
+    {
+        Reaction reaction;
+        reaction.fromEquation(symbol);
+        return reaction;
+    }
+    return database.getReaction(symbol);
+}
+
+} // namespace ThermoFun

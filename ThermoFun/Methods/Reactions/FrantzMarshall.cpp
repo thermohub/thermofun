@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#include "FrantzMarshall.h"
+
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+auto thermoPropertiesFrantzMarshall(real TK, real Pbar, const ReactionInputs& reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
+{
+    ThermoPropertiesReactionAD tpr;
+
+//    auto ref_tpr = reaction.thermoReferenceProperties();
+    auto RHO = wp.density/1000; // in g/cm3
+    auto ALP = wp.Alpha;
+    auto BET = wp.Beta*1e05;
+    auto dALPdT = wp.dAldT;
+    auto MFcoef = reaction.coefficients;
+
+    auto dRHOdT = -ALP*RHO;
+    auto dRHOdP = BET*RHO;
+    auto d2RHOdT2 = RHO*(pow(ALP,2)-dALPdT);
+
+    auto a = MFcoef[0];
+    auto b = MFcoef[1];
+    auto c = MFcoef[2];
+    auto d = MFcoef[3];
+    auto e = MFcoef[4];
+    auto f = MFcoef[5];
+    auto g = MFcoef[6];
+
+    auto logK = a + b/TK + c/pow(TK,2.) + d/pow(TK,3.) + ( e + f/TK + g/pow(TK,2.) )*log10(RHO);
+
+    auto J  = a + b/TK + c/pow(TK,2.) + d/pow(TK,3.) + ( e + f/TK + g/pow(TK,2.) )*log10(RHO);
+    auto dJ = - b/pow(TK,2.) - 2.*c/pow(TK,3.) - 3.*d/pow(TK,4.)
+              + ( -f/pow(TK,2.) - 2.*g/pow(TK,3.) )*log10(RHO)
+              + ( e + f/TK + g/pow(TK,2.) ) * 1./(RHO*log(10.)) * dRHOdT;
+    auto d2J = 2.*b/pow(TK,3.) + 6.*c/pow(TK,4.) + 12.*d/pow(TK,5.)
+               + ( 2.*f/pow(TK,3.) + 6.*g/pow(TK,4.) )*log10(RHO)
+               + 2.*( -f/pow(TK,2.) -2.*g/pow(TK,3.) ) * 1./(RHO*log(10.)) * dRHOdT
+               - ( e + f/TK + g/pow(TK,2.) ) * 1./(pow(RHO,2.)*log(10.)) * pow (dRHOdT,2.)
+               + ( e + f/TK + g/pow(TK,2.) ) * 1./(RHO*log(10.)) * d2RHOdT2;
+
+    auto dGr  = - reaction.R*TK*log(10.)*logK;
+    auto dSr  = reaction.R*log(10.)*( J + dJ*TK );
+    auto dCPr = reaction.R*log(10.)*TK*( 2.*dJ + d2J*TK );
+    auto dVr  = - reaction.R*log(10.)*TK*( ( e + f/TK + g/pow(TK,2.) ) * 1./(RHO*log(10.)) * dRHOdP );
+    auto dHr  = dGr + dSr*TK;
+    auto dUr  = dHr - Pbar*dVr;
+    auto dAr  = dUr - TK*dSr;
+
+    tpr.ln_equilibrium_constant    = logK*lg_to_ln;
+    tpr.log_equilibrium_constant   = logK;
+    tpr.reaction_enthalpy          = dHr;
+    tpr.reaction_entropy           = dSr;
+    tpr.reaction_gibbs_energy      = dGr;
+    tpr.reaction_heat_capacity_cp  = dCPr;
+    tpr.reaction_volume            = dVr;
+    tpr.reaction_helmholtz_energy  = dAr;
+    tpr.reaction_internal_energy   = dUr;
+
+    return tpr;
+}
+
+
+}

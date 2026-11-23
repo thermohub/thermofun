@@ -1,0 +1,12 @@
+# G with its derivatives by T and P, for substances.
+conditions:
+  T: {from: 25, to: 300, step: 25, unit: degC}
+  P: {values: [1, 1000], unit: bar}
+results:
+  - name: derivatives
+    substances: []
+    properties:
+      - G
+      - {name: G, show: ddt}
+      - {name: G, show: ddp}
+    output: {file: derivatives.csv}

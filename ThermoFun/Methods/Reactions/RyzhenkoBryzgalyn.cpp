@@ -1,0 +1,86 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#include "RyzhenkoBryzgalyn.h"
+
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+auto thermoPropertiesRyzhenkoBryzgalin(real TK, real Pbar, const ReactionInputs& reaction, const PropertiesSolventAD& wp) -> ThermoPropertiesReactionAD
+{
+
+    ThermoPropertiesReactionAD tpr;
+
+//    auto ref_tpr = reaction.thermoReferenceProperties();
+    auto RHO = wp.density / 1000; // check units
+    auto ALP = wp.Alpha;
+    auto BET = wp.Beta;
+    auto dALPdT = wp.dAldT;
+    auto RBcoef = reaction.coefficients;
+
+    auto dRHOdT = -ALP*RHO;
+    auto dRHOdP = BET*RHO;
+    auto d2RHOdT2 = RHO*(pow(ALP,2)-dALPdT);
+
+    auto pK298 = RBcoef[0];
+    auto A = RBcoef[1];
+    auto B = RBcoef[2];
+
+    const double a = reaction.constants[0];
+    const double b = reaction.constants[1];
+    const double c = reaction.constants[2];
+    const double d = reaction.constants[3];
+    const double e = reaction.constants[4];
+    const double f = reaction.constants[5];
+    const double g = reaction.constants[6];
+    const double RHO298 = reaction.constants[7];
+    const double zzH2O = reaction.constants[8];
+
+    auto pKw298 = -(a + b/298.15 + c/pow(298.15,2.) + d/pow(298.15,3.)
+        + ( e + f/298.15 + g/pow(298.15,2.))*log10(RHO298));
+
+    auto pKwTP = -(a + b/TK + c/pow(TK,2.) + d/pow(TK,3.)
+        + ( e + f/TK + g/pow(TK,2.))*log10(RHO));
+
+    auto zzA    = A + B/TK;
+    auto BB     = ( pKwTP - pKw298*(298.15)/TK ) / zzH2O;
+    auto pKTP   = pK298*(298.15/TK ) + zzA*BB;
+    auto logKTP = - pKTP;
+    auto dGr    = pKTP*log(10.)*reaction.R*TK;
+    auto dG298  = pK298*log(10.)*reaction.R*298.15;
+
+    auto I   = a*TK + b + c/TK + d/pow(TK,2.)
+               + ( e*TK + f + g/TK ) * log10(RHO) - (-pKw298)*298.15;
+    auto J   = A + B/TK;
+    auto dI  = a - c/pow(TK,2.) - 2.*d/pow(TK,3.) + ( e - g/pow(TK,2.) ) * log10(RHO)
+               + ( e*TK + f + g/TK) * 1./(RHO*log(10.)) * dRHOdT;
+    auto dJ  = -B/pow(TK,2.);
+    auto d2I = 2.*c/pow(TK,3.) + 6.*d/pow(TK,4.) + 2.*g/pow(TK,3.)*log10(RHO)
+               + 2.*( e - g/pow(TK,2.) ) * 1./(RHO*log(10.)) * dRHOdT
+               - ( e*TK + f + g/TK ) * 1./(pow(RHO,2.)*log(10.)) * pow(dRHOdT,2.)
+               + ( e*TK + f + g/TK ) * 1./(RHO*log(10.)) * d2RHOdT2;
+    auto d2J = 2.*B/pow(TK,3.);
+
+    auto dSr  = reaction.R*log(10.)/zzH2O * ( dI*J + dJ*I );
+    auto dCPr = reaction.R*log(10.)/zzH2O * TK * ( d2I*J + 2.*dI*dJ + d2J*I );
+    auto dVr  = - reaction.R*log(10.)/zzH2O * ( e*TK + f + g/TK ) * 1./(RHO*log(10.))
+                * dRHOdP * ( A + B/TK);
+    auto dHr  = dGr + dSr*TK;
+    auto dUr  = dHr - Pbar*dVr;
+    auto dAr  = dUr - TK*dSr;
+
+    tpr.ln_equilibrium_constant    = logKTP*lg_to_ln;
+    tpr.log_equilibrium_constant   = logKTP;
+    tpr.reaction_gibbs_energy      = dGr;
+    tpr.reaction_entropy           = dSr;
+    tpr.reaction_enthalpy          = dHr;
+    tpr.reaction_heat_capacity_cp  = dCPr;
+    tpr.reaction_volume            = dVr*1e5; // to J/bar
+    tpr.reaction_helmholtz_energy  = dAr;
+    tpr.reaction_internal_energy   = dUr;
+
+    return tpr;
+}
+
+}

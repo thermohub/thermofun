@@ -29,4 +29,3 @@ endforeach()
 
 add_library(installed-headers OBJECT ${sources})
 target_link_libraries(installed-headers PRIVATE ThermoFun::ThermoFun)
-target_compile_features(installed-headers PRIVATE cxx_std_20)

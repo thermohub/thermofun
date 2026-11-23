@@ -1,0 +1,131 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#include "Methods/Solutes/SoluteHollandPowell98.h"
+
+#include "Common/Exception.h"
+#include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Common/Constants.h>
+
+namespace ThermoFun {
+
+auto thermoPropertiesAqSoluteHP98(real TK, real Pbar, const SoluteReference& reference, const std::vector<real>& parameters, const std::string& symbol, const PropertiesSolventAD&wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+{
+    auto T = TK;
+    ThermoPropertiesSubstanceAD tps;
+    double T298 = reference.T;
+    real G298 = reference.G;
+    real H298 = reference.H;
+    real S298 = reference.S;
+    real V298 = reference.V; // J/bar
+    real Cp298 = reference.Cp;
+
+//    // props given in HP98 page 314
+//    ALPw298 = 0.0002593; // 1/K
+//    BETw298 = 0.00004523; // 1/bar
+//    dALPdTw298 = 0.0000095714; // 1/K^2
+//    RHOw298 = 0.997; // g/cm^3
+    double ALPw298 = wpr.Alpha.val();
+    double BETw298 = wpr.Beta.val()*1e5; // 1/bar
+    double dALPdTw298 = wpr.dAldT.val();
+    double RHOw298 = wpr.density.val()/1000; // g/cm3
+
+    const auto& HP98param = parameters;
+
+    // EOS coefficients
+    if (HP98param.size()<1)
+    {
+        Exception exception;
+        exception.error << "Error in Holland and Powell aq solute model";
+        exception.reason << "There are no model parameters given for "<<symbol << ".";
+        exception.file = __FILE__;
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+
+
+    auto b = HP98param[0];
+    auto RHOw = wp.density/1000; // g/cm3
+    auto ALPw = wp.Alpha;
+    auto BETw = wp.Beta*1e5; // 1/bar
+    auto dALPdTw = wp.dAldT;
+
+    // T' = T below 500 K (it varies with T, so it carries the derivative), constant 500 K above
+    real Tprime = (T <= 500) ? T : real(500.0);
+
+    // k * (alpha298 (T - T298) - beta298 P + u ln(rho/rho298)) is the density term of G, u = T/T' (1 up to 500 K)
+    const auto k = ( Cp298 - T298*b )/( T298*dALPdTw298 );
+    const auto L = log(RHOw/RHOw298);
+    const auto u = T/Tprime;
+    const double du = (T <= 500) ? 0.0 : 1.0/500.0; // du/dT
+    auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + k*( ALPw298*(T - T298) - BETw298*Pbar + u*L );
+    // S = -dG/dT, V = dG/dP, Cp = T dS/dT and H = G + T S + constant are exact derivatives of G (d ln(rho)/dT = -alpha)
+    auto S = S298 - b*(T298 - T) - k*( ALPw298 + du*L - u*ALPw );
+    auto V = V298 + k*( -BETw298 + u*BETw );
+    auto Cp = T*( b + k*( 2.0*du*ALPw + u*dALPdTw ) );
+    // G is apparent: it holds another constant than H, as the difference of the reference values says
+    auto H = G + T*S + (H298 - G298 - T298*S298);
+
+    tps.gibbs_energy     = G;
+    tps.volume           = V;
+    tps.entropy          = S;
+    tps.heat_capacity_cp = Cp;
+    tps.enthalpy         = H;
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+    tps.helmholtz_energy = tps.internal_energy - T*tps.entropy;
+
+    return tps;
+}
+
+
+
+auto thermoPropertiesAqSoluteHP98Published(real TK, real Pbar, const SoluteReference& reference, const std::vector<real>& parameters, const std::string& symbol, const PropertiesSolventAD& wpr,  const PropertiesSolventAD& wp) -> ThermoPropertiesSubstanceAD
+{
+    auto T = TK;
+    ThermoPropertiesSubstanceAD tps;
+    double T298 = reference.T;
+    real G298 = reference.G;
+    real H298 = reference.H;
+    real S298 = reference.S;
+    real V298 = reference.V; // J/bar
+    real Cp298 = reference.Cp;
+    double ALPw298 = wpr.Alpha.val();
+    double BETw298 = wpr.Beta.val()*1e5; // 1/bar
+    double dALPdTw298 = wpr.dAldT.val();
+    double RHOw298 = wpr.density.val()/1000; // g/cm3
+    if (parameters.empty())
+    {
+        Exception exception;
+        exception.error << "Error in Holland and Powell aq solute model";
+        exception.reason << "There are no model parameters given for "<<symbol << ".";
+        exception.file = __FILE__;
+        exception.line = __LINE__;
+        RaiseError(exception);
+    }
+    auto b = parameters[0];
+    auto RHOw = wp.density/1000; // g/cm3
+    auto ALPw = wp.Alpha;
+    auto BETw = wp.Beta*1e5; // 1/bar
+    auto dALPdTw = wp.dAldT;
+
+    // T' = T below 500 K, 500 K above: a constant here, as in the paper (the derivative of T' is not carried)
+    const double Tprime = (T.val() <= 500) ? T.val() : 500.0;
+
+    auto G_bb = H298 - T*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
+    auto G = G298 - (T - T298)*S298 + Pbar*V298 + b*( T298*T - pow(T298,2)/2 - pow(T,2)/2 ) + ( Cp298 - T298*b )/( T298*dALPdTw298 )*( ALPw298*(T - T298) - BETw298*Pbar + (T/Tprime)*log(RHOw/RHOw298) );
+    auto S = S298 - b*(T298 - T) - (Cp298 - T298*b)/(T298*dALPdTw298)*(ALPw298 - log(RHOw/RHOw298)/Tprime - (T/Tprime)*ALPw);
+    auto V = V298 + (Cp298 - T298*b)/(T298*dALPdTw298)*( -BETw298 + T/Tprime*BETw );
+    auto Cp = T*(b - ((T298*b - Cp298)*(T*dALPdTw))/(T298*dALPdTw298*Tprime));
+    auto H = G_bb + T*S298;
+
+    tps.gibbs_energy     = G;
+    tps.volume           = V;
+    tps.entropy          = S;
+    tps.heat_capacity_cp = Cp;
+    tps.enthalpy         = H;
+    tps.internal_energy  = tps.enthalpy - Pbar*tps.volume;
+    tps.helmholtz_energy = tps.internal_energy - T*tps.entropy;
+    return tps;
+}
+
+}

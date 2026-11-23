@@ -43,6 +43,7 @@ void exportOutput(py::module& m)
         .def("toDouble", &Output::toDouble)
         .def("toThermoScalar", &Output::toThermoScalar)
         .def("to2DVectorDouble", &Output::to2DVectorDouble, "returns a list of results")
+        .def("provenance", &Output::provenance, "how the results were made: lines of text")
         ;
 }
 }

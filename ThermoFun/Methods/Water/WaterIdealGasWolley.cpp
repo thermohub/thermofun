@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2019-2026 ThermoFun contributors
+
+#include "Methods/Water/WaterIdealGasWolley.h"
+#include <ThermoFun/Common/Constants.h>
+#include <ThermoFun/Common/ThermoProperties.h>
+
+namespace ThermoFun {
+
+auto waterIdealGas (real t, real /*p*/) -> ThermoPropertiesSubstanceAD
+{
+    ThermoPropertiesSubstanceAD tp;
+    int i=1;
+    real  tt, tl, emult, Gig, Hig, Cpig, Cvig, Sig, Aig, Uig;
+    double c[18]={ .19730271018e2,    .209662681977e2,  -.483429455355e0,
+                   .605743189245e1,   .2256023885e2,    -.987532442e1,
+                   -.43135538513e1,    .458155781e0,     -.47754901883e-1,
+                   .41238460633e-2,  -.27929052852e-3,   .14481695261e-4,
+                   -.56473658748e-6,   .16200446e-7,     -.3303822796e-9,
+                   .451916067368e-11,-.370734122708e-13, .137546068238e-15 };
+
+    real dH0k;  // enthalpy of ideal gas water at 0 K (kJ)
+    dH0k = 0.0;
+    dH0k += (-182161.88);
+
+//    tt  = t / 1.0e2;
+//    tl  = log(tt);
+    Gig  = - (c[0] / (t / 1.0e2) + c[1]) * log(t / 1.0e2);
+    Hig  = (c[1] + c[0] * (1.0e0 - log(t / 1.0e2)) / (t / 1.0e2));
+    Cpig = c[1] - c[0] / (t / 1.0e2);
+
+    while ( ++i <= 17 )
+    {
+        emult = pow((t / 1.0e2),((double)i - 5.));
+        Gig  -= c[i] * emult;
+        Hig  += c[i] * (i-5) * emult;
+        Cpig += c[i] * (i-5) * (i-4) * emult;
+    }
+
+    Aig  = Gig - 1.0e0;
+    Uig  = Hig - 1.0e0;
+    Cvig = Cpig - 1.0e0;
+    Sig  = Uig - Aig;
+
+    tp.enthalpy         = Hig * R_CODATA1986 * t + dH0k;
+    tp.entropy          = Sig * R_CODATA1986;
+    tp.gibbs_energy     = Gig * R_CODATA1986 * t + dH0k;
+    tp.heat_capacity_cp = Cpig * R_CODATA1986;
+    tp.heat_capacity_cv = Cvig * R_CODATA1986;
+    tp.helmholtz_energy = Aig * R_CODATA1986 * t + dH0k;
+    tp.internal_energy  = Uig * R_CODATA1986 * t + dH0k;
+
+    return tp;
+}
+
+
+auto waterIdealGasProperties(double T, double P) -> ThermoPropertiesSubstance
+{
+    auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
+        return waterIdealGas(pass.T, pass.P);
+    });
+    tps.volume = Reaktoro_::ThermoProperty(); // the volume is not calculated
+    return tps;
+}
+
+}

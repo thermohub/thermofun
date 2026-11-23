@@ -13,6 +13,8 @@
 #include <ThermoFun/GlobalVariables.h>
 
 namespace ThermoFun {
+
+namespace model { struct ReactionRecord; }
 struct ThermoParametersReaction;
 
 /**
@@ -140,6 +142,13 @@ public:
 
     /// Return the pressure correction method code
     auto method_P() const  -> MethodCorrP_Thrift::type;
+
+    /// The record of this object, in SI units, if it was read from a legacy JSON text and not changed since.
+    /// An old setter clears it: the object then has only the old fields. Empty for an object made by the setters.
+    auto record() const -> std::shared_ptr<const model::ReactionRecord>;
+
+    /// An object of a record of any format.
+    explicit Reaction(std::shared_ptr<const model::ReactionRecord> record);
 
     /**
      * @brief jonString

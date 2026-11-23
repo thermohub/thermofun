@@ -41,8 +41,8 @@ public:
     /**
      * @brief toCSVPropertyGrid write results to CSV file in a property grid format
      * one file will be created for each property
-     * if loopTemperatureThenPressure in BatchPreferences is True the grid will have T in horizontal and P in vertical
-     * if loopTemperatureThenPressure in BatchPreferences is False the grid will have P in horizontal and T in vertical
+     * if loopTemperatureThenPressure in BatchPreferences is True the grid will have P in horizontal and T in vertical
+     * if loopTemperatureThenPressure in BatchPreferences is False the grid will have T in horizontal and P in vertical
      * @param filename will be modified to include the property name
      */
     auto toCSVPropertyGrid      (std::string filename) -> void;
@@ -65,10 +65,17 @@ public:
      */
     auto to2DVectorDouble       () -> std::vector<std::vector<double>>;
 
+    /**
+     * @brief provenance
+     * @return how the results were made: lines of text. With writeProvenance in BatchPreferences they are at the top of a CSV file
+     */
+    auto provenance             () -> std::vector<std::string>;
+
 private:
     struct Impl;
     std::shared_ptr<Impl> pimpl;
 
+    auto foutProvenance       () -> void;
     auto CSVHeader            () -> std::string;
     auto CSVHeaderTransposed  () -> std::string;
     auto CSVHeaderPropertyGrid() -> std::string;

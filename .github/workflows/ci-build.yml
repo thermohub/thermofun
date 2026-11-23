@@ -5,6 +5,7 @@ on:
       - no_aqueous_phase
       - master
       - main
+      - v2
   pull_request:
     branches:
       - main
@@ -35,6 +36,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check the includes of the layers
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          python3 tests/layers/check_includes.py
+          python3 tests/layers/public_headers.py
+
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v4
         with:
@@ -55,7 +62,8 @@ jobs:
         run: |
           conda activate thermofun
           mkdir .build && cd .build
-          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON
+          # the checks of libstdc++ stop a read outside a vector, which a Release build lets pass in silence
+          CXXFLAGS="$CXXFLAGS -D_GLIBCXX_ASSERTIONS" cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON -DTFUN_USE_SYMENGINE=ON
           ninja
           ninja install
           python -c "import thermofun"
@@ -75,12 +83,42 @@ jobs:
           conda activate thermofun
           ctest --test-dir .build --output-on-failure -R installed-headers
 
+      # Linux and macOS (arm64): the numbers of the tests must hold on both (review S10)
       - name: Running tests
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os != 'windows-latest'
         shell: bash -l {0}
         run: |
           conda activate thermofun
           pytest -ra -vv --color=yes .
+
+      - name: Building the examples
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          for e in cmake-project solute-anderson91 solute-hp98; do
+            cmake -S "examples/$e" -B "examples/build/$e" -G Ninja
+            cmake --build "examples/build/$e"
+          done
+
+      - name: Generating the v2 copies of the bundled databases
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          mkdir -p v2-copies
+          for f in Resources/databases/*.json; do
+            n=$(basename "$f" .json)
+            python -m thermofun.convert "$f" "v2-copies/$n.yaml" --format yaml --readable --report "v2-copies/$n-report.md"
+            python -m thermofun.validate "v2-copies/$n.yaml" > "v2-copies/$n-validate.txt" || true
+          done
+
+      - name: Keeping the v2 copies of the bundled databases
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-copies
+          path: v2-copies
 
       - name: Building, Testing & Installing thermofun (Windows)
         if: matrix.os == 'windows-latest'
@@ -104,3 +142,113 @@ jobs:
           conda config --show
           conda list --show-channel-urls
 
+
+  # Records never change, and threads can share them: tests/model/test_records_immutable.cpp
+  thread-sanitizer:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-activate: false
+          activate-environment: base
+          channels: conda-forge
+
+      - name: Configuring Conda Environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda run -n base python -m conda_devenv
+
+      - name: Build with ThreadSanitizer
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          cmake -S . -B build-tsan -G Ninja -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON -DTFUN_BUILD_PYTHON=OFF \
+                -DCMAKE_CXX_FLAGS="-fsanitize=thread -g1" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=thread"
+          # full debug information fills the memory of the runner when the library links
+          cmake --build build-tsan -j 2 --target test-records-immutable
+
+      - name: Run with ThreadSanitizer
+        shell: bash -l {0}
+        run: |
+          # ThreadSanitizer cannot map its memory with the high address randomization of the runners
+          sudo sysctl vm.mmap_rnd_bits=28
+          conda activate thermofun
+          ./build-tsan/tests/model/test-records-immutable
+
+  # Compare every record of every database with the build of the tag golden-baseline
+  golden-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          auto-activate: false
+          activate-environment: base
+          channels: conda-forge
+
+      - name: Configuring Conda Environment
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda run -n base python -m conda_devenv
+
+      - name: Key of the baseline cache
+        id: key
+        shell: bash -l {0}
+        run: |
+          mkdir -p .golden-baseline
+          bash pytests/golden/build_baseline.sh --options > .golden-baseline/options.txt
+          echo "sha=$(git rev-parse 'golden-baseline^{commit}')" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the baseline build
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .golden-baseline/install
+          key: golden-baseline-${{ steps.key.outputs.sha }}-${{ hashFiles('environment.devenv.yml', 'pytests/golden/build_baseline.sh', '.golden-baseline/options.txt') }}
+
+      - name: Build the baseline
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          bash pytests/golden/build_baseline.sh
+
+      - name: Build and install the pull request
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          mkdir .build && cd .build
+          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DTFUN_BUILD_TESTS=ON
+          ninja
+          ninja install
+
+      - name: Compare with the baseline
+        shell: bash -l {0}
+        run: |
+          conda activate thermofun
+          python pytests/golden/compare_builds.py --base .golden-baseline/install --max-report 50 | tee golden-diff-report.txt
+
+      - name: Upload the report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-diff-report
+          path: golden-diff-report.txt

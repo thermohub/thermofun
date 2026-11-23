@@ -26,6 +26,7 @@
 namespace py = pybind11;
 
 // ThermoFun includes
+#include <ThermoFun/Model/Records.h>
 #include <ThermoFun/Element.h>
 
 namespace ThermoFun {
@@ -57,6 +58,7 @@ void exportElement(py::module& m)
         .def("class_", &Element::class_, "Return the class of the element (as in element.thrift)")
         .def("isotopeMass", &Element::isotopeMass, "Return the rounded isotopic mass of the element")
         .def("number", &Element::number, "Return the Mendeleev table number of the element")
+        .def("record", [](const Element& x) { return *x.record(); }, "The record (a copy)")
         .def("jsonString", &Element::jsonString, "Return the record as a json string")
         .def("__str__", [](const Element& self) { std::stringstream ss; ss << self; return ss.str(); })
         ;

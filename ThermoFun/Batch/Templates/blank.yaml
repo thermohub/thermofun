@@ -1,0 +1,9 @@
+# The smallest batch setup: replace each <...>, then run it (tf.batch, python -m thermofun.batch).
+database: <path of the database>
+conditions:
+  T: {values: [<temperatures>], unit: degC}
+  P: {values: [<pressures>], unit: bar}
+results:
+  - name: <name of the result>
+    substances: [<symbols>]
+    properties: [G, H, S, Cp, V]
