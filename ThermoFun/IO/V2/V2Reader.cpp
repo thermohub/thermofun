@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ThermoFun contributors
 
+#include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/Common/Exception.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
@@ -33,6 +34,8 @@ auto optionalString(const json& node, const char* key) -> std::string
 auto stringList(const json& node, const char* key) -> std::vector<std::string>
 {
     std::vector<std::string> out;
+    if (node.contains(key) && node[key].is_string())   // a string is a list of one
+        out.push_back(node[key].get<std::string>());
     if (node.contains(key) && node[key].is_array())
         for (const auto& item : node[key])
             if (item.is_string())
@@ -301,18 +304,33 @@ auto checkMethodDefinition(const MethodDefinition& method, Diagnostics& diagnost
                "The method " + spec->id + " operates on " + toString(spec->operates_on) + ", not on " + toString(method.operates_on));
     if (!method.contributes_to.empty())
     {
-        std::set<std::string> contributes;
-        auto add = [&](Effect effect, const char* name) {
-            if (effect == Effect::Set || effect == Effect::Add)
-                contributes.insert(name);
+        // the built-in method: property -> sets, adds or uses
+        std::map<std::string, std::string> builtin;
+        auto add = [&](Contribution contribution, const char* name) {
+            if (contribution != Contribution::None)
+                builtin[name] = contribution == Contribution::Sets ? "sets" : contribution == Contribution::Adds ? "adds" : "uses";
         };
-        const auto& e = spec->effects;
-        const auto& r = spec->reaction_effects;
+        const auto& e = spec->contributes_to;
+        const auto& r = spec->reaction_contributes_to;
         add(e.G, "G"), add(e.H, "H"), add(e.S, "S"), add(e.Cp, "Cp"), add(e.V, "V");
         add(r.logK, "logK"), add(r.dG, "dG"), add(r.dH, "dH"), add(r.dS, "dS"), add(r.dCp, "dCp"), add(r.dV, "dV");
-        if (std::set<std::string>(method.contributes_to.begin(), method.contributes_to.end()) != contributes)
+        bool same = true;
+        if (method.contributes_to_list)
+        {
+            // the short list names the properties that the method gives (sets or adds)
+            std::set<std::string> given, listed;
+            for (const auto& [name, word] : builtin)
+                if (word != "uses")
+                    given.insert(name);
+            for (const auto& [name, word] : method.contributes_to)
+                listed.insert(name);
+            same = given == listed;
+        }
+        else
+            same = std::map<std::string, std::string>(method.contributes_to.begin(), method.contributes_to.end()) == builtin;
+        if (!same)
             report(c, Severity::Error, "V2-MTH-011", method.symbol, path + "/contributes_to",
-                   "The method " + spec->id + " does not contribute to the same properties.");
+                   "The method " + spec->id + " does not contribute to the same properties in the same way.");
     }
 }
 
@@ -349,9 +367,10 @@ auto resolveV2Document(const V2Document& document, Diagnostics& diagnostics) -> 
     for (const auto& s : document.substances)
     {
         checkApplications(s.symbol, s.methods);
-        if (!s.data_source.empty() && !sources.empty() && !sources.count(s.data_source))
-            report(c, Severity::Warning, "V2-REF-005", s.symbol, "/substances/" + s.symbol + "/data_source",
-                   "The data source " + s.data_source + " is not in the document.");
+        for (std::size_t i = 0; i < s.data_sources.size(); ++i)
+            if (isReferenceCode(s.data_sources[i]) && !sources.empty() && !sources.count(s.data_sources[i]))
+                report(c, Severity::Warning, "V2-REF-005", s.symbol, "/substances/" + s.symbol + "/data_sources/" + std::to_string(i),
+                       "The data source " + s.data_sources[i] + " is not in the document.");
     }
     for (const auto& r : document.reactions)
         checkApplications(r.symbol, r.methods);

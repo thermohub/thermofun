@@ -4,6 +4,7 @@
 #ifndef THERMOFUN_METHODS_SYMBOLIC_SYMBOLICMETHOD_H
 #define THERMOFUN_METHODS_SYMBOLIC_SYMBOLICMETHOD_H
 
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -33,7 +34,7 @@ auto symbolicMethod(const MethodDefinition& definition, const MethodApplication&
 auto isSymbolicReactionDefinition(const MethodDefinition& definition) -> bool;
 
 /// The method object of a Method record for a reaction, with its reference values.
-auto symbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record) -> std::shared_ptr<const ReactionMethod>;
+auto symbolicReactionMethod(const MethodDefinition& definition, const MethodApplication& application, const ReactionRecord& record, double R = R_CONSTANT) -> std::shared_ptr<const ReactionMethod>;
 
 /// The checks of a symbolic Method record: its expressions (V2-SYM-001, 002, 006), its source (003), its test cases (004) and its units (005).
 auto checkSymbolicDefinition(const MethodDefinition& definition, Diagnostics& diagnostics) -> void;

@@ -1,0 +1,10 @@
+# G of substances on a grid: T down and P across.
+conditions:
+  T: {from: 25, to: 500, step: 25, unit: degC}
+  P: {values: [1, 500, 1000, 2000, 5000], unit: bar}
+results:
+  - name: grid
+    substances: []
+    properties:
+      - {name: G, unit: kJ/mol, digits: 3}
+    output: {file: grid.csv, layout: grid}

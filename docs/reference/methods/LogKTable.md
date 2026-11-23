@@ -8,6 +8,7 @@ Interpolates a table of log K(T), with Lagrange polynomials or a cubic spline.
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -27,7 +28,7 @@ reactions:
     methods:
       - method: LogKTable
         interpolation: lagrange
-        order: 3
+        interpolation_order: 3
         table:
           temperatures: [273.15, 298.15, 323.15, 348.15, 373.15]
           logK: [-8.3814, -8.4798, -8.6628, -8.9266, -9.2665]

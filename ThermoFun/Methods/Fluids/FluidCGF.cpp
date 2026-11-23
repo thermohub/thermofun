@@ -16,7 +16,7 @@ namespace {
 
 /// The constants of the model.
 const real DELTA = 0.00001;
-const real R = R_CONSTANT;
+const real R = R_CODATA1986;
 constexpr int FIRSTSEED = 15;
 constexpr int NPOINT = 5;
 const real ROMIN = 1.E-2;
@@ -44,7 +44,7 @@ auto pureFluidOf(const real* data, const ThermoFun::cgf::Constants& k) -> PureFl
 /// The state of one calculation.
 struct Work
 {
-    real Tk, Pbar, R_CONST = R_CONSTANT;
+    real Tk, Pbar, R_CONST = R_CODATA1986;
     bool gems = false;  ///< the formulas of GEMS: S and H of the residual at the density, not at the pressure
     real Grs, Hrs, Srs, CPrs, Vrs;
     const ThermoFun::cgf::Constants* k = nullptr;
@@ -84,7 +84,7 @@ long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps)
     {
         retCode = CGFugacityPT(*w.k, Coeff, Eos4parPT, Fugacity, Volume, P, T, roro );
         FugProps[0] = Fugacity/w.Pbar;
-        FugProps[1] = R_CONSTANT * w.Tk * log( Fugacity / P );
+        FugProps[1] = R_CODATA1986 * w.Tk * log( Fugacity / P );
         FugProps[4] = Volume;
         CGResidualFunctPure(w, Coeff, roro, T );
         FugProps[2] = w.Hrs;
@@ -97,7 +97,7 @@ long int CGcalcFugPure(Work& w, real Tmin, real *Cemp, real *FugProps)
         for( int i=1; i<6; i++ )
             FugProps[i] = 0.;
         FugProps[0] = 1.;
-        FugProps[4] = R_CONSTANT*w.Tk/w.Pbar;
+        FugProps[4] = R_CODATA1986*w.Tk/w.Pbar;
         return -1;
     }
 }
@@ -431,7 +431,7 @@ auto thermoPropertiesFluidCGF(real TK, real Pbar, const FluidInputs& subst, Ther
     CGcalcFugPure(work, TClow, CPg, FugProps);
 
     // increment thermodynamic properties
-    tps.gibbs_energy += R_CONSTANT * (TK) * log( FugProps[0] );
+    tps.gibbs_energy += R_CODATA1986 * (TK) * log( FugProps[0] );
     tps.enthalpy     += FugProps[2];
     tps.entropy      += FugProps[3];
     tps.volume        = FugProps[4];
@@ -439,7 +439,7 @@ auto thermoPropertiesFluidCGF(real TK, real Pbar, const FluidInputs& subst, Ther
     // back correction
     // the standard state has no fugacity coefficient: remove RT ln(phi) added above, unless the caller keeps it
     if (cancel_fugacity)
-        tps.gibbs_energy -= R_CONSTANT * (TK) * log(Fug/Pbar);
+        tps.gibbs_energy -= R_CODATA1986 * (TK) * log(Fug/Pbar);
 
     return tps;
 }

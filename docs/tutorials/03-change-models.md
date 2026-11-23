@@ -20,7 +20,7 @@ You learn which models there are, how a record combines them, and how to change 
 
 **You need:** ThermoFun, and the files `aq17-thermofun.json` from `Resources/databases/` and `mineral-methods.yaml` from `examples/v2/` of the repository, in your folder.
 
-**Related:** [List of methods](../reference/methods/index.md) · [How methods combine](../reference/how-methods-combine.md) · [Choose water models](../how-to/choose-water-models.md) · [Choose conventions](../how-to/choose-conventions.md) · [See what each method gives](../how-to/get-per-method-results.md) · [Add a method as data](../how-to/add-a-method-as-data.md) · [Options of the engine](../reference/engine-preferences.md) · [Conventions](../reference/conventions.md)
+**Related:** [List of methods](../reference/methods/index.md) · [How methods combine](../reference/how-methods-combine.md) · [Choose water models](../how-to/choose-water-models.md) · [Choose conventions](../how-to/choose-conventions.md) · [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md) · [Add a method as data](../how-to/add-a-method-as-data.md) · [Options of the engine](../reference/engine-preferences.md) · [Conventions](../reference/conventions.md)
 
 ```{code-cell} ipython3
 import thermofun as tf
@@ -46,10 +46,10 @@ catalog[catalog.operates_on == "reaction"][["id", "title"]]
 
 ## Which models does a record use
 
+The route of a record names its methods and the records it needs (decision 0030). Ca+2 uses `HKF88`, which needs the water record `H2O@` with its two models:
+
 ```{code-cell} ipython3
-print("H2O@   ", engine.calculationPath("H2O@")["methods"])
-print("Ca+2   ", engine.calculationPath("Ca+2")["methods"])
-print("Calcite", engine.calculationPath("Calcite")["methods"])
+print(engine.route("Ca+2"))
 ```
 
 ## Combine methods
@@ -60,19 +60,19 @@ A record can have several methods. In `mineral-methods.yaml`, Calcite has three:
 - `LandauHP98` is an increment. It adds a phase transition.
 - `MurnaghanHP98` is an increment. It gives the volume and the term of the pressure.
 
-`explain` gives the properties after each method, in J/mol and m3/mol. Each row is the total after that method, so the last row is the result. The part that each method adds is in [See what each method gives](../how-to/get-per-method-results.md).
+The route of the result gives what each method contributes, in J/mol, J/(mol K) and m3/mol. The contributions add up to the result.
 
 ```{code-cell} ipython3
 minerals = tf.ThermoEngine("mineral-methods.yaml")
-steps = minerals.explain(473.15, 1e7, "Calcite")
 result = minerals.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
-pd.DataFrame(steps)[["method", "G", "S", "V"]]
+print(result.info.route)
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-assert [s["method"] for s in steps] == ["CpPolynomial", "LandauHP98", "MurnaghanHP98"]
-assert abs(steps[-1]["G"] - result.gibbs_energy.val) < 1e-6
+route = result.info.route
+assert [m.method for m in route.methods] == ["CpPolynomial", "LandauHP98", "MurnaghanHP98"]
+assert abs(route.total()["G"] - result.gibbs_energy.val) < 1e-6
 ```
 
 The engine sets the order from what each method does, so the order in the file does not change the result. Here the methods of Calcite are reversed in a copy of the database.
@@ -94,35 +94,40 @@ The reasons are in [How methods combine](../reference/how-methods-combine.md).
 
 ## How much each method adds
 
-`explain` gives totals. `contributions` gives the part that each method adds to each property, at as many T as you like. A column such as `G:LandauHP98` is what that method changed G by, in J/mol, and `G:other` is what the conventions and options of the engine changed after the methods. The columns of a property add up to its value `G`. A method that sets a property (the base method) also removes what was there before it, so its column holds the whole value.
+`routeTable` gives the route at as many T and P as you like, one row for each point. A column such as `LandauHP98:G` is what that method contributed to G, in J/mol. A conversion after the methods (a convention of the results, an option of gases) has its own column, `<what>(<detail>):G`. The columns of a property add up to its value `G`. A method that sets a property (the base method) also removes what was there before it, so its column holds the whole value.
 
 ```{code-cell} ipython3
-contributions = pd.DataFrame(minerals.contributions("Calcite", [473.15, 800.0, 1300.0], 1e7))
-contributions[["T", "G", "G:CpPolynomial", "G:LandauHP98", "G:MurnaghanHP98"]]
+contributions = pd.DataFrame(minerals.routeTable([473.15, 800.0, 1300.0], 1e7, "Calcite"))
+contributions[["T", "G", "CpPolynomial:G", "LandauHP98:G", "MurnaghanHP98:G"]]
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-assert abs(contributions["G"][0] - contributions[["G:CpPolynomial", "G:LandauHP98", "G:MurnaghanHP98", "G:other"]].iloc[0].sum()) < 1e-6
+assert abs(contributions["G"][0] - contributions[["CpPolynomial:G", "LandauHP98:G", "MurnaghanHP98:G"]].iloc[0].sum()) < 1e-6
 ```
 
 ## Look inside a method
 
-A model has terms and intermediate functions. A method can give them as **named outputs**. `HKF88`, the model of aqueous species, gives its g function, the effective radius of the ion, the Born coefficient and the Born terms of G, H, S, Cp and V. The names and units are on the [page of the method](../reference/methods/HKF88.md), and in `tf.methods.catalog()`.
+A model is made of parts. A method can give two kinds: **terms**, the named parts of its contribution to one property, and **variables**, the quantities of the model that the terms come from. `HKF88`, the model of aqueous species, has the Born terms of G, H, S, Cp and V as terms, and the g function, the effective radius of the ion and the Born coefficient as variables. The names and units are on the [page of the method](../reference/methods/HKF88.md), and in `tf.methods.catalog("HKF88")`.
 
 ```{code-cell} ipython3
 aqueous = tf.ThermoEngine(AQ)
-T = [298.15, 373.15, 473.15, 573.15]                      # K
-terms = pd.DataFrame(aqueous.auxiliaryOutputs("Ca+2", T, 1e8))   # at 1000 bar
-terms[["T", "HKF88:g", "HKF88:omega", "HKF88:born_G", "HKF88:born_V"]]
+T = [298.15, 373.15, 473.15, 573.15]                                   # K
+variables = pd.DataFrame(aqueous.routeTable(T, 1e8, "Ca+2", "variables"))   # at 1000 bar
+variables[["T", "HKF88:g", "HKF88:re", "HKF88:omega"]]
+```
+
+```{code-cell} ipython3
+terms = pd.DataFrame(aqueous.routeTable(T, 1e8, "Ca+2", "terms"))
+terms[["T", "HKF88:born_G", "HKF88:born_V"]]
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
-assert abs(terms["HKF88:g"][0]) < 1e-10 and terms["HKF88:g"][3] < 0.0
+assert abs(variables["HKF88:g"][0]) < 1e-10 and variables["HKF88:g"][3] < 0.0
 ```
 
-The g function is 0 at low T and becomes negative at high T, where it shrinks the effective radius of the ion and so changes its Born coefficient. Only some methods have named outputs; the others give only T and P. In a table, a named output is a column like any property: `{"property": "HKF88:born_G", "unit": "kJ/mol"}` ([tutorial 6](06-output-tables.md)).
+The g function is 0 at low T and becomes negative at high T, where it shrinks the effective radius of the ion and so changes its Born coefficient. Only some methods have terms and variables; for the others the rows have only T and P. The route of every result has them too. In a batch calculation, they are properties like any other: `{"name": "terms:HKF88:born_G", "unit": "kJ/mol"}` ([tutorial 5](05-batch-calculations.md)).
 
 ## Change the model of a record
 
@@ -139,8 +144,8 @@ print(database.get("/substances/H2O@/methods"))
 database.set("/substances/H2O@/methods", [{"method": "WaterIAPWS95"}, {"method": "HelgesonKirkham74"}])
 hk74_engine = tf.ThermoEngine(database)
 
-print("aq17:", engine.calculationPath("H2O@")["methods"])
-print("new: ", hk74_engine.calculationPath("H2O@")["methods"])
+print(engine.route("H2O@"))
+print(hk74_engine.route("H2O@"))
 ```
 
 Compare the volume and the heat capacity of Ca+2 with the dielectric model of aq17 (JohnsonNorton91) and with HelgesonKirkham74:
@@ -153,16 +158,16 @@ print("V  (m3/mol)    JohnsonNorton91:", ion_jn91.volume.val, "  HelgesonKirkham
 print("Cp (J/(mol K)) JohnsonNorton91:", ion_jn91.heat_capacity_cp.val, "  HelgesonKirkham74:", ion_hk74.heat_capacity_cp.val)
 ```
 
-To compare models for many records and conditions, a table can do it in one setup: see [Make tables](../how-to/make-tables.md).
+To compare models for many records and conditions, a batch calculation does it in one setup, with the difference: see [Batch calculations](05-batch-calculations.md#compare-two-models-and-two-databases).
 
 ## Remove a method
 
-Without the transition, G of Calcite is different. Here the method `LandauHP98` is taken out of the list.
+Without the transition, G of Calcite is different. Here the method `LandauHP98`, the second of the list (`methods/1`), is removed by its path.
 
 ```{code-cell} ipython3
 database = tf.Database("mineral-methods.yaml")
-methods = database.get("/substances/Calcite/methods")
-database.set("/substances/Calcite/methods", [m for m in methods if m["method"] != "LandauHP98"])
+print(database.get("/substances/Calcite/methods/1/method"))
+database.remove("/substances/Calcite/methods/1")
 without = tf.ThermoEngine(database).thermoPropertiesSubstance(473.15, 1e7, "Calcite")
 print(result.gibbs_energy.val, "->", without.gibbs_energy.val, "J/mol")
 ```
@@ -230,14 +235,17 @@ print("rounded:    ", G.val, "+-", G.err)
 
 ## Change the conventions of the results
 
-G has no absolute zero, so the same substance has different values of G and H in different conventions. A **convention** says what a value refers to. For the zero of water there are two:
+G has no absolute zero, so the same substance has different values of G and H in different conventions. A **convention** says what a value refers to. For water there are three words, two anchors and one scale:
 
-- the **geochemical** scale (the default) gives the values of formation from the elements, as the databases of aqueous species do: G of liquid water at 25 degC is about -237 kJ/mol;
-- the **steam tables** give G = 0 and S = 0 for liquid water at its triple point (273.16 K).
+- the anchor **helgeson_kirkham_1974** (the default) gives the values of formation from the elements, as HKF and SUPCRT92 data do: G of liquid water at 25 degC is -237181 J/mol;
+- the anchor **codata_1989** gives the CODATA 1989 values, as NEA data do: -237140 J/mol;
+- the **steam tables** give U = 0 and S = 0 for liquid water at its triple point (273.16 K).
+
+The two anchors are data of water, not conventions: the species of a dataset are consistent with its own water in every reaction with H2O. A dataset declares its anchor (`energy_reference: {water: codata_1989}`), and the engine never converts between the two. Only the steam tables are asked for as a convention of the results.
 
 A convention does not change the units: results are always in J/mol, J/(mol K) and m3/mol. It changes what a value refers to:
 
-- the **energy reference**: from what zero G, H and S are counted (for water: the formation scale of geochemistry, or the steam tables);
+- the **energy reference**: from what zero G, H and S are counted (for water: the values of formation, or the steam tables);
 - the **standard state**: the standard pressure (1 bar or 1 atm) and, for solutes, the concentration scale (molality, molarity, mole fraction). These change G and S, and with molarity also H, Cp and V.
 
 [Conventions](../reference/conventions.md) has the details, and [Choose conventions](../how-to/choose-conventions.md) the steps.
@@ -246,10 +254,10 @@ Here G of water is given on the scale of the steam tables. The change holds from
 
 ```{code-cell} ipython3
 engine = tf.ThermoEngine(AQ)
-print("geochemical: ", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
+print("anchored:    ", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
 
 conventions = tf.EngineConventions()
-conventions.water_reference = "steam_tables"
+conventions.energy_reference.water = "steam_tables"
 engine.setConventions(conventions)
 print("steam tables:", engine.thermoPropertiesSubstance(298.15, 1e5, "H2O@").gibbs_energy.val, "J/mol")
 ```

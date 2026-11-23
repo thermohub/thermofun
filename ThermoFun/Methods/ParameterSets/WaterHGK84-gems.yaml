@@ -5,7 +5,7 @@ parameter_sets:
     implementation: gems
     formula_units: {T: K or degC by name, P: bar or MPa by name}
     description: "All the tables of the water code of GEMS, in the units of its formulas (see Methods/Water/WaterHGK-JNgems.cpp). name_N is place N of the array of the code. ac, nc, el, bc, ad: HGK equation of state; hc, hb, li: its limits and bounds; surf: surface tension; born: the T in degC and P in bar up to which the Born functions are calculated; trans: the reducing values of viscosity and thermal conductivity; cond_C: a constant of thermal conductivity; visc_ and cond_ Pmax, P2, T2, P3, T3, Tmax: the range of viscosity and of thermal conductivity, P in bar and T in degC, outside of which they are 0; tt: triple point; cr: the critical point of the code (its limits; the equation near the critical point is the method WaterLVS83); psat: saturation pressure; ideal: ideal gas of Woolley (1979); visc, cond: viscosity and thermal conductivity of Sengers and Kamgar-Parsi (1984). The dielectric constant of this code takes its values from JohnsonNorton91.yaml."
-    reference: "Haar, Gallagher and Kell (1984); Johnson and Norton (1991)"
+    data_sources: ["Haar, Gallagher and Kell (1984); Johnson and Norton (1991)"]
     parameters:
       ac_wm: 0.1801520000e2
       ac_gascon: 0.46152200e0

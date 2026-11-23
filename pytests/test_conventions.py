@@ -48,10 +48,13 @@ def engine(substances, reactions=None, dataset=None, memoize=False, elements=Non
     return e
 
 
-def output(e, **fields):
+def output(e, pressure=None, concentration_scale=None, elements=None, water=None):
+    """The conventions asked for the results: the groups standard_state and energy_reference (decision 0031)."""
     c = tf.EngineConventions()
-    for key, value in fields.items():
-        setattr(c, key, value)
+    if pressure: c.standard_state.pressure = pressure
+    if concentration_scale: c.standard_state.concentration_scale = concentration_scale
+    if elements: c.energy_reference.elements = elements
+    if water: c.energy_reference.water = water
     e.setConventions(c)
     return e
 
@@ -83,8 +86,34 @@ def written_in(reference, sigma=SIGMA_CACO3):
 @pytest.mark.parametrize("T, P", [(Tr, Pr), (400.0, Pr), (1000.0, 1e8)])
 def test_a_mineral_in_each_energy_reference_gives_the_same_result(reference, T, P):
     want = props(engine({"X": substance()}), T=T, P=P)
-    got = props(engine({"X": substance(written_in(reference), convention={"energy_reference": reference})}), T=T, P=P)
+    got = props(engine({"X": substance(written_in(reference), energy_reference={"elements": reference})}), T=T, P=P)
     same(got, want)
+
+
+@pytest.mark.parametrize("pressure, ln", [({"value": 1000, "unit": "bar"}, math.log(1000.0)), (1e8, math.log(1000.0)), (5e4, math.log(0.5))])
+def test_any_standard_pressure_of_a_gas(pressure, ln):
+    # GB4 4.11.1 (v): p° can be chosen freely; a gas tabulated at p° gives the same result in 1 bar (decision 0031, row 7)
+    gas = dict(formula="CO2", state="gas", cls="gas_fluid")
+    want = props(engine({"X": substance(**gas)}), T=400.0)
+    there = dict(BASE, G=BASE["G"] + R * Tr * ln, S=BASE["S"] - R * ln)
+    same(props(engine({"X": substance(there, standard_state={"pressure": pressure}, **gas)}), T=400.0), want, rel=1e-11)
+    # and asked for: from 1 bar to p°, and back
+    got = props(output(engine({"X": substance(**gas)}), pressure=pressure if isinstance(pressure, float) else 1e8), T=400.0)
+    assert got["G"] == pytest.approx(want["G"] + R * 400.0 * (ln if isinstance(pressure, float) else math.log(1000.0)), rel=1e-12)
+
+
+def test_the_reference_pressure_is_the_standard_pressure():
+    # reference_conditions keeps only T; a P equal to p° is accepted, another P is an error (CNV-010)
+    same_p = substance(reference_conditions={"T": 298.15, "P": 101325}, standard_state={"pressure": "1atm"})
+    assert tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"X": same_p}))).getSubstance("X").record().reference_conditions.P == 101325.0
+    other = substance(reference_conditions={"T": 298.15, "P": 2e5})
+    with pytest.raises(RuntimeError, match="CNV-010"):
+        tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"X": other})))
+    # the reference pressure of a record follows its standard pressure, written once, in standard_state
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"X": substance(standard_state={"pressure": 1e8})})))
+    assert db.getSubstance("X").record().reference_conditions.P == 1e8
+    written = json.loads(db.toJson(False))["substances"]["X"]
+    assert written["standard_state"]["pressure"] == 1e8 and "P" not in written.get("reference_conditions", {})
 
 
 @pytest.mark.parametrize("T", [Tr, 400.0, 1000.0])
@@ -92,37 +121,38 @@ def test_a_gas_in_one_atmosphere_gives_the_result_in_one_bar(T):
     gas = dict(formula="CO2", state="gas", cls="gas_fluid")
     want = props(engine({"X": substance(**gas)}), T=T)
     atm = dict(BASE, G=BASE["G"] + R * Tr * LN_F, S=BASE["S"] - R * LN_F)
-    same(props(engine({"X": substance(atm, convention={"standard_pressure": "1atm"}, **gas)}), T=T), want)
+    same(props(engine({"X": substance(atm, standard_state={"pressure": "1atm"}, **gas)}), T=T), want)
 
 
 def test_one_atmosphere_is_only_for_gases():
-    same(props(engine({"X": substance(convention={"standard_pressure": "1atm"})})), props(engine({"X": substance()})))
+    same(props(engine({"X": substance(standard_state={"pressure": "1atm"})})), props(engine({"X": substance()})))
 
 
 def test_a_solute_in_mole_fraction_gives_the_result_in_molality():
     solute = dict(formula="NaCl", state="aqueous", cls="aqueous_solute")
     want = props(engine({"X": substance(**solute)}))
     x = dict(BASE, G=BASE["G"] + R * Tr * LN_X, S=BASE["S"] - R * LN_X)
-    same(props(engine({"X": substance(x, convention={"concentration_scale": "mole_fraction"}, **solute)})), want)
+    same(props(engine({"X": substance(x, standard_state={"concentration_scale": "mole_fraction"}, **solute)})), want)
 
 
 def test_the_record_goes_before_the_dataset():
     values = written_in("berman_brown")
-    dataset = {"symbol": "d", "convention": {"energy_reference": "berman_brown"}}
+    dataset = {"symbol": "d", "energy_reference": {"elements": "berman_brown"}}
     want = props(engine({"X": substance()}))
     same(props(engine({"X": substance(values)}, dataset=dataset)), want)
-    same(props(engine({"X": substance(convention={"energy_reference": "benson_helgeson"})}, dataset=dataset)), want)
+    same(props(engine({"X": substance(energy_reference={"elements": "benson_helgeson"})}, dataset=dataset)), want)
 
 
 def test_legacy_defaults_are_the_identity():
-    # 1bar, molality, geochemical, benson_helgeson written out give the same bits as nothing written
-    all_canonical = {"energy_reference": "benson_helgeson", "standard_pressure": "1bar", "concentration_scale": "molality", "water_reference": "geochemical"}
-    assert props(engine({"X": substance(convention=all_canonical)})) == props(engine({"X": substance()}))
+    # 1bar, molality, helgeson_kirkham_1974, benson_helgeson written out give the same bits as nothing written
+    canonical = {"standard_state": {"pressure": "1bar", "concentration_scale": "molality"},
+                 "energy_reference": {"elements": "benson_helgeson", "water": "helgeson_kirkham_1974"}}
+    assert props(engine({"X": substance(**canonical)})) == props(engine({"X": substance()}))
 
 
 def test_the_reference_properties_of_a_record_without_methods_are_converted():
     values = written_in("berman_brown")
-    record = substance(values, convention={"energy_reference": "berman_brown"})
+    record = substance(values, energy_reference={"elements": "berman_brown"})
     del record["methods"]
     got = engine({"X": record}).thermoPropertiesSubstance(400.0, Pr, "X").gibbs_energy.val
     assert got == pytest.approx(BASE["G"], rel=1e-12)   # the value at the reference temperature, in benson_helgeson
@@ -151,7 +181,7 @@ def test_nasa_is_converted_from_assigned_enthalpy():
 
 def test_the_method_goes_before_the_record():
     plain = props(engine({"X": substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA)}))
-    declared = props(engine({"X": substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA, convention={"energy_reference": "gibbs_helmholtz_formation"})}))
+    declared = props(engine({"X": substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA, energy_reference={"elements": "gibbs_helmholtz_formation"})}))
     assert declared == plain
 
 
@@ -169,7 +199,7 @@ def test_mixed_record_a_base_in_its_convention_and_a_correction_in_the_default()
 def test_mixed_record_of_a_declared_base_and_a_correction():
     methods = [{"method": "ConstantCp"}, {"method": "ConstantVolume"}]
     want = props(engine({"X": substance(methods=methods)}), P=1e8)
-    got = props(engine({"X": substance(written_in("gibbs_helmholtz_formation"), methods=methods, convention={"energy_reference": "gibbs_helmholtz_formation"})}), P=1e8)
+    got = props(engine({"X": substance(written_in("gibbs_helmholtz_formation"), methods=methods, energy_reference={"elements": "gibbs_helmholtz_formation"})}), P=1e8)
     same(got, want)
 
 
@@ -178,7 +208,7 @@ def test_mixed_record_of_a_declared_base_and_a_correction():
 @pytest.mark.parametrize("reference", ["berman_brown", "ser", "assigned_enthalpy", "dft_formation_0K"])
 def test_output_of_a_reference_without_a_term_in_t(reference):
     plain, T = props(engine({"X": substance()})), 400.0
-    got = props(output(engine({"X": substance()}), energy_reference=reference))
+    got = props(output(engine({"X": substance()}), elements=reference))
     assert got["G"] == pytest.approx(plain["G"] - Tr * SIGMA_CACO3, rel=1e-12)
     for key in ("H", "S", "Cp", "V", "U", "A", "dGdT", "dGdP"):
         assert got[key] == plain[key], key
@@ -187,7 +217,7 @@ def test_output_of_a_reference_without_a_term_in_t(reference):
 def test_output_gibbs_helmholtz_formation():
     record, T = substance(methods=VOLUME), 400.0
     plain = props(engine({"X": record}))
-    got = props(output(engine({"X": record}), energy_reference="gibbs_helmholtz_formation"))
+    got = props(output(engine({"X": record}), elements="gibbs_helmholtz_formation"))
     assert got["G"] == pytest.approx(plain["G"] + (T - Tr) * SIGMA_CACO3, rel=1e-12)
     assert got["S"] == pytest.approx(plain["S"] - SIGMA_CACO3, rel=1e-12)
     assert got["H"] == plain["H"]
@@ -198,13 +228,13 @@ def test_output_gibbs_helmholtz_formation():
 def test_output_one_atmosphere():
     gas = substance(formula="CO2", state="gas", cls="gas_fluid", methods=VOLUME)
     plain, T = props(engine({"X": gas})), 400.0
-    got = props(output(engine({"X": gas}), standard_pressure="1atm"))
+    got = props(output(engine({"X": gas}), pressure="1atm"))
     assert got["G"] == pytest.approx(plain["G"] + R * T * LN_F, rel=1e-12)
     assert got["S"] == pytest.approx(plain["S"] - R * LN_F, rel=1e-12)
     assert got["dGdT"] == pytest.approx(-got["S"], rel=1e-12)
     assert got["A"] == pytest.approx(got["U"] - T * got["S"], rel=1e-12)
     # a mineral does not change
-    assert props(output(engine({"X": substance()}), standard_pressure="1atm")) == props(engine({"X": substance()}))
+    assert props(output(engine({"X": substance()}), pressure="1atm")) == props(engine({"X": substance()}))
 
 
 def test_output_mole_fraction():
@@ -217,34 +247,36 @@ def test_output_mole_fraction():
 def test_a_conversion_and_its_inverse_are_the_identity():
     want = props(engine({"X": substance()}))
     for reference in ("berman_brown", "gibbs_helmholtz_formation"):
-        out = output(engine({"X": substance()}), energy_reference=reference)
+        out = output(engine({"X": substance()}), elements=reference)
         # the values at the reference conditions, in that convention, give the same species back
         v = out.thermoPropertiesSubstance(Tr, Pr, "X")
         values = {"G": v.gibbs_energy.val, "H": v.enthalpy.val, "S": v.entropy.val, "Cp": v.heat_capacity_cp.val, "V": BASE["V"]}
-        same(props(engine({"X": substance(values, convention={"energy_reference": reference})})), want)
+        same(props(engine({"X": substance(values, energy_reference={"elements": reference})})), want)
 
 
 def test_a_change_of_the_output_after_a_calculation_changes_the_next_result():
     e = engine({"X": substance()}, memoize=True)
     first = props(e)
-    e.conventions.energy_reference = "berman_brown"
+    e.conventions.energy_reference.elements = "berman_brown"
     second = props(e)
     assert second["G"] == pytest.approx(first["G"] - Tr * SIGMA_CACO3, rel=1e-12)
-    output(e, energy_reference="benson_helgeson")
+    output(e, elements="benson_helgeson")
     assert props(e) == first
 
 
 def test_the_old_words_still_work():
     a = engine({"X": substance()})
     a.conventions.apparent_properties = "BERMAN_BROWN"
-    b = output(engine({"X": substance()}), energy_reference="berman_brown")
+    b = output(engine({"X": substance()}), elements="berman_brown")
     assert props(a) == props(b)
 
 
-def test_explain_says_what_was_converted():
-    e = output(engine({"X": substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA)}), standard_pressure="1atm")
-    conversions = e.thermoPropertiesSubstanceDetailed(500.0, Pr, "X")["conversions"]
-    assert "NASA9 to canonical" in conversions and "1atm" in conversions
+def test_the_route_says_what_was_converted():
+    e = output(engine({"X": substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA)}), pressure="1atm")
+    result = e.thermoPropertiesSubstance(500.0, Pr, "X")
+    conversions = [(c.what, c.detail) for c in result.info.route.conversions]
+    assert ("convention", "NASA9 to canonical") in conversions and ("convention", "1atm") in conversions
+    assert result.info.route.total()["G"] == pytest.approx(result.gibbs_energy.val, rel=1e-12)
 
 
 # --- the hydrogen ion -----------------------------------------------------------------------------------------------
@@ -256,7 +288,7 @@ def hydrogen(**more):
 
 
 def test_the_hydrogen_ion_stays_zero_where_the_table_makes_its_entropy_zero():
-    got = output(engine({"H+": hydrogen()}), energy_reference="berman_brown").thermoPropertiesSubstance(Tr, Pr, "H+")
+    got = output(engine({"H+": hydrogen()}), elements="berman_brown").thermoPropertiesSubstance(Tr, Pr, "H+")
     assert got.gibbs_energy.val == 0.0
 
 
@@ -264,7 +296,7 @@ def test_the_output_of_the_hydrogen_ion_with_another_charge_entropy():
     elements = dict(ELEMENT_RECORDS, Zz={"class": "charge", "standard_entropy": -60.0})
     e = engine({"H+": hydrogen()}, elements=elements)
     assert e.thermoPropertiesSubstance(Tr, Pr, "H+").gibbs_energy.val == 0.0
-    output(e, energy_reference="berman_brown")
+    output(e, elements="berman_brown")
     assert e.thermoPropertiesSubstance(Tr, Pr, "H+").gibbs_energy.val == pytest.approx(-Tr * (65.34 - 60.0), rel=1e-12)
 
 
@@ -276,7 +308,7 @@ def test_the_hydrogen_ion_in_mole_fraction_output():
 def test_the_hydrogen_ion_in_berman_brown_with_values_is_converted():
     values = {"G": -1000.0, "H": -1000.0, "S": 1.0, "Cp": 0.0, "V": 0.0}
     elements = dict(ELEMENT_RECORDS, Zz={"class": "charge", "standard_entropy": -60.0})
-    e = engine({"H+": hydrogen(standard_state_properties=values, methods=[{"method": "ConstantCp"}], convention={"energy_reference": "berman_brown"})}, elements=elements)
+    e = engine({"H+": hydrogen(standard_state_properties=values, methods=[{"method": "ConstantCp"}], energy_reference={"elements": "berman_brown", "ions": "none"})}, elements=elements)
     assert e.thermoPropertiesSubstance(Tr, Pr, "H+").gibbs_energy.val == pytest.approx(-1000.0 + Tr * 5.34, rel=1e-12)
 
 
@@ -290,8 +322,8 @@ def test_hkf_of_the_hydrogen_ion_in_another_convention_keeps_the_rule_of_hkf():
     sigma = 2 * 0 + elements["H"]["standard_entropy"] + elements["Zz"]["standard_entropy"]
     water = next(k for k, v in doc["substances"].items() if v.get("class") == "water_solvent")
     subs = {water: doc["substances"][water],
-            "H+": hydrogen(standard_state_properties=values, methods=[hkf]),
-            "HB": hydrogen(standard_state_properties=values, methods=[hkf], convention={"energy_reference": "berman_brown"})}
+            "H+": hydrogen(standard_state_properties=values, methods=[hkf], energy_reference={"ions": "none"}),
+            "HB": hydrogen(standard_state_properties=values, methods=[hkf], energy_reference={"elements": "berman_brown", "ions": "none"})}
     e = tf.ThermoEngine(tf.Database(json.dumps(dict(HEAD, elements=elements, substances=subs))))
     a = e.thermoPropertiesSubstance(373.15, Pr, "H+").gibbs_energy.val
     b = e.thermoPropertiesSubstance(373.15, Pr, "HB").gibbs_energy.val
@@ -312,7 +344,7 @@ def density(e, T, P):
 @pytest.mark.parametrize("T, P", [(298.15, 1e5), (473.15, 2e6)])
 def test_a_solute_in_molarity_converts_to_molality_with_the_density_of_water(T, P):
     plain = molarity_engine()
-    e = molarity_engine(convention={"concentration_scale": "molarity"})
+    e = molarity_engine(standard_state={"concentration_scale": "molarity"})
     rho = density(e, T, P)
     assert 800.0 < rho < 1000.0
     a, b = props(plain, T=T, P=P), props(e, T=T, P=P)
@@ -332,13 +364,13 @@ def test_a_solute_in_molarity_converts_to_molality_with_the_density_of_water(T, 
 
 def test_output_in_molarity_is_the_inverse():
     subs = lambda **more: {"H2O@": WATER, "X": substance(formula="NaCl", state="aqueous", cls="aqueous_solute", **more)}
-    declared = engine(subs(convention={"concentration_scale": "molarity"}))
+    declared = engine(subs(standard_state={"concentration_scale": "molarity"}))
     output(declared, concentration_scale="molarity")
     same(props(declared, T=350.0), {k: v for k, v in props(engine(subs()), T=350.0).items() if k in ("G", "H", "S", "Cp", "V")}, rel=1e-10, abs_=1e-7)
 
 
 def test_molarity_without_a_solvent_is_an_error():
-    e = engine({"X": substance(formula="NaCl", state="aqueous", cls="aqueous_solute", convention={"concentration_scale": "molarity"})})
+    e = engine({"X": substance(formula="NaCl", state="aqueous", cls="aqueous_solute", standard_state={"concentration_scale": "molarity"})})
     with pytest.raises(RuntimeError, match="CNV-002"):
         props(e)
 
@@ -370,7 +402,7 @@ def test_a_reaction_of_species_in_different_conventions_is_converted_by_hand():
     G = lambda en, s: en.thermoPropertiesSubstance(T, P, s).gibbs_energy.val
 
     c = tf.EngineConventions()
-    c.energy_reference = "gibbs_helmholtz_formation"
+    c.energy_reference.elements = "gibbs_helmholtz_formation"
     native.setConventions(c)
     uq_raw = G(native, "UQ")
     uq = uq_raw + (Tr - T) * sigma_uq                        # by hand, from its native convention
@@ -382,7 +414,7 @@ def test_a_reaction_of_species_in_different_conventions_is_converted_by_hand():
     assert r.log_equilibrium_constant.val == pytest.approx(-dG / (R * T) * 0.4342944819032518, rel=1e-10)
 
 
-@pytest.mark.parametrize("field, word", [("energy_reference", "berman_brown"), ("energy_reference", "gibbs_helmholtz_formation"), ("water_reference", "steam_tables")])
+@pytest.mark.parametrize("field, word", [("elements", "berman_brown"), ("elements", "gibbs_helmholtz_formation"), ("water", "steam_tables")])
 def test_log_k_does_not_depend_on_the_energy_output(field, word):
     text, _, _ = reaction_db()
     plain = tf.ThermoEngine(tf.Database(text)).thermoPropertiesReaction(400.0, 1e5, "R").log_equilibrium_constant.val
@@ -393,7 +425,7 @@ def test_log_k_does_not_depend_on_the_energy_output(field, word):
 def test_log_k_in_one_atmosphere():
     text, _, _ = reaction_db()
     plain = tf.ThermoEngine(tf.Database(text)).thermoPropertiesReaction(400.0, 1e5, "R")
-    atm = output(tf.ThermoEngine(tf.Database(text)), standard_pressure="1atm").thermoPropertiesReaction(400.0, 1e5, "R")
+    atm = output(tf.ThermoEngine(tf.Database(text)), pressure="1atm").thermoPropertiesReaction(400.0, 1e5, "R")
     # one gas with the coefficient 1 on the right
     assert atm.reaction_gibbs_energy.val - plain.reaction_gibbs_energy.val == pytest.approx(R * 400.0 * LN_F, rel=1e-9)
     assert atm.log_equilibrium_constant.val - plain.log_equilibrium_constant.val == pytest.approx(-LN_F / LN_10, rel=1e-9)
@@ -408,7 +440,7 @@ def test_the_declared_standard_pressure_of_a_reaction_is_converted_by_stoichiome
     props_ = base.get("standard_state_properties") or base.get("reaction_properties")
     key = "standard_state_properties" if "standard_state_properties" in base else "reaction_properties"
     record = {"equation": "UQ + 2 H+ = Ca+2 + NG + %s" % water, "methods": methods, key: props_}
-    doc["reactions"] = {"R": record, "A": dict(record, convention={"standard_pressure": "1atm"})}
+    doc["reactions"] = {"R": record, "A": dict(record, standard_state={"pressure": "1atm"})}
     e = tf.ThermoEngine(tf.Database(json.dumps(doc)))
     plain = e.thermoPropertiesReaction(400.0, 1e5, "R").log_equilibrium_constant.val
     atm = e.thermoPropertiesReaction(400.0, 1e5, "A").log_equilibrium_constant.val
@@ -425,9 +457,9 @@ def test_a_substance_from_a_reaction_with_water_is_converted_once(symbol):
     assert db.getSubstance(symbol).reactionSymbol() == symbol
     plain = tf.ThermoEngine(MINES).thermoPropertiesSubstance(400.0, 1e5, symbol).gibbs_energy.val
     sigma = db.elementalEntropyFormula(db.getSubstance(symbol).formula())
-    bb = output(tf.ThermoEngine(MINES), energy_reference="berman_brown")
+    bb = output(tf.ThermoEngine(MINES), elements="berman_brown")
     assert bb.thermoPropertiesSubstance(400.0, 1e5, symbol).gibbs_energy.val == pytest.approx(plain - Tr * sigma, rel=1e-12)
-    steam = output(tf.ThermoEngine(MINES), water_reference="steam_tables")
+    steam = output(tf.ThermoEngine(MINES), water="steam_tables")
     assert steam.thermoPropertiesSubstance(400.0, 1e5, symbol).gibbs_energy.val == plain
 
 
@@ -435,7 +467,7 @@ def test_a_substance_from_a_reaction_with_water_is_converted_once(symbol):
 def test_the_reference_of_water_does_not_reach_a_method_that_reads_water(symbol):
     aq = "pytests/test-aq17-gem-lma-thermofun.json"
     plain = tf.ThermoEngine(aq).thermoPropertiesSubstance(400.0, 1e5, symbol).gibbs_energy.val
-    steam = output(tf.ThermoEngine(aq), water_reference="steam_tables")
+    steam = output(tf.ThermoEngine(aq), water="steam_tables")
     assert steam.thermoPropertiesSubstance(400.0, 1e5, symbol).gibbs_energy.val == plain
     # and water itself changes
     assert steam.thermoPropertiesSubstance(400.0, 1e5, "H2O@").gibbs_energy.val != tf.ThermoEngine(aq).thermoPropertiesSubstance(400.0, 1e5, "H2O@").gibbs_energy.val
@@ -458,7 +490,7 @@ def database(substances, reactions=None, dataset=None, elements=ELEMENT_RECORDS)
 
 def test_cnv_001_no_source_has_the_entropy_of_an_element():
     elements = dict(ELEMENT_RECORDS, Ca={"standard_entropy": 0.0})
-    record = substance(convention={"energy_reference": "berman_brown"})
+    record = substance(energy_reference={"elements": "berman_brown"})
     assert "CNV-001" in codes(database({"X": record}, elements=elements))
     e = tf.ThermoEngine(database({"X": record}, elements=elements))
     with pytest.raises(RuntimeError, match="CNV-001.*Ca"):
@@ -470,13 +502,13 @@ def test_cnv_008_dft_energies_are_estimates():
     reading, for a record and for a dataset (decision 5 of the review of v2)."""
     def loaded(db):
         return {d.code for d in db.loadDiagnostics().all()}
-    assert "CNV-008" in loaded(database({"X": substance(convention={"energy_reference": "dft_formation_0K"})}))
-    assert "CNV-008" in loaded(database({"X": substance()}, dataset={"symbol": "d", "convention": {"energy_reference": "dft_formation_0K"}}))
-    assert "CNV-008" not in loaded(database({"X": substance(convention={"energy_reference": "berman_brown"})}))
+    assert "CNV-008" in loaded(database({"X": substance(energy_reference={"elements": "dft_formation_0K"})}))
+    assert "CNV-008" in loaded(database({"X": substance()}, dataset={"symbol": "d", "energy_reference": {"elements": "dft_formation_0K"}}))
+    assert "CNV-008" not in loaded(database({"X": substance(energy_reference={"elements": "berman_brown"})}))
 
 
 def test_cnv_002_molarity_without_a_solvent():
-    record = substance(formula="NaCl", state="aqueous", cls="aqueous_solute", convention={"concentration_scale": "molarity"})
+    record = substance(formula="NaCl", state="aqueous", cls="aqueous_solute", standard_state={"concentration_scale": "molarity"})
     assert "CNV-002" in codes(database({"X": record}))
     assert "CNV-002" not in codes(database({"X": record, "H2O@": WATER}))
 
@@ -484,23 +516,23 @@ def test_cnv_002_molarity_without_a_solvent():
 def test_cnv_003_a_method_in_another_convention_than_the_dataset():
     record = substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA)
     assert "CNV-003" in codes(database({"X": record}))
-    assert "CNV-003" not in codes(database({"X": dict(record, convention={"energy_reference": "assigned_enthalpy"})}))
-    assert "CNV-003" not in codes(database({"X": record}, dataset={"symbol": "d", "convention": {"energy_reference": "assigned_enthalpy"}}))
+    assert "CNV-003" not in codes(database({"X": dict(record, energy_reference={"elements": "assigned_enthalpy"})}))
+    assert "CNV-003" not in codes(database({"X": record}, dataset={"symbol": "d", "energy_reference": {"elements": "assigned_enthalpy"}}))
 
 
 def test_cnv_004_a_reaction_of_species_in_different_references():
-    subs = {"X": substance(), "Y": substance(convention={"energy_reference": "berman_brown"}), "Z": substance()}
+    subs = {"X": substance(), "Y": substance(energy_reference={"elements": "berman_brown"}), "Z": substance()}
     assert "CNV-004" in codes(database(subs, reactions={"R": {"equation": "X = Y"}}))
     assert "CNV-004" not in codes(database(subs, reactions={"R": {"equation": "X = Z"}}))
 
 
 def test_cnv_005_an_unknown_word_is_an_error_with_the_allowed_words():
     with pytest.raises(Exception, match="CNV-005"):
-        database({"X": substance(convention={"energy_reference": "nonsense"})})
+        database({"X": substance(energy_reference={"elements": "nonsense"})})
 
 
 def test_cnv_006_an_element_from_the_table_of_chemicalfun():
-    record = substance(convention={"energy_reference": "berman_brown"})
+    record = substance(energy_reference={"elements": "berman_brown"})
     assert "CNV-006" in codes(database({"X": record}, elements={}))
     assert "CNV-006" not in codes(database({"X": record}))
     # and the value of that table is used
@@ -510,10 +542,171 @@ def test_cnv_006_an_element_from_the_table_of_chemicalfun():
 
 def test_water_on_the_steam_tables_has_its_own_entropy_scale():
     # at the triple point S = G = 0, and G = H - T S at all T
-    steam = output(tf.ThermoEngine("pytests/test-aq17-gem-lma-thermofun.json"), water_reference="steam_tables")
+    steam = output(tf.ThermoEngine("pytests/test-aq17-gem-lma-thermofun.json"), water="steam_tables")
     symbol = "H2O@"
     at = steam.thermoPropertiesSubstance(273.16, 611.655, symbol)
     assert at.entropy.val == pytest.approx(0.0, abs=0.05)
     assert at.gibbs_energy.val == pytest.approx(0.0, abs=2.0)
     warm = steam.thermoPropertiesSubstance(298.15, 1e5, symbol)
     assert warm.gibbs_energy.val == pytest.approx(warm.enthalpy.val - 298.15 * warm.entropy.val, abs=2.0)
+
+
+# --- the water anchors (decision 0031, correction of row 8) ---------------------------------------------------------
+
+IAPWS_WATER = dict(WATER, methods=[{"method": "WaterIAPWS95", "implementation": "reaktoro"}, {"method": "JohnsonNorton91", "implementation": "reaktoro"}])
+
+
+def water_engine(water=WATER, dataset=None, record_water=None):
+    record = dict(water)
+    if record_water:
+        record["energy_reference"] = {"water": record_water}
+    return engine({"H2O@": record}, dataset=dataset)
+
+
+def water_gibbs(e, T=Tr, P=Pr):
+    return e.thermoPropertiesSubstance(T, P, "H2O@").gibbs_energy.val
+
+
+@pytest.mark.parametrize("water,method,triple", [(WATER, "WaterHGK84", "NEA_HGK"), (IAPWS_WATER, "WaterIAPWS95", "NEA_IAPWS")])
+def test_codata_1989_takes_the_triple_point_set_of_the_water_method(water, method, triple):
+    codata = water_engine(water, dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})
+    alone = tf.methods.solventMethod(method, implementation="reaktoro").substanceProperties(Tr, Pr, 0, triple).gibbs_energy.val
+    assert water_gibbs(codata) == alone
+    assert water_gibbs(codata) == pytest.approx(-237140.0, abs=0.5)      # CODATA 1989
+    assert water_gibbs(water_engine(water)) == pytest.approx(-237181.7, abs=0.5)   # Helgeson and Kirkham 1974, the default
+    assert water_gibbs(water_engine(water, record_water="codata_1989")) == water_gibbs(codata)   # declared on the water record
+
+
+def test_another_anchor_cannot_be_asked_for():
+    e = water_engine()
+    with pytest.raises(ValueError, match="does not convert between the two anchors"):
+        output(e, water="codata_1989")
+    # the anchor of the dataset itself, and the steam tables, can
+    output(e, water="helgeson_kirkham_1974")
+    assert water_gibbs(e) == water_gibbs(water_engine())
+    codata = output(water_engine(dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}}), water="codata_1989")
+    assert water_gibbs(codata) == pytest.approx(-237140.0, abs=0.5)
+
+
+def test_steam_tables_from_either_anchor_is_the_same_water():
+    hk = output(water_engine(), water="steam_tables")
+    codata = output(water_engine(dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}}), water="steam_tables")
+    for T, P in ((273.16, 611.655), (298.15, 1e5), (473.15, 50e5)):
+        assert water_gibbs(hk, T, P) == pytest.approx(water_gibbs(codata, T, P), abs=1.0)
+
+
+def test_the_0x_view_of_the_anchor():
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"H2O@": IAPWS_WATER},
+                                     thermodataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})))
+    assert db.conventions.water_triple_point_reference == "NEA_IAPWS"   # the set of the water method
+    db.conventions.water_triple_point_reference = "HKF_HGK_1974"
+    assert db.thermoDataSet().convention.energy_reference.water == tf.WaterReference.HelgesonKirkham1974
+    with pytest.raises(Exception, match="NEA_HGK or NEA_IAPWS"):
+        db.conventions.water_triple_point_reference = "NEA"
+        db.thermoDataSet()
+    # GEOCHEMICAL of 0.x is the water of the dataset, whichever its anchor
+    e = water_engine(dataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})
+    c = e.conventions
+    c.water_properties = "GEOCHEMICAL"
+    e.conventions = c
+    assert c.energy_reference.water is None and water_gibbs(e) == pytest.approx(-237140.0, abs=0.5)
+
+
+def test_the_old_conventions_block_is_an_unknown_key():
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"H2O@": WATER},
+                                     thermodataset={"symbol": "d", "conventions": {"water_triple_point_reference": "NEA_HGK"}})))
+    assert "V2-KEY-001" in {d.code for d in db.loadDiagnostics().all()}
+    assert db.thermoDataSet().convention.energy_reference.water is None
+
+
+@pytest.mark.parametrize("water,label", [(WATER, "NEA_HGK"), (IAPWS_WATER, "NEA_IAPWS")])
+def test_legacy_files_keep_the_triple_point_set(water, label, tmp_path):
+    db = tf.Database(json.dumps(dict(HEAD, elements=ELEMENT_RECORDS, substances={"H2O@": water},
+                                     thermodataset={"symbol": "d", "energy_reference": {"water": "codata_1989"}})))
+    legacy = json.loads(db.toLegacyJson(False))
+    assert legacy["conventions"] == {"water_triple_point_reference": label}
+    back = tf.Database(json.dumps(legacy))
+    assert back.thermoDataSet().convention.energy_reference.water == tf.WaterReference.Codata1989
+    assert water_gibbs(tf.ThermoEngine(back)) == water_gibbs(tf.ThermoEngine(db))
+
+
+# --- ions: the hydrogen ion and the electron (decision 0031, row 6; NEA TDB-5 1.6, 1.7.e) ----------------------------
+
+PSI = "pytests/PsiTDB2020-subset-thermofun.json"
+
+
+def psi_with_electron(**energy_reference):
+    doc = json.loads(tf.Database(PSI).toJson(True))
+    if energy_reference:
+        doc["substances"]["e-"]["energy_reference"] = energy_reference
+    return doc
+
+
+@pytest.mark.parametrize("T", [298.15, 323.15, 373.15, 423.15, 473.15, 523.15, 573.15])
+@pytest.mark.parametrize("P", [1e5, 5e7])
+def test_the_electron_is_half_of_hydrogen_gas_at_its_standard_pressure(T, P):
+    e = tf.ThermoEngine(PSI)
+    electron = e.thermoPropertiesSubstance(T, P, "e-")
+    h2 = e.thermoPropertiesSubstance(T, 1e5, "H2(g)")
+    assert electron.gibbs_energy.val == 0.5 * h2.gibbs_energy.val
+    assert electron.enthalpy.val == 0.5 * h2.enthalpy.val
+    assert electron.entropy.val == 0.5 * h2.entropy.val
+    assert electron.heat_capacity_cp.val == 0.5 * h2.heat_capacity_cp.val
+    assert electron.volume.val == 0.0 and electron.gibbs_energy.ddp == 0.0
+    # the reaction of the standard hydrogen electrode H+ + e- = 1/2 H2(g): drG = 0 at every T
+    assert e.thermoPropertiesSubstance(T, P, "H+").gibbs_energy.val == 0.0
+
+
+def test_the_electron_at_25_degC_is_the_codata_value():
+    e = tf.ThermoEngine(PSI).thermoPropertiesSubstance(298.15, 1e5, "e-")
+    assert e.gibbs_energy.val == pytest.approx(0.0, abs=1e-9)
+    assert e.entropy.val == pytest.approx(65.34, abs=0.005)   # 1/2 S(H2, g), CODATA 1989: 130.68
+
+
+def test_the_electron_of_its_record_with_ions_none():
+    doc = psi_with_electron(ions="none")
+    e = tf.ThermoEngine(tf.Database(json.dumps(doc)))
+    hydrogen_electrode = tf.ThermoEngine(PSI)
+    at = lambda engine, T: engine.thermoPropertiesSubstance(T, 1e5, "e-").gibbs_energy.val
+    # PSI 2020 gives a constant Cp 14.418: 0.55 J/mol at 100 degC, 13 J/mol at 300 degC from 1/2 H2(g)
+    assert at(e, 373.15) - at(hydrogen_electrode, 373.15) == pytest.approx(0.5475, abs=1e-3)
+    assert at(e, 573.15) - at(hydrogen_electrode, 573.15) == pytest.approx(13.02, abs=1e-2)
+
+
+def test_without_hydrogen_gas_the_electron_is_its_record_with_a_note():
+    doc = psi_with_electron()
+    del doc["substances"]["H2(g)"]
+    for name, r in list(doc["reactions"].items()) if "reactions" in doc else []:
+        if "H2(g)" in r.get("equation", ""):
+            del doc["reactions"][name]
+    db = tf.Database(json.dumps(doc))
+    assert "CNV-011" in {d.code for d in db.validate().all()}
+    p = tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "e-")
+    assert any("no H2(g)" in n.text for n in p.info.notes)
+    assert p.entropy.val != 0.0
+
+
+def test_the_results_are_always_on_hydrogen_ion():
+    e = tf.ThermoEngine(PSI)
+    c = tf.EngineConventions()
+    c.energy_reference.ions = "none"
+    with pytest.raises(ValueError, match="always on hydrogen_ion"):
+        e.setConventions(c)
+    c.energy_reference.ions = tf.Ions.HydrogenIon
+    e.setConventions(c)
+
+
+def test_ions_is_read_and_written_and_checked():
+    doc = psi_with_electron(ions="none")
+    back = json.loads(tf.Database(json.dumps(doc)).toJson(True))
+    assert back["substances"]["e-"]["energy_reference"] == {"ions": "none"}
+    doc["substances"]["e-"]["energy_reference"] = {"ions": "hydrogen"}
+    with pytest.raises(RuntimeError, match="hydrogen_ion"):
+        tf.Database(json.dumps(doc))
+
+
+def test_an_electron_without_hydrogen_gas_and_without_values_is_an_error():
+    db = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  e-: {formula: \"-\", class: aqueous_solute, aggregate_state: aqueous}\n")
+    assert "CNV-011" in {d.code for d in db.validate().all()}
+    with pytest.raises(RuntimeError, match="no H2\\(g\\)"):
+        tf.ThermoEngine(db).thermoPropertiesSubstance(373.15, 1e5, "e-")

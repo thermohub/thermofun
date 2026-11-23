@@ -15,8 +15,8 @@ from thermofun import method_tool as methods  # noqa: E402
 
 DATA = json.loads((pathlib.Path(__file__).resolve().parent / "data" / "sources" / "nasa7-gri30.json").read_text())
 NAMES = [f"a{i}" for i in range(1, 8)]
-BUILT = methods.build({"kind": "symbolic", "tier": 1, "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
-                       "parameter_definitions": {n: {"unit": "1"} for n in NAMES}, "source": {"form": "nasa7"}})
+BUILT = methods.build({"kind": "symbolic", "operates_on": "substance", "contributes_to": ["G", "H", "S", "Cp"],
+                       "parameter_definitions": {n: {"unit": "1"} for n in NAMES}, "formula": {"form": "nasa7"}})
 
 
 def piece_for(species, T):
@@ -83,7 +83,7 @@ def engine(name):
     substance = {"formula": name, "charge": 0, "class": "gas_fluid", "aggregate_state": "gas",
                  "reference_conditions": {"T": 298.15, "P": 1e5},
                  "standard_state_properties": {"G": 0.0, "H": 0.0, "S": 0.0, "Cp": 0.0, "V": 0.0},
-                 "convention": {"energy_reference": "benson_helgeson"},
+                 "energy_reference": {"elements": "benson_helgeson"},
                  "methods": [{"method": "NASA7", "segments": [
                      {"t_min": p["t_min"], "t_max": p["t_max"], "parameters": {n: p[n] for n in NAMES}}
                      for p in DATA["species"][name]["pieces"]]}]}

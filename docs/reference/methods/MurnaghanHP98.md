@@ -10,6 +10,7 @@ Source: Holland and Powell (1998).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, S adds, Cp adds, V adds |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

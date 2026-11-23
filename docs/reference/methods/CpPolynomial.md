@@ -8,6 +8,7 @@ Integrates Cp = a0 + a1 T + a2/T2 + a3/sqrt(T) + a4 T2 + a5 T3 + a6 T4 + a7/T3 +
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | yes |

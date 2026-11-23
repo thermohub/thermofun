@@ -22,7 +22,7 @@
 
 namespace ThermoFun {
 
-TableSetupError::~TableSetupError() = default;
+BatchSetupError::~BatchSetupError() = default;
 
 
 namespace {
@@ -69,21 +69,21 @@ auto ruleOf(const std::string& text) -> json
         }
         catch (const std::exception& error)
         {
-            throw TableSetupError("The rule cannot be read: " + std::string(error.what()));
+            throw BatchSetupError("The rule cannot be read: " + std::string(error.what()));
         }
     }
     if (!rule.is_object())
-        throw TableSetupError("A rule is a mapping, for example {class: aqueous_solute}, not " + rule.dump() + ".");
+        throw BatchSetupError("A rule is a mapping, for example {class: aqueous_solute}, not " + rule.dump() + ".");
     return rule;
 }
 
 auto checkKeys(const json& rule, const std::vector<std::string>& known) -> void
 {
     if (rule.empty())
-        throw TableSetupError("The rule is empty: it would choose all records. Give at least one key, or match: \"*\".");
+        throw BatchSetupError("The rule is empty: it would choose all records. Give at least one key, or match: \"*\".");
     for (const auto& item : rule.items())
         if (std::find(known.begin(), known.end(), item.key()) == known.end())
-            throw TableSetupError(detail::unknownKeyMessage("A rule", item.key(), known));
+            throw BatchSetupError(detail::unknownKeyMessage("A rule", item.key(), known));
 }
 
 /// A word or a list of words.
@@ -95,7 +95,7 @@ auto wordsOf(const json& rule, const char* key) -> std::vector<std::string>
     const auto& node = rule[key];
     const auto add = [&](const json& x) {
         if (!x.is_string())
-            throw TableSetupError(std::string(key) + " has a value that is not a text: " + x.dump() + ".");
+            throw BatchSetupError(std::string(key) + " has a value that is not a text: " + x.dump() + ".");
         out.push_back(x.get<std::string>());
     };
     if (node.is_array())
@@ -114,7 +114,7 @@ auto vocabularyWords(const json& rule, const char* key) -> std::set<E>
     {
         const auto value = model::fromString<E>(word);
         if (!value)
-            throw TableSetupError(model::unknownWordMessage<E>(word));
+            throw BatchSetupError(model::unknownWordMessage<E>(word));
         out.insert(*value);
     }
     return out;
@@ -169,7 +169,7 @@ auto elementsAllowed(const json& rule, const std::set<std::string>& elements) ->
 auto chosen(std::vector<std::string> symbols, const char* kind, const json& rule) -> std::vector<std::string>
 {
     if (symbols.empty())
-        throw TableSetupError(std::string("The rule ") + rule.dump() + " chooses no " + kind + " of the database.");
+        throw BatchSetupError(std::string("The rule ") + rule.dump() + " chooses no " + kind + " of the database.");
     return symbols;
 }
 
@@ -189,7 +189,7 @@ auto selectSubstances(const Database& database, const std::string& text) -> std:
         for (const auto& x : node.is_array() ? node : json::array({node}))
         {
             if (!x.is_number_integer())
-                throw TableSetupError("charge has a value that is not a whole number: " + x.dump() + ".");
+                throw BatchSetupError("charge has a value that is not a whole number: " + x.dump() + ".");
             charges.push_back(x.get<int>());
         }
     }

@@ -27,7 +27,10 @@
 #include <string>
 #include <limits>
 
+#include <memory>
+
 #include <ThermoFun/Common/Notes.h>
+#include <ThermoFun/Common/Route.h>
 
 namespace Reaktoro_ {
 
@@ -43,15 +46,15 @@ enum Status {
 using StatusMessage = std::pair <Status, std::string>;
 
 /// What a value says about itself besides its number and its error (decision 0029): the notes behind it (range, source,
-/// undefined, uncertainty), where it came from, and the pressure used. The validity, the status and the completeness of the
+/// undefined, uncertainty), how it was calculated (its route), and the pressure used. The validity, the status and the completeness of the
 /// uncertainty are made from these, the status code and the error (see validity(), uncertainty()).
 struct Info
 {
     ThermoFun::Notes notes;
-    std::string source;  ///< "methods", "reaction", "reactants", "reference", "water", "hydrogen_ion"; empty if not known
+    std::shared_ptr<const ThermoFun::Route> route;  ///< how the result was calculated (decision 0030); null if not known
     double pressure = std::numeric_limits<double>::quiet_NaN();  ///< the pressure used, Pa: the saturation pressure at P = 0
 
-    /// The info of a value calculated from two others: their range and uncertainty notes; source and pressure if the same
+    /// The info of a value calculated from two others: their range and uncertainty notes; route and pressure if the same
     static auto merge(const Info& l, const Info& r) -> Info
     {
         Info out;
@@ -59,7 +62,7 @@ struct Info
             for (const auto& note : *from)
                 if (note.kind == ThermoFun::Note::Kind::Range || note.kind == ThermoFun::Note::Kind::Uncertainty)
                     ThermoFun::addNote(out.notes, note);
-        out.source = l.source == r.source ? l.source : std::string();
+        out.route = l.route == r.route ? l.route : nullptr;
         out.pressure = l.pressure == r.pressure ? l.pressure : std::numeric_limits<double>::quiet_NaN();
         return out;
     }
@@ -121,7 +124,7 @@ public:
     /// The status of the themrodyanic property
     StatusMessage sta;
 
-    /// The notes, source and pressure of the value (decision 0029)
+    /// The notes, route and pressure of the value (decision 0029)
     Info info;
 
     /// Construct a default ThermoScalar instance

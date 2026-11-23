@@ -1,4 +1,4 @@
-# Conditions: a grid of 25 to 500 degC and 1 to 5000 bar. Settings only: use it with a template of tables.
+# Conditions: a grid of 25 to 500 degC and 1 to 5000 bar. A fragment: use it with a template that has results.
 conditions:
   T: {from: 25, to: 500, step: 25, unit: degC}
   P: {values: [1, 500, 1000, 2000, 5000], unit: bar}

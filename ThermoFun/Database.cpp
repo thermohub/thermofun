@@ -266,8 +266,42 @@ auto Database::getReactionsList() const -> std::vector<std::string>
    return list;
 }
 
+auto Database::Impl::syncConventions() const -> void
+{
+    if (conventions == conventions_seen && conventions_revision == revision)
+        return;
+    auto& water = dataset_info.convention.energy_reference.water;
+    if (conventions != conventions_seen)
+    {
+        const auto anchor = model::waterAnchorOfSet(conventions.water_triple_point_reference);
+        if (!anchor)
+        {
+            const std::string name = conventions.water_triple_point_reference;
+            conventions = conventions_seen;
+            funError("Unknown water_triple_point_reference", "\"" + name + "\" is not HKF_HGK_1974, NEA_HGK or NEA_IAPWS.", __LINE__, __FILE__);
+        }
+        if (*anchor != model::anchorOf(water).value_or(model::WaterReference::HelgesonKirkham1974) || (water && *water == model::WaterReference::SteamTables))
+            water = anchor;
+    }
+    std::string method = "WaterHGK84";
+    const model::SubstanceRecord* solvent = nullptr;
+    for (const auto& [symbol, substance] : substances_map)
+    {
+        const auto& record = substance.record();
+        if (record && record->class_ == model::SubstanceClass::WaterSolvent && record->aggregate_state != model::AggregateState::Gas &&
+            (!solvent || symbol == dataset_info.solvent))
+            solvent = record.get();
+    }
+    if (solvent)
+        method = model::waterEquationOf(*solvent);
+    conventions.water_triple_point_reference = model::waterTripleSet(model::anchorOf(water).value_or(model::WaterReference::HelgesonKirkham1974), method);
+    conventions_seen = conventions;
+    conventions_revision = revision;
+}
+
 auto Database::thermoDataSet() const -> const model::ThermoDataSetInfo&
 {
+    pimpl->syncConventions();
     return pimpl->dataset_info;
 }
 
@@ -296,10 +330,12 @@ auto Database::revision() const -> std::uint64_t
     return pimpl->revision;
 }
 
-DatabaseConventions& Database::conventions() { 
+DatabaseConventions& Database::conventions() {
+    pimpl->syncConventions();
     return pimpl->conventions; }
 
-const DatabaseConventions& Database::conventions() const { 
+const DatabaseConventions& Database::conventions() const {
+    pimpl->syncConventions();
     return pimpl->conventions; }
 
 auto Database::numberOfElements() const -> size_t

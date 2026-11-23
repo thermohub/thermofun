@@ -24,7 +24,7 @@
 #include <Methods/Water/Reaktoro/WaterHelmholtzState.hpp>
 
 namespace ThermoFun {
-auto waterHelmholtzStateWagnerPruss(real T, real D, const WagnerPrussConstants& k) -> WaterHelmholtzState
+auto waterHelmholtzStateWagnerPruss(real T, real D, const WagnerPrussModelParameters& k) -> WaterHelmholtzState
 {
     const real tau   = k.saturation.Tcr/T;
     const real delta = D/k.saturation.Dcr;

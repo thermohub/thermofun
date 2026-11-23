@@ -10,6 +10,7 @@ Source: McBride, Zehe and Gordon (2002).
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | yes |

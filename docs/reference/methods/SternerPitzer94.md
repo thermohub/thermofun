@@ -10,6 +10,7 @@ Source: Sterner and Pitzer (1994).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, S adds, Cp adds, V sets |
 | Classes | gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -28,9 +29,9 @@ Source: Sterner and Pitzer (1994).
 | Tc | K | K | yes |  | critical temperature |
 | Pc | bar | Pa | yes |  | critical pressure |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Units of the values: T: K, P: MPa, rho: kg/m3, M: g/mol. They are not converted.
 

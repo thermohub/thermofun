@@ -28,7 +28,8 @@ public:
     /// The properties of water as a solvent at T (K) and P (Pa). State: 0 liquid, 1 gas.
     virtual auto properties(double T, double& P, int state) const -> PropertiesSolvent = 0;
 
-    /// The properties of water as a substance, in the reference of the triple point given by its name.
+    /// The properties of water as a substance, tied to the formation values by `triple`: a water anchor (helgeson_kirkham_1974,
+    /// codata_1989; the method picks the triple-point set of its equation) or the name of a set of WaterTriplePoint.yaml.
     virtual auto substanceProperties(double T, double& P, int state, const std::string& triple) const -> ThermoPropertiesSubstance = 0;
 
     /// True if G of the gas state contains the term R T ln(P / 1 bar).

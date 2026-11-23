@@ -8,6 +8,7 @@ Interpolates a table of G, H, V and Cp on a grid of T and P.
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

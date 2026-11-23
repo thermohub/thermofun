@@ -105,7 +105,7 @@ def test_an_invalid_file_is_refused_with_its_code(name):
 def test_project_records_are_read():
     db = tf.Database(V2 + "methods.json")
     assert "CpPolynomial" in db.methods()
-    assert db.methods()["CpPolynomial"].citation == "1998HOL/POW"
+    assert db.methods()["CpPolynomial"].data_sources == ["1998HOL/POW"]
     assert db.parameterSets()["hkf_na"].method == "HKF88"
     assert db.parameterSets()["hkf_na"].parameters["a1"].value == 1.0e-6
     assert set(db.dataSources()) == {"1998HOL/POW", "mydata"}
@@ -134,7 +134,7 @@ def test_implementation_and_interpolation_keys():
     s = tf.Substance(json.dumps(one_substance(methods=[hkf])))
     assert s.record().methods[0].implementation == "gems"
     r = tf.Reaction(json.dumps({"symbol": "R", "equation": "A = B", "reaction_properties": {"logK": 1.0},
-                                "methods": [{"method": "LogKTable", "interpolation": "spline", "order": 2,
+                                "methods": [{"method": "LogKTable", "interpolation": "spline", "interpolation_order": 2,
                                              "table": {"temperatures": [273.15, 298.15, 373.15, 473.15], "logK": [1.0, 1.1, 1.3, 1.6]}}]}))
     application = r.record().methods[0]
     assert application.interpolation_order == 2
@@ -204,7 +204,8 @@ def test_a_whole_database_as_v2_gives_the_results_of_the_legacy_file(path):
     legacy_db = tf.Database(path)
     symbols = legacy_db.getSubstancesList()
     document = fixtures.document(path, symbols, legacy_db.getReactionsList(), legacy_db.getElementsList(), {"symbol": "whole"})
-    document["thermodataset"]["conventions"] = {"water_triple_point_reference": legacy_db.conventions.water_triple_point_reference}
+    if legacy_db.thermoDataSet().convention.energy_reference.water is not None:
+        document["thermodataset"]["energy_reference"] = {"water": "codata_1989"}
     v2_db = tf.Database(json.dumps(document))
     assert v2_db.numberOfSubstances() == legacy_db.numberOfSubstances()
     assert v2_db.numberOfReactions() == legacy_db.numberOfReactions()

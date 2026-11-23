@@ -10,6 +10,7 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
+#include "pyWords.h"
 #include <ThermoFun/Model/Records.h>
 
 namespace ThermoFun {
@@ -27,12 +28,34 @@ void exportRecords(py::module& m)
         .def_readwrite("matrix", &CovarianceBlock::matrix)
         .def(py::self == py::self);
 
-    py::class_<Convention>(m, "Convention", "Conventions of a dataset or a record")
+    py::class_<StandardState>(m, "StandardState", "The standard state of values: the standard pressure and the concentration scale of solutes. None: the default or a more general level")
         .def(py::init<>())
+        .def_property("pressure", [](const StandardState& x) { return x.pressure; },
+                      [](StandardState& x, py::object v) {
+                          if (v.is_none()) x.pressure.reset();
+                          else if (py::isinstance<py::float_>(v) || py::isinstance<py::int_>(v)) x.pressure = v.cast<double>();
+                          else x.pressure = pascals(valueOf<StandardPressure>(v));
+                      },
+                      "the standard pressure p° in Pa; set it with 1bar, 1atm (a word or StandardPressure) or any pressure in Pa")
+        .def_property("concentration_scale", [](const StandardState& x) { return x.concentration_scale; },
+                      [](StandardState& x, py::object v) { x.concentration_scale = optionalValueOf<ConcentrationScale>(v); },
+                      "the concentration scale of solutes: molality, molarity or mole_fraction (ConcentrationScale or the word)")
+        .def(py::self == py::self);
+
+    py::class_<EnergyReferences>(m, "EnergyReferences", "From what zero G, H and S are counted: of the elements and of water. None: the default or a more general level")
+        .def(py::init<>())
+        .def_property("elements", [](const EnergyReferences& x) { return x.elements; }, [](EnergyReferences& x, py::object v) { x.elements = optionalValueOf<EnergyReference>(v); },
+                      "benson_helgeson, berman_brown, ser, assigned_enthalpy, gibbs_helmholtz_formation or dft_formation_0K (EnergyReference or the word)")
+        .def_property("water", [](const EnergyReferences& x) { return x.water; }, [](EnergyReferences& x, py::object v) { x.water = optionalValueOf<WaterReference>(v); },
+                      "helgeson_kirkham_1974 or codata_1989 (the anchor: data of water used inside), or steam_tables (the scale of the values of a water record); WaterReference or the word")
+        .def_property("ions", [](const EnergyReferences& x) { return x.ions; }, [](EnergyReferences& x, py::object v) { x.ions = optionalValueOf<Ions>(v); },
+                      "hydrogen_ion (the default: H+ is 0, the electron from the standard hydrogen electrode) or none (the records give them); Ions or the word")
+        .def(py::self == py::self);
+
+    py::class_<Convention>(m, "Convention", "The conventions of a dataset or a record: the blocks standard_state and energy_reference")
+        .def(py::init<>())
+        .def_readwrite("standard_state", &Convention::standard_state)
         .def_readwrite("energy_reference", &Convention::energy_reference)
-        .def_readwrite("standard_pressure", &Convention::standard_pressure)
-        .def_readwrite("concentration_scale", &Convention::concentration_scale)
-        .def_readwrite("water_reference", &Convention::water_reference)
         .def(py::self == py::self);
 
     py::class_<ReferenceConditions>(m, "ReferenceConditions", "Reference temperature (K) and pressure (Pa)")
@@ -110,7 +133,6 @@ void exportRecords(py::module& m)
         .def_readwrite("preferred_property_source", &SubstanceRecord::preferred_property_source)
         .def_readwrite("covariance", &SubstanceRecord::covariance)
         .def_readwrite("structural", &SubstanceRecord::structural)
-        .def_readwrite("data_source", &SubstanceRecord::data_source)
         .def_readwrite("data_sources", &SubstanceRecord::data_sources)
         .def_readwrite("deprecated", &SubstanceRecord::deprecated)
         .def_readwrite("deprecated_in_favour_of", &SubstanceRecord::deprecated_in_favour_of)
@@ -135,7 +157,6 @@ void exportRecords(py::module& m)
         .def_readwrite("convention", &ReactionRecord::convention)
         .def_readwrite("preferred_property_source", &ReactionRecord::preferred_property_source)
         .def_readwrite("covariance", &ReactionRecord::covariance)
-        .def_readwrite("data_source", &ReactionRecord::data_source)
         .def_readwrite("data_sources", &ReactionRecord::data_sources)
         .def_readwrite("deprecated", &ReactionRecord::deprecated)
         .def_readwrite("extra_json", &ReactionRecord::extra_json)
@@ -156,7 +177,7 @@ void exportRecords(py::module& m)
         .def_readwrite("standard_entropy", &ElementRecord::standard_entropy)
         .def_readwrite("heat_capacity", &ElementRecord::heat_capacity)
         .def_readwrite("volume", &ElementRecord::volume)
-        .def_readwrite("reference_form", &ElementRecord::reference_form)
+        .def_readwrite("reference_state", &ElementRecord::reference_state)
         .def_readwrite("structural", &ElementRecord::structural)
         .def_readwrite("data_sources", &ElementRecord::data_sources)
         .def_readwrite("sourcetdb", &ElementRecord::sourcetdb)
@@ -200,21 +221,32 @@ void exportRecords(py::module& m)
         .def(py::init<>())
         .def_readwrite("symbol", &MethodDefinition::symbol)
         .def_property_readonly("kind", [wordOf](const MethodDefinition& x) { return wordOf(x.kind); })
-        .def_readwrite("tier", &MethodDefinition::tier)
         .def_property_readonly("operates_on", [wordOf](const MethodDefinition& x) { return wordOf(x.operates_on); })
-        .def_readwrite("contributes_to", &MethodDefinition::contributes_to)
+        .def_property("contributes_to",
+            [](const MethodDefinition& m) { py::dict out; for (const auto& [name, word] : m.contributes_to) out[py::str(name)] = word; return out; },
+            [](MethodDefinition& m, const py::object& value) {
+                m.contributes_to.clear();
+                m.contributes_to_list = !py::isinstance<py::dict>(value);
+                if (m.contributes_to_list)
+                    for (const auto& name : value)
+                        m.contributes_to.emplace_back(py::str(name), "adds");
+                else
+                    for (const auto& [name, word] : value.cast<py::dict>())
+                        m.contributes_to.emplace_back(py::str(name), py::str(word));
+            },
+            "property -> sets, adds or uses (decision 0031); set a list of properties for the short form (each adds)")
+        .def_readwrite("contributes_to_list", &MethodDefinition::contributes_to_list, "True if written as a short list")
         .def_readwrite("parameter_definitions", &MethodDefinition::parameter_definitions)
         .def_readwrite("implementation_id", &MethodDefinition::implementation_id)
-        .def_readwrite("source_form", &MethodDefinition::source_form)
-        .def_readwrite("source_expression", &MethodDefinition::source_expression)
-        .def_readwrite("source_segments", &MethodDefinition::source_segments)
+        .def_readwrite("formula_form", &MethodDefinition::formula_form)
+        .def_readwrite("formula_expression", &MethodDefinition::formula_expression)
+        .def_readwrite("formula_segments", &MethodDefinition::formula_segments)
         .def_readwrite("expression", &MethodDefinition::expression)
         .def_readwrite("expression_segments", &MethodDefinition::expression_segments)
         .def_readwrite("generator", &MethodDefinition::generator)
-        .def_readwrite("source_hash", &MethodDefinition::source_hash)
+        .def_readwrite("formula_hash", &MethodDefinition::formula_hash)
         .def_readwrite("tests", &MethodDefinition::tests)
-        .def_readwrite("effects_json", &MethodDefinition::effects_json)
-        .def_readwrite("citation", &MethodDefinition::citation)
+        .def_readwrite("data_sources", &MethodDefinition::data_sources)
         .def_readwrite("extra_json", &MethodDefinition::extra_json)
         .def(py::self == py::self);
 
@@ -223,8 +255,7 @@ void exportRecords(py::module& m)
         .def_readwrite("symbol", &MethodParameterSet::symbol)
         .def_readwrite("method", &MethodParameterSet::method)
         .def_readwrite("parameters", &MethodParameterSet::parameters)
-        .def_readwrite("auxiliary", &MethodParameterSet::auxiliary)
-        .def_readwrite("reference", &MethodParameterSet::reference)
+        .def_readwrite("data_sources", &MethodParameterSet::data_sources)
         .def_readwrite("extra_json", &MethodParameterSet::extra_json)
         .def(py::self == py::self);
 
@@ -240,8 +271,8 @@ void exportRecords(py::module& m)
         .def_readwrite("sourcetdb", &ThermoDataSetInfo::sourcetdb)
         .def_readwrite("solvent", &ThermoDataSetInfo::solvent)
         .def_readwrite("defaults", &ThermoDataSetInfo::defaults)
-        .def_readwrite("default_data_source", &ThermoDataSetInfo::default_data_source)
-        .def_readwrite("water_triple_point_reference", &ThermoDataSetInfo::water_triple_point_reference)
+        .def_readwrite("data_sources", &ThermoDataSetInfo::data_sources)
+        .def_readwrite("physical_constants", &ThermoDataSetInfo::physical_constants, "the set of constants of physics the values were derived with, empty if not said")
         .def_readwrite("legacy_datasources", &ThermoDataSetInfo::legacy_datasources)
         .def_readwrite("legacy_date", &ThermoDataSetInfo::legacy_date)
         .def_readwrite("extra_json", &ThermoDataSetInfo::extra_json)

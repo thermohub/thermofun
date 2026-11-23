@@ -12,17 +12,13 @@ kernelspec:
   name: python3
 ---
 
-# 7. Batch calculations
+# Use ThermoBatch, the 0.x batch API
 
-This page is the Jupyter notebook [`07-batch-calculations.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/07-batch-calculations.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+**Related:** [Batch calculations](../tutorials/05-batch-calculations.md) · [Batch templates](../tutorials/06-batch-templates.md) · [Batch setups](../reference/batch.md) · [Migrate from the old API](migrate-from-the-old-api.md) · [Units](../reference/units.md)
 
-You learn to calculate many records at many temperatures and pressures with `ThermoBatch`, directly or from a template or a YAML setup.
+`ThermoBatch` is the batch API of ThermoFun 0.x, kept so that programs and notebooks written for it keep working: you give the records, the points and the properties in code, and set the units and digits with functions. New features come only in batch setups (`tf.batch`, [tutorial 5](../tutorials/05-batch-calculations.md)), which also compare models and databases, give uncertainties, derivatives and the properties of water, and record how a result was made. A batch setup can give you a `ThermoBatch` (`setup.batch()`), or set one that you have (`setup.apply_to(batch)`), as below.
 
 **You need:** ThermoFun, matplotlib, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
-
-**Related:** [Batch options](../reference/batch.md) · [Make tables](../how-to/make-tables.md) · [Migrate from the old API](../how-to/migrate-from-the-old-api.md) · [Units](../reference/units.md) · [Templates](05-templates.md) · [Output tables](06-output-tables.md)
-
-**Batch calculation or table?** Both calculate many records at many T and P, and both write files. `ThermoBatch` is the original interface of ThermoFun, with the same methods as the old API: you give the records, the points and the properties in code, and you set the units and digits with functions. A table (tutorials [5](05-templates.md) and [6](06-output-tables.md)) is the newer way: the same things are written in a setup, with the keys of a YAML file, and the setup can come from a template. A table also does what a batch cannot: compare models, uncertainties and derivatives in columns, water, and a record of how the table was made. Inside, a setup can give you the batch of its table (`setup.batch()`, see below).
 
 ```{code-cell} ipython3
 import os, pathlib
@@ -50,7 +46,7 @@ print(pathlib.Path("output/batch.csv").read_text())
 
 ## The results as numbers
 
-`to2DVectorDouble` gives one row for each record and condition, in the units of the engine and not in your units: J/mol, not kJ/mol. `values()` of a table follows your units.
+`to2DVectorDouble` gives one row for each record and condition, in the units of the engine and not in your units: J/mol, not kJ/mol. `values()` of a result of `tf.batch` follows your units.
 
 ```{code-cell} ipython3
 rows = output.to2DVectorDouble()
@@ -94,10 +90,10 @@ print(batch.thermoPropertiesSubstance([[298.15, 1e5]], symbols, ["gibbs_energy"]
 
 ## A batch from a template or a setup
 
-`setup.batch()` gives a batch with the engine, units, digits and preferences of a table, and the records and points to calculate. The conditions can come from a template `batch-*`.
+`setup.batch()` gives a batch with the engine, units, digits and preferences of a result, and the records and points to calculate. The conditions can come from a template `conditions-*`.
 
 ```{code-cell} ipython3
-setup = tf.tables.template(["species-properties", "batch-saturation"], database=AQ, records={"class": "aqueous_solute", "elements": ["Ca"]}, digits_P=3)
+setup = tf.template(["species-properties", "conditions-saturation"], database=AQ, substances={"class": "aqueous_solute", "elements": ["Ca"]}, digits={"P": 3})
 calculation = setup.batch("species")
 print(calculation.symbols)
 print(calculation.properties)
@@ -110,15 +106,16 @@ print(len(output.to2DVectorDouble()), "rows")
 print(pathlib.Path(calculation.write("output/from-template.csv")).read_text()[:800])
 ```
 
-`write` follows the layout of the setup, and starts the file with how it was made. In `points`, P = 0 is the saturation pressure, and the file has the pressure that was used. `digits_P` sets its decimals. The same setup can also give a table, with `setup.run()`.
+`write` follows the layout of the setup, and starts the file with how it was made. In `points`, P = 0 is the saturation pressure, and the file has the pressure that was used. `output.digits` with `P` sets its decimals. The same setup also runs as a batch calculation, with `setup.run()`.
 
 The setup does not need to be a template. This one could be a YAML file:
 
 ```{code-cell} ipython3
-setup = tf.tables.load({
+setup = tf.batch.load({
     "database": AQ,
     "conditions": {"T": {"from": 0, "to": 300, "step": 10, "unit": "degC"}, "P": {"values": ["saturation"], "unit": "bar"}},
-    "tables": [{"name": "calcite", "reactions": ["Calcite = Ca+2 + CO3-2"], "columns": [{"property": "logK"}], "provenance": "none"}],
+    "output": {"provenance": "none"},
+    "results": [{"name": "calcite", "reactions": ["Calcite = Ca+2 + CO3-2"], "properties": ["logK"]}],
 })
 calculation = setup.batch()
 logK = [row[0] for row in calculation.run().to2DVectorDouble()]
@@ -137,7 +134,7 @@ plt.show()
 
 ```{code-cell} ipython3
 batch = tf.ThermoBatch(AQ)
-tf.tables.template(["species-properties", "batch-reference", "output-publication"]).apply_to(batch)
+tf.template(["species-properties", "conditions-reference", "output-publication"]).apply_to(batch)
 print(batch.propertyUnits()["gibbs_energy"], batch.propertyUnits()["temperature"], batch.propertyDigits()["gibbs_energy"])
 
 batch.preferences.writeProvenance = True
@@ -145,29 +142,33 @@ batch.thermoPropertiesSubstance([[25.0, 1.0]], ["Ca+2"], ["gibbs_energy"]).toCSV
 print(pathlib.Path("output/mine.csv").read_text())
 ```
 
-## What needs a table
+## What needs tf.batch
 
-A batch has one engine, and writes the values of substances or of reactions. A setup with `compare`, with uncertainties or derivatives in its columns, or with the properties of water runs only as a table. The message says so.
+A `ThermoBatch` has one engine, and writes the values of substances or of reactions. A setup with `compare`, with uncertainties or derivatives in its properties, or with the properties of water runs only with `tf.batch`. The message says so.
 
 ```{code-cell} ipython3
 try:
-    tf.tables.template("water-properties", database=AQ).batch()
-except tf.tables.SetupError as error:
+    tf.template("water-properties", database=AQ).batch()
+except tf.BatchSetupError as error:
     print(error)
 ```
 
-## From ThermoBatch to tables
+## From ThermoBatch to a batch setup
 
-| `ThermoBatch` | In a setup |
+| `ThermoBatch` | In a batch setup |
 |---|---|
-| `toCSV` | `layout: long`, `output: x.csv` |
-| `toCSVTransposed` | `layout: transposed` |
-| `toCSVPropertyGrid` | `layout: grid`, with `across` |
-| `setPropertyUnit`, `setPropertyDigit` | `unit` and `digits` of a column, or `units` and `digits` of the table |
-| `setTemperatureIncrement`, `setPressureIncrement` | `from`, `to`, `step` in `conditions` |
-| `separator`, `isFixed`, `isScientific` | `separator`, `format` |
-| `writeProvenance` | `provenance` |
+| `thermoPropertiesSubstance(points, symbols, properties)` | `conditions` (`points: pairs`), `results: [{substances, properties}]` |
+| `thermoPropertiesReaction(...)` | `results: [{reactions, properties}]` |
+| `toCSV` | `output: {layout: long, file: x.csv}` |
+| `toCSVTransposed` | `output: {layout: wide}` |
+| `toCSVPropertyGrid` | `output: {layout: grid, grid_across: P}` |
+| `setPropertyUnit`, `setPropertyDigit` | `unit` and `digits` of a property, or `output: {units, digits}` (also `T`, `P`) |
+| `setTemperatureIncrement`, `setPressureIncrement` | `conditions: {T: {from, to, step, unit}}` |
+| `loopTemperatureThenPressure` | `conditions: {vary_first: P}` |
+| `loopOverTPpairsFirst` | `output: {rows_by: substance}` |
+| `separator`, `isFixed`, `isFloating`, `isScientific` | `output: {csv_separator, number_format}` |
+| `writeNaNifNotDefinedValue` | `output: {undefined: NaN}`, or `undefined: number` |
+| `substancePropertiesFromReaction`, `reactionPropertiesFromReactants` | `engine: {options: {property_source: reaction}}` (or `reactants`) |
+| `writeProvenance` | `output: {provenance: header}` |
 
-The other options are in [Batch options](../reference/batch.md), and the full list of settings is in [Make tables](../how-to/make-tables.md).
-
-**Next:** [8. Fit parameters](08-fit-parameters.md).
+The other keys are in [Batch setups](../reference/batch.md).

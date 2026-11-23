@@ -10,6 +10,7 @@ Source: Berman (1988).
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, S adds, V sets |
 | Classes | component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

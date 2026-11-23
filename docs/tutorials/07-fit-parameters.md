@@ -12,9 +12,9 @@ kernelspec:
   name: python3
 ---
 
-# 8. Fit parameters
+# 7. Fit parameters
 
-This page is the Jupyter notebook [`08-fit-parameters.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/08-fit-parameters.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
+This page is the Jupyter notebook [`07-fit-parameters.ipynb`](https://github.com/thermohub/thermofun-jupyter/blob/dev-v2/thermofun-basics/07-fit-parameters.ipynb) of [thermofun-jupyter](https://github.com/thermohub/thermofun-jupyter/tree/dev-v2/thermofun-basics), which also has the data files it reads: download them into one folder to run it.
 
 You learn to fit a parameter of a mineral to measured heat capacities.
 
@@ -36,10 +36,8 @@ import thermofun as tf
 from thermofun import fitting
 
 truth = tf.ThermoEngine("mineral-methods.yaml")
-measured = []
-for T in (600.0, 800.0, 1000.0, 1100.0, 1200.0):                # K
-    Cp = truth.thermoPropertiesSubstance(T, 1e5, "Calcite").heat_capacity_cp.val
-    measured.append(fitting.Observation("Calcite", "Cp", T, 1e5, Cp, 0.5))   # the last value is the uncertainty, J/(mol K)
+# Cp of Calcite at five T (K) and 1 bar, with the uncertainty 0.5 J/(mol K)
+measured = fitting.calculated(truth, "Calcite", "Cp", [600.0, 800.0, 1000.0, 1100.0, 1200.0], 1e5, uncertainty=0.5)
 ```
 
 ## Start from a wrong value

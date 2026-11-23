@@ -19,7 +19,7 @@ auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::s
     const auto it = bound_cache->reactions.find(record.get());
     if (it != bound_cache->reactions.end())
         return it->second;
-    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods()) : nullptr;
+    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods(), physics().R) : nullptr;
     bound_cache->reactions[record.get()] = bound;
     bound_cache->reaction_records.push_back(record);
     return bound;
@@ -50,7 +50,7 @@ auto ThermoEngine::Impl::warnIfLogKFunctionDisagrees(const Reaction &reaction) c
     if (ref.log_equilibrium_constant.sta.first != Reaktoro_::Status::notdefined)
         lgK_ref = ref.log_equilibrium_constant.val;
     else if (ref.reaction_gibbs_energy.sta.first != Reaktoro_::Status::notdefined)
-        lgK_ref = -ref.reaction_gibbs_energy.val / (R_CONSTANT * Tr * lg_to_ln);
+        lgK_ref = -ref.reaction_gibbs_energy.val / (physics().R * Tr * lg_to_ln);
     else
         return;
     ReactionInputs inputs;
@@ -107,11 +107,7 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
     // from the reactants: a record without methods, unless the source says otherwise. "reaction" is for substances only.
     const auto record = reaction.record();
     if (reactionFromReactants(reaction))
-    {
-        auto tpr = thermoPropertiesReactionFromReactants(T, P, reaction);
-        stampSource(tpr, "reactants");
-        return tpr;
-    }
+        return thermoPropertiesReactionFromReactants(T, P, reaction);
 
     if (const auto bound = boundReaction(reaction))
     {
@@ -122,12 +118,40 @@ auto ThermoEngine::Impl::thermoPropertiesReaction(double T, double &P, const Rea
             solvent = cachedSolvent(T, P, solvent_in_use, -1);
         else if (P == 0.0)
             P = saturationPressure(T);  // P = 0 is the saturation pressure of water also for a reaction that does not use water
-        auto tpr = model::executeReaction(*bound, T, P, solvent ? &*solvent : nullptr);
+        auto route = std::make_shared<Route>();
+        route->symbol = reaction.symbol();
+        route->kind = "reaction";
+        route->T = T;
+        route->by = "methods";
+        const auto methodOf = [&](const model::ReactionMethod& method, const RouteValues& contribution) {
+            RouteMethod m;
+            m.method = method.spec().id;
+            for (const auto& a : record->methods)
+                if (a.method == m.method)
+                    m.implementation = a.implementation;
+            m.contribution = contribution;
+            route->methods.push_back(std::move(m));
+        };
+        auto tpr = bound->base->calculate(T, P, ThermoPropertiesReaction{}, solvent ? &*solvent : nullptr);
+        methodOf(*bound->base, routeValues(tpr));
+        if (bound->volume)
+        {
+            const auto before = routeValues(tpr);
+            tpr = bound->volume->calculate(T, P, tpr, solvent ? &*solvent : nullptr);
+            methodOf(*bound->volume, routeValues(tpr) - before);
+        }
+        if (bound->needs_solvent)
+            route->needs.push_back({"solvent", 1.0, staticRoute(solvent_in_use)});
         // the species of the record in another standard state: to the canonical one
         const auto shift = reactionShift(reaction, model::mergeConvention(record->convention.value_or(model::Convention{}), database.thermoDataSet().convention), true);
         if (!shift.identity())
+        {
+            const auto before = routeValues(tpr);
             convert(tpr, shift, T, P, reaction.symbol());
-        stampSource(tpr, "methods");
+            route->conversions.push_back({"convention", "the standard state of the record to canonical", routeValues(tpr) - before});
+        }
+        route->P = P;
+        stampRoute(tpr, std::shared_ptr<const Route>(std::move(route)));
         return tpr;
     }
     return {};
@@ -166,8 +190,18 @@ auto ThermoEngine::Impl::thermoPropertiesReactionFromReactants(double T, double 
         symbols.push_back(substance);
     }
 
-    tpr = model::reactionFromReactants(T, P, reaction.symbol(), components, symbols);
+    tpr = model::reactionFromReactants(T, P, reaction.symbol(), components, symbols, physics().R);
 
+    auto route = std::make_shared<Route>();
+    route->symbol = reaction.symbol();
+    route->kind = "reaction";
+    route->T = T;
+    route->P = P;
+    route->by = "reactants";
+    route->contribution = routeValues(tpr);
+    for (const auto& [properties, coefficient] : components)
+        route->needs.push_back({"reactant", coefficient, properties.info.route});
+    stampRoute(tpr, std::shared_ptr<const Route>(std::move(route)));
     return tpr;
 }
 

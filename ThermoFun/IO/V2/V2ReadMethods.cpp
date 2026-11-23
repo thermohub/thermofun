@@ -181,7 +181,7 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
     if (!list.is_array())
         return out;
     static const std::set<std::string> known = {"method", "parameters", "parameter_set", "segments", "transitions", "applicability",
-                                                "region", "table", "units", "implementation", "interpolation", "order"};
+                                                "region", "table", "units", "implementation", "interpolation", "interpolation_order"};
     int index = 0;
     for (const auto& node : list)
     {
@@ -219,7 +219,7 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
             continue;
         }
         app.interpolation = vocabulary<Interpolation>(c, optionalString(node, "interpolation"), record, where + "/interpolation");
-        if (auto order = optionalInt(node, "order"))
+        if (auto order = optionalInt(node, "interpolation_order"))
             app.interpolation_order = *order;
 
         const bool hasParameters = node.contains("parameters"), hasSegments = node.contains("segments"),
@@ -274,28 +274,67 @@ auto readMethods(Context& c, const json& list, OperatesOn operatesOn, const Unit
     return out;
 }
 
-auto readConvention(Context& c, const json& node, const std::string& record, const std::string& path) -> std::optional<Convention>
+auto readConvention(Context& c, const json& node, const UnitScope& scope, const std::string& record, const std::string& path) -> std::optional<Convention>
 {
-    if (!node.is_object())
+    // the blocks standard_state and energy_reference of a record, a dataset or a method (decision 0031, row 6)
+    const bool state = node.contains("standard_state"), energy = node.contains("energy_reference");
+    if (!state && !energy)
         return std::nullopt;
     // a wrong word here would give wrong values without a sign: an error, not a warning
-    const auto word = [&]<typename E>(std::type_identity<E>, const char* key) -> std::optional<E> {
-        const std::string text = optionalString(node, key);
+    const auto word = [&]<typename E>(std::type_identity<E>, const json& block, const char* key, const std::string& where) -> std::optional<E> {
+        const std::string text = optionalString(block, key);
         if (text.empty())
             return std::nullopt;
         const auto value = fromString<E>(text);
         if (!value)
-            report(c, Severity::Error, "CNV-005", record, path + "/" + key, unknownWordMessage<E>(text));
+            report(c, Severity::Error, "CNV-005", record, where + "/" + key, unknownWordMessage<E>(text));
         return value;
     };
     Convention conv;
-    conv.energy_reference = word(std::type_identity<EnergyReference>{}, "energy_reference");
-    if (conv.energy_reference == EnergyReference::DFTFormation0K)
-        report(c, Severity::Warning, "CNV-008", record, path + "/energy_reference",
-               "dft_formation_0K: the energy at 0 K is used as the enthalpy of formation at 298.15 K; the values are estimates.");
-    conv.standard_pressure = word(std::type_identity<StandardPressure>{}, "standard_pressure");
-    conv.concentration_scale = word(std::type_identity<ConcentrationScale>{}, "concentration_scale");
-    conv.water_reference = word(std::type_identity<WaterReference>{}, "water_reference");
+    if (state)
+    {
+        const std::string where = path + "/standard_state";
+        const json& block = node["standard_state"];
+        if (!block.is_object())
+            report(c, Severity::Error, "CNV-005", record, where, "standard_state is a mapping: {pressure, concentration_scale}; pressure is 1bar, 1atm or a pressure.");
+        else
+        {
+            static const std::set<std::string> known = {"pressure", "concentration_scale"};
+            extraKeys(c, block, known, record, where);
+            // p°: the words 1bar and 1atm, or any pressure (GB4 4.11.1 (v)), a number in Pa or with a unit
+            if (block.contains("pressure") && block["pressure"].is_string())
+            {
+                if (const auto p = word(std::type_identity<StandardPressure>{}, block, "pressure", where))
+                    conv.standard_state.pressure = pascals(*p);
+            }
+            else if (const auto q = quantity(c, block, "pressure", "Pa", scope, record, where))
+            {
+                if (q->value > 0.0)
+                    conv.standard_state.pressure = q->value;
+                else
+                    report(c, Severity::Error, "CNV-005", record, where + "/pressure", "The standard pressure must be above 0.");
+            }
+            conv.standard_state.concentration_scale = word(std::type_identity<ConcentrationScale>{}, block, "concentration_scale", where);
+        }
+    }
+    if (energy)
+    {
+        const std::string where = path + "/energy_reference";
+        const json& block = node["energy_reference"];
+        if (!block.is_object())
+            report(c, Severity::Error, "CNV-005", record, where, "energy_reference is a mapping: {elements, water, ions}.");
+        else
+        {
+            static const std::set<std::string> known = {"elements", "water", "ions"};
+            extraKeys(c, block, known, record, where);
+            conv.energy_reference.elements = word(std::type_identity<EnergyReference>{}, block, "elements", where);
+            if (conv.energy_reference.elements == EnergyReference::DFTFormation0K)
+                report(c, Severity::Warning, "CNV-008", record, where + "/elements",
+                       "dft_formation_0K: the energy at 0 K is used as the enthalpy of formation at 298.15 K; the values are estimates.");
+            conv.energy_reference.water = word(std::type_identity<WaterReference>{}, block, "water", where);
+            conv.energy_reference.ions = word(std::type_identity<Ions>{}, block, "ions", where);
+        }
+    }
     return conv;
 }
 
@@ -305,13 +344,13 @@ auto standardStateLabel(Context& c, const json& node, std::optional<Convention>&
     if (!node.contains("standard_state_convention"))
         return;
     report(c, Severity::Warning, "V2-KEY-003", record, path + "/standard_state_convention",
-           "standard_state_convention \"" + label + "\" is not read; give convention: {standard_pressure: ...}.");
+           "standard_state_convention \"" + label + "\" is not read; give standard_state: {pressure: ...}.");
     if (label.find("1atm") != std::string::npos)
     {
         if (!convention)
             convention = Convention{};
-        if (!convention->standard_pressure)
-            convention->standard_pressure = StandardPressure::OneAtm;
+        if (!convention->standard_state.pressure)
+            convention->standard_state.pressure = 101325.0;
     }
 }
 

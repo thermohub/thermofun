@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 ThermoFun contributors
 
-# Rules that choose records, templates of your own, the record of how a result was made, and a setup as a ThermoBatch.
+# Rules that choose records, templates of your own, the provenance of a result, and a batch setup as a ThermoBatch (decision 0032).
 
 import csv
 import pathlib
@@ -13,9 +13,14 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 AQ = str(ROOT / "Resources" / "databases" / "aq17-thermofun.json")
 
 
-def setup(**more):
-    return {"database": AQ, "conditions": {"T": {"values": [25.0, 100.0], "unit": "degC"}, "P": {"values": [1.0, 100.0], "unit": "bar"}, "pairs": True},
-            "tables": [{"name": "t", "records": ["Ca+2", "Calcite"], "columns": [{"property": "G", "unit": "kJ/mol", "digits": 3}, {"property": "S", "digits": 2}], **more}]}
+def setup(output=None, engine=None, **result):
+    made = {"database": AQ, "conditions": {"T": {"values": [25.0, 100.0], "unit": "degC"}, "P": {"values": [1.0, 100.0], "unit": "bar"}, "points": "pairs"},
+            "results": [{"name": "t", "substances": ["Ca+2", "Calcite"], "properties": [{"name": "G", "unit": "kJ/mol", "digits": 3}, {"name": "S", "digits": 2}], **result}]}
+    if output:
+        made["output"] = output
+    if engine:
+        made["engine"] = engine
+    return made
 
 
 # --- rules ----------------------------------------------------------------------------------------------------------------
@@ -23,21 +28,21 @@ def setup(**more):
 def test_a_rule_chooses_by_class_elements_and_charge():
     database = tf.Database(AQ)
     substances = {s: database.getSubstance(s) for s in database.getSubstancesList()}
-    aqueous = tf.tables.select_substances(database, {"class": "aqueous_solute"})
+    aqueous = tf.batch.select_substances(database, {"class": "aqueous_solute"})
     assert aqueous == sorted(s for s, x in substances.items() if x.substanceClass() == tf.SubstanceClass.AQSOLUTE)
     assert "Calcite" not in aqueous
 
-    with_ca = tf.tables.select_substances(database, {"elements": ["Ca"]})
+    with_ca = tf.batch.select_substances(database, {"elements": ["Ca"]})
     assert "Ca+2" in with_ca and "Calcite" in with_ca and "Na+" not in with_ca
     assert all("Ca" in substances[s].formula() for s in with_ca)
-    assert "Calcite" in tf.tables.select_substances(database, {"elements": ["Ca", "C"]})
-    assert "Ca+2" not in tf.tables.select_substances(database, {"elements": ["Ca", "C"]})
+    assert "Calcite" in tf.batch.select_substances(database, {"elements": ["Ca", "C"]})
+    assert "Ca+2" not in tf.batch.select_substances(database, {"elements": ["Ca", "C"]})
 
-    only = tf.tables.select_substances(database, {"only_elements": ["Ca", "C", "O"]})
+    only = tf.batch.select_substances(database, {"only_elements": ["Ca", "C", "O"]})
     assert "Calcite" in only and "Ca+2" in only and "CaOH+" not in only      # the charge is not an element
 
-    assert tf.tables.select_substances(database, {"charge": 2, "elements": ["Ca"]}) == [s for s in with_ca if substances[s].charge() == 2]
-    assert tf.tables.select_substances(database, "{match: 'Ca*', exclude: [Calcite, 'CaC*']}") == [s for s in sorted(substances) if s.startswith("Ca") and s != "Calcite" and not s.startswith("CaC")]
+    assert tf.batch.select_substances(database, {"charge": 2, "elements": ["Ca"]}) == [s for s in with_ca if substances[s].charge() == 2]
+    assert tf.batch.select_substances(database, "{match: 'Ca*', exclude: [Calcite, 'CaC*']}") == [s for s in sorted(substances) if s.startswith("Ca") and s != "Calcite" and not s.startswith("CaC")]
 
 
 def test_a_rule_chooses_reactions():
@@ -47,22 +52,22 @@ def test_a_rule_chooses_reactions():
         pytest.skip("no reactions in this file")
     first = database.getReaction(names[0])
     species = list(first.reactants())[0]
-    chosen = tf.tables.select_reactions(database, {"involving": [species]})
+    chosen = tf.batch.select_reactions(database, {"involving": [species]})
     assert names[0] in chosen
     assert all(species in database.getReaction(r).reactants() for r in chosen)
 
 
-def test_a_table_takes_a_rule_a_list_or_both():
+def test_a_result_takes_a_rule_a_list_or_both():
     rule = {"class": "aqueous_solute", "elements": ["Ca"]}
-    table = tf.table(setup(records=rule))["t"]
-    expected = tf.tables.select_substances(tf.Database(AQ), rule)
+    table = tf.batch(setup(substances=rule))["t"]
+    expected = tf.batch.select_substances(tf.Database(AQ), rule)
     assert sorted({r[0] for r in table.rows}) == expected
 
-    mixed = tf.table(setup(records=["Calcite", rule, "Ca+2"]))["t"]
+    mixed = tf.batch(setup(substances=["Calcite", rule, "Ca+2"]))["t"]
     assert [r[0] for r in mixed.rows[::2]] == ["Calcite"] + expected          # a symbol once, in the order given
 
-    assert table.value("Ca+2", 25.0, 1.0, "G") == tf.table(setup())["t"].value("Ca+2", 25.0, 1.0, "G")
-    saved = tf.tables.load(setup(records=rule))
+    assert table.value("Ca+2", 25.0, 1.0, "G") == tf.batch(setup())["t"].value("Ca+2", 25.0, 1.0, "G")
+    saved = tf.batch.load(setup(substances=rule))
     assert "class: aqueous_solute" in saved.to_yaml()
 
 
@@ -73,66 +78,64 @@ def test_a_table_takes_a_rule_a_list_or_both():
     ({}, "is empty"),
 ])
 def test_a_wrong_rule_says_why(rule, words):
-    with pytest.raises(tf.tables.SetupError, match=words):
-        tf.table(setup(records=rule))
+    with pytest.raises(tf.BatchSetupError, match=words):
+        tf.batch(setup(substances=rule))
 
 
 def test_a_misspelled_key_says_why():
-    with pytest.raises(tf.tables.SetupError, match="Did you mean layout"):
-        tf.table(setup(layuot="grid"))
-    with pytest.raises(tf.tables.SetupError, match="Did you mean unit"):
-        tf.table({**setup(), "tables": [{"name": "t", "records": ["Ca+2"], "columns": [{"property": "G", "units": "kJ/mol"}]}]})
+    with pytest.raises(tf.BatchSetupError, match="Did you mean layout"):
+        tf.batch(setup(output={"layuot": "grid"}))
+    with pytest.raises(tf.BatchSetupError, match="Did you mean unit"):
+        tf.batch({**setup(), "results": [{"name": "t", "substances": ["Ca+2"], "properties": [{"name": "G", "units": "kJ/mol"}]}]})
 
 
 # --- templates --------------------------------------------------------------------------------------------------------------
 
 def test_a_template_of_your_own(tmp_path, monkeypatch):
-    (tmp_path / "my-table.yaml").write_text("# My own table\nconditions:\n  T: {values: [25], unit: degC}\n  P: {values: [1], unit: bar}\ntables:\n  - name: mine\n    columns: [G]\n")
-    (tmp_path / "species-properties.yaml").write_text("# Mine replaces it\nconditions:\n  T: {values: [50], unit: degC}\n  P: {values: [1], unit: bar}\ntables:\n  - name: species\n    columns: [S]\n")
-    assert "my-table" not in tf.tables.templates()
+    (tmp_path / "my-table.yaml").write_text("# My own table\nconditions:\n  T: {values: [25], unit: degC}\n  P: {values: [1], unit: bar}\nresults:\n  - name: mine\n    properties: [G]\n")
+    (tmp_path / "species-properties.yaml").write_text("# Mine replaces it\nconditions:\n  T: {values: [50], unit: degC}\n  P: {values: [1], unit: bar}\nresults:\n  - name: species\n    properties: [S]\n")
+    assert "my-table" not in tf.templates()
     monkeypatch.setenv("THERMOFUN_TEMPLATE_PATH", str(tmp_path))
-    assert tf.tables.template_folders() == [str(tmp_path)]
-    assert tf.tables.templates()["my-table"] == "My own table"
-    assert tf.tables.template_source("my-table") == str(tmp_path / "my-table.yaml")
-    assert tf.tables.template_source("logk-grid") == "library"
-    results = tf.table(template="my-table", database=AQ, records=["Ca+2"])
+    assert tf.batch.template_folders() == [str(tmp_path)]
+    assert tf.templates()["my-table"] == "My own table"
+    assert tf.batch.template_source("my-table") == str(tmp_path / "my-table.yaml")
+    assert tf.batch.template_source("logk-grid") == "library"
+    results = tf.batch(template="my-table", database=AQ, substances=["Ca+2"])
     assert results["mine"].rows[0][0] == "Ca+2"
     assert any(str(tmp_path) in t for t in results["mine"].provenance.templates)
-    assert tf.table(template="species-properties", database=AQ, records=["Ca+2"])["species"].columns[0]["property"] == "S"
+    assert tf.batch(template="species-properties", database=AQ, substances=["Ca+2"])["species"].columns[0]["property"] == "S"
 
 
 def test_a_setup_names_templates_and_changes_them(tmp_path):
     file = tmp_path / "s.yaml"
-    file.write_text(f"template: [species-properties, batch-reference, output-publication]\ndatabase: {AQ}\nrecords: [Ca+2]\ntables:\n  - name: species\n    layout: transposed\n  - name: extra\n    columns: [V]\n")
-    results = tf.table(str(file))
+    file.write_text(f"template: [species-properties, conditions-reference, output-publication]\ndatabase: {AQ}\nresults:\n  - name: species\n    substances: [Ca+2]\n    output: {{layout: wide}}\n  - name: extra\n    substances: [Ca+2]\n    properties: [V]\n")
+    results = tf.batch(str(file))
     species = results["species"]
     assert [r[1:3] for r in species.rows] == [(25.0, 1.0)]
     assert species.columns[0]["unit"] == "kJ/mol" and species.grid()[0][0] == "Property"
     assert "extra" in results and results["extra"].rows[0][0] == "Ca+2"
-    assert [t for t in species.provenance.templates] == ["species-properties", "batch-reference", "output-publication"]
+    assert [t for t in species.provenance.templates] == ["species-properties", "conditions-reference", "output-publication"]
 
 
 def test_a_template_that_uses_itself_says_so(tmp_path, monkeypatch):
     (tmp_path / "a.yaml").write_text("template: b\n")
     (tmp_path / "b.yaml").write_text("template: a\n")
     monkeypatch.setenv("THERMOFUN_TEMPLATE_PATH", str(tmp_path))
-    with pytest.raises(tf.tables.SetupError, match="uses itself"):
-        tf.tables.template("a")
+    with pytest.raises(tf.BatchSetupError, match="uses itself"):
+        tf.template("a")
 
 
 def test_saved_setup_gives_the_same_table_without_the_templates(tmp_path):
-    made = tf.tables.template(["species-properties", "batch-reference"], database=AQ, records={"elements": ["Ca"], "class": "aqueous_solute"})
+    made = tf.template(["species-properties", "conditions-reference"], database=AQ, substances={"elements": ["Ca"], "class": "aqueous_solute"})
     path = made.save(str(tmp_path / "saved.yaml"))
     assert "template:" not in pathlib.Path(path).read_text().replace("from_templates:", "")
-    assert tf.table(path)["species"].to_text() == made.run()["species"].to_text()
+    assert tf.batch(path)["species"].to_text() == made.run()["species"].to_text()
 
 
 def test_units_and_digits_for_each_property():
-    made = setup()
-    made["tables"][0]["columns"] = ["G", "S"]
-    made["units"] = {"G": "kJ/mol"}
-    made["digits"] = {"G": 1, "entropy": 3}
-    table = tf.table(made)["t"]
+    made = setup(output={"units": {"G": "kJ/mol"}, "digits": {"G": 1, "entropy": 3}})
+    made["results"][0]["properties"] = ["G", "S"]
+    table = tf.batch(made)["t"]
     assert table.columns[0]["unit"] == "kJ/mol"
     line = table.grid()[1]
     assert len(line[3].split(".")[1]) == 1 and len(line[4].split(".")[1]) == 3
@@ -141,14 +144,15 @@ def test_units_and_digits_for_each_property():
 # --- how it was made -----------------------------------------------------------------------------------------------------------
 
 def test_the_top_of_a_file_says_how_it_was_made(tmp_path):
-    table = tf.table(setup())["t"]
-    lines = table.provenance.lines()
+    table = tf.batch(setup())["t"]
+    lines = table.provenance.text().splitlines()
     assert lines[0] == "database: " + AQ
     joined = "\n".join(lines)
     assert "ThermoFun " in joined and "physical constants " in joined and "sha256 " in joined and "water: H2O@:" in joined and "conventions: " in joined
-    snapshot = table.provenance.calculations[0][1]
-    assert snapshot.physical_constants == tf.methods.physicalConstants()["name"]
-    assert snapshot.water_methods and snapshot.content_hash == tf.ThermoEngine(AQ).snapshot().content_hash
+    summary = table.provenance.calculations[0][1]
+    assert summary.physical_constants == "codata1986"
+    assert summary.water_methods and summary.content_hash == tf.ThermoEngine(AQ).summary().content_hash
+    assert str(tf.ThermoEngine(AQ).summary()) == tf.ThermoEngine(AQ).summary().text() and "water: H2O@:" in summary.text()
 
     for name, start, end in [("a.csv", "# database", None), ("a.md", "<!--", "-->"), ("a.tex", "% database", None)]:
         text = pathlib.Path(table.write(str(tmp_path / name))).read_text()
@@ -163,31 +167,31 @@ def test_the_top_of_a_file_says_how_it_was_made(tmp_path):
 
 def test_a_file_is_the_same_when_made_again(tmp_path):
     a, b = tmp_path / "a.csv", tmp_path / "b.csv"
-    tf.table(setup())["t"].write(str(a))
-    tf.table(setup())["t"].write(str(b))
+    tf.batch(setup())["t"].write(str(a))
+    tf.batch(setup())["t"].write(str(b))
     assert a.read_text() == b.read_text()      # no date in it: a change in the file is a change in the results or the data
 
 
 def test_the_record_can_be_a_separate_file_or_nothing(tmp_path):
-    path = tf.table(setup(provenance="file"))["t"].write(str(tmp_path / "f.csv"))
+    path = tf.batch(setup(output={"provenance": "file"}))["t"].write(str(tmp_path / "f.csv"))
     assert pathlib.Path(path).read_text().startswith("Symbol,")
     side = (tmp_path / "f.csv.provenance.yaml").read_text()
-    assert "sha256: " in side and "setup:" in side and "columns:" in side
+    assert "sha256: " in side and "setup:" in side and "properties:" in side
 
-    path = tf.table(setup(provenance="none"))["t"].write(str(tmp_path / "n.csv"))
+    path = tf.batch(setup(output={"provenance": "none"}))["t"].write(str(tmp_path / "n.csv"))
     assert pathlib.Path(path).read_text().startswith("Symbol,")
     assert not (tmp_path / "n.csv.provenance.yaml").exists()
 
-    with pytest.raises(tf.tables.SetupError, match="header, file or none"):
-        tf.table(setup(provenance="maybe"))
+    with pytest.raises(tf.BatchSetupError, match="provenance is one of header, file, none"):
+        tf.batch(setup(output={"provenance": "maybe"}))
 
 
 def test_the_record_names_each_engine_of_a_comparison_and_the_options():
-    made = setup(options={"round_to_uncertainty": True})
-    lines = tf.table(made)["t"].provenance.lines()
+    made = setup(engine={"options": {"round_to_uncertainty": True}})
+    lines = tf.batch(made)["t"].provenance.text().splitlines()
     assert any(line.startswith("options:") and "round_to_uncertainty = true" in line for line in lines)
-    two = setup(compare=[{"label": "A"}, {"label": "B", "options": {"fallback_to_reference_properties": True}}])
-    lines = tf.table(two)["t"].provenance.lines()
+    two = setup(compare=[{"label": "A"}, {"label": "B", "engine": {"options": {"fallback_to_reference_properties": True}}}])
+    lines = tf.batch(two)["t"].provenance.text().splitlines()
     assert any(line.startswith("[A] ThermoFun") for line in lines) and any(line.startswith("[B] options:") for line in lines)
 
 
@@ -202,7 +206,7 @@ def batch_by_hand():
 
 
 def test_a_setup_makes_the_batch_that_you_would_write(tmp_path):
-    made = tf.tables.load(setup(provenance="none"))
+    made = tf.batch.load(setup(output={"provenance": "none"}))
     calculation = made.batch()
     assert calculation.symbols == ["Ca+2", "Calcite"] and calculation.properties == ["gibbs_energy", "entropy"] and not calculation.for_reactions
     assert calculation.points == [[25.0, 1.0], [100.0, 100.0]]
@@ -212,7 +216,7 @@ def test_a_setup_makes_the_batch_that_you_would_write(tmp_path):
 
 
 def test_a_batch_has_the_numbers_of_the_table(tmp_path):
-    made = tf.tables.load(setup(provenance="none"))
+    made = tf.batch.load(setup(output={"provenance": "none"}))
     assert made.batch().run().to2DVectorDouble()[0][0] == pytest.approx(tf.ThermoEngine(AQ).thermoPropertiesSubstance(298.15, 1e5, "Ca+2").gibbs_energy.val, rel=1e-12)
     rows = list(csv.reader(open(made.batch().write(str(tmp_path / "b.csv")))))
     table = list(csv.reader(made.run()["t"].to_text().splitlines()))
@@ -222,7 +226,7 @@ def test_a_batch_has_the_numbers_of_the_table(tmp_path):
 
 
 def test_a_batch_takes_a_rule_a_template_and_the_layout(tmp_path):
-    made = tf.tables.template(["species-properties", "batch-saturation"], database=AQ, records={"class": "aqueous_solute", "elements": ["Ca"]}, provenance="none")
+    made = tf.template(["species-properties", "conditions-saturation"], database=AQ, substances={"class": "aqueous_solute", "elements": ["Ca"]}, provenance="none")
     calculation = made.batch("species")
     assert "Ca+2" in calculation.symbols and all(p[1] == 0.0 for p in calculation.points)
     values = calculation.run().to2DVectorDouble()
@@ -230,24 +234,24 @@ def test_a_batch_takes_a_rule_a_template_and_the_layout(tmp_path):
     # at the saturation pressure, as in the engine
     assert values[0][0] == pytest.approx(tf.ThermoEngine(AQ).thermoPropertiesSubstance(298.15, 0.0, calculation.symbols[0]).gibbs_energy.val, rel=1e-12)
 
-    made.set(layout="transposed")
+    made.fill(layout="wide")
     rows = pathlib.Path(made.batch("species").write(str(tmp_path / "t.csv"))).read_text().splitlines()
     assert rows[0].startswith("Property,")
 
 
 def test_a_batch_of_reactions():
-    made = tf.tables.template(["reaction-properties", "batch-reference"], database=AQ, reactions=["Calcite = Ca+2 + CO3-2"], provenance="none")
-    made.set(columns=["logK", "dG"])
+    made = tf.template(["reaction-properties", "conditions-reference"], database=AQ, reactions=["Calcite = Ca+2 + CO3-2"], provenance="none")
+    made.fill(properties=["logK", "dG"])
     calculation = made.batch()
     assert calculation.for_reactions and calculation.properties == ["logKr", "reaction_gibbs_energy"]
 
 
 def test_a_batch_writes_how_it_was_made(tmp_path):
-    made = tf.tables.template(["species-properties", "batch-reference"], database=AQ, records=["Ca+2"])
+    made = tf.template(["species-properties", "conditions-reference"], database=AQ, substances=["Ca+2"])
     calculation = made.batch()
     path = calculation.write(str(tmp_path / "p.csv"))
     text = pathlib.Path(path).read_text()
-    assert text.startswith("# database: " + AQ) and "# templates: species-properties, batch-reference" in text and "sha256 " in text
+    assert text.startswith("# database: " + AQ) and "# templates: species-properties, conditions-reference" in text and "sha256 " in text
     assert calculation.provenance.calculations[0][1].content_hash in text
 
     # a batch of your own: off by default, as before
@@ -263,7 +267,7 @@ def test_a_batch_writes_how_it_was_made(tmp_path):
 
 def test_the_settings_go_on_a_batch_of_your_own():
     b = tf.ThermoBatch(AQ)
-    tf.tables.load(setup(separator=";", format="scientific")).apply_to(b)
+    tf.batch.load(setup(output={"csv_separator": ";", "number_format": "scientific"})).apply_to(b)
     assert b.preferences.separator == ";" and b.preferences.isScientific and not b.preferences.isFixed
     assert b.propertyUnits()["gibbs_energy"] == "kJ/mol" and b.propertyUnits()["temperature"] == "degC"
     assert b.propertyDigits()["entropy"] == 2
@@ -278,28 +282,29 @@ def test_a_batch_rule_on_a_batch_of_your_own():
 
 @pytest.mark.parametrize("more, words", [
     ({"compare": [{"label": "a"}]}, "compare"),
-    ({"columns": [{"property": "G", "show": "err"}]}, "needs a table"),
-    ({"columns": ["density"]}, "use a table"),
-    ({"reactions": ["Calcite = Ca+2 + CO3-2"]}, "records and reactions"),
+    ({"properties": [{"name": "G", "show": "uncertainty"}]}, "needs tf.batch"),
+    ({"properties": ["density"]}, "use a table"),
+    ({"reactions": ["Calcite = Ca+2 + CO3-2"]}, "substances and reactions"),
 ])
 def test_what_a_batch_cannot_do_it_says(more, words):
-    made = tf.tables.load(setup(**more))
-    with pytest.raises(tf.tables.SetupError, match=words):
+    made = tf.batch.load(setup(**more))
+    with pytest.raises(tf.BatchSetupError, match=words):
         made.batch()
 
 
-def test_a_setup_of_two_tables_asks_which():
+def test_a_setup_of_two_results_asks_which():
     made = setup()
-    made["tables"].append({"name": "u", "records": ["Na+"], "columns": ["G"]})
-    with pytest.raises(tf.tables.SetupError, match="Name one table"):
-        tf.tables.load(made).batch()
-    assert tf.tables.load(made).batch("u").symbols == ["Na+"]
+    made["results"].append({"name": "u", "substances": ["Na+"], "properties": ["G"]})
+    with pytest.raises(tf.BatchSetupError, match="Name one result"):
+        tf.batch.load(made).batch()
+    assert tf.batch.load(made).batch("u").symbols == ["Na+"]
 
 
 @pytest.mark.parametrize("across", ["P", "T"])
 def test_a_batch_grid_has_the_axis_of_the_setup(tmp_path, monkeypatch, across):
-    made = tf.tables.load({"database": AQ, "conditions": {"T": {"values": [25.0, 50.0, 75.0], "unit": "degC"}, "P": {"values": [1.0, 100.0], "unit": "bar"}},
-                           "tables": [{"name": "t", "records": ["Ca+2"], "columns": [{"property": "G", "digits": 3}], "layout": "grid", "across": across, "provenance": "none"}]})
+    made = tf.batch.load({"database": AQ, "conditions": {"T": {"values": [25.0, 50.0, 75.0], "unit": "degC"}, "P": {"values": [1.0, 100.0], "unit": "bar"}},
+                          "output": {"layout": "grid", "grid_across": across, "provenance": "none"},
+                          "results": [{"name": "t", "substances": ["Ca+2"], "properties": [{"name": "G", "digits": 3}]}]})
     monkeypatch.chdir(tmp_path)
     made.batch().write("g.csv")
     rows = list(csv.reader(open(tmp_path / "gibbs_energy_g.csv")))
@@ -315,29 +320,29 @@ def test_a_saved_setup_finds_its_database_from_another_folder(tmp_path, monkeypa
     (tmp_path / "work" / "keep").mkdir(parents=True)
     (tmp_path / "data" / "aq.json").write_text(pathlib.Path(AQ).read_text())
     monkeypatch.chdir(tmp_path / "work")
-    made = tf.tables.template(["species-properties", "batch-reference"], database="../data/aq.json", records=["Ca+2"])
+    made = tf.template(["species-properties", "conditions-reference"], database="../data/aq.json", substances=["Ca+2"])
     path = made.save("keep/saved.yaml")
     assert "../../data/aq.json" in pathlib.Path(path).read_text()
     assert made.to_yaml().count("../data/aq.json") == 1             # the setup in memory keeps its path
-    again = tf.tables.load(path)
+    again = tf.batch.load(path)
     assert again.run()["species"].to_text() == made.run()["species"].to_text()
     moved = again.save(str(tmp_path / "other.yaml"))                # a setup read from a file: from where that file was
     assert "database: data/aq.json" in pathlib.Path(moved).read_text()
-    assert tf.table(moved)["species"].to_text() == made.run()["species"].to_text()
+    assert tf.batch(moved)["species"].to_text() == made.run()["species"].to_text()
 
 
 def test_the_record_names_the_implementation_that_runs():
     engine = tf.ThermoEngine(AQ)
-    assert engine.calculationPath("Ca+2")["methods"] == ["HKF88/reaktoro"]
+    assert [(m.method, m.implementation) for m in engine.route("Ca+2").methods] == [("HKF88", "reaktoro")]
     preferences = engine.preferences
     preferences.method_implementation = {"HKF88": "gems"}
     engine.setPreferences(preferences)
-    assert engine.calculationPath("Ca+2")["methods"] == ["HKF88/gems"]
-    made = setup(options={"method_implementation": {"JohnsonNorton91": "gems"}})
-    assert any("JohnsonNorton91/gems" in line for line in tf.table(made)["t"].provenance.lines())
+    assert [(m.method, m.implementation) for m in engine.route("Ca+2").methods] == [("HKF88", "gems")]
+    made = setup(engine={"options": {"method_implementation": {"JohnsonNorton91": "gems"}}})
+    assert any("JohnsonNorton91/gems" in line for line in tf.batch(made)["t"].provenance.text().splitlines())
 
 
 def test_digits_of_the_conditions_go_on_a_batch():
     b = tf.ThermoBatch(AQ)
-    tf.tables.load(setup(digits_T=1, digits_P=3)).apply_to(b)
+    tf.batch.load(setup(output={"digits": {"T": 1, "P": 3}})).apply_to(b)
     assert b.propertyDigits()["temperature"] == 1 and b.propertyDigits()["pressure"] == 3

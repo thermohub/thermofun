@@ -68,12 +68,12 @@ print(database.get("/substances/Ca+2/methods/0/method"), database.get("/substanc
 
 ## Choose records by a rule
 
-A rule gives the symbols of the records that fit. It is shorter than a list, and tables and batch calculations use it too.
+A rule gives the symbols of the records that fit. It is shorter than a list, and batch calculations use it too.
 
 ```{code-cell} ipython3
-print(tf.tables.select_substances(database, {"class": "aqueous_solute", "elements": ["Ca"]}))
-print(tf.tables.select_substances(database, {"only_elements": ["Ca", "C", "O"], "aggregate_state": "crystal"}))
-print(tf.tables.select_substances(database, {"match": "Ca*", "exclude": ["CaC*"]}))
+print(tf.batch.select_substances(database, {"class": "aqueous_solute", "elements": ["Ca"]}))
+print(tf.batch.select_substances(database, {"only_elements": ["Ca", "C", "O"], "aggregate_state": "crystal"}))
+print(tf.batch.select_substances(database, {"match": "Ca*", "exclude": ["CaC*"]}))
 ```
 
 ## Write your own data
@@ -101,26 +101,25 @@ sodium = engine.thermoPropertiesSubstance(373.15, 1e7, "Na+")
 print(sodium.gibbs_energy.val, "J/mol")
 ```
 
-`Na+` needs water. `HKF88` reads the density and the dielectric constant from the record `H2O@`, which has an equation of state of water and a dielectric model. `calculationPath` shows what a record uses:
+`Na+` needs water. `HKF88` reads the density and the dielectric constant from the record `H2O@`, which has an equation of state of water and a dielectric model. The route of a record shows what it uses:
 
 ```{code-cell} ipython3
-path = engine.calculationPath("Na+")
-print("methods of Na+:", path["methods"])
-print("needs the record", path["steps"][0]["symbol"], "as", path["steps"][0]["role"])
+print(engine.route("Na+"))
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+route = engine.route("Na+")
 assert sodium.gibbs_energy.sta[0] == tf.Status.calculated
-assert path["source"] == "methods"
-assert path["steps"][0]["role"] == "solvent" and path["steps"][0]["symbol"] == "H2O@"
+assert route.by == "methods"
+assert route.needs[0].role == "solvent" and route.needs[0].route.symbol == "H2O@"
 ```
 
 The reaction has no methods, so its properties come from its reactants.
 
 ```{code-cell} ipython3
 reaction = engine.thermoPropertiesReaction(298.15, 1e5, "Halite-dissolution")
-print(reaction.reaction_gibbs_energy.val, "J/mol, from", engine.calculationPath("Halite-dissolution")["source"])
+print(reaction.reaction_gibbs_energy.val, "J/mol, by", reaction.info.route.by)
 G_halite = my_data.get("/substances/Halite/standard_state_properties/G")
 G_sodium = my_data.get("/substances/Na+/standard_state_properties/G")
 G_chloride = my_data.get("/substances/Cl-/standard_state_properties/G")

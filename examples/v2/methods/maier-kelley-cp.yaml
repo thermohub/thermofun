@@ -1,11 +1,10 @@
 kind: symbolic
-tier: 1
 operates_on: substance
 contributes_to:
-- G
-- H
-- S
-- Cp
+  G: sets
+  H: sets
+  S: sets
+  Cp: sets
 parameter_definitions:
   a:
     unit: J/(mol.K)
@@ -13,10 +12,10 @@ parameter_definitions:
     unit: J/(mol.K2)
   c:
     unit: J.K/mol
-source:
+formula:
   form: cp
   expression: a + b*T + c/T**2
-citation: 1932MAI/KEL
+data_sources: [1932MAI/KEL]
 tests:
 - T: 500.0
   P: 100000.0
@@ -36,4 +35,4 @@ expression:
   G: Gr - Sr*T + Sr*Tr - T**2*b/2 + T*Tr*b + T*a + T*(-a*log(T) + a*log(Tr)) - T*c/(2*Tr**2)
     - Tr**2*b/2 - Tr*a + c/Tr - c/(2*T)
 generator: 'thermofun.method_tool build '
-source_hash: sha256:e41646f42f2c8555867ce7b2016fdbc7b8d7b733d3dfc59f0afd109af6d2bbe0
+formula_hash: sha256:e41646f42f2c8555867ce7b2016fdbc7b8d7b733d3dfc59f0afd109af6d2bbe0

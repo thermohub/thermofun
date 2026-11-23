@@ -38,12 +38,22 @@ def test_a_good_database_has_no_problems():
     assert codes(tf.Database(document(substances={"A": mineral()}))) == []
 
 
+def test_data_sources_are_codes_or_free_text():
+    # an entry that looks like an NEA reference code must be in the data sources of the database; free text is not checked
+    extra = {"data_sources": {"1998HOL/POW": {"title": "t"}}}
+    db = tf.Database(document(substances={"A": mineral(data_sources=["1998HOL/POW", "Robie and Hemingway (1995)", "1999NOP/NOP"])}, **extra))
+    found = [d for d in db.validate().all() if d.code == "V2-REF-005"]
+    assert [d.path for d in found] == ["/substances/A/data_sources/2"]
+    one = tf.Database(document(substances={"A": mineral(data_sources="1998HOL/POW")}, **extra))   # a text is a list of one
+    assert one.getSubstance("A").record().data_sources == ["1998HOL/POW"]
+
+
 @pytest.mark.parametrize("record, code", [
     (mineral(defining_reaction="R", methods=[]), "V2-REF-001"),
     (mineral(applicability={"t_min": 500, "t_max": 300}), "V2-APP-001"),
     (mineral(methods=[{"method": "ConstantCp", "applicability": {"p_min": 5, "p_max": 1}}]), "V2-APP-001"),
     (mineral(methods=[{"method": "ConstantCp", "parameter_set": "nope"}]), "V2-REF-004"),
-    (mineral(data_source="nope"), "V2-REF-005"),
+    (mineral(data_sources=["1999NOP/NOP"]), "V2-REF-005"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [1.0, 0.5, 0.2, 1.0]}]), "V2-COV-001"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/H"], "matrix": [1.0, 2.0, 2.0, 1.0]}]), "V2-COV-002"),
     (mineral(covariances=[{"paths": ["/standard_state_properties/G", "/standard_state_properties/U"], "matrix": [1.0, 0.0, 0.0, 1.0]}]), "V2-COV-004"),
@@ -229,11 +239,11 @@ def test_a_v2_file_written_as_legacy_gives_the_same_results(name):
 
 
 def test_what_the_legacy_format_cannot_hold_is_named():
-    record = mineral(data_source="x", methods=[{"method": "ConstantProperties"}], covariances=[{"paths": ["/standard_state_properties/G"], "matrix": [1.0]}])
+    record = mineral(methods=[{"method": "ConstantProperties"}], covariances=[{"paths": ["/standard_state_properties/G"], "matrix": [1.0]}])
     db = tf.Database(document(substances={"A": record}, reactions={"R": {"equation": "A = B", "methods": [{"method": "LogKTable", "table": {"temperatures": [273.15, 298.15, 373.15, 473.15], "logK": [1.0, 1.1, 1.2, 1.3]}}]}}))
     messages = " ".join(d.message for d in db.legacyWriteProblems().all())
     assert all(d.code == "LEG-WRT-001" for d in db.legacyWriteProblems().all())
-    for word in ("ConstantProperties", "data_source", "covariance", "table"):
+    for word in ("ConstantProperties", "covariance", "table"):
         assert word in messages
 
 
@@ -278,37 +288,45 @@ def gibbs_of(db):
     return tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "H+").gibbs_energy.val
 
 
-def test_the_hydrogen_ion_is_zero_in_the_geochemical_convention():
+def test_the_hydrogen_ion_is_zero_with_ions_hydrogen_ion():
     assert gibbs_of(hydrogen()) == 0.0
     assert gibbs_of(hydrogen(standard_state_properties=dict.fromkeys(VALUES, 0.0))) == 0.0
-    assert gibbs_of(hydrogen(convention={"energy_reference": "benson_helgeson"})) == 0.0
+    assert gibbs_of(hydrogen(energy_reference={"ions": "hydrogen_ion"})) == 0.0
 
 
-@pytest.mark.parametrize("reference", ["ser", "berman_brown", "assigned_enthalpy"])
-def test_the_hydrogen_ion_has_its_values_in_another_convention(reference):
-    db = hydrogen(convention={"energy_reference": reference}, standard_state_properties=VALUES, methods=METHODS)
+@pytest.mark.parametrize("reference", ["benson_helgeson", "ser", "berman_brown", "assigned_enthalpy"])
+def test_the_hydrogen_ion_is_zero_in_every_energy_reference(reference):
+    # decision 0031: ions is decoupled from elements (NEA TDB-5 1.6)
+    db = hydrogen(energy_reference={"elements": reference}, standard_state_properties=VALUES, methods=METHODS)
+    assert gibbs_of(db) == 0.0
+    assert "CNV-007" in codes(db)
+
+
+@pytest.mark.parametrize("reference", ["benson_helgeson", "ser", "berman_brown", "assigned_enthalpy"])
+def test_with_ions_none_the_hydrogen_ion_has_its_values(reference):
+    db = hydrogen(energy_reference={"elements": reference, "ions": "none"}, standard_state_properties=VALUES, methods=METHODS)
     assert gibbs_of(db) == -1000.0
     assert "CNV-007" not in codes(db)
 
 
-def test_the_convention_of_the_dataset_counts_for_the_hydrogen_ion():
+def test_ions_none_of_the_dataset_counts_for_the_hydrogen_ion():
     record = {"formula": "H+", "class": "aqueous_solute", "aggregate_state": "aqueous", "standard_state_properties": VALUES, "methods": METHODS}
-    db = tf.Database(document(thermodataset={"symbol": "x", "convention": {"energy_reference": "ser"}}, substances={"H+": record}))
+    db = tf.Database(document(thermodataset={"symbol": "x", "energy_reference": {"elements": "ser", "ions": "none"}}, substances={"H+": record}))
     assert gibbs_of(db) == -1000.0
     assert "CNV-007" not in codes(db)
 
 
-def test_a_zero_in_a_record_of_another_convention_stays_a_value():
-    db = hydrogen(convention={"energy_reference": "ser"}, standard_state_properties=dict(VALUES, G=0.0, S=10.0), methods=METHODS)
+def test_a_zero_in_a_record_with_ions_none_stays_a_value():
+    db = hydrogen(energy_reference={"elements": "ser", "ions": "none"}, standard_state_properties=dict(VALUES, G=0.0, S=10.0), methods=METHODS)
     p = tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "H+")
     assert p.entropy.val == 10.0
 
 
-def test_own_values_in_the_geochemical_convention_are_used_with_a_warning():
+def test_own_values_with_ions_hydrogen_ion_are_not_used_with_a_warning():
     db = hydrogen(standard_state_properties=VALUES, methods=METHODS)
-    assert gibbs_of(db) == -1000.0
+    assert gibbs_of(db) == 0.0
     found = [d for d in db.validate().all() if d.code == "CNV-007"]
-    assert found and found[0].severity == tf.Severity.Warning and found[0].record == "H+"
+    assert found and found[0].severity == tf.Severity.Warning and found[0].record == "H+" and "not used" in found[0].message
 
 
 def test_only_the_hydrogen_ion_has_this_rule():
@@ -316,9 +334,9 @@ def test_only_the_hydrogen_ion_has_this_rule():
     assert tf.ThermoEngine(db).thermoPropertiesSubstance(298.15, 1e5, "X+").gibbs_energy.val == -5.0
 
 
-def test_another_convention_with_nothing_given_is_refused():
+def test_ions_none_with_nothing_given_is_refused():
     with pytest.raises(RuntimeError, match="V2-MTH-012"):
-        hydrogen(convention={"energy_reference": "ser"})
+        hydrogen(energy_reference={"ions": "none"})
 
 
 @pytest.mark.parametrize("path", BUNDLED, ids=os.path.basename)

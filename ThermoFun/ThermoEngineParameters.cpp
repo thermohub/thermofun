@@ -27,7 +27,7 @@ auto ThermoEngine::Impl::isConstant(const ParameterRef& ref) const -> bool
     if (ref.method.empty())
         return false;
     const auto* spec = model::MethodCatalog::instance().find(ref.method);
-    return spec && std::any_of(spec->parameters.begin(), spec->parameters.end(), [&](const auto& p) { return p.constant && p.name == ref.parameter; });
+    return spec && std::any_of(spec->parameters.begin(), spec->parameters.end(), [&](const auto& p) { return p.model_parameter && p.name == ref.parameter; });
 }
 
 auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> model::Quantity
@@ -50,7 +50,7 @@ auto ThermoEngine::Impl::valueOf(const ParameterRef& ref) const -> model::Quanti
         for (const auto& a : isOfReaction(ref) ? r.methods : s.methods)
             if (a.method == ref.method)
             {
-                const auto all = model::withBuiltinConstants(a);
+                const auto all = model::withBuiltinModelParameters(a);
                 if (const auto it = all.parameters.find(ref.parameter); it != all.parameters.end())
                     return it->second;
             }

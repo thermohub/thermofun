@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2019-2026 ThermoFun contributors
 
+#include <sstream>
 #include "ThermoBatch.h"
 #include <ThermoFun/Batch/RecordRules.h>
-#include <ThermoFun/Engine/Snapshot.h>
+#include <ThermoFun/Engine/Summary.h>
 
 // C++ includes
 #include <algorithm>
@@ -582,8 +583,9 @@ auto ThermoBatch::selectReactions(const std::string &rule) const -> vstr
 auto ThermoBatch::provenance() const -> vstr
 {
     vstr lines = pimpl->outSettings.provenanceNotes;
-    const auto engine = snapshotLines(pimpl->thermo.snapshot());
-    lines.insert(lines.end(), engine.begin(), engine.end());
+    std::stringstream engine(pimpl->thermo.summary().text());
+    for (std::string line; std::getline(engine, line);)
+        lines.push_back(line);
     return lines;
 }
 

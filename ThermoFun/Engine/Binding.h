@@ -41,6 +41,7 @@ struct BindConventions
     Convention dataset;                          ///< the convention of the dataset
     const std::map<std::string, MethodDefinition>* definitions = nullptr;  ///< the Method records of the database
     std::function<double()> element_entropy;     ///< the sum of the entropies of the elements of the record. Called only if needed.
+    double R = R_CONSTANT;                       ///< the gas constant of the calculation (engine option physical_constants)
 };
 
 /// A copy of a record whose methods hold the values of their parameter sets. A value that a method gives itself stays. The same record if no method names a set.

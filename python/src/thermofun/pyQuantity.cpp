@@ -51,11 +51,10 @@ void exportQuantity(py::module& m)
 
     py::class_<ValueMeta>(m, "ValueMeta", "Quality, origin and source of a value")
         .def(py::init<>())
-        .def_property("quality", [](const ValueMeta& x) { return x.quality ? toString(*x.quality) : std::string(); },
-                      [](ValueMeta& x, const std::string& word) { x.quality = word.empty() ? std::nullopt : fromString<Quality>(word); })
+        .def_readwrite("quality", &ValueMeta::quality, "Free text: the trust of the data author (suggested: core, recommended, supplemental)")
         .def_property("origin", [](const ValueMeta& x) { return x.origin ? toString(*x.origin) : std::string(); },
                       [](ValueMeta& x, const std::string& word) { x.origin = word.empty() ? std::nullopt : fromString<Origin>(word); })
-        .def_readwrite("calculation_path", &ValueMeta::calculation_path)
+        .def_readwrite("derivation", &ValueMeta::derivation)
         .def_readwrite("source", &ValueMeta::source)
         .def(py::self == py::self);
 

@@ -10,6 +10,7 @@ Source: Anderson et al. (1991).
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | aqueous_solute |
 | Needs | the solvent |
 | Temperature segments | no |

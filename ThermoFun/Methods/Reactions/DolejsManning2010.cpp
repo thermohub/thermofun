@@ -29,7 +29,7 @@ auto thermoPropertiesDolejsManning2010(real TK, real Pbar, const ReactionInputs&
     auto e = DMcoef[4];
 
 
-    auto lnK = (-1/R_CONSTANT)*(a/TK + b + c*log(TK) + d*TK + e*log(RHOw));
+    auto lnK = (-1/reaction.R)*(a/TK + b + c*log(TK) + d*TK + e*log(RHOw));
     auto dSr = -b - c*(1 + log(TK)) - 2*d*TK - e*log(RHOw) + e*TK*ALPw;
     auto dHr = a - c*TK - d*pow(TK,2.) + e*pow(TK,2.)*ALPw;
     auto dCPr = -c - 2*d*TK + 2*e*TK*ALPw + e*pow(TK,2.)*dALPdTw;

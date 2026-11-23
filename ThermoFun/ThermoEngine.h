@@ -4,9 +4,10 @@
 #ifndef THERMO_H
 #define THERMO_H
 #include <ThermoFun/Engine/Consistency.h>
-#include <ThermoFun/Engine/DetailedResult.h>
+#include <ThermoFun/Common/Route.h>
 #include <ThermoFun/Engine/Sensitivity.h>
-#include <ThermoFun/Engine/Snapshot.h>
+#include <ThermoFun/Engine/Summary.h>
+#include <ThermoFun/Model/Convention.h>
 #include <ThermoFun/Model/Vocabulary.h>
 #include <ThermoFun/ThermoProperties.h>
 
@@ -38,6 +39,7 @@ struct EnginePreferences
     int uncertainty_significant_digits = 2; // significant digits of the rounded uncertainties (to the nearest, a half up: NEA TDB-3 sect. 4), used if round_to_uncertainty is true (NEA TDB tables give one or two)
     model::PropertySource property_source = model::PropertySource::Record; // where the properties of a record come from: Record (what the record says), Direct (its methods), Reaction (the defining reaction of a substance), Reactants (the reactants of a reaction). A source that a record cannot use is ignored for it; setPropertySource replaces it for one symbol
     std::map<std::string, std::string> method_implementation; // method id -> implementation, for example {"HKF88": "reaktoro"}; it replaces the implementation of the records
+    std::string physical_constants = "codata1986"; // the constants of physics of the calculation: codata1986 (the default: most stored G and log K values were derived with its R) or codata2018, a set of Methods/ParameterSets/PhysicalConstants*.yaml. Fitted equations keep the R of their fit. A change drops the cached results
     bool propagate_parameter_errors = false; // also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances of the records (u^2 = J S J^T). Without it, only the uncertainties of the reference values propagate. Costs two extra calculations per uncertain value
 
     /// G(T, Pr) for a gas: no RT ln(P/Pr) and no RT ln(phi) in G. For a code that adds these terms itself.
@@ -54,38 +56,29 @@ struct EnginePreferences
 };
 
 struct EngineConventions {
-    model::EnergyReference energy_reference = model::EnergyReference::BensonHelgeson;
-    model::StandardPressure standard_pressure = model::StandardPressure::OneBar;
-    model::ConcentrationScale concentration_scale = model::ConcentrationScale::Molality;
-    model::WaterReference water_reference = model::WaterReference::Geochemical;
+    /// The standard state of the results: the standard pressure and the concentration scale of solutes (decision 0031)
+    model::StandardState standard_state{1e5, model::ConcentrationScale::Molality};
+    /// From what zero G, H and S of the results are counted: of the elements, and of water. Water without a value (the
+    /// default) is the anchor that the dataset declares (helgeson_kirkham_1974 or codata_1989); steam_tables converts the
+    /// water results to the steam tables. Asking for the other anchor is an error: the engine never converts between them.
+    model::EnergyReferences energy_reference{model::EnergyReference::BensonHelgeson, std::nullopt};
 
-    // The old names, checked. A word set here replaces energy_reference or water_reference at the next call of the engine,
-    // and the field is then empty: read the words with apparentPropertiesWord() and waterPropertiesWord().
+    // The old names, checked. A word set here replaces energy_reference at the next call of the engine, and the field is
+    // then empty: read the words with apparentPropertiesWord() and waterPropertiesWord().
     std::string apparent_properties;   // e.g. "BENSON_HELGESON", "BERMAN_BROWN"
-    std::string water_properties;      // e.g. "GEOCHEMICAL", "STEAM_TABLES"
+    std::string water_properties;      // "GEOCHEMICAL" (the anchor of the dataset) or "STEAM_TABLES"
 
     /// The old word of energy_reference, for example "BENSON_HELGESON" (review of v2, Q9)
     auto apparentPropertiesWord() const -> std::string;
-    /// The old word of water_reference, for example "GEOCHEMICAL"
+    /// The old word of energy_reference.water: "GEOCHEMICAL" for the anchor of the dataset, "STEAM_TABLES"
     auto waterPropertiesWord() const -> std::string;
+    /// Sets energy_reference.water from an old word: "GEOCHEMICAL" is the anchor of the dataset (no value)
+    auto setWaterPropertiesWord(const std::string& word) -> void;
 
     bool operator==(const EngineConventions&) const = default;
 };
 
 
-
-/// How a record is calculated: the steps of a substance or a reaction, down to the records with their own methods.
-struct CalculationPath
-{
-    std::string kind;                     ///< "substance" or "reaction"
-    std::string symbol;
-    std::string source;                   ///< "methods", "reaction", "reactants", "reference", "water" or "hydrogen_ion"
-    std::vector<std::string> methods;     ///< the methods the record has
-    double coefficient = 1.0;             ///< in the reaction above, if there is one
-    std::string role;                     ///< "", "defining_reaction", "reactant" or "solvent"
-    std::vector<CalculationPath> steps;   ///< what it needs
-    std::string problem;                  ///< why it cannot be calculated, if so
-};
 
 /**
  * @brief The ThermoEngine class calculates the thermodynamic properties of the substances
@@ -109,7 +102,7 @@ public:
      *
      * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
      */
-    explicit ThermoEngine(const std::string filename);
+    explicit ThermoEngine(const std::string& filename);
 
     /// Construct a Thermo instance with given Database instance
     ThermoEngine(const Database &database);
@@ -138,7 +131,7 @@ public:
     auto propertySource(const std::string& symbol) const -> model::PropertySource;
 
     /// Sets the symbol of the solvent which is used to calculate properties using the thermo instance
-    auto setSolventSymbol(const std::string solvent_symbol) -> void;
+    auto setSolventSymbol(const std::string& solvent_symbol) -> void;
 
     /// Sets the preferences used by ThermoEngine
     auto setPreferences(const EnginePreferences preferences) -> void;
@@ -160,7 +153,7 @@ public:
      * @brief appendData append records to the database from a file
      * @param filename name/path of the file or a string containing a ThermoDataSet in JSON format
      */
-    auto appendData(std::string filename) -> void;
+    auto appendData(const std::string& filename) -> void;
 
     /**
      * @brief appendData append records to the database from a vector of JSON strings
@@ -169,14 +162,14 @@ public:
      * @param _label, optional, (element, substance, reactions),
      * used when the vector of records are of one type and do not contain themselves the key "_label"
      */
-    auto appendData(std::vector<std::string> jsonRecords, std::string _label) -> void;
+    auto appendData(const std::vector<std::string>& jsonRecords, const std::string& _label) -> void;
 
     // Substance
     /// Calculate the thermodynamic properties of a substance.
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param substance The symbol of the substance
-    auto thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance;
+    auto thermoPropertiesSubstance(double T, double &P, const std::string& symbol) const -> ThermoPropertiesSubstance;
 
     /// Calculate the thermodynamic properties of a substance.
     /// @param T The temperature value (in units of K)
@@ -189,7 +182,7 @@ public:
     /// @param P The pressure value (in units of Pa)
     /// @param solvent The symbol of the substance solvent
     /// @param state The solvent state, 0 liquid, 1 gas/vapor,  default -1 determined by the record key "aggregate_state" in the database "4": "AS_AQUEOUS" or "O": "AS_GAS"
-    auto electroPropertiesSolvent(double T, double &P, std::string solvent, int state=-1) const -> ElectroPropertiesSolvent;
+    auto electroPropertiesSolvent(double T, double &P, const std::string& symbol, int state=-1) const -> ElectroPropertiesSolvent;
 
     /// Calculate the electro-chemical properties of a substance.
     /// @param T The temperature value (in units of K)
@@ -203,7 +196,7 @@ public:
     /// @param P The pressure value (in units of Pa)
     /// @param solvent The symbol of the substance solvent
     /// @param state The solvent state, 0 liquid, 1 gas/vapor,  default -1 determined by the record key "aggregate_state" in the database "4": "AS_AQUEOUS" or "O": "AS_GAS"
-    auto propertiesSolvent(double T, double &P, std::string solvent, int state=-1) const -> PropertiesSolvent;
+    auto propertiesSolvent(double T, double &P, const std::string& symbol, int state=-1) const -> PropertiesSolvent;
 
     /// Calculate the physical properties of a substance.
     /// @param T The temperature value (in units of K)
@@ -217,7 +210,7 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
-    auto thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction;
+    auto thermoPropertiesReaction(double T, double &P, const std::string& symbol) const -> ThermoPropertiesReaction;
 
     /// Calculate the thermodynamic properties of a reaction.
     /// @param T The temperature value (in units of K)
@@ -229,7 +222,7 @@ public:
     /// @param T The temperature value (in units of K)
     /// @param P The pressure value (in units of Pa)
     /// @param reaction The symbol of the reaction
-    auto thermoPropertiesReactionFromReactants(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction;
+    auto thermoPropertiesReactionFromReactants(double T, double &P, const std::string& symbol) const -> ThermoPropertiesReaction;
 
     /// Calculate the thermodynamic properties of a reaction from the substances participating in the reaction.
     /// @param T The temperature value (in units of K)
@@ -237,45 +230,29 @@ public:
     /// @param reaction the reaction object
     auto thermoPropertiesReactionFromReactants(double T, double &P, const Reaction& reaction) const -> ThermoPropertiesReaction;
 
-    using ExplainStep = ThermoFun::ExplainStep;
+    /// How a substance, or a reaction if there is no such substance, is calculated with the sources and settings of this engine
+    /// (decision 0030): the route of its results without the numbers (no T, P). It calculates nothing. What cannot be calculated
+    /// is in its notes (undefined, hard), and in those of the routes it needs. kind: "substance" or "reaction" for a substance and a
+    /// reaction with the same symbol (a substance and its defining reaction often have one); empty: the substance if there is one.
+    auto route(const std::string& symbol, const std::string& kind = "") const -> std::shared_ptr<const Route>;
 
-    /// The methods that calculate a substance at T (K) and P (Pa), in the order they run, with the state after each one.
-    /// Empty if no such methods run: water, a substance defined by a reaction, a record without a base method.
-    auto explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>;
-
-    /// What each method of a substance changes, at each (T[i], P[i]) in K and Pa, in SI. T or P can have one value: it goes
-    /// with each value of the other. A substance calculated without methods of its own (water, from its defining reaction)
-    /// has no methods: its total is all in `other`.
-    auto contributions(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<MethodContributions>;
-
-    /// The named outputs of the methods of a substance (the terms and intermediate functions of the model, for example the g function and
-    /// the Born terms of HKF88): one entry for each (T, P), with the keys "<method>:<name>" in SI units. The names and their meaning are
-    /// the `auxiliary_outputs` of the method in the catalog. A method with no named outputs gives none. T or P can have one value.
-    struct AuxiliaryPoint
-    {
-        double T = 0.0, P = 0.0;                   ///< P as calculated: the saturation pressure for P = 0
-        std::map<std::string, double> values;
-    };
-    auto auxiliaryOutputs(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<AuxiliaryPoint>;
-
-    /// The result of a calculation, and how it came: the source, the methods in order and the conversions applied.
-    /// How a substance, or a reaction if there is no such substance, is calculated with the sources of this engine. It calculates nothing.
-    auto calculationPath(const std::string& symbol) const -> CalculationPath;
-
-    /// @param P The pressure value (in units of Pa); 0 means the saturation pressure, which is written back
-    auto thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance;
+    /// The route of a substance or a reaction at each (T[i], P[i]) in K and Pa, as a table (decision 0030): one row for each point.
+    /// T or P can have one value: it goes with each value of the other. part:
+    ///   "contribution": the result (G, H, S, Cp, V: dG, ... for a reaction), the source ("<by>:G", if it is not the methods),
+    ///                   each method ("<method>:G") and each conversion ("<what>(<detail>):G"); the columns of a property add up to it
+    ///   "terms", "variables": "<method>:<name>" (the catalog of a method names them; HKF88 has some)
+    /// SI units. NaN where the route of a point has no such column. kind: as for route.
+    auto routeTable(const std::vector<double>& T, const std::vector<double>& P, const std::string& symbol, const std::string& part = "contribution", const std::string& kind = "") const -> RouteTable;
 
     /// What the results depend on: the version of ThermoFun, the format and dataset of the loaded data, the SHA-256 of all records,
-    /// and the implementations that the preferences ask for.
-    auto snapshot() const -> CalculationSnapshot;
+    /// the water, the conventions, the options that are not at their default, and the implementations that the preferences ask for.
+    auto summary() const -> EngineSummary;
 
-    /// The exact derivatives of the properties of a substance by the given parameters, through its defining reaction and the other species of that reaction.
-    /// Results: G, H, S, Cp, V, U, A. A pressure of 0 is the saturation pressure, written to P. The results are in the canonical convention, and a change of
-    /// convention does not change them.
-    auto parameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
-
-    /// The same for a reaction. Results: logK, lnK, dG, dH, dS, dCp, dV.
-    auto reactionParameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
+    /// The exact derivatives of the properties of a substance or a reaction (the symbol decides, as in route) by the given parameters,
+    /// through its defining reaction and the other species of that reaction. Results of a substance: G, H, S, Cp, V, U, A; of a
+    /// reaction: logK, lnK, dG, dH, dS, dCp, dV. A pressure of 0 is the saturation pressure, written to P. The results are in the
+    /// canonical convention, and a change of convention does not change them. kind: as for route.
+    auto parameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters, const std::string& kind = "") const -> SensitivityResult;
 
     /// A handle on one parameter of a record: see ParameterRef. An unknown parameter is an error.
     auto parameter(const std::string& symbol, const std::string& method, const std::string& parameter) -> ParameterHandle;
@@ -293,15 +270,15 @@ public:
     /// The number of results kept in the caches.
     auto numberOfCachedResults() const -> std::size_t;
 
-    /// The records that can be calculated in two ways, and the difference between the ways at each pair (T in K, P in Pa):
-    /// a substance from its methods and from its defining reaction, a reaction from its methods and from its reactants.
-    /// Information for the owners of the data.
-    auto consistencyReport(const std::vector<std::pair<double, double>>& TP, const ConsistencyOptions& options = {}) const -> std::vector<ConsistencyItem>;
+    /// The records that can be calculated in two ways, and the difference between the ways at each (T[i], P[i]) in K and Pa (T or P can
+    /// have one value: it goes with each value of the other): a substance from its methods and from its defining reaction, a reaction
+    /// from its methods and from its reactants. Information for the owners of the data.
+    auto consistencyReport(const std::vector<double>& T, const std::vector<double>& P, const ConsistencyOptions& options = {}) const -> std::vector<ConsistencyItem>;
 
     /// Parses a given substance formula present in the database
     /// @param formula
     /// @return map of Elements and coefficients
-    auto parseSubstanceFormula(std::string formula) const -> std::map<Element, double>;
+    auto parseSubstanceFormula(const std::string& formula) const -> std::map<Element, double>;
 
     /// Return conventions used in the engine
     /// Settings for calculating and outputting properties of a engine 
@@ -316,6 +293,12 @@ public:
 
 private:
     struct Impl;
+
+    /// True if the symbol names a reaction: kind "reaction", or empty and no substance has the symbol. An unknown kind is an error.
+    auto isReaction(const std::string& symbol, const std::string& kind) const -> bool;
+
+    auto substanceSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
+    auto reactionSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult;
 
     std::shared_ptr<Impl> pimpl;
 };

@@ -9,6 +9,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed, read before you update
 
+- **Python keyword arguments of the engine: `T`, `P`, `symbol`** (were `temperature`, `pressure`, `symbol`; decision 0030, step 6).
+  The calls by object keep `substance`, `reaction`, `solvent`. `appendData(filename)` (was `record_json_string`).
+  `consistencyReport(T, P, options)` takes T and P as lists or single numbers (was a list of (T, P) pairs). C++ string arguments
+  are `const std::string&`.
 - **The GEMS water is two methods: `WaterLVS83` before `WaterHGK84` (implementation `gems`).** The equation of Levelt Sengers
   et al. (1983), which the code used near the critical point, is now the method `WaterLVS83`, used only in its region
   (decision 0028). `WaterHGK84` `gems` alone is the HGK equation everywhere. A GEMS record in the old format
@@ -145,6 +149,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   catalog a method used in a region is `regional`; such a method needs a base method after it (V2-MTH-012). It gives the
   stable phase only (the equation has no metastable states); a liquid below the saturation pressure comes from the next
   method. Tests: `pytests/test_water_lvs83.py`.
+- **Observations of one property at many points** (`thermofun.fitting`): `observations(symbol, property, T, P, values,
+  uncertainties, unit, T_unit)` from your numbers in their unit (for example kJ/mol and °C), and `calculated(engine, symbol,
+  property, T, P, uncertainty)` from an engine, to see a fit find known values. The fit how-to and tutorial 7 use them.
 - **Fit templates and tasks** (`thermofun.fitting`): a template (`thermofun/fit_templates/HKF88.yaml`) holds what a fit of one
   method needs (the parameters and their units, the searched one, the constraints of the method as switches, conventions,
   rules that warn, plausible ranges, presets); a task names the template, a record, a preset, given values and data (rows or
@@ -158,34 +165,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (Shvarov 2015) for omega of HKF. `Result.weighted_rms` and `Result.constraint_residuals` are new; the covariance keeps to the
   directions the constraints leave free. Test: the UO2+2 example of OptimB (`pytests/test_fitting_hkf.py`). How-to:
   "Fit parameters to measured data", section 6, whose printed outputs are now tested.
-- `Database::value(path)` and `setValue(path, json)` (Python `get(path)` and `set(path, value)`) read and change a value of a record by
+- `Database::value(path)`, `setValue(path, json)` and `removeValue(path)` (Python `get(path)`, `set(path, value)` and `remove(path)`) read, change and remove a value of a record by
   its path, a JSON pointer such as `/substances/Calcite/standard_state_properties/G`. Python takes and gives Python objects, so a
   record is changed without `json.dumps`. `Database(dict)` reads a dict in the v2 format. `Database::summary()` gives the size of
   a database and its substances by class and aggregate state.
 - A table at the saturation pressure writes the pressure that the calculation used, in the units of the conditions (before: the word
   `saturation`; the key `"saturation"` of `value()`, `scalar()` and `rows` is unchanged). A value that is calculated outside the range of
   its model (for example the HKF model outside 600-1400 kg/m3 of water) is listed in `problems` of the table, with the message.
-- **Named outputs of a method** (the terms and intermediate functions of a model): `ThermoEngine::auxiliaryOutputs(symbol, T, P)`
-  (Python `auxiliaryOutputs`) gives them as a table with the columns `<method>:<name>`, and `explain` has them for each method.
-  The catalog lists them (`auxiliary_outputs`, with unit and meaning) and the method page has a section. First method: `HKF88`
-  (`reaktoro` implementation) gives the g function, the effective radius, the Born coefficient, and the Born terms of G, H, S,
-  Cp and V. The terms agree with each other (S = -dG/dT, Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity
-  coefficient of the gas methods, the order parameter of Landau and the thermal pressure of Tait (CHECK-LATER item 38).
-  A table takes a named output as a column, `{property: HKF88:born_G, unit: kJ/mol}`; a record without the method gets an empty
-  cell and a problem.
+- **Terms and variables of a method** (the parts of a model): `ThermoEngine::routeTable(T, P, symbol, "terms")` and
+  `"variables"` give them as a table with the columns `<method>:<name>`, and the route of every result has them. The catalog lists them (`terms`, each with the property it is part of, and `variables`, with unit and
+  meaning) and the method page has a section for each. First method: `HKF88` gives the Born terms of G, H, S, Cp and V (terms),
+  and the g function, the effective radius and the Born coefficient (variables). The formula of the method gives them while it
+  calculates the values (no other evaluation of the model); the Born terms are the parts of G, H, S, Cp and V that the totals
+  are made of. The terms agree with each other (S = -dG/dT,
+  Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity coefficient of the gas methods, the order parameter of Landau and
+  the thermal pressure of Tait (CHECK-LATER item 38). A batch calculation takes them as properties, `{name: terms:HKF88:born_G,
+  unit: kJ/mol}`; a record without the method gets an empty cell and a problem.
 - **A value outside the range of its model is marked:** `ThermoScalar.outside_range` (C++ `ThermoFun::outsideRange`). All methods
   write such messages with one function, which starts them with "Outside the range of the model:"; the status stays `calculated`.
   Tables list these values in `problems` by that mark, not by the words of the message.
-- `Table::pressureUsed` (Python `pressure_used(record, T, "saturation")`): the pressure that a row used.
+- `ResultTable::pressureUsed` (Python `pressure_used(record, T, "saturation")`): the pressure that a row used.
 - `class` accepts `condensed_species` for `component` and `solvent` for `water_solvent`; the record is written with the word of the
-  format. The `gems` implementation of HKF88 gives the same named outputs, from its own g function and Born coefficient.
+  format. The `gems` implementation of HKF88 gives the same terms and variables, from its own g function and Born coefficient.
 - Test that every record of `psinagra-12-07` calculates without a crash. The released 0.6.x library crashed on it (segmentation
   fault at `Pd`: `cp_ft_equation` with T limits and no T intervals, the interval index -1 of the old Cp integration); v2 does not.
 - `python -m thermofun.validate` prints one line for each problem, with the file name as given, also the warnings of the
   reading, then a summary (`minimal.yaml: no problems`, `aq17-thermofun.json: 4 errors, 0 warnings`). A file that cannot be
   read gives its diagnostics without the frame of the C++ message. Before, it printed nothing for a file in order and the raw
   exception for one that could not be read.
-- `python -m thermofun.tables` no longer prints a RuntimeWarning of Python: `thermofun.tables` is imported on first use.
+- `python -m thermofun.batch` prints no RuntimeWarning of Python: `thermofun.batch` is imported on first use.
 - The how-to pages show what each step prints: an `Output:` block under a code block, and `console` blocks with the commands
   of `thermofun.convert`, `thermofun.validate` and `thermofun.method_tool` and what they print. The tests run them and
   compare (`pytests/docs_outputs.py`), so the shown outputs stay true.
@@ -239,12 +247,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Built-in constants of the methods in `ThermoFun/Methods/ParameterSets/`, each with a description, its units and its source. A record can replace a value for itself, and a model can have variants (`default: false`, chosen with `parameter_set`).
 - `THERMOFUN_PARAMETER_PATH`: a folder with more variants, read with no rebuild.
-- The CMake option `THERMOFUN_PHYSICAL_CONSTANTS`: `codata1986` (the default) or `codata2018`.
+- The constants of physics are chosen at run time: the engine option `physical_constants`, `codata1986` (the default, as 0.x:
+  most stored G and log K values were derived with its R) or `codata2018` (R about 6e-6 lower). It is the R of the
+  calculation (G and log K of a reaction, RT ln(P/p°) of a gas, the conversions of conventions, the log K methods); fitted
+  equations (NASA9, the fluid equations of state, Akinfiev-Diamond, Zhang-Duan, the ideal gas of water) keep the R of their fit.
+  A dataset can say which set its values were derived with (`physical_constants`); an engine with another set warns (CNV-012).
+  `tf.methods.physicalConstants(name)` gives a set. `R_CONSTANT` and the other 0.x names keep the CODATA 1986 values.
 - The dielectric models `HelgesonKirkham74` and `BradleyPitzer79` (issue 82). The HKF coefficients of Tanger and Helgeson (1988) now give their published volume and heat capacity.
 - Symbolic methods of substances and reactions, with the CMake option `TFUN_USE_SYMENGINE`, and `python -m thermofun.method_tool` with its source forms.
-- `ThermoEngine::calculationPath`: how a record is calculated. It calculates nothing.
+- **The route of a result** (decision 0030): every result, and each of its values, says how it was calculated, `x.info.route`
+  (`ThermoFun::Route`, `Common/Route.h`): where the values came from (`by`: methods, reaction, reactants, water, reference,
+  hydrogen_ion, hydrogen_electrode), each method with what it contributed to G, H, S, Cp and V, the other records it needed with
+  their routes (solvent, defining reaction, reactants), and the conversions after the methods (conventions, options of gases,
+  fallback, rounding). For each property the result is the sum of the contributions and the conversions. `ThermoEngine::route(symbol)`
+  gives the route without numbers, before calculating; `routeTable(T, P, symbol, part)` gives it at many points; a route prints
+  as YAML (`str(route)`, `toYaml`). It costs nothing measurable.
 - Derivatives by a built-in constant, also through the water into a solute.
-- `TableSetup` (C++ and Python): tables from a YAML setup or a template of the library, in the layouts long, transposed and grid, as CSV, Markdown or LaTeX. `python -m thermofun.tables`, and `tf.table` in Python.
+- **Batch calculations** (decision 0032; `BatchSetup`, `ThermoFun/Batch/BatchSetup.h`, and `tf.batch` in Python): many records at many
+  conditions at once, from a setup in four blocks, `database` and `engine` (options, conventions, property sources), `conditions`
+  (T and P, `points: grid | pairs`, `vary_first`), `results` (substances or reactions, by symbol or by a rule, and properties
+  with `show: value | uncertainty | ddt | ddp | status`) and `output` (units and digits also of T and P, `layout: long | wide | grid`,
+  `file`, `provenance`). A block at the top is the default of every result, which can give its own. `compare` calculates a result
+  with other databases, methods or engine settings, and `compare_difference` adds the difference to the first. Batch templates
+  (`tf.templates()`, `tf.template(name)`), among them `blank`, whose `<...>` placeholders must be filled (an error names their
+  paths), and fragments for the conditions and the output. Values by path: `setup.set("/results/0/name", ...)`. Each result writes
+  as CSV, Markdown or LaTeX, with its provenance (the database, the templates and `ThermoEngine::summary()`). `python -m thermofun.batch`.
+  A setup can also give a `ThermoBatch` (`setup.batch()`, `setup.apply_to(batch)`), the 0.x batch API, which stays unchanged.
 - Tutorials, how-to pages, a glossary, and reference and explanation pages in `docs/`.
 
 ### Changed
@@ -312,7 +340,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `HKF_HGK_1974`. A record file now has no `thermodataset` block (`V2WriterOptions::dataset_block`).
 - `ThermoBatch` wrote every volume as 0.000 by default: its 3 decimals were those of J/bar. The default is 8 decimals
   of m3/mol, the same resolution.
-- On macOS, errors of a table setup reached Python as RuntimeError, not `TableSetupError`: its type information is now
+- On macOS, errors of a batch setup reached Python as RuntimeError, not `BatchSetupError`: its type information is now
   in the library only. And without `from_chars` for double (libc++ before 16), a number in a text was read to its last
   point, so "1.5.2 J/mol" was 1.5 J/mol and not an error.
 - The library links spdlog itself when it uses the compiled spdlog (and so fmt), not only through ChemicalFun (review N9).
@@ -383,8 +411,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   alone with no database and no engine, and gives its properties with the derivatives with respect to T, P and each
   parameter. First methods: `ConstantProperties`, `ConstantCp`, `CpPolynomial`.
 
-- `ThermoEngine` calculates a substance with method objects when all its methods have code. `engine.explain(T, P, symbol)`
-  gives the state after each method. The results are the same as before.
+- `ThermoEngine` calculates a substance with method objects when all its methods have code. The results are the same as before.
 - Water and its dielectric models are method objects too (`thermofun.methods.solventMethod`, `dielectricMethod`), and
   run alone. New option of `WaterZhangDuan05`: `dew_gibbs` gives the Gibbs energy of water of the DEW model.
 - The aqueous solute methods are method objects (`thermofun.methods.substanceMethod`): `HKF88`, `SoluteHP98`,
@@ -405,9 +432,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   method for that kind of record, for example `CTM_LGX` on a substance (`ValueError` in Python); before, the code was stored and
   did nothing. `setThermoParameters` raises an error that names the array and the position if an array with values misses a
   required parameter.
-- The engine runs every record through method objects: the old `switch` evaluation is gone. New:
-  `thermoPropertiesSubstanceDetailed` gives the result, its source, the methods in order and the conversions applied.
-  `explain` is built on it, so it now needs the defining reaction of a substance in the database.
+- The engine runs every record through method objects: the old `switch` evaluation is gone.
 - `Substance`, `Reaction` and `Element` hold only their record. The old parser is removed, with the C++ functions
   `parseSubstance`, `parseReaction`, `parseElement` and the header `Common/ParseJsonToData.h`: use the constructors. The Python
   functions stay. `readConventions` is in `Database.h`.
@@ -418,6 +443,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `EngineConventions::energy_reference`, `standard_pressure`, `concentration_scale`, `water_reference`. In Python they take the
   enum or a word. `apparent_properties` and `water_properties` still work. A wrong word now raises an error with a hint; before, it
   was ignored. A convention that is not calculated yet (for example `1atm`) raises an error.
+- The water of a dataset has an anchor, `energy_reference.water` = `helgeson_kirkham_1974` (the default, the triple-point set
+  `HKF_HGK_1974`) or `codata_1989` (`NEA_HGK` or `NEA_IAPWS`, now taken from the water method in use), declared on the dataset or
+  the water record. The engine never converts between the two; asking for the other one in `EngineConventions` is an error,
+  and only `steam_tables` converts. `Database::conventions().water_triple_point_reference` and the legacy key stay: setting
+  the name sets the anchor, and `GEOCHEMICAL` in `water_properties` is the anchor of the dataset, as before.
 - New: `setPropertySource` and `propertySource`: a substance from its methods or its defining reaction, a reaction from its methods
   or its reactants, for one record or for all.
 - ThermoFun reads the v2 format in JSON: `Database`, `ThermoEngine`, and `Substance`, `Reaction`, `Element` for one record. Units of a
@@ -433,7 +463,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Database::validate` reports the problems between records. A v2 file can use `include`, and `Database` reads a dataset folder. `toLegacyJson` and
   `save(path, DataFormat::Legacy)` write the legacy format. `jsonString()` of an edited record gives the record as it is now; before, it gave the old text. A v2 file without the key
   `thermohub` is refused, and a v2 file with methods that conflict is refused at the load.
-- The hydrogen ion is 0 only in the geochemical convention, and only if its record gives no other value. Before, a record with the formula `H+` always gave 0 and its data was ignored.
+- Ions have their own convention, `energy_reference.ions` (NEA TDB-5 1.6, 1.7.e). With `hydrogen_ion`, the default, H+(aq) is 0 at
+  every T and P in every energy reference, as in 0.x (values in its record are not used; validate warns, CNV-007), and the
+  electron (an aqueous solute with the formula `-` or `e-`) is from the standard hydrogen electrode: 1/2 of H2(g) at T and its
+  standard pressure, with V = 0. The PSI 2020 `e-` record (constant Cp) was up to 13 J/mol off at 300 degC. Without H2(g) the
+  record of the electron is used (CNV-011). With `ions: none`, the records give H+ and e-. Results are always on `hydrogen_ion`.
 - New guide: `docs/how-to/add-data.md`. A test runs its examples and checks its method tables against the code. New in Python:
   `thermofun.methods.catalog()` lists all methods and their parameters. A molar volume in a v2 file can be in J/bar.
 - New method `LandauHP11`: the Landau term of Holland and Powell (2011). It is for v2 data: it has no legacy name.

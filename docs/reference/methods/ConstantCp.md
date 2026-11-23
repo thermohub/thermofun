@@ -8,6 +8,7 @@ Integrates the constant reference Cp from the reference S, H and G.
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

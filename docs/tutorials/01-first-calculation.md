@@ -20,7 +20,7 @@ You learn to calculate a substance, a reaction and water, and to read a result.
 
 **You need:** ThermoFun, and the file `aq17-thermofun.json` from `Resources/databases/` of the repository, in your folder.
 
-**Related:** [Results](../reference/results.md) · [The v2 format](../reference/format-v2.md) (the paths of a record) (what a calculation gives) · [Units](../reference/units.md) · [Methods](../reference/methods/index.md) · [Uncertainties](../reference/uncertainty.md) · [See what each method gives](../how-to/get-per-method-results.md) · [Glossary](../glossary.md)
+**Related:** [Results](../reference/results.md) · [The v2 format](../reference/format-v2.md) (the paths of a record) (what a calculation gives) · [Units](../reference/units.md) · [Methods](../reference/methods/index.md) · [Uncertainties](../reference/uncertainty.md) · [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md) · [Glossary](../glossary.md)
 
 ## Make an engine
 
@@ -132,10 +132,10 @@ assert 860.0 < engine.propertiesSolvent(473.15, 0.0, "H2O@").density.val < 870.0
 
 ## Calculate many values
 
-To calculate many values, make a table. The template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. A template is a YAML file: copy it and edit it to change the columns, the units, the temperatures and pressures, or the format of the table, as [Output tables](06-output-tables.md) shows. [Batch calculations](07-batch-calculations.md) calculate many substances and points from your code.
+To calculate many values at once, run a batch calculation. The batch template `reaction-properties` gives log K and the other properties of a reaction at many temperatures. A template is a YAML file: copy it and edit it to change the properties, the units, the temperatures and pressures, or the layout of the result, as [Batch calculations](05-batch-calculations.md) shows.
 
 ```{code-cell} ipython3
-results = tf.table(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
+results = tf.batch(template="reaction-properties", database="aq17-thermofun.json", reactions=[dissolution])
 print(results["reactions"].to_text("md"))
 ```
 
@@ -167,17 +167,20 @@ assert G.err >= 1500.0
 
 ## See how a result is calculated
 
-`calculationPath` shows the methods of a record, and what else the record needs. `explain` gives the properties after each method: each row is the total after that method was applied, so the last row is the result. The part that each method adds is in [See what each method gives](../how-to/get-per-method-results.md).
+`engine.route(symbol)` shows how a record is calculated, before calculating: by what (`by`), with which methods, and which other records it needs (`needs`). It prints as YAML:
 
 ```{code-cell} ipython3
-path = engine.calculationPath("Ca+2")
-print(path["symbol"], "uses the methods", path["methods"])
-print("and needs the record", path["steps"][0]["symbol"], "as", path["steps"][0]["role"])
+print(engine.route("Ca+2"))
 ```
 
+Every result carries the same route with its numbers, `result.info.route`: the point, and what each method contributes to G, H, S, Cp and V. The contributions add up to the result. Calcite has a base method and a method for the volume:
+
 ```{code-cell} ipython3
-pd.DataFrame(engine.explain(473.15, 1e7, "Calcite"))[["method", "G", "H", "S", "Cp", "V"]]
+calcite = engine.thermoPropertiesSubstance(473.15, 1e7, "Calcite")
+print(calcite.info.route)
 ```
+
+The route of a record at many points, as a table: [See how a result is calculated](../how-to/see-how-a-result-is-calculated.md).
 
 ## The same in C++
 

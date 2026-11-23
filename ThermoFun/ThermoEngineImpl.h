@@ -16,6 +16,7 @@
 #include <mutex>
 #include <optional>
 #include "Common/Exception.h"
+#include "Common/OutsideRange.h"
 #include "Compat/SubstanceCompat.h"
 #include "Engine/Executor.h"
 #include "Engine/Solvent.h"
@@ -27,6 +28,7 @@
 #include "Conventions/ConventionConverter.h"
 #include "Conventions/HydrogenIon.h"
 #include "Model/SubstanceRecord.h"
+#include "Model/WaterAnchor.h"
 #include "ThermoEngine.h"
 #include "Database.h"
 #include "Reaction.h"
@@ -96,6 +98,8 @@ struct ThermoEngine::Impl
         std::vector<std::shared_ptr<const model::ReactionRecord>> reaction_records;
         std::mutex entropy_mutex;
         std::map<std::string, double> element_entropies;   ///< by formula
+        std::optional<std::string> hydrogen_gas;           ///< the symbol of H2(g), empty if none; found once (under mutex)
+        std::map<std::pair<std::string, bool>, std::shared_ptr<const Route>> routes;   ///< staticRoute, by (symbol, reaction)
     };
     std::shared_ptr<BoundCache> bound_cache = std::make_shared<BoundCache>();
 
@@ -110,6 +114,7 @@ struct ThermoEngine::Impl
         // the solvent of the dataset
         if (const auto& dataset_solvent = this->database.thermoDataSet().solvent; !dataset_solvent.empty())
             preferences.solvent_symbol = dataset_solvent;
+        warnOtherPhysicalConstants();
         resultsAreCurrent();
     }
 
@@ -226,11 +231,34 @@ struct ThermoEngine::Impl
 
     auto substanceOptions() const -> model::SubstanceOptions;
 
+    /// The constants of physics of the calculation (option physical_constants)
+    auto physics() const -> const PhysicalConstants& { return physicalConstants(preferences.physical_constants); }
+
+    /// A warning (CNV-012) if the dataset says its values were derived with another set of constants of physics
+    auto warnOtherPhysicalConstants() const -> void
+    {
+        const auto& declared = database.thermoDataSet().physical_constants;
+        if (!declared.empty() && declared != preferences.physical_constants)
+            thfun_logger->warn("CNV-012: the engine calculates with the constants of physics {}, and the dataset {} says its values were derived with {}: "
+                               "log K and G differ by about 6e-6 relative. Set the option physical_constants to {}.",
+                               preferences.physical_constants, database.thermoDataSet().symbol, declared, declared);
+    }
+
     /// The result of the executor in the form of the old engine: V in J/bar, and the status of each property
     static auto toThermoProperties(const model::SubstanceResult& r) -> ThermoPropertiesSubstance;
 
-    /// Water from the geochemical reference to the steam tables (sign -1), and back (sign 1)
-    auto steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign) const -> void;
+    /// The water anchor of a water record (decision 0031): its own, else that of the dataset, else helgeson_kirkham_1974
+    auto waterAnchorOf(const model::SubstanceRecord& record) const -> model::WaterReference;
+
+    /// The triple-point data of a water record: its anchor, for its equation of state of water
+    auto waterTripleOf(const Substance& substance) const -> WaterTripleProperties;
+
+    /// An anchor asked for in the conventions of the results that is not the anchor of the solvent: an error (the engine
+    /// never converts between anchors; the anchor is declared on the dataset). Also ions: the results are always hydrogen_ion.
+    auto checkRequestedWater() const -> void;
+
+    /// Water from its anchor to the steam tables (sign -1), and back (sign 1)
+    auto steamTablesShift(ThermoPropertiesSubstance &tps, double T, double sign, const WaterTripleProperties& wat) const -> void;
 
     static auto add(Reaktoro_::ThermoProperty& to, double factor, const Reaktoro_::ThermoScalar& term) -> void
     {
@@ -248,7 +276,7 @@ struct ThermoEngine::Impl
     auto convert(ThermoPropertiesSubstance &tps, const model::ConventionShift& shift, double T, double& P, const std::string& symbol) const -> void;
 
     /// The properties in the convention that the engine returns. Inside the engine all values are canonical.
-    auto toOutput(ThermoPropertiesSubstance tps, double T, double& P, const Substance& substance, DetailedPropertiesSubstance* detailed = nullptr) const -> ThermoPropertiesSubstance;
+    auto toOutput(ThermoPropertiesSubstance tps, double T, double& P, const Substance& substance) const -> ThermoPropertiesSubstance;
 
     /// The reference properties of a substance in the canonical convention. They are the values at the reference temperature.
     auto canonicalReference(const Substance& substance) const -> ThermoPropertiesSubstance;
@@ -274,6 +302,7 @@ struct ThermoEngine::Impl
     struct SubstanceKind
     {
         bool isHydrogen = false;
+        bool isElectron = false;  ///< from the standard hydrogen electrode (ions: hydrogen_ion)
         bool isH2Ovapor = false;
         bool isH2OSolvent = false;
         bool isReacDC = false;
@@ -282,6 +311,14 @@ struct ThermoEngine::Impl
 
     auto kindOf(const Substance &substance) const -> SubstanceKind;
 
+    /// The symbol of H2(g) in the database (the gas of the hydrogen electrode), the record "H2(g)" first; empty if none
+    auto hydrogenGas() const -> std::string;
+
+    /// The electron from the standard hydrogen electrode, H+ + e- = 1/2 H2(g) with drG = 0 at every T (NEA TDB-5 1.7.e):
+    /// 1/2 of H2(g) at T and its standard pressure, H+ being 0; not a function of P (V = 0). Canonical convention.
+    /// gasRoute: gets the route of H2(g)
+    auto hydrogenElectrode(double T, double P, const std::string& gas, std::shared_ptr<const Route>* gasRoute = nullptr) const -> ThermoPropertiesSubstance;
+
     static auto hasMethod(const std::vector<model::MethodApplication>& methods, const char* id) -> bool
     {
         return std::any_of(methods.begin(), methods.end(), [&](const auto& a) { return a.method == id; });
@@ -289,10 +326,38 @@ struct ThermoEngine::Impl
 
     auto thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance;
 
-    auto detailedSubstance(double T, double &P, const Substance &substance) const -> DetailedPropertiesSubstance;
+    /// The properties in the canonical convention, with their route. toOutput gives them in the convention that the user asks for; reactions use these.
+    auto thermoPropertiesSubstance(double T, double &P, const Substance &substance) const -> ThermoPropertiesSubstance;
 
-    /// The properties in the canonical convention. toOutput gives them in the convention that the user asks for; reactions use these.
-    auto thermoPropertiesSubstance(double T, double &P, const Substance &substance, DetailedPropertiesSubstance* detailed = nullptr) const -> ThermoPropertiesSubstance;
+    //=================================================================================================
+    // Routes (decision 0030): ThermoEngineRoute.cpp
+    //=================================================================================================
+
+    /// G, H, S, Cp, V of a result in SI; volume: the factor of V to m3/mol (1e-5 inside the engine, J/bar; 1 for a public result)
+    static auto routeValues(const ThermoPropertiesSubstance& tps, double volume = 1e-5) -> RouteValues;
+    static auto routeValues(const ThermoPropertiesReaction& tpr, double volume = 1e-5) -> RouteValues;
+
+    /// The methods of a route from the steps of the executor
+    auto addMethodSteps(Route& route, const model::BoundSubstance& bound, const std::vector<model::MethodStep>& steps) const -> void;
+
+    /// The methods of a water record on its route at T, P (decision 0028: of each kind, the first whose region holds T, P, else
+    /// the last); all of them with their regions if T is NaN
+    auto waterMethods(const model::SubstanceRecord& record, double T, double P) const -> std::vector<RouteMethod>;
+
+    /// The route of a substance or a reaction without numbers (engine.route), built once for each symbol and kept with the bound methods
+    auto staticRoute(const std::string& symbol, bool reaction = false) const -> std::shared_ptr<const Route>;
+
+    /// A copy of a result's route with one more conversion, if the change is not zero; the result gets the copy
+    template <class Result>
+    static auto addConversion(Result& result, const RouteValues& before, const std::string& what, const std::string& detail, double volume = 1e-5) -> void
+    {
+        const auto change = routeValues(result, volume) - before;
+        if (change.isZero() || !result.info.route)
+            return;
+        auto copy = std::make_shared<Route>(*result.info.route);
+        copy->conversions.push_back({what, detail, change});
+        stampRoute(result, std::shared_ptr<const Route>(std::move(copy)));
+    }
 
     auto fallbackThermoPropertiesSubstance(ThermoPropertiesSubstance tps, Substance subst) const -> ThermoPropertiesSubstance;
 
@@ -304,7 +369,8 @@ struct ThermoEngine::Impl
 
     auto propertiesSolvent(double T, double &P, const Substance &solvent, int state) const -> PropertiesSolvent;
 
-    auto reacDCthermoProperties(double T, double &P, Substance subst) const -> ThermoPropertiesSubstance;
+    /// route: gets the contribution of the reaction, the needs, the methods for the pressure and the conversions
+    auto reacDCthermoProperties(double T, double &P, Substance subst, Route& route) const -> ThermoPropertiesSubstance;
 
     /// True if the properties of a reaction change with P: from a model of log K, from a method of its volume with a volume that is not 0, or from its species
     auto reactionCarriesPressure(const Reaction& reaction) const -> bool;
@@ -319,8 +385,8 @@ struct ThermoEngine::Impl
     /// for this reaction is an error that names the loop, and a choice for all records leaves this one to its own methods, with a warning.
     auto reactionFromReactants(const Reaction& reaction) const -> bool;
 
-    auto pathOfSubstance(const std::string& symbol, std::vector<std::string>& above) const -> CalculationPath;
-    auto pathOfReaction(const std::string& symbol, std::vector<std::string>& above) const -> CalculationPath;
+    auto routeOfSubstance(const std::string& symbol, std::vector<std::string>& above) const -> std::shared_ptr<Route>;
+    auto routeOfReaction(const std::string& symbol, std::vector<std::string>& above) const -> std::shared_ptr<Route>;
 
     /// The pressure of the log K data of a reaction at T: the largest of the reference pressure, the saturation pressure of water
     /// (the critical pressure above Tcr), and the pressure at which water has the density rho_min of DataPressure.yaml.
@@ -333,7 +399,7 @@ struct ThermoEngine::Impl
     auto pressureAtDensity(double T, double rho, double P) const -> double;
     static auto waterCriticalT() -> double
     {
-        static const double T = model::builtinConstants("WaterSaturation")->parameters.at("Tcr").value;
+        static const double T = model::builtinModelParameters("WaterSaturation")->parameters.at("Tcr").value;
         return T;
     }
     /// Refuses a state point that has no meaning: T or P not finite, T <= 0, P < 0, and P = 0 (the saturation pressure of
@@ -352,7 +418,7 @@ struct ThermoEngine::Impl
     }
     static auto waterCriticalP() -> double
     {
-        static const double P = model::builtinConstants("WaterSaturation")->parameters.at("Pcr").value;
+        static const double P = model::builtinModelParameters("WaterSaturation")->parameters.at("Pcr").value;
         return P;
     }
 
@@ -445,6 +511,7 @@ struct ThermoEngine::Impl
     auto roundResults(Props& result) const -> void
     {
         if (!preferences.round_to_uncertainty) return;
+        const auto before = routeValues(result, 1.0);   // a public result: V in m3/mol
         for (auto* f : fields(result))
             if (f->sta.first != Reaktoro_::Status::notdefined)
             {
@@ -453,6 +520,7 @@ struct ThermoEngine::Impl
                 f->val = value;
                 f->err = error;
             }
+        addConversion(result, before, "rounding", "round_to_uncertainty", 1.0);
     }
 
     auto recordsOfSubstance(const std::string& symbol) const -> Records;

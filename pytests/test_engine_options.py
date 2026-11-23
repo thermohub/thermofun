@@ -35,10 +35,12 @@ def test_a_setting_takes_the_enum_or_a_word_in_any_case():
     p.property_source = tf.PropertySource.Direct
     assert p.property_source == tf.PropertySource.Direct
     c = tf.EngineConventions()
-    c.water_reference = "steam-tables"
-    assert c.water_reference == tf.WaterReference.SteamTables
-    c.energy_reference = tf.EnergyReference.BermanBrown
-    assert c.energy_reference == tf.EnergyReference.BermanBrown
+    c.energy_reference.water = "steam-tables"
+    assert c.energy_reference.water == tf.WaterReference.SteamTables
+    c.energy_reference.elements = tf.EnergyReference.BermanBrown
+    assert c.energy_reference.elements == tf.EnergyReference.BermanBrown
+    c.standard_state.pressure = "1atm"
+    assert c.standard_state.pressure == 101325.0
 
 
 # --- old fields ----------------------------------------------------------------------------------
@@ -49,8 +51,8 @@ def test_the_old_fields_give_their_defaults_and_set_the_typed_values():
     assert c.water_properties == "GEOCHEMICAL"
     c.apparent_properties = "BERMAN_BROWN"
     c.water_properties = "STEAM_TABLES"
-    assert c.energy_reference == tf.EnergyReference.BermanBrown
-    assert c.water_reference == tf.WaterReference.SteamTables
+    assert c.energy_reference.elements == tf.EnergyReference.BermanBrown
+    assert c.energy_reference.water == tf.WaterReference.SteamTables
     assert c.apparent_properties == "BERMAN_BROWN"
 
 
@@ -60,14 +62,14 @@ def test_a_wrong_old_word_is_refused():
         c.water_properties = "STEAM_TABLE"
 
 
-@pytest.mark.parametrize("old, typed, symbol", [("water_properties", "water_reference", "H2O@"),
-                                                ("apparent_properties", "energy_reference", "Ca+2")])
+@pytest.mark.parametrize("old, typed, symbol", [("water_properties", "water", "H2O@"),
+                                                ("apparent_properties", "elements", "Ca+2")])
 def test_old_and_typed_fields_give_the_same_result(old, typed, symbol):
     word, value = ("STEAM_TABLES", tf.WaterReference.SteamTables) if old == "water_properties" else ("BERMAN_BROWN", tf.EnergyReference.BermanBrown)
     a, b, plain = tf.ThermoEngine(DB), tf.ThermoEngine(DB), tf.ThermoEngine(DB)
     gibbs(a, symbol)
     setattr(a.conventions, old, word)
-    setattr(b.conventions, typed, value)
+    setattr(b.conventions.energy_reference, typed, value)
     assert gibbs(a, symbol) == gibbs(b, symbol)
     assert gibbs(a, symbol) != gibbs(plain, symbol)
 

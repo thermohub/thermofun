@@ -4,7 +4,7 @@ parameter_sets:
     method: WaterLVS83
     formula_units: {T: K, P: MPa, rho: kg/m3}
     description: "The equation of state of water near the critical point of Levelt Sengers et al. (1983), as in SUPCRT92 and the water code of GEMS. co_a and co_q: its coefficients (arrays a and q of the code); cr_: the critical point (Tc K, rhoC kg/m3, Pc MPa) and the reducing constants. Region where it is used (SUPCRT92): Tmin1 <= T <= Tmax and Pmin(T) <= P <= Pmax(T), with Pmin = Pbase1 + PTmins (T - Tmin1) and Pmax = Pbase2 + PTmaxs (T - Tmin2) (Dmin and Dmax, kg/m3, are the isochores that these pressure bounds follow in SUPCRT92: they only describe the bounds, and changing them does not change the coverage; change the pressure coefficients); below Tmin2 also the vapour side up to the saturation pressure; its saturation from Tmin1 to Tc. Ttr: the temperature of the triple point, K, for the reference of the energies. The equation has no metastable states: off the saturation curve it gives only the stable phase."
-    reference: "Levelt Sengers J.M.H., Kamgar-Parsi B., Balfour F.W., Sengers J.V. (1983) J. Phys. Chem. Ref. Data 12, 1-28; Johnson J.W., Oelkers E.H., Helgeson H.C. (1992) Comput. Geosci. 18, 899-947 (SUPCRT92)"
+    data_sources: ["Levelt Sengers J.M.H., Kamgar-Parsi B., Balfour F.W., Sengers J.V. (1983) J. Phys. Chem. Ref. Data 12, 1-28; Johnson J.W., Oelkers E.H., Helgeson H.C. (1992) Comput. Geosci. 18, 899-947 (SUPCRT92)"]
     parameters:
       co_a_1: -0.017762e0
       co_a_2: 5.238000e0

@@ -58,7 +58,8 @@ auto prepareLogK_fT(const ReactionInputs& reaction, double T, LogKForm CE) -> Lo
     // The reference values at Tr, completed (review of v2, B2): dG from log K or log K from dG; then a missing dH or dS
     // from the other two at Tr. Before, dG was not derived from log K, and dH or dS were filled at the T of the call.
     const double Tr = reaction.Tr;
-    const double RTrln10 = R_CONSTANT * Tr * lg_to_ln;
+    in.R = reaction.R;
+    const double RTrln10 = reaction.R * Tr * lg_to_ln;
     const bool has_lgK = in.lgK.sta.first != Status::notdefined;
     bool has_dGr  = in.dGr.sta.first  != Status::notdefined;
     if (has_lgK && !has_dGr)
@@ -133,7 +134,7 @@ auto setStatusLogK_fT(ThermoPropertiesReaction& tpr, const LogKInputs& in, doubl
     }
 
     G.propagateFrom(Lg);
-    G.setError({{R_CONSTANT*T*lg_to_ln, Lg.err}});
+    G.setError({{in.R*T*lg_to_ln, Lg.err}});
 
     Reaktoro_::ThermoProperty U, A; // not defined
     if (tpr.reaction_enthalpy.val != 0)
@@ -163,8 +164,8 @@ auto thermoPropertiesReaction_LogK_fT(real TK, real Pbar, const ReactionInputs& 
     ThermoPropertiesReactionAD tpr;
     using Status = Reaktoro_::Status;
 
-    auto Rln10   = R_CONSTANT * lg_to_ln;
-    auto R_T     = TK * R_CONSTANT;
+    auto Rln10   = reaction.R * lg_to_ln;
+    auto R_T     = TK * reaction.R;
     const auto& ref_tpr = reaction.reference;
     auto A       = reaction.coefficients;
     auto CpCoeff = reaction.cp_coefficients;

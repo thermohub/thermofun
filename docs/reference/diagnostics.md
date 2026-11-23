@@ -32,14 +32,18 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | V2-MTH-003 | Error | A method has both `parameters` and `segments`. | Use `segments` for a method in temperature intervals, else `parameters`. |
 | V2-MTH-004 | Error | A parameter that the method needs is missing. | Add the parameter, or give a `parameter_set` that has it. |
 | V2-MTH-005 | Error | The method cannot be used for this class of substance. | Use a method for the class of the record (see `Suits` in the method reference). |
-| CNV-007 | Warning | The hydrogen ion has values other than 0 in the geochemical convention. | Set the values to 0, or declare the convention of the record. |
+| CNV-010 | Error | reference_conditions.P is not the standard pressure p°: the values of a record are at its reference temperature and p°. | Give the pressure in standard_state: {pressure: ...} (1bar, 1atm or any pressure), and leave out reference_conditions.P. |
+| CNV-009 | Warning | A record gives dfG (the Gibbs energy of formation) but declares an energy reference in which G is not the Gibbs energy of formation (berman_brown, ser, assigned_enthalpy, dft_formation_0K). | Write G, or declare benson_helgeson (dfG and dfH are the NEA names of G and H in it). |
+| CNV-007 | Warning | The hydrogen ion has values other than 0, and ions: hydrogen_ion (the default) defines it as 0. The values are not used. | Remove the values, or declare energy_reference: {ions: none} on the record or the dataset. |
+| CNV-012 | Warning | The engine calculates with other constants of physics than the dataset says its values were derived with. | Set the engine option physical_constants to the set of the dataset, or accept differences of about 6e-6 relative in log K and G. |
+| CNV-011 | Warning | The electron is from the standard hydrogen electrode (ions: hydrogen_ion), and the database has no H2(g). The values of its record are used. | Add H2(g) to the database, or declare energy_reference: {ions: none} for the electron. |
 | CNV-008 | Warning | The energy reference dft_formation_0K is an estimate: the formation energy at 0 K is taken as the enthalpy of formation at 298.15 K (Berman-Brown), with no zero-point or thermal term. | Use the values as estimates (a few kJ/mol per atom), or give values at 298.15 K in another energy reference. |
 | V2-APP-001 | Error | The minimum of a range is not below its maximum. | Correct the limits of the range. |
 | V2-MTH-006 | Warning | The temperature segments overlap or leave gaps. | Make each segment start where the one before ends. |
 | V2-MTH-009 | Error | The method has no implementation with this name. | Use one of the implementations of the method, or remove the key `implementation`. |
 | V2-MTH-008 | Error | The method is known but not implemented. | Use another method for the record, or give its properties as constant values. |
 | V2-MTH-010 | Error | The parameters of a Method record are not the same as those of the built-in method. | Use the parameter names and units of the built-in method, or give the Method record another id. |
-| V2-MTH-011 | Error | What a Method record changes is not the same as for the built-in method. | Remove `effects` from the Method record, or give it another id. |
+| V2-MTH-011 | Error | What a Method record changes is not the same as for the built-in method. | Correct `contributes_to` of the Method record (property: sets, adds or uses, as the page of the method says), or give it another id. |
 | V2-MTH-012 | Error | The record does not have exactly one base method. | Give one method that sets G, H, S, Cp and V; the other methods can only correct them. |
 | V2-MTH-013 | Error | Two methods set the same property. | Remove one of the two methods. |
 | V2-MTH-014 | Warning | A method adds to the volume, but no method before it sets the volume. | Give the volume at the reference state, or add a method that sets it. |
@@ -72,7 +76,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | CNV-005 | Error | The value of the convention is not known. | Use one of the allowed words; the message names the nearest one. |
 | V2-SYM-001 | Error | The expression has a variable or function that is not known. | Use only the variables T, P, the parameters of the method and the allowed functions. |
 | V2-SYM-002 | Error | The expression cannot be read. | Correct the expression; the message names the position. |
-| V2-SYM-003 | Warning | The source of the expression changed after the expression was made. | Make the expression again from the source. |
+| V2-SYM-003 | Warning | The formula changed after the expression was made. | Make the expression again from the formula. |
 | V2-SYM-004 | Error | A test case of the method fails. | Correct the expression or the test case; the message names the test case. |
 | V2-SYM-005 | Error | The expression does not give an energy per mole. | Correct the units of the parameters or the expression. |
 | V2-SYM-006 | Error | The expression is too large or uses a construct that is not allowed. | Make the expression smaller, or write the method in C++. |

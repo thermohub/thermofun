@@ -4,12 +4,15 @@
 // Tests of Model/Quantity.h, Model/Vocabulary.h and IO/Legacy/LegacyVocabulary.h: every value of every list goes
 // round trip, aliases, unknown words and the legacy codes.
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "IO/Legacy/LegacyVocabulary.h"
 #include "Model/Quantity.h"
 #include "Model/Vocabulary.h"
+#include "Model/WaterAnchor.h"
+#include "Conventions/HydrogenIon.h"
 #include "ThermoEngine.h"
 #include "Common/Numbers.h"
 #include "check.h"
@@ -35,9 +38,9 @@ void testQuantity()
     q.meta.source = "1995ROB/HEM";
     CHECK(!q.isBare());
     q.meta.source.clear();
-    q.meta.quality = model::Quality::Core;
+    q.meta.quality = "core";
     CHECK(!q.isBare());
-    q.meta.quality.reset();
+    q.meta.quality.clear();
     q.meta.origin = model::Origin::Measured;
     CHECK(!q.isBare());
 }
@@ -67,7 +70,6 @@ void testLists()
     using RP = ReactionPropertyName;
     roundTrip<RP>({RP::logK, RP::lnK, RP::dG, RP::dH, RP::dS, RP::dCp, RP::dV, RP::dU, RP::dA},
                   {"logK", "lnK", "dG", "dH", "dS", "dCp", "dV", "dU", "dA"});
-    roundTrip<Quality>({Quality::Core, Quality::Recommended, Quality::Supplemental}, {"core", "recommended", "supplemental"});
     roundTrip<Origin>({Origin::Measured, Origin::Entered, Origin::Calculated, Origin::Estimated, Origin::Converted},
                       {"measured", "entered", "calculated", "estimated", "converted"});
     roundTrip<PropertySource>({PropertySource::Direct, PropertySource::Reaction, PropertySource::Reactants, PropertySource::Record},
@@ -93,7 +95,8 @@ void testLists()
     roundTrip<StandardPressure>({StandardPressure::OneBar, StandardPressure::OneAtm}, {"1bar", "1atm"});
     roundTrip<ConcentrationScale>({ConcentrationScale::Molality, ConcentrationScale::MoleFraction, ConcentrationScale::Molarity},
                                   {"molality", "mole_fraction", "molarity"});
-    roundTrip<WaterReference>({WaterReference::Geochemical, WaterReference::SteamTables}, {"geochemical", "steam_tables"});
+    roundTrip<WaterReference>({WaterReference::HelgesonKirkham1974, WaterReference::Codata1989, WaterReference::SteamTables},
+                              {"helgeson_kirkham_1974", "codata_1989", "steam_tables"});
 }
 
 void testAliasesAndCase()
@@ -107,7 +110,7 @@ void testAliasesAndCase()
     CHECK(fromString<EnergyReference>("BERMAN_BROWN") == EnergyReference::BermanBrown);
     CHECK(fromString<EnergyReference>("BENSON_HELGESON") == EnergyReference::BensonHelgeson);
     CHECK(fromString<WaterReference>("STEAM_TABLES") == WaterReference::SteamTables);
-    CHECK(fromString<WaterReference>("GEOCHEMICAL") == WaterReference::Geochemical);
+    CHECK(fromString<WaterReference>("GEOCHEMICAL") == WaterReference::HelgesonKirkham1974);   // the 0.x word
     // any case, and '-' for '_'
     CHECK(fromString<model::AggregateState>("GAS") == model::AggregateState::Gas);
     CHECK(fromString<WaterReference>("Steam-Tables") == WaterReference::SteamTables);
@@ -128,7 +131,7 @@ void testUnknownWords()
 
     const auto message = unknownWordMessage<WaterReference>("steam_table");
     CHECK(message == "\"steam_table\" is not a value of water_reference. Did you mean \"steam_tables\"? "
-                     "Allowed: geochemical, steam_tables.");
+                     "Allowed: helgeson_kirkham_1974, codata_1989, steam_tables.");
     CHECK(unknownWordMessage<WaterReference>("zzzzzzzz").find("Did you mean") == std::string::npos);
 }
 
@@ -184,11 +187,16 @@ void testOldWordsOfTheConventions()
 {
     ThermoFun::EngineConventions c;
     CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON" && c.waterPropertiesWord() == "GEOCHEMICAL");
-    c.energy_reference = ThermoFun::model::EnergyReference::BermanBrown;
-    c.water_reference = ThermoFun::model::WaterReference::SteamTables;
+    c.energy_reference.elements = ThermoFun::model::EnergyReference::BermanBrown;
+    c.energy_reference.water = ThermoFun::model::WaterReference::SteamTables;
     CHECK(c.apparentPropertiesWord() == "BERMAN_BROWN" && c.waterPropertiesWord() == "STEAM_TABLES");
     c.apparent_properties = "BENSON_HELGESON";   // a word not yet applied is the answer
     CHECK(c.apparentPropertiesWord() == "BENSON_HELGESON");
+    // GEOCHEMICAL is the water of the dataset, whichever its anchor (as in 0.x): no value
+    c.setWaterPropertiesWord("GEOCHEMICAL");
+    CHECK(!c.energy_reference.water && c.waterPropertiesWord() == "GEOCHEMICAL");
+    c.setWaterPropertiesWord("codata_1989");
+    CHECK(c.energy_reference.water == ThermoFun::model::WaterReference::Codata1989 && c.waterPropertiesWord() == "CODATA_1989");
 }
 
 // The parser by hand (macOS before libc++ 16) reads as from_chars: it read "1.5.2" as a number to its end (review S10)
@@ -209,8 +217,62 @@ void testTheNumberParserByHand()
     }
 }
 
+// The water anchors (decision 0031): helgeson_kirkham_1974 is one set for every equation, codata_1989 the set of the equation
+void testWaterAnchors()
+{
+    using namespace ThermoFun::model;
+    CHECK(waterTripleSet(WaterReference::HelgesonKirkham1974, "WaterIAPWS95") == "HKF_HGK_1974");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterIAPWS95") == "NEA_IAPWS");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterIAPWS95Gas") == "NEA_IAPWS");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterHGK84") == "NEA_HGK");
+    CHECK(waterTripleSet(WaterReference::Codata1989, "WaterLVS83") == "NEA_HGK");
+    const auto& data = ThermoFun::waterTripleData();
+    CHECK(waterTripleOf("codata_1989", "WaterIAPWS95").Htr == data.at("NEA_IAPWS").Htr);
+    CHECK(waterTripleOf("helgeson_kirkham_1974", "WaterIAPWS95").Gtr == data.at("HKF_HGK_1974").Gtr);
+    CHECK(waterTripleOf("NEA_HGK", "WaterIAPWS95").Htr == data.at("NEA_HGK").Htr);   // a set is used as it is
+    CHECK(waterAnchorOfSet("NEA_IAPWS") == WaterReference::Codata1989 && waterAnchorOfSet("HKF_HGK_1974") == WaterReference::HelgesonKirkham1974);
+    CHECK(!waterAnchorOfSet("NEA") && !anchorOf(WaterReference::SteamTables) && anchorOf(WaterReference::Codata1989));
+    for (const char* wrong : {"steam_tables", "NEA"})
+    {
+        bool thrown = false;
+        try { waterTripleOf(wrong, "WaterHGK84"); }
+        catch (const std::invalid_argument&) { thrown = true; }
+        CHECK(thrown);
+    }
+}
+
+// ions (decision 0031, row 6): the words, and how the hydrogen ion, the electron and H2(g) are recognized
+void testIons()
+{
+    using namespace ThermoFun::model;
+    roundTrip<Ions>({Ions::HydrogenIon, Ions::None}, {"hydrogen_ion", "none"});
+    CHECK(withoutValences("H|0|2") == "H2" && withoutValences("Fe|3|2O3") == "Fe2O3" && withoutValences("H2") == "H2");
+    SubstanceRecord gas;
+    gas.aggregate_state = ThermoFun::model::AggregateState::Gas;
+    gas.formula = "H|0|2";
+    CHECK(isHydrogenGas(gas));
+    SubstanceRecord e;
+    e.class_ = ThermoFun::model::SubstanceClass::AqueousSolute;
+    e.formula = "-";
+    CHECK(isElectron(e) && isHydrogenElectrode(e, Convention{}));
+    e.convention = Convention{};
+    e.convention->energy_reference.ions = Ions::None;
+    CHECK(!isHydrogenElectrode(e, Convention{}));
+    SubstanceRecord h;
+    h.class_ = ThermoFun::model::SubstanceClass::AqueousSolute;
+    h.formula = "H+";
+    h.convention = Convention{};
+    h.convention->energy_reference.elements = EnergyReference::BermanBrown;   // ions do not follow the elements
+    CHECK(isZeroHydrogenIon(h, Convention{}));
+    Convention none;
+    none.energy_reference.ions = Ions::None;
+    CHECK(!isZeroHydrogenIon(h, none));
+}
+
 void runVocabulary()
 {
+    testWaterAnchors();
+    testIons();
     testTheNumberParserByHand();
     testOldWordsOfTheConventions();
     testQuantity();

@@ -69,7 +69,7 @@ auto sourcesOf(const std::vector<std::string>& sources) -> std::vector<std::stri
 
 auto applicabilityJson(const Applicability& a, const V2WriterOptions& options) -> json;
 
-auto conventionJson(const Convention& c) -> json;
+void addConvention(json& out, const Convention& c);
 
 // the unknown fields of a record, after the canonical ones; a canonical key wins
 void addExtra(json& out, const std::string& extra);

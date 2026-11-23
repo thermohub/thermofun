@@ -7,7 +7,7 @@
 
 The parameters that a record gives for each method, with their SI units. The page of each method, with its source and an example, is in the [list of methods](methods/index.md); how to write them in a record is in [Add data](../how-to/add-data.md), Section 9.
 
-The coefficients that belong to the model and not to one substance are not in this table. They are in default YAML files in `ThermoFun/Methods/ParameterSets/`; see [Built-in coefficients](../how-to/add-data.md).
+The model parameters (the values that belong to the model and not to one substance) are not in this table. They are in default YAML files in `ThermoFun/Methods/ParameterSets/`; see [Model parameters](../how-to/add-data.md).
 
 <!-- methods begin -->
 These tables come from the code. A parameter without a unit has no unit. A method can have aliases: old ids stay readable.

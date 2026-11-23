@@ -42,4 +42,4 @@ In C++ the copy constructor and the copy assignment both make such a copy. A dat
 
 **Water passes its properties on.** The record of the solvent has its methods. A solute and a dielectric model read what those methods give.
 
-**Constants are data.** The constants of a model are in `ThermoFun/Methods/ParameterSets`, in the form of a database section. A model can have variants, and a record can replace a value for itself.
+**Model parameters are data.** The model parameters (the values of a model, the same for every substance) are in `ThermoFun/Methods/ParameterSets`, in the form of a database section. A model can have variants, and a record can replace a value for itself.

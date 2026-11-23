@@ -8,6 +8,7 @@ Adds V dP to G and H, with the reference volume.
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, H adds, V sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

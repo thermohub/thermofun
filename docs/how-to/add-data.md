@@ -133,13 +133,13 @@ A record with no method and no reaction has its reference properties at all T an
 Add more data to this database:
 
 ```python
-db = tf.Database("small.yaml")
+database = tf.Database("small.yaml")
 one = '{"symbol": "Corundum", "formula": "X", "standard_state_properties": {"G": 1}}'
-db.addSubstance(one)       # the symbol is there: nothing changes
-print(db.getSubstance("Corundum").formula())   # Al2O3
+database.addSubstance(one)       # the symbol is there: nothing changes
+print(database.getSubstance("Corundum").formula())   # Al2O3
 
-db.setSubstance(one)       # the record is replaced
-print(db.getSubstance("Corundum").formula())   # X
+database.setSubstance(one)       # the record is replaced
+print(database.getSubstance("Corundum").formula())   # X
 ```
 
 Output:
@@ -151,7 +151,7 @@ X
 
 <!-- check
 ```python
-assert db.getSubstance("Corundum").formula() == "X"
+assert database.getSubstance("Corundum").formula() == "X"
 ```
 -->
 
@@ -169,7 +169,7 @@ Every number in a file can have one of these forms:
 | `{value: -237183, uncertainty: 100}` | A standard uncertainty of 100, in the unit of the value. |
 | `{value: -237183, uncertainty: {expanded: 200, coverage_factor: 2}}` | An expanded uncertainty and its coverage factor. |
 | `{value: -237183, uncertainty: {half_width: 300, distribution: uniform}}` | A rectangular distribution of half-width 300: u = 300/√3. `triangular`: u = a/√6. |
-| `{value: -237183, calculation_path: "from the log K of R1"}` | A note on how the value was made. It is kept and written back; no calculation reads it. |
+| `{value: -237183, derivation: "from the log K of R1"}` | A note on how the value was made. It is kept and written back; no calculation reads it. |
 | `{value: -237183, quality: core, origin: calculated, source: 2018LOT/MAT}` | Data about the value. |
 
 **Default units.** Standard-state properties are in J/mol, J/(mol K) and m3/mol. Reaction properties use the same units. Molar
@@ -224,13 +224,13 @@ A molar volume can also be in J/bar. That is the unit of the legacy data: 1 J/ba
 | `class` | `component`, `gas_fluid`, `aqueous_solute`, `water_solvent`, `surface_species`, `site_moiety` or `other` (the default). All words: [Allowed words](../reference/vocabulary.md). |
 | `aggregate_state` | `gas`, `liquid`, `crystal`, `aqueous`, `solid` and more; `other` is the default. All words: [Allowed words](../reference/vocabulary.md). An unknown word gives a warning with the nearest word. |
 | `molar_mass` | The molar mass. |
-| `reference_conditions` | `{T: 298.15, P: 1.0e5}`. The default comes from the dataset, else it is 298.15 K and 1e5 Pa. |
+| `reference_conditions` | `{T: 298.15}`: the reference temperature. The default comes from the dataset, else it is 298.15 K. The values are at this T and at the standard pressure p° of `standard_state` (1 bar unless given). |
 | `standard_state_properties` | `G`, `H`, `S`, `Cp`, `V` at the reference conditions. |
 | `methods` | The list of methods. |
 | `defining_reaction` | The symbol of a reaction that gives the properties. |
 | `preferred_property_source` | `direct` (the methods) or `reaction` (the defining reaction). |
 | `applicability` | `{t_min, t_max, p_min, p_max}`. |
-| `data_source`, `data_sources` | The symbols of the citations. |
+| `data_sources` | The reference codes of the sources (NEA TDB-5 1.11), or texts; one code alone is a list of one. |
 | `covariances` | The correlations between values (Section 8). |
 | `structural` | Other named values, for example an ionic radius. |
 
@@ -328,7 +328,7 @@ substances:
 ```python
 engine = tf.ThermoEngine("aqueous.yaml")
 ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
-print(engine.explain(373.15, 1e6, "Ca+2")[0]["method"])
+print(ca.info.route.methods[0].method)
 ```
 
 Output:
@@ -339,24 +339,30 @@ HKF88
 
 <!-- check
 ```python
-assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
+assert ca.info.route.methods[0].method == "HKF88"
 ```
 -->
 
-**Conventions.** Give `convention` in a record, or in the dataset, if the values are not in the defaults (`benson_helgeson`, `1bar`, `molality`, `geochemical`). For example: `convention: {energy_reference: berman_brown, standard_pressure: 1atm}`.
+**Conventions.** A value is defined by its standard state, its reference temperature and its energy reference. Give the blocks
+`standard_state` and `energy_reference` in a record, or in the dataset, if the values are not in the defaults (`1bar`, `molality`,
+`benson_helgeson`, `helgeson_kirkham_1974`). For example: `standard_state: {pressure: 1atm}` and `energy_reference: {elements: berman_brown}`.
 
-- `energy_reference`: `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K`.
-- `standard_pressure`: `1bar`, `1atm`. It changes gases only.
-- `concentration_scale`: `molality`, `mole_fraction`, `molarity`. It changes aqueous solutes only. `molarity` needs the water solvent in the database.
-- `water_reference`: `geochemical`, `steam_tables`. It changes the water solvent only.
+- `standard_state.pressure`: `1bar`, `1atm`. It changes gases only.
+- `standard_state.concentration_scale`: `molality`, `molarity`, `mole_fraction` (IUPAC: `amount_concentration`, `amount_fraction`). It changes aqueous solutes only. `molarity` needs the water solvent in the database.
+- `energy_reference.elements`: `benson_helgeson`, `berman_brown`, `ser`, `assigned_enthalpy`, `gibbs_helmholtz_formation`, `dft_formation_0K`.
+- `energy_reference.water`: the anchor of water, `helgeson_kirkham_1974` (G of liquid water at 25 °C -237181 J/mol, HKF data) or
+  `codata_1989` (-237140 J/mol, NEA data), declared on the dataset or the water record: it is data of water, used inside every
+  reaction with H2O, and never converted between the two. `steam_tables` says that the values of a water record are on the
+  steam scale (S = 0, U = 0 at the triple point).
 
 The engine converts the result of the base method. It does not convert increments. Species with different conventions can be in one reaction. A change of the energy reference needs the
 entropies of the elements. Put them in `elements`. If they are not there, the engine uses the table of ChemicalFun and gives a warning (`CNV-006`). If no source has them, the engine gives an error (`CNV-001`).
 `NASA9` is always in `assigned_enthalpy` and `CpExtendedUNIQUAC` in `gibbs_helmholtz_formation`, whatever the record says. Results come in the defaults. To ask for others, set `EngineConventions`.
 
-**The hydrogen ion.** The geochemical convention (`benson_helgeson`, the default) defines all properties of the hydrogen ion as 0, at all T and P. A record with the class
-`aqueous_solute` and the formula `H+` needs no methods and no values in this convention. In another convention, the properties of H+ can be different: give `convention` in
-the record, or in the dataset, with the values and the methods. ThermoFun then uses them. It also uses values other than 0 in the geochemical convention, and `validate` gives a warning (`CNV-007`).
+**The hydrogen ion and the electron.** `energy_reference.ions: hydrogen_ion` (the default) defines all properties of the hydrogen ion as 0, at all T and P, in every
+energy reference, and the electron from the standard hydrogen electrode: 1/2 of H2(g) at its standard pressure. A record with the class `aqueous_solute` and the formula
+`H+`, or `-` (or `e-`) for the electron, needs no methods and no values then; the electron needs H2(g) in the database (`validate` warns, `CNV-011`). Values in such a record
+are not used (`validate` warns for H+, `CNV-007`). To give your own values of H+ and e-, declare `energy_reference: {ions: none}` in the record or the dataset.
 
 ```python
 hydrogen = tf.Database("thermohub: 2.0.0-draft.1\nsubstances:\n  H+: {formula: H+, class: aqueous_solute, aggregate_state: aqueous}\n")
@@ -367,7 +373,7 @@ substances:
     formula: H+
     class: aqueous_solute
     aggregate_state: aqueous
-    convention: {energy_reference: ser}
+    energy_reference: {elements: ser, ions: none}
     standard_state_properties: {G: -1000, H: -1000, S: 10, Cp: 20, V: 0}
     methods:
       - {method: ConstantCp}
@@ -488,7 +494,7 @@ reactions:
 ```python
 engine = tf.ThermoEngine("defined.yaml")
 b = engine.thermoPropertiesSubstance(298.15, 1e5, "B")
-print(engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"])
+print(b.info.route.by)
 ```
 
 Output:
@@ -500,7 +506,7 @@ reaction
 <!-- check
 ```python
 assert abs(b.gibbs_energy.val - (-1000 - 8.31451 * 298.15 * 2.302585093)) < 1
-assert engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"] == "reaction"
+assert b.info.route.by == "reaction"
 ```
 -->
 
@@ -543,7 +549,7 @@ assert abs(t.gibbs_energy.val + 1100) < 1e-6
 | `stoichiometry` | `{Calcite: 1, Ca+2: -1, CO3-2: -1}`: below 0 for a reactant. Optional if `equation` is there. If both are there, they must agree. |
 | `reaction_properties` | `logK`, `dG`, `dH`, `dS`, `dCp`, `dV` at the reference conditions. |
 | `methods` | One base method for log K, and optionally one volume method. |
-| `reference_conditions`, `applicability`, `level`, `data_source`, `data_sources`, `covariances` | As for a substance. |
+| `reference_conditions`, `applicability`, `level`, `data_sources`, `covariances` | As for a substance. |
 
 | You have | Base method |
 |---|---|
@@ -580,7 +586,7 @@ reactions:
     methods:
       - method: LogKTable
         interpolation: lagrange
-        order: 3
+        interpolation_order: 3
         table: {temperatures: [273.15, 298.15, 373.15, 473.15], logK: [1.0, 1.1, 1.3, 1.6]}
 ```
 
@@ -610,8 +616,8 @@ thermodataset:
   version: 1.0.0
   status: published            # a published dataset must have a version
   solvent: WATER               # the default is the record H2O@
-  reference_conditions: {T: 298.15, P: 1.0e5}
-  conventions: {water_triple_point_reference: HKF_HGK_1974}
+  reference_conditions: {T: 298.15}
+  energy_reference: {water: helgeson_kirkham_1974}   # the default: the anchor of water of HKF data
 elements:
   Ca: {number: 20, molar_mass: 40.078, standard_entropy: 41.59}      # g/mol, J/(mol K)
   Zz: {class: charge, standard_entropy: -65.34}                      # the charge
@@ -626,14 +632,14 @@ substances:
     methods:
       - {method: WaterHGK84, implementation: reaktoro}
       - {method: JohnsonNorton91, implementation: reaktoro}
-    data_source: 1998HOL/POW
+    data_sources: [1998HOL/POW]
 ```
 
 ```python
-db = tf.Database("dataset.yaml")
-print(db.thermoDataSet().symbol)
-print(db.dataSources()["1998HOL/POW"].year)
-print(tf.ThermoEngine(db).solventSymbol())
+database = tf.Database("dataset.yaml")
+print(database.thermoDataSet().symbol)
+print(database.dataSources()["1998HOL/POW"].year)
+print(tf.ThermoEngine(database).solventSymbol())
 ```
 
 Output:
@@ -646,10 +652,10 @@ WATER
 
 <!-- check
 ```python
-assert db.thermoDataSet().symbol == "my-data"
-assert db.dataSources()["1998HOL/POW"].year == 1998
-assert tf.ThermoEngine(db).solventSymbol() == "WATER"
-assert abs(db.getElement("Ca").molarMass() - 40.078) < 1e-9
+assert database.thermoDataSet().symbol == "my-data"
+assert database.dataSources()["1998HOL/POW"].year == 1998
+assert tf.ThermoEngine(database).solventSymbol() == "WATER"
+assert abs(database.getElement("Ca").molarMass() - 40.078) < 1e-9
 ```
 -->
 
@@ -766,9 +772,9 @@ methods:
 
 The tables of all methods, with their parameters and units, are on their own page: [Parameters of all methods](../reference/method-parameters.md). Each method also has its page in the [list of methods](../reference/methods/index.md).
 
-### Built-in coefficients
+### Model parameters
 
-Some methods have coefficients that do not belong to one substance, for example the coefficients of a water model. They are not in the record but in default YAML files, one for each set, in the folder `ThermoFun/Methods/ParameterSets/` of the source (a copy is in `include/ThermoFun/Methods/ParameterSets/` of an installation). Each file has a description and its source, written like a `parameter_sets` section. The page of the method lists them.
+Some methods have model parameters: values of the model that do not belong to one substance, for example the coefficients of a water equation. They are not in the record but in default YAML files, one for each set, in the folder `ThermoFun/Methods/ParameterSets/` of the source (a copy is in `include/ThermoFun/Methods/ParameterSets/` of an installation). Each file has a description and its source, written like a `parameter_sets` section. The page of the method lists them.
 
 A record does not give them. To use another value, give it inline in the `parameters` of the method, or in a `parameter_set` of the same method. The value then holds only for that record. Where this is not possible, the page of the method says so.
 
@@ -798,7 +804,7 @@ A substance and its defining reaction often have the same symbol. Each one keeps
 
 To get a substance from its methods and the reaction from its reactants, give `direct` and then `reactants`. To get a substance from its reaction and the reaction from its reactants, the reaction must not use that substance: ThermoFun raises an error that names the cycle.
 
-Derivatives and propagated errors use the same path as the values. To see the path of a result, use `thermoPropertiesSubstanceDetailed(T, P, symbol).source`.
+Derivatives and propagated errors use the same route as the values. The route of a result says where it came from: `result.info.route.by` (decision 0030).
 
 
 ```python
@@ -822,26 +828,29 @@ error with a hint.
 
 To use one implementation for all records, set `engine.preferences.method_implementation = {"HKF88": "gems"}`.
 
-To see the path that the engine takes for a record, without calculating:
+To see the route that the engine takes for a record, without calculating:
 
 ```python
 engine = tf.ThermoEngine("small.yaml")
-path = engine.calculationPath("Corundum")
-print(path["source"])
-print(path["methods"])
+print(engine.route("Corundum"))
 ```
 
 Output:
 
 ```text
-methods
-['ConstantCp', 'ConstantVolume']
+symbol: Corundum
+kind: substance
+by: methods
+methods:
+  - method: ConstantCp
+  - method: ConstantVolume
 ```
 
 <!-- check
 ```python
-assert path["source"] == "methods"
-assert path["methods"] == ["ConstantCp", "ConstantVolume"]
+route = engine.route("Corundum")
+assert route.by == "methods"
+assert [m.method for m in route.methods] == ["ConstantCp", "ConstantVolume"]
 ```
 -->
 

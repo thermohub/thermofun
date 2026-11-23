@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <ThermoFun/IO/Legacy/detail/LegacyReaderParts.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 
 namespace ThermoFun::model::legacyreader {
 
@@ -229,6 +230,13 @@ auto readLegacySubstance(const std::string& text, const LegacyReadOptions& optio
         s.reference_conditions.T = j[legacy::Tst].get<double>();
     if (isPresent(j, legacy::Pst) && j[legacy::Pst].is_number())
         s.reference_conditions.P = j[legacy::Pst].get<double>();
+    // the reference pressure is the standard pressure p° (decision 0031, row 7): a legacy record at another pressure says so
+    if (s.reference_conditions.P != 1e5)
+    {
+        if (!s.convention)
+            s.convention = Convention{};
+        s.convention->standard_state.pressure = s.reference_conditions.P;
+    }
 
     struct Slot
     {
@@ -293,6 +301,13 @@ auto readLegacyReaction(const std::string& text, const LegacyReadOptions& option
         r.reference_conditions.T = j[legacy::Tst].get<double>();
     if (isPresent(j, legacy::Pst) && j[legacy::Pst].is_number())
         r.reference_conditions.P = j[legacy::Pst].get<double>();
+    // the reference pressure is the standard pressure p° (decision 0031, row 7): a legacy record at another pressure says so
+    if (r.reference_conditions.P != 1e5)
+    {
+        if (!r.convention)
+            r.convention = Convention{};
+        r.convention->standard_state.pressure = r.reference_conditions.P;
+    }
 
     struct Slot
     {
@@ -423,9 +438,13 @@ auto readLegacyDocumentInfo(const std::string& text) -> ThermoDataSetInfo
                 info.legacy_datasources.push_back(v.get<std::string>());
     if (isPresent(j, legacy::Conventions) && j[legacy::Conventions].is_object())
     {
+        // the triple-point set names the water anchor (decision 0031): HKF_HGK_1974 is the default, NEA_HGK and NEA_IAPWS are
+        // codata_1989 (the set itself follows from the water method)
         const std::string ref = stringOf(j[legacy::Conventions], "water_triple_point_reference");
-        if (!ref.empty())
-            info.water_triple_point_reference = ref;
+        if (const auto anchor = waterAnchorOfSet(ref); anchor == WaterReference::Codata1989)
+            info.convention.energy_reference.water = anchor;
+        else if (!ref.empty() && !anchor)
+            throw std::runtime_error("The legacy water_triple_point_reference \"" + ref + "\" is not known: HKF_HGK_1974, NEA_HGK or NEA_IAPWS.");
     }
     return info;
 }

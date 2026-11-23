@@ -19,6 +19,7 @@ struct ConversionSubject
     bool gas = false;
     bool solute = false;
     std::function<double()> element_entropy;     ///< the sum of the entropies of the elements of the formula, J/(mol K). Called only if needed.
+    double R = R_CONSTANT;                       ///< the gas constant of the calculation (engine option physical_constants)
 };
 
 /// A change of convention of one substance:
@@ -50,7 +51,7 @@ struct MolarityTerms
 };
 
 template <typename TScalar, typename Scalar>
-auto molarityTerms(const TScalar& T, const Scalar& rho, const Scalar& rhoT, const Scalar& rhoP, const Scalar& rhoTT) -> MolarityTerms<Scalar>
+auto molarityTerms(const TScalar& T, const Scalar& rho, const Scalar& rhoT, const Scalar& rhoP, const Scalar& rhoTT, double R = R_CONSTANT) -> MolarityTerms<Scalar>
 {
     using std::log;
     const Scalar T_ = T;
@@ -59,11 +60,11 @@ auto molarityTerms(const TScalar& T, const Scalar& rho, const Scalar& rhoT, cons
     const Scalar LP = rhoP / rho;
     const Scalar LTT = rhoTT / rho - LT * LT;
     MolarityTerms<Scalar> m;
-    m.G = R_CONSTANT * T_ * L;
-    m.S = -R_CONSTANT * (L + T_ * LT);
-    m.H = -R_CONSTANT * T_ * T_ * LT;
-    m.Cp = -R_CONSTANT * (2.0 * T_ * LT + T_ * T_ * LTT);
-    m.V = R_CONSTANT * T_ * LP;
+    m.G = R * T_ * L;
+    m.S = -R * (L + T_ * LT);
+    m.H = -R * T_ * T_ * LT;
+    m.Cp = -R * (2.0 * T_ * LT + T_ * T_ * LTT);
+    m.V = R * T_ * LP;
     return m;
 }
 

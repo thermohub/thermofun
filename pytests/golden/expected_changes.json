@@ -13746,6 +13746,26 @@
         ]
       ],
       "reason": "The water of reaktoro (HGK, IAPWS-95) at 623.15 K and 100 bar: the liquid record has no liquid root there (100 bar is below the liquid spinodal, between 120 and 140 bar at 350 C). The baseline stopped with 'Unable to calculate the density of water'; a branch with no stable root now gives the root of the other branch, as the HGK of GEMS. 2026-11-20."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "default",
+      "kind": "substances",
+      "records": [
+        "H2(aq)",
+        "e-"
+      ],
+      "reason": "Decision 0031, step 2d (ions: hydrogen_ion): the electron is from the standard hydrogen electrode, G(e-) = 1/2 G(H2, g, T, p\u00b0) - G(H+) at every T, not a function of P (NEA TDB-5 1.7.e); the PSI 2020 e- record (constant Cp 14.418) was 0.55 J/mol off at 100 C, 13 J/mol at 300 C, 216 J/mol at 1000 C. H2(aq) is defined by 2H+ + 2e- = H2(aq): twice the change. Cp is now calculated (was read) and V = 0 assigned. 2026-11-22."
+    },
+    {
+      "database": "pytests--PsiTDB2020-subset-thermofun",
+      "variant": "gas",
+      "kind": "substances",
+      "records": [
+        "H2(aq)",
+        "e-"
+      ],
+      "reason": "Decision 0031, step 2d (ions: hydrogen_ion): the electron is from the standard hydrogen electrode, G(e-) = 1/2 G(H2, g, T, p\u00b0) - G(H+) at every T, not a function of P (NEA TDB-5 1.7.e); the PSI 2020 e- record (constant Cp 14.418) was 0.55 J/mol off at 100 C, 13 J/mol at 300 C, 216 J/mol at 1000 C. H2(aq) is defined by 2H+ + 2e- = H2(aq): twice the change. Cp is now calculated (was read) and V = 0 assigned. 2026-11-22."
     }
   ]
 }

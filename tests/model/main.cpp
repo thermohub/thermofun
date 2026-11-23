@@ -11,7 +11,7 @@
 void runSha256();
 void runCatalog();
 void runSymbolic();
-void runTables();
+void runBatch();
 void runSubstanceMethods();
 void runDiagnostics();
 void runLegacyEquivalence();
@@ -29,7 +29,7 @@ int main()
     runSha256();
     runCatalog();
     runSymbolic();
-    runTables();
+    runBatch();
     runVocabulary();
     runUcum();
     runRecords();

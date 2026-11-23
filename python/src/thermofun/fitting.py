@@ -46,6 +46,49 @@ class Observation:
     uncertainty: float = 1.0
 
 
+SI_UNITS = {"G": "J/mol", "H": "J/mol", "U": "J/mol", "A": "J/mol", "S": "J/(mol*K)", "Cp": "J/(mol*K)", "V": "m3/mol",
+            "dG": "J/mol", "dH": "J/mol", "dS": "J/(mol*K)", "dCp": "J/(mol*K)", "dV": "m3/mol"}
+
+
+def _points(name, x, n):
+    if isinstance(x, (int, float)):
+        return [float(x)] * n
+    x = [float(v) for v in x]
+    if len(x) != n:
+        raise ValueError(f"{name} has {len(x)} values; the observations need {n} (or one number for all).")
+    return x
+
+
+def observations(symbol, property, T, P, values, uncertainties=1.0, unit=None, T_unit="K"):
+    """The observations of one property of one record at several points. T, P, uncertainties: a list as long as values,
+    or one number for all. unit: the unit of values and uncertainties, for example "kJ/mol" (default SI). T_unit: "K" or
+    "C". P in Pa; 0 is the saturation pressure of water."""
+    _check_property(property, f"the observations of {symbol}")
+    values = [float(v) for v in values]
+    n = len(values)
+    T, P, uncertainties = _points("T", T, n), _points("P", P, n), _points("uncertainties", uncertainties, n)
+    if T_unit not in ("K", "C"):
+        raise ValueError(f"T_unit is {T_unit}; use K or C.")
+    shift = 273.15 if T_unit == "C" else 0.0
+    factor = 1.0
+    if unit:
+        if property not in SI_UNITS:
+            raise ValueError(f"{property} has no unit to convert to.")
+        from thermofun import convert_units
+        factor = convert_units(1.0, _unit(unit), _unit(SI_UNITS[property]))
+    return [Observation(symbol, property, t + shift, p, v * factor, u * factor) for t, p, v, u in zip(T, P, values, uncertainties)]
+
+
+def calculated(engine, symbol, property, T, P, uncertainty=1.0):
+    """Observations made with an engine (SI): data with known parameters, to see a fit find them. T, P: lists of the
+    same length, or one number for all; uncertainty: one number for all, in SI."""
+    n = max(1 if isinstance(T, (int, float)) else len(T), 1 if isinstance(P, (int, float)) else len(P))
+    T, P = _points("T", T, n), _points("P", P, n)
+    problem = SimpleNamespace(engine=engine)
+    values = [Problem._value(problem, symbol, property, t, p) for t, p in zip(T, P)]
+    return observations(symbol, property, T, P, values, uncertainty)
+
+
 @dataclass
 class PropertyConstraint:
     """The property of a record at T, P equals value exactly. property: as in Observation.
@@ -150,8 +193,7 @@ class Problem:
         return getattr(self.engine.thermoPropertiesReaction(T, P, symbol), REACTION_FIELDS[prop]).val
 
     def _derivatives(self, symbol, prop, T, P):
-        function = self.engine.parameterSensitivities if prop in SUBSTANCE_FIELDS else self.engine.reactionParameterSensitivities
-        d = function(T, P, symbol, self.keys)[prop]
+        d = self.engine.parameterSensitivities(T, P, symbol, self.keys)[prop]
         return [d[name] for name in self.names]
 
     def _calculate(self, o):

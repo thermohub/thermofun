@@ -95,11 +95,12 @@ void testDatasetFolder()
     // the record files have no dataset block, so they do not replace the dataset of thermodataset.json: its name and a
     // convention other than the default stay
     const Database nea(R"({"thermohub": "2.0.0-draft.1", "thermodataset": {"symbol": "t", "name": "test",
-        "conventions": {"water_triple_point_reference": "NEA_IAPWS"}}, "elements": {"O": {"number": 8, "class": "element"}}})");
+        "energy_reference": {"water": "codata_1989"}}, "elements": {"O": {"number": 8, "class": "element"}}})");
     const auto neaFolder = scratch("nea");
     nea.saveDataset(neaFolder.string());
     const Database neaBack(neaFolder.string());
-    CHECK(neaBack.conventions().water_triple_point_reference == "NEA_IAPWS");
+    CHECK(neaBack.thermoDataSet().convention.energy_reference.water == model::WaterReference::Codata1989);
+    CHECK(neaBack.conventions().water_triple_point_reference == "NEA_HGK");   // the 0.x view: no water method, the HGK set
     CHECK(neaBack.thermoDataSet().name == "test" && neaBack.thermoDataSet().symbol == "t");
     std::ifstream element(neaFolder / "elements" / "O.json");
     std::stringstream elementText;

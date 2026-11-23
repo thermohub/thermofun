@@ -67,7 +67,8 @@ auto substanceFromReaction(double T, double P, const ThermoPropertiesReaction& t
     return tps;
 }
 
-auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols) -> ThermoPropertiesReaction
+auto reactionFromReactants(double T, double P, const std::string& reaction, const std::vector<std::pair<ThermoPropertiesSubstance, double>>& components, const std::vector<std::string>& symbols,
+                           double R) -> ThermoPropertiesReaction
 {
     ThermoPropertiesReaction tpr;
     tpr.reaction_heat_capacity_cp = 0.0;
@@ -112,7 +113,7 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
                     a.reaction_internal_energy  += pass(tps.internal_energy)*coeff;
                     a.reaction_helmholtz_energy += pass(tps.helmholtz_energy)*coeff;
                 }
-                a.ln_equilibrium_constant  = a.reaction_gibbs_energy / -(R_CONSTANT*pass.T);
+                a.ln_equilibrium_constant  = a.reaction_gibbs_energy / -(R*pass.T);
                 a.log_equilibrium_constant = a.ln_equilibrium_constant * ln_to_lg;
                 return a;
             });
@@ -207,7 +208,7 @@ auto reactionFromReactants(double T, double P, const std::string& reaction, cons
         tpr.reaction_enthalpy.setError({{1.0, std::sqrt(h)}});
         tpr.reaction_entropy.setError({{1.0, std::sqrt(sv)}});
         tpr.reaction_volume.setError({{1.0, std::sqrt(v)}});
-        tpr.ln_equilibrium_constant.setError({{1.0/(R_CONSTANT*T), std::sqrt(g)}});
+        tpr.ln_equilibrium_constant.setError({{1.0/(R*T), std::sqrt(g)}});
         tpr.log_equilibrium_constant.setError({{ln_to_lg, tpr.ln_equilibrium_constant.err}});
         tpr.reaction_heat_capacity_cv.setError({{1.0, std::sqrt(cv)}});
         tpr.reaction_internal_energy.setError({{1.0, std::sqrt(u)}});

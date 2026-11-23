@@ -15,7 +15,7 @@ inline constexpr const char* unit = "unit";
 inline constexpr const char* uncertainty = "uncertainty";
 inline constexpr const char* quality = "quality";
 inline constexpr const char* origin = "origin";
-inline constexpr const char* calculation_path = "calculation_path";
+inline constexpr const char* derivation = "derivation";
 inline constexpr const char* source = "source";
 
 // an uncertainty

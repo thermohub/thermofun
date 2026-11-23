@@ -32,7 +32,7 @@ namespace ThermoFun {
 /// The density at T and P of the branch given by the state, or of the other branch if allowOther and the branch has none
 /// (beyond its spinodal); converged tells whether a stable root was found.
 template<typename HelmholtsModel>
-auto solveWaterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model, bool allowOther, bool& converged) -> real
+auto solveWaterDensity(real T, real P, int solvent_state, const WaterSaturationModelParameters& s, const HelmholtsModel& model, bool allowOther, bool& converged) -> real
 {
     // Auxiliary constants for the Newton's iterations
     const int max_iters = 100;
@@ -101,7 +101,7 @@ auto solveWaterDensity(real T, real P, int solvent_state, const WaterSaturationC
 }
 
 template<typename HelmholtsModel>
-auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConstants& s, const HelmholtsModel& model) -> real
+auto waterDensity(real T, real P, int solvent_state, const WaterSaturationModelParameters& s, const HelmholtsModel& model) -> real
 {
     bool converged = false;
     const real D = solveWaterDensity(T, P, solvent_state, s, model, true, converged);
@@ -118,24 +118,24 @@ auto waterDensity(real T, real P, int solvent_state, const WaterSaturationConsta
     return {};
 }
 
-auto waterDensityHGK(real T, real P, int state, const HGKConstants& constants) -> real
+auto waterDensityHGK(real T, real P, int state, const HGKModelParameters& constants) -> real
 {
     return waterDensity(T, P, state, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateHGK(t, d, constants); });
 }
 
-auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussConstants& constants) -> real
+auto waterDensityWagnerPruss(real T, real P, int state, const WagnerPrussModelParameters& constants) -> real
 {
     return waterDensity(T, P, state, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); });
 }
 
-auto waterDensityGasEquation(real T, real P, const WagnerPrussConstants& constants, double Dmax, bool& ok) -> real
+auto waterDensityGasEquation(real T, real P, const WagnerPrussModelParameters& constants, double Dmax, bool& ok) -> real
 {
     const real D = solveWaterDensity(T, P, 1, constants.saturation, [&constants](real t, real d) { return waterHelmholtzStateWagnerPruss(t, d, constants); }, false, ok);
     ok = ok && D.val() > 0 && D.val() <= Dmax;
     return D;
 }
 
-auto waterSaturatedPressureWagnerPruss(real T, const WaterSaturationConstants& s) -> real
+auto waterSaturatedPressureWagnerPruss(real T, const WaterSaturationModelParameters& s) -> real
 {
     const double a1 = s.a[0];
     const double a2 = s.a[1];
@@ -157,7 +157,7 @@ auto waterSaturatedPressureWagnerPruss(real T, const WaterSaturationConstants& s
     return Pcr * exp(Tcr/T * (a1*t + a2*t15 + a3*t30 + a4*t35 + a5*t40 + a6*t75));
 }
 
-auto waterSaturatedLiquidDensityWagnerPruss(real T, const WaterSaturationConstants& s) -> real
+auto waterSaturatedLiquidDensityWagnerPruss(real T, const WaterSaturationModelParameters& s) -> real
 {
     const double b1 = s.b[0];
     const double b2 = s.b[1];
@@ -180,7 +180,7 @@ auto waterSaturatedLiquidDensityWagnerPruss(real T, const WaterSaturationConstan
     return Dcr * (1 + b1*t13 + b2*t23 + b3*t53 + b4*t163 + b5*t433 + b6*t1103);
 }
 
-auto waterSaturatedVapourDensityWagnerPruss(real T, const WaterSaturationConstants& s) -> real
+auto waterSaturatedVapourDensityWagnerPruss(real T, const WaterSaturationModelParameters& s) -> real
 {
     const double c1 = s.c[0];
     const double c2 = s.c[1];

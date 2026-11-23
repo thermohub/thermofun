@@ -7,8 +7,8 @@ namespace ThermoFun::model {
 
 auto Quantity::isBare() const -> bool
 {
-    return written.unit.empty() && !uncertainty.has_value() && !meta.quality && !meta.origin &&
-           meta.calculation_path.empty() && meta.source.empty();
+    return written.unit.empty() && !uncertainty.has_value() && meta.quality.empty() && !meta.origin &&
+           meta.derivation.empty() && meta.source.empty();
 }
 
 } // namespace ThermoFun::model

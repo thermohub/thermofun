@@ -24,7 +24,7 @@
 namespace ThermoFun {
 
 /// The coefficients of the equation (co_a, co_q, cr_ of SUPCRT92) and its region
-struct WaterLVS83Constants
+struct WaterLVS83ModelParameters
 {
     COEFS co{};
     CRITS cr{};
@@ -35,7 +35,7 @@ struct WaterLVS83Constants
 };
 
 /// The constants from the values of the method (its parameter set and the record), by name
-auto makeWaterLVS83Constants(const std::map<std::string, model::Quantity>& values) -> std::shared_ptr<const WaterLVS83Constants>;
+auto makeWaterLVS83ModelParameters(const std::map<std::string, model::Quantity>& values) -> std::shared_ptr<const WaterLVS83ModelParameters>;
 
 /// One phase of water from the equation: T in K, P in MPa, D in kg/m3; A, G, S, U, H, Cv, Cp in kJ/kg (S, Cv, Cp per K) in
 /// the reference of the code (before the triple-point convention); alpha 1/K, beta 1/MPa, dAldT 1/K2, gamma = rho
@@ -52,8 +52,8 @@ class WaterLVS83
 {
 public:
     /// Keeps the constants alive as long as the object lives
-    explicit WaterLVS83(std::shared_ptr<const WaterLVS83Constants> constants);
-    WaterLVS83(const WaterLVS83Constants&&) = delete;
+    explicit WaterLVS83(std::shared_ptr<const WaterLVS83ModelParameters> constants);
+    WaterLVS83(const WaterLVS83ModelParameters&&) = delete;
 
     /// The critical temperature of the equation, K
     auto criticalTemperature() const -> double { return k_->cr.Tc.val(); }
@@ -75,8 +75,8 @@ public:
     auto fluid(real T, real P) -> WaterLVS83Phase;
 
 private:
-    std::shared_ptr<const WaterLVS83Constants> keep_;
-    const WaterLVS83Constants* k_;
+    std::shared_ptr<const WaterLVS83ModelParameters> keep_;
+    const WaterLVS83ModelParameters* k_;
     const COEFS* co;
     const CRITS* cr;
     SATUR sa{};

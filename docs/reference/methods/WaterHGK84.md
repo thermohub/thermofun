@@ -10,6 +10,7 @@ Source: Haar, Gallagher and Kell (1984).
 |---|---|
 | Works on | substance |
 | Kind | base method |
+| Contributes to | G sets, H sets, S sets, Cp sets, V sets |
 | Classes | water_solvent, gas_fluid |
 | Needs | nothing from outside its record |
 | Temperature segments | no |
@@ -27,9 +28,9 @@ Source: Haar, Gallagher and Kell (1984).
 |---|---|---|---|---|---|
 | state | 1 | 1 | no | 0 | 0: liquid, 1: gas |
 
-## Built-in coefficients
+## Model parameters
 
-A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
+Parameters of the model, the same for every record. A record does not give these: ThermoFun reads them from `ThermoFun/Methods/ParameterSets`. A record can replace one like a parameter, inline or with a parameter set of the same method, unless the text below says it cannot.
 
 Implementation `gems`.
 

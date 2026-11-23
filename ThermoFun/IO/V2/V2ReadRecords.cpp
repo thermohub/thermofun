@@ -3,22 +3,42 @@
 
 // Reads one record of each kind from a v2 file.
 
+#include <algorithm>
+#include <ThermoFun/Common/PhysicalConstants.h>
+#include <cmath>
+#include <ThermoFun/IO/ReferenceCode.h>
 #include <ThermoFun/IO/V2/detail/V2ReaderParts.h>
 
 namespace ThermoFun::model::v2reader {
 
+// The reference temperature, and the reference pressure, which is the standard pressure p° (decision 0031, row 7): a P that a
+// file gives is checked against p°, never read as another pressure
 auto readReferenceConditions(Context& c, const json& node, const UnitScope& scope, const std::string& record,
-                             const std::string& path, ReferenceConditions fallback) -> ReferenceConditions
+                             const std::string& path, ReferenceConditions fallback, double standardPressure) -> ReferenceConditions
 {
+    fallback.P = standardPressure;
     if (node.contains("reference_conditions") && node["reference_conditions"].is_object())
     {
         const json& rc = node["reference_conditions"];
         if (auto q = quantity(c, rc, "T", "K", scope, record, path + "/reference_conditions"))
             fallback.T = q->value;
         if (auto q = quantity(c, rc, "P", "Pa", scope, record, path + "/reference_conditions"))
-            fallback.P = q->value;
+            if (std::fabs(q->value - standardPressure) > 1e-9 * standardPressure)
+                report(c, Severity::Error, "CNV-010", record, path + "/reference_conditions/P",
+                       "The reference pressure " + std::to_string(q->value) + " Pa is not the standard pressure " + standardPressureText(standardPressure) +
+                           ": the values are at p°. Give the pressure in standard_state: {pressure: ...}, and leave out reference_conditions.P.");
     }
     return fallback;
+}
+
+// The standard pressure of a record: its own, else that of the dataset, else 1 bar
+auto standardPressureOf(const Context& c, const std::optional<Convention>& own) -> double
+{
+    if (own && own->standard_state.pressure)
+        return *own->standard_state.pressure;
+    if (c.dataset && c.dataset->convention.standard_state.pressure)
+        return *c.dataset->convention.standard_state.pressure;
+    return 1e5;
 }
 
 auto symbolOf(Context& c, const json& node, const std::string& key, const std::string& path) -> std::string
@@ -46,7 +66,7 @@ auto readElement(Context& c, const json& node, const std::string& key, const Uni
         return r;
     }
     static const std::set<std::string> known = {"symbol", "name", "class", "number", "isotope_mass", "valence", "molar_mass",
-                                                "standard_entropy", "heat_capacity", "volume", "reference_form", "data_sources",
+                                                "standard_entropy", "heat_capacity", "volume", "reference_state", "data_sources",
                                                 "sourcetdb", "structural", "units", "record_type", "legacy_class"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
@@ -66,7 +86,7 @@ auto readElement(Context& c, const json& node, const std::string& key, const Uni
     r.standard_entropy = quantity(c, node, "standard_entropy", "J/(mol.K)", scope, symbol, path);
     r.heat_capacity = quantity(c, node, "heat_capacity", "J/(mol.K)", scope, symbol, path);
     r.volume = quantity(c, node, "volume", "m3/mol", scope, symbol, path);
-    r.reference_form = optionalString(node, "reference_form");
+    r.reference_state = optionalString(node, "reference_state");
     r.data_sources = stringList(node, "data_sources");
     r.sourcetdb = optionalString(node, "sourcetdb");
     if (node.contains("structural") && node["structural"].is_object())
@@ -92,8 +112,8 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     }
     static const std::set<std::string> known = {
         "symbol", "name", "formula", "charge", "class", "aggregate_state", "sourcetdb", "molar_mass", "standard_state_convention",
-        "convention", "reference_conditions", "standard_state_properties", "methods", "defining_reaction", "preferred_property_source",
-        "applicability", "data_source", "data_sources", "structural", "deprecated", "deprecated_in_favour_of", "units", "record_type", "covariances"};
+        "standard_state", "energy_reference", "reference_conditions", "standard_state_properties", "methods", "defining_reaction", "preferred_property_source",
+        "applicability", "data_sources", "structural", "deprecated", "deprecated_in_favour_of", "units", "record_type", "covariances"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -109,15 +129,20 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
     r.aggregate_state = vocabulary<AggregateState>(c, optionalString(node, "aggregate_state"), symbol, path + "/aggregate_state").value_or(AggregateState::Other);
     r.sourcetdb = optionalString(node, "sourcetdb");
     r.molar_mass = quantity(c, node, "molar_mass", "kg/mol", mass, symbol, path);
-    if (node.contains("convention"))
-        r.convention = readConvention(c, node["convention"], symbol, path + "/convention");
+    r.convention = readConvention(c, node, scope, symbol, path);
     standardStateLabel(c, node, r.convention, symbol, path);
     r.reference_conditions = readReferenceConditions(c, node, scope, symbol, path,
-                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{});
+                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{}, standardPressureOf(c, r.convention));
+    bool formationG = false;   // dfG: the NEA name of G in benson_helgeson (decision 0031, row 5)
     if (node.contains("standard_state_properties") && node["standard_state_properties"].is_object())
         for (const auto& item : node["standard_state_properties"].items())
         {
-            auto name = fromString<PropertyName>(item.key());
+            // dfG and dfH, the NEA names, are G and H; H at Tr is dfH in every energy reference, G is dfG only in some
+            if (item.key() == "dfG")
+                formationG = true;
+            auto name = item.key() == "dfG" ? std::optional<PropertyName>(PropertyName::G)
+                        : item.key() == "dfH" ? std::optional<PropertyName>(PropertyName::H)
+                                              : fromString<PropertyName>(item.key());
             if (!name)
             {
                 report(c, Severity::Warning, "V2-KEY-001", symbol, path + "/standard_state_properties/" + item.key(),
@@ -135,13 +160,21 @@ auto readSubstance(Context& c, const json& node, const std::string& key, const U
             if (q)
                 r.standard_state_properties[*name] = *q;
         }
+    if (formationG)
+    {
+        const auto own = r.convention ? r.convention->energy_reference.elements : std::nullopt;
+        const auto reference = own ? own : (c.dataset ? c.dataset->convention.energy_reference.elements : std::nullopt);
+        if (reference && *reference != EnergyReference::BensonHelgeson && *reference != EnergyReference::GibbsHelmholtzFormation)
+            report(c, Severity::Warning, "CNV-009", symbol, path + "/standard_state_properties/dfG",
+                   "dfG is the Gibbs energy of formation, but the energy reference " + toString(*reference) +
+                       " counts G from another zero: the value is read as G of that reference.");
+    }
     if (node.contains("methods"))
         r.methods = readMethods(c, node["methods"], OperatesOn::Substance, scope, symbol, path + "/methods");
     r.defining_reaction = optionalString(node, "defining_reaction");
     r.preferred_property_source = readPropertySource(c, node, symbol, path);
     if (node.contains("applicability"))
         r.applicability = readApplicability(c, node["applicability"], scope, symbol, path + "/applicability");
-    r.data_source = optionalString(node, "data_source");
     r.data_sources = stringList(node, "data_sources");
     if (node.contains("structural") && node["structural"].is_object())
         for (const auto& item : node["structural"].items())
@@ -168,8 +201,8 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
         return r;
     }
     static const std::set<std::string> known = {
-        "symbol", "name", "equation", "stoichiometry", "reference_conditions", "reaction_properties", "methods", "level", "data_source",
-        "data_sources", "applicability", "convention", "preferred_property_source", "sourcetdb", "deprecated", "units", "record_type", "covariances"};
+        "symbol", "name", "equation", "stoichiometry", "reference_conditions", "reaction_properties", "methods", "level",
+        "data_sources", "applicability", "standard_state", "energy_reference", "preferred_property_source", "sourcetdb", "deprecated", "units", "record_type", "covariances"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return r;
@@ -201,8 +234,9 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
             }
         }
     }
+    r.convention = readConvention(c, node, scope, symbol, path);
     r.reference_conditions = readReferenceConditions(c, node, scope, symbol, path,
-                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{});
+                                                     c.dataset ? c.dataset->reference_conditions : ReferenceConditions{}, standardPressureOf(c, r.convention));
     if (node.contains("reaction_properties") && node["reaction_properties"].is_object())
         for (const auto& item : node["reaction_properties"].items())
         {
@@ -230,10 +264,7 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
         r.level = *level;
     if (node.contains("applicability"))
         r.applicability = readApplicability(c, node["applicability"], scope, symbol, path + "/applicability");
-    if (node.contains("convention"))
-        r.convention = readConvention(c, node["convention"], symbol, path + "/convention");
     r.preferred_property_source = readPropertySource(c, node, symbol, path);
-    r.data_source = optionalString(node, "data_source");
     r.data_sources = stringList(node, "data_sources");
     r.deprecated = node.contains("deprecated") && node["deprecated"].is_boolean() && node["deprecated"].get<bool>();
     r.covariance = readCovariances(c, node, symbol, path);
@@ -241,11 +272,6 @@ auto readReaction(Context& c, const json& node, const std::string& key, const Un
     r.file.format = DataFormat::V2;
     r.file.text = node.dump();
     return r;
-}
-
-auto effectsText(const json& node) -> std::string
-{
-    return node.contains("effects") ? node["effects"].dump() : std::string();
 }
 
 auto readMethodRecord(Context& c, const json& node, const std::string& key, const UnitScope&, const std::string& path) -> MethodDefinition
@@ -256,23 +282,44 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
         report(c, Severity::Error, "V2-ID-001", key, path, "A method must be a mapping.");
         return m;
     }
-    static const std::set<std::string> known = {"symbol", "kind", "tier", "operates_on", "applies_to_classes", "contributes_to",
-                                                "parameter_definitions", "implementation_id", "source", "expression", "generator",
-                                                "source_hash", "tests", "effects", "citation"};
+    static const std::set<std::string> known = {"symbol", "kind", "operates_on", "applies_to_classes", "contributes_to",
+                                                "parameter_definitions", "implementation_id", "formula", "expression", "generator",
+                                                "formula_hash", "tests", "data_sources"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return m;
     m.symbol = symbol;
     if (node.contains("kind") && node["kind"].is_string())
         m.kind = vocabulary<MethodKind>(c, node["kind"].get<std::string>(), symbol, path + "/kind").value_or(m.kind);
-    if (auto tier = optionalInt(node, "tier"))
-        m.tier = *tier;
     if (node.contains("operates_on") && node["operates_on"].is_string())
         m.operates_on = vocabulary<OperatesOn>(c, node["operates_on"].get<std::string>(), symbol, path + "/operates_on").value_or(m.operates_on);
     for (const auto& word : stringList(node, "applies_to_classes"))
         if (const auto cls = vocabulary<SubstanceClass>(c, word, symbol, path + "/applies_to_classes"))
             m.applies_to_classes.push_back(*cls);
-    m.contributes_to = stringList(node, "contributes_to");
+    // contributes_to: a map property -> sets / adds / uses, or a short list of properties that each add
+    if (node.contains("contributes_to"))
+    {
+        const json& block = node["contributes_to"];
+        const std::string where = path + "/contributes_to";
+        if (block.is_array() || block.is_string())
+        {
+            m.contributes_to_list = true;
+            for (const auto& name : stringList(node, "contributes_to"))
+                m.contributes_to.emplace_back(name, "adds");
+        }
+        else if (block.is_object())
+            for (const auto& item : block.items())
+            {
+                const std::string word = item.value().is_string() ? item.value().get<std::string>() : std::string();
+                if (word != "sets" && word != "adds" && word != "uses")
+                    report(c, Severity::Error, "V2-VOC-001", symbol, where + "/" + item.key(),
+                           "\"" + word + "\" is not a value of contributes_to. Allowed: sets, adds, uses.");
+                else
+                    m.contributes_to.emplace_back(item.key(), word);
+            }
+        else
+            report(c, Severity::Error, "V2-VOC-001", symbol, where, "contributes_to is a mapping (property: sets, adds or uses) or a list of properties.");
+    }
     if (node.contains("parameter_definitions") && node["parameter_definitions"].is_object())
         for (const auto& item : node["parameter_definitions"].items())
         {
@@ -290,11 +337,11 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
             m.parameter_definitions.push_back(p);
         }
     m.implementation_id = optionalString(node, "implementation_id");
-    if (node.contains("source") && node["source"].is_object())
+    if (node.contains("formula") && node["formula"].is_object())
     {
-        m.source_form = optionalString(node["source"], "form");
-        m.source_expression = optionalString(node["source"], "expression");
-        m.source_json = node["source"].dump();
+        m.formula_form = optionalString(node["formula"], "form");
+        m.formula_expression = optionalString(node["formula"], "expression");
+        m.formula_json = node["formula"].dump();
     }
     if (node.contains("expression") && node["expression"].is_object())
         for (const auto& item : node["expression"].items())
@@ -312,7 +359,7 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
             m.expression_segments.push_back(one);
         }
     m.generator = optionalString(node, "generator");
-    m.source_hash = optionalString(node, "source_hash");
+    m.formula_hash = optionalString(node, "formula_hash");
     if (node.contains("tests") && node["tests"].is_array())
         for (const auto& t : node["tests"])
         {
@@ -333,8 +380,7 @@ auto readMethodRecord(Context& c, const json& node, const std::string& key, cons
                             (std::string(block) == "parameters" ? test.parameters : test.expected)[item.key()] = item.value().get<double>();
             m.tests.push_back(test);
         }
-    m.effects_json = effectsText(node);
-    m.citation = optionalString(node, "citation");
+    m.data_sources = stringList(node, "data_sources");
     m.extra_json = extraKeys(c, node, known, symbol, path);
     return m;
 }
@@ -348,7 +394,7 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
         report(c, Severity::Error, "V2-ID-001", key, path, "A parameter set must be a mapping.");
         return set;
     }
-    static const std::set<std::string> known = {"symbol", "method", "implementation", "default", "formula_units", "description", "parameters", "auxiliary", "reference", "units"};
+    static const std::set<std::string> known = {"symbol", "method", "implementation", "default", "formula_units", "description", "parameters", "data_sources", "units"};
     const std::string symbol = symbolOf(c, node, key, path);
     if (symbol.empty() || (!key.empty() && node.contains("symbol") && node["symbol"].is_string() && node["symbol"].get<std::string>() != key))
         return set;
@@ -384,13 +430,12 @@ auto readParameterSet(Context& c, const json& node, const std::string& key, cons
         }
     };
     fill("parameters", set.parameters, true);
-    fill("auxiliary", set.auxiliary, false);
     set.description = optionalString(node, "description");
     if (node.contains("formula_units") && node["formula_units"].is_object())
         for (const auto& item : node["formula_units"].items())
             set.formula_units += (set.formula_units.empty() ? "" : ", ") + item.key() + ": " + (item.value().is_string() ? item.value().get<std::string>() : item.value().dump());
     set.is_default = !node.contains("default") || !node["default"].is_boolean() || node["default"].get<bool>();
-    set.reference = optionalString(node, "reference");
+    set.data_sources = stringList(node, "data_sources");
     set.extra_json = extraKeys(c, node, known, symbol, path);
     return set;
 }
@@ -415,10 +460,7 @@ auto readDataSource(Context& c, const json& node, const std::string& key, const 
     d.bibtex = optionalString(node, "bibtex");
     d.year = optionalInt(node, "year");
     d.extra_json = extraKeys(c, node, known, symbol, path);
-    // the NEA reference code (TDB-5 1.11): year (4 digits, or 2 in older volumes), the first three letters of the first author and
-    // of the second one after "/", and a number for the second, third, ... reference with the same code (1995ROB/HEM2)
-    static const std::regex nea("^([0-9]{4}|[0-9]{2})[A-Z]{3}(/[A-Z]{3})?[0-9]*$");
-    if (!std::regex_match(symbol, nea))
+    if (!isReferenceCode(symbol))
         report(c, Severity::Warning, "V2-SRC-001", symbol, path, "The symbol " + symbol + " is not an NEA reference code such as 1995ROB/HEM or 1995ROB/HEM2.");
     return d;
 }
@@ -426,11 +468,10 @@ auto readDataSource(Context& c, const json& node, const std::string& key, const 
 auto readDataset(Context& c, const json& node, const UnitScope& scope) -> ThermoDataSetInfo
 {
     ThermoDataSetInfo info;
-    info.water_triple_point_reference = "HKF_HGK_1974";
     if (!node.is_object())
         return info;
     static const std::set<std::string> known = {"symbol", "name", "version", "status", "standard_state_convention", "reference_conditions",
-                                                "sourcetdb", "solvent", "data_source", "defaults", "conventions", "convention"};
+                                                "sourcetdb", "solvent", "data_sources", "defaults", "standard_state", "energy_reference", "physical_constants"};
     info.symbol = optionalString(node, "symbol");
     info.name = optionalString(node, "name");
     info.version = optionalString(node, "version");
@@ -438,28 +479,35 @@ auto readDataset(Context& c, const json& node, const UnitScope& scope) -> Thermo
         info.status = vocabulary<DatasetStatus>(c, node["status"].get<std::string>(), info.symbol, "/thermodataset/status").value_or(info.status);
     if (info.status == DatasetStatus::Published && info.version.empty())
         report(c, Severity::Error, "V2-DS-001", info.symbol, "/thermodataset", "A published dataset needs a version.");
-    info.reference_conditions = readReferenceConditions(c, node, scope, info.symbol, "/thermodataset", ReferenceConditions{});
-    info.sourcetdb = stringList(node, "sourcetdb");
-    info.solvent = optionalString(node, "solvent");
-    info.default_data_source = optionalString(node, "data_source");
-    if (node.contains("defaults") && node["defaults"].is_object())
-    {
-        info.defaults.quality = vocabulary<Quality>(c, optionalString(node["defaults"], "quality"), info.symbol, "/thermodataset/defaults/quality");
-        info.defaults.origin = vocabulary<Origin>(c, optionalString(node["defaults"], "origin"), info.symbol, "/thermodataset/defaults/origin");
-    }
-    if (node.contains("conventions") && node["conventions"].is_object())
-    {
-        const std::string w = optionalString(node["conventions"], "water_triple_point_reference");
-        if (!w.empty())
-            info.water_triple_point_reference = w;
-    }
-    if (node.contains("convention"))
-        if (auto conv = readConvention(c, node["convention"], info.symbol, "/thermodataset/convention"))
-            info.convention = *conv;
+    if (auto conv = readConvention(c, node, scope, info.symbol, "/thermodataset"))
+        info.convention = *conv;
     {
         std::optional<Convention> conv = info.convention;
         standardStateLabel(c, node, conv, info.symbol, "/thermodataset");
         info.convention = *conv;
+    }
+    info.reference_conditions = readReferenceConditions(c, node, scope, info.symbol, "/thermodataset", ReferenceConditions{},
+                                                        info.convention.standard_state.pressure.value_or(1e5));
+    info.sourcetdb = stringList(node, "sourcetdb");
+    info.solvent = optionalString(node, "solvent");
+    info.data_sources = stringList(node, "data_sources");
+    info.physical_constants = optionalString(node, "physical_constants");
+    if (!info.physical_constants.empty())
+    {
+        const auto names = physicalConstantsNames();
+        if (std::find(names.begin(), names.end(), info.physical_constants) == names.end())
+        {
+            std::string allowed;
+            for (const auto& n : names)
+                allowed += (allowed.empty() ? "" : ", ") + n;
+            report(c, Severity::Error, "V2-VOC-001", info.symbol, "/thermodataset/physical_constants",
+                   "\"" + info.physical_constants + "\" is not a set of constants of physics. Allowed: " + allowed + ".");
+        }
+    }
+    if (node.contains("defaults") && node["defaults"].is_object())
+    {
+        info.defaults.quality = optionalString(node["defaults"], "quality");
+        info.defaults.origin = vocabulary<Origin>(c, optionalString(node["defaults"], "origin"), info.symbol, "/thermodataset/defaults/origin");
     }
     info.extra_json = extraKeys(c, node, known, info.symbol, "/thermodataset");
     return info;

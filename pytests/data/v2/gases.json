@@ -12,8 +12,7 @@
    "class": "gas_fluid",
    "aggregate_state": "gas",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": {
@@ -79,8 +78,7 @@
    "class": "gas_fluid",
    "aggregate_state": "gas",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -228527.0,
@@ -137,8 +135,7 @@
    "class": "gas_fluid",
    "aggregate_state": "gas",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": 0.0,
@@ -195,8 +192,7 @@
    "class": "gas_fluid",
    "aggregate_state": "gas",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -394338.0,
@@ -253,8 +249,7 @@
    "class": "gas_fluid",
    "aggregate_state": "gas",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -137157.0,
@@ -311,8 +306,7 @@
    "class": "gas_fluid",
    "aggregate_state": "gas",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -50509.0,

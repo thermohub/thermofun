@@ -4,6 +4,7 @@
 #ifndef THERMOFUN_METHODS_METHODREGISTRY_H
 #define THERMOFUN_METHODS_METHODREGISTRY_H
 
+#include <ThermoFun/Common/PhysicalConstants.h>
 #include <functional>
 #include <map>
 #include <memory>
@@ -21,7 +22,7 @@ namespace ThermoFun::model {
 
 /// Makes the method objects from what a record says. It has one factory for each method id and implementation.
 /// The application with the built-in constants of its method, for each value that it does not give itself.
-auto withBuiltinConstants(const MethodApplication& application) -> MethodApplication;
+auto withBuiltinModelParameters(const MethodApplication& application) -> MethodApplication;
 
 class MethodRegistry
 {
@@ -34,7 +35,7 @@ public:
     using DielectricFactory = std::function<std::shared_ptr<const DielectricMethod>(const MethodApplication&)>;
 
     /// Makes a method of a reaction from an application and the record it belongs to.
-    using ReactionFactory = std::function<std::shared_ptr<const ReactionMethod>(const MethodApplication&, const ReactionRecord&)>;
+    using ReactionFactory = std::function<std::shared_ptr<const ReactionMethod>(const MethodApplication&, const ReactionRecord&, double R)>;
 
     /// The one registry of the library.
     static auto instance() -> MethodRegistry&;
@@ -68,7 +69,8 @@ public:
     auto hasReactionMethod(const std::string& id) const -> bool;
 
     /// The method of a reaction of an application. Raises an error if there is no code for it.
-    auto createReaction(const MethodApplication& application, const ReactionRecord& record = {}) const -> std::shared_ptr<const ReactionMethod>;
+    /// R: the gas constant of the calculation (engine option physical_constants); the default set if not given
+    auto createReaction(const MethodApplication& application, const ReactionRecord& record = {}, double R = R_CONSTANT) const -> std::shared_ptr<const ReactionMethod>;
 
 private:
     MethodRegistry();

@@ -8,6 +8,7 @@ Calculates log K = -dG / (RT ln 10) with dS = 0, so dH = dG, the reference value
 |---|---|
 | Works on | reaction |
 | Kind | base method |
+| Contributes to | logK sets, dG sets, dH sets, dS sets, dCp sets |
 | Classes | any |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

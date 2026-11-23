@@ -8,6 +8,7 @@ Sets V = RT/P, adds RT ln(P/P0) to G and subtracts R ln(P/P0) from S.
 |---|---|
 | Works on | substance |
 | Kind | increment |
+| Contributes to | G adds, S adds, V sets |
 | Classes | gas_fluid, component |
 | Needs | nothing from outside its record |
 | Temperature segments | no |

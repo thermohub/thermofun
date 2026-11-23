@@ -8,9 +8,9 @@
 
 namespace ThermoFun {
 
-auto readWaterTransportGemsConstants(const std::map<std::string, model::Quantity>& values) -> WaterTransportGemsConstants
+auto readWaterTransportGemsModelParameters(const std::map<std::string, model::Quantity>& values) -> WaterTransportGemsModelParameters
 {
-    WaterTransportGemsConstants out;
+    WaterTransportGemsModelParameters out;
     auto one = [&](double& to, const std::string& name) { to = values.at(name).value; };
     // an array of one or two dimensions, row by row: name_1, name_2, ...
     auto list = [&](auto& to, const std::string& name) {
@@ -64,7 +64,7 @@ auto readWaterTransportGemsConstants(const std::map<std::string, model::Quantity
 
 // Watson et al. (1980); statements 3.1-2 and 4.1-5, tables 1, 6, 8 of Sengers and Kamgar-Parsi (1984).
 // The double sum runs over all i and j (the C translation ran the inner loop for the first i only).
-auto waterViscosityGems(const WaterTransportGemsConstants& k, real Tk, real Pbars, real Dkgm3, real betaPa) -> real
+auto waterViscosityGems(const WaterTransportGemsModelParameters& k, real Tk, real Pbars, real Dkgm3, real betaPa) -> real
 {
     const double TOL = 1.0e-2;
     const real TdegC = Tk - 273.15;
@@ -93,7 +93,7 @@ auto waterViscosityGems(const WaterTransportGemsConstants& k, real Tk, real Pbar
 }
 
 // Sengers and Kamgar-Parsi (1984), with the critical enhancement L2. Both double sums run over all i and j.
-auto waterThermalConductivityGems(const WaterTransportGemsConstants& k, real Tk, real Pbars, real Dkgm3, real alpha, real betaPa) -> real
+auto waterThermalConductivityGems(const WaterTransportGemsModelParameters& k, real Tk, real Pbars, real Dkgm3, real alpha, real betaPa) -> real
 {
     const double TOL = 1.0e-2;
     const real TdegC = Tk - 273.15;
@@ -128,7 +128,7 @@ auto waterThermalConductivityGems(const WaterTransportGemsConstants& k, real Tk,
 }
 
 // IAPWS (1976), at the saturation temperature
-auto waterSurfaceTensionGems(const WaterTransportGemsConstants& k, real Tsat) -> real
+auto waterSurfaceTensionGems(const WaterTransportGemsModelParameters& k, real Tsat) -> real
 {
     if ((Tsat < k.surf_Ttripl) || (Tsat > k.surf_Tcrit))
         return 0.0;

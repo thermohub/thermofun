@@ -19,13 +19,25 @@ inline auto isHydrogenIon(const SubstanceRecord& record) -> bool
     return record.class_ == SubstanceClass::AqueousSolute && record.formula == "H+" && record.charge.value_or(1) == 1;
 }
 
-/// True if a hydrogen ion is in a convention that does not fix it at 0. The geochemical convention (benson_helgeson, the default) defines its
-/// properties as 0; the convention of the record goes before that of the dataset.
+/// True for the record of the electron: an aqueous solute with the formula "-" or "e-". The formula gives the charge -1; the charge
+/// of the record is not looked at (the 0.x setters write 0 for a record that gives none).
+inline auto isElectron(const SubstanceRecord& record) -> bool
+{
+    return record.class_ == SubstanceClass::AqueousSolute && (record.formula == "-" || record.formula == "e-");
+}
+
+/// The reference of the ions of a record (decision 0031, row 6): its own, else that of the dataset, else hydrogen_ion. It does not
+/// depend on the energy reference of the elements.
+inline auto ionsOf(const SubstanceRecord& record, const Convention& dataset) -> Ions
+{
+    const auto own = record.convention ? record.convention->energy_reference.ions : std::nullopt;
+    return own ? *own : dataset.energy_reference.ions.value_or(Ions::HydrogenIon);
+}
+
+/// True if the record is in the convention that fixes the hydrogen ion at 0 (ions: hydrogen_ion, the default).
 inline auto hydrogenIonConventionIsZero(const SubstanceRecord& record, const Convention& dataset) -> bool
 {
-    const auto own = record.convention ? record.convention->energy_reference : std::nullopt;
-    const auto reference = own ? own : dataset.energy_reference;
-    return !reference || *reference == EnergyReference::BensonHelgeson;
+    return ionsOf(record, dataset) == Ions::HydrogenIon;
 }
 
 /// True if the record gives a value that is not 0: a standard-state property or a parameter of a method.
@@ -41,11 +53,37 @@ inline auto recordHasOwnValues(const SubstanceRecord& record) -> bool
     });
 }
 
-/// True if the properties of a substance are all 0 at all T and P: a hydrogen ion in the geochemical convention, of which the record does not
-/// give other values. Else the record says what the properties are.
+/// True if the properties of a substance are all 0 at all T and P: a hydrogen ion with ions: hydrogen_ion (NEA TDB-5 1.6). Values
+/// that the record gives are not used then (validate warns, CNV-007); with ions: none the record says what the properties are.
 inline auto isZeroHydrogenIon(const SubstanceRecord& record, const Convention& dataset) -> bool
 {
-    return isHydrogenIon(record) && hydrogenIonConventionIsZero(record, dataset) && !recordHasOwnValues(record);
+    return isHydrogenIon(record) && hydrogenIonConventionIsZero(record, dataset);
+}
+
+/// True if the properties of a substance come from the standard hydrogen electrode, H+ + e- = 1/2 H2(g) with drG = 0 at every T
+/// (NEA TDB-5 1.7.e): an electron with ions: hydrogen_ion.
+inline auto isHydrogenElectrode(const SubstanceRecord& record, const Convention& dataset) -> bool
+{
+    return isElectron(record) && ionsOf(record, dataset) == Ions::HydrogenIon;
+}
+
+/// A formula without the valences that a GEMS formula writes between bars: "H|0|2" -> "H2"
+inline auto withoutValences(const std::string& formula) -> std::string
+{
+    std::string out;
+    bool inside = false;
+    for (const char c : formula)
+        if (c == '|')
+            inside = !inside;
+        else if (!inside)
+            out += c;
+    return out;
+}
+
+/// True for the record of hydrogen gas, H2(g), the gas of the hydrogen electrode
+inline auto isHydrogenGas(const SubstanceRecord& record) -> bool
+{
+    return record.aggregate_state == AggregateState::Gas && withoutValences(record.formula) == "H2" && record.charge.value_or(0) == 0;
 }
 
 } // namespace ThermoFun::model

@@ -1,0 +1,4 @@
+# Conditions: 25 degC and 1 bar. A fragment: use it with a template that has results.
+conditions:
+  T: {values: [25], unit: degC}
+  P: {values: [1], unit: bar}

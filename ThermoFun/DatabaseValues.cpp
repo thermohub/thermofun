@@ -82,7 +82,7 @@ auto pointerOf(const std::string& rest) -> json::json_pointer
 auto isQuantityKey(const std::string& key) -> bool
 {
     namespace k = model::v2key;
-    for (const char* name : {k::value, k::unit, k::uncertainty, k::quality, k::origin, k::calculation_path, k::source})
+    for (const char* name : {k::value, k::unit, k::uncertainty, k::quality, k::origin, k::derivation, k::source})
         if (key == name)
             return true;
     return false;
@@ -142,6 +142,30 @@ auto Database::setValue(const std::string& path, const std::string& jsonValue) -
         {
             throw std::invalid_argument("Cannot set " + where.rest + " in the record " + where.symbol + ": " + error.what());
         }
+    record["symbol"] = where.symbol;
+    const std::string text = record.dump();
+    if (where.section == "elements")
+        setElement(text);
+    else if (where.section == "substances")
+        setSubstance(text);
+    else
+        setReaction(text);
+}
+
+auto Database::removeValue(const std::string& path) -> void
+{
+    const auto where = splitPath(path);
+    if (where.rest.empty())
+        throw std::invalid_argument("The path " + path + " names a whole record: give the path of a value in it, for example " + path + "/methods/0.");
+    json record = recordJson(*this, where);
+    const auto pointer = pointerOf(where.rest);
+    if (!record.contains(pointer))
+        throw std::invalid_argument("The record " + where.symbol + " has no value at " + where.rest + ".");
+    auto& parent = record[pointer.parent_pointer()];
+    if (parent.is_array())
+        parent.erase(std::stoul(pointer.back()));
+    else
+        parent.erase(pointer.back());
     record["symbol"] = where.symbol;
     const std::string text = record.dump();
     if (where.section == "elements")

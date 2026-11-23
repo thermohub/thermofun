@@ -148,7 +148,7 @@ auto methodsJson(const std::vector<MethodApplication>& methods, OperatesOn opera
             out["transitions"] = rows;
         }
         if (app.interpolation) out["interpolation"] = toString(*app.interpolation);
-        if (app.interpolation_order != 3) out["order"] = app.interpolation_order;
+        if (app.interpolation_order != 3) out["interpolation_order"] = app.interpolation_order;
         if (app.table)
         {
             json table = json::object();
@@ -181,7 +181,6 @@ auto methodRecordJson(const MethodDefinition& m) -> json
 {
     json out = json::object();
     out["kind"] = toString(m.kind);
-    out["tier"] = m.tier;
     out["operates_on"] = toString(m.operates_on);
     if (!m.applies_to_classes.empty())
     {
@@ -190,8 +189,23 @@ auto methodRecordJson(const MethodDefinition& m) -> json
             classes.push_back(toString(c));
         out["applies_to_classes"] = classes;
     }
-    if (!m.contributes_to.empty()) out["contributes_to"] = m.contributes_to;
-    if (!m.effects_json.empty()) out["effects"] = json::parse(m.effects_json, nullptr, false);
+    if (!m.contributes_to.empty())
+    {
+        if (m.contributes_to_list)
+        {
+            json names = json::array();
+            for (const auto& [name, word] : m.contributes_to)
+                names.push_back(name);
+            out["contributes_to"] = names;
+        }
+        else
+        {
+            json map = json::object();   // nlohmann sorts keys; the order of a map does not count
+            for (const auto& [name, word] : m.contributes_to)
+                map[name] = word;
+            out["contributes_to"] = map;
+        }
+    }
     if (!m.parameter_definitions.empty())
     {
         json defs = json::object();
@@ -207,12 +221,12 @@ auto methodRecordJson(const MethodDefinition& m) -> json
         out["parameter_definitions"] = defs;
     }
     if (!m.implementation_id.empty()) out["implementation_id"] = m.implementation_id;
-    if (!m.source_form.empty() || !m.source_expression.empty())
+    if (!m.formula_form.empty() || !m.formula_expression.empty())
     {
-        json source = json::object();
-        if (!m.source_form.empty()) source["form"] = m.source_form;
-        if (!m.source_expression.empty()) source["expression"] = m.source_expression;
-        out["source"] = source;
+        json formula = json::object();
+        if (!m.formula_form.empty()) formula["form"] = m.formula_form;
+        if (!m.formula_expression.empty()) formula["expression"] = m.formula_expression;
+        out["formula"] = formula;
     }
     if (!m.expression.empty())
     {
@@ -234,7 +248,7 @@ auto methodRecordJson(const MethodDefinition& m) -> json
         out["expression"] = list;
     }
     if (!m.generator.empty()) out["generator"] = m.generator;
-    if (!m.source_hash.empty()) out["source_hash"] = m.source_hash;
+    if (!m.formula_hash.empty()) out["formula_hash"] = m.formula_hash;
     if (!m.tests.empty())
     {
         json tests = json::array();
@@ -262,7 +276,7 @@ auto methodRecordJson(const MethodDefinition& m) -> json
         }
         out["tests"] = tests;
     }
-    if (!m.citation.empty()) out["citation"] = m.citation;
+    if (!m.data_sources.empty()) out["data_sources"] = m.data_sources;
     addExtra(out, m.extra_json);
     return out;
 }
@@ -291,8 +305,7 @@ auto parameterSetJson(const MethodParameterSet& p, const std::vector<MethodDefin
         }
         out["parameters"] = values;
     }
-    if (!p.auxiliary.empty()) out["auxiliary"] = structuralJson(p.auxiliary, options);
-    if (!p.reference.empty()) out["reference"] = p.reference;
+    if (!p.data_sources.empty()) out["data_sources"] = p.data_sources;
     addExtra(out, p.extra_json);
     return out;
 }

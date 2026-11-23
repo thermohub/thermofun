@@ -10,6 +10,7 @@
 
 #include <ThermoFun/Common/Constants.h>
 #include <ThermoFun/Common/ThermoProperties.h>
+#include <ThermoFun/Model/WaterAnchor.h>
 #include <ThermoFun/Methods/MethodCatalog.h>
 #include <ThermoFun/Methods/Water/WaterLVS83.h>
 #include <ThermoFun/Methods/Water/WaterTransportGems.h>
@@ -22,8 +23,8 @@ constexpr double fh = 4.305816e0;  // kJ/kg to cal/mol (the unit factor of the G
 
 struct LVSContext
 {
-    std::shared_ptr<const WaterLVS83Constants> lvs;
-    WaterTransportGemsConstants transport;
+    std::shared_ptr<const WaterLVS83ModelParameters> lvs;
+    WaterTransportGemsModelParameters transport;
     double Ttr = 273.16;  // K
 };
 
@@ -157,7 +158,7 @@ public:
 
     auto substanceProperties(double T, double& P, int state, const std::string& triple) const -> ThermoPropertiesSubstance override
     {
-        const WaterTripleProperties wtr = waterTripleData().at(triple);
+        const WaterTripleProperties wtr = waterTripleOf(triple, "WaterLVS83");
         double Pout = P;
         auto tps = twoPass(T, P, [&](const Reaktoro_::Pass& pass) {
             WaterLVS83 lvs(c_.lvs);
@@ -196,8 +197,8 @@ private:
 auto waterLVS83Method(const std::map<std::string, Quantity>& values, const std::map<std::string, Quantity>& transport) -> std::shared_ptr<const SolventMethod>
 {
     LVSContext c;
-    c.lvs = makeWaterLVS83Constants(values);
-    c.transport = readWaterTransportGemsConstants(transport);
+    c.lvs = makeWaterLVS83ModelParameters(values);
+    c.transport = readWaterTransportGemsModelParameters(transport);
     c.Ttr = values.at("Ttr").value;
     return std::make_shared<const WaterLVS83Method>(std::move(c));
 }

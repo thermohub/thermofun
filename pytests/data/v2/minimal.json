@@ -51,8 +51,7 @@
    "class": "component",
    "aggregate_state": "crystal",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -856433.0,
@@ -115,8 +114,7 @@
    "class": "water_solvent",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": {
@@ -158,8 +156,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -1305097.0,
@@ -197,8 +194,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -1105813.0,
@@ -236,8 +232,7 @@
    "class": "aqueous_solute",
    "aggregate_state": "aqueous",
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -898292.0,
@@ -280,8 +275,7 @@
     "Gedrite-Mg": -1.0
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": {
@@ -341,8 +335,7 @@
     "H4SiO4@": 6.0
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": {
@@ -403,8 +396,7 @@
     "Mg+2": 4.0
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": {
@@ -464,8 +456,7 @@
     "H4SiO4@": 6.0
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": {

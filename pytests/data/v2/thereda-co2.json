@@ -22,8 +22,7 @@
    "formula": "CO2",
    "charge": 0,
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -394372.5707088512,
@@ -49,8 +48,7 @@
    "formula": "CO3-2",
    "charge": -2,
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -527899.7738,
@@ -69,8 +67,7 @@
    "formula": "H2O",
    "charge": 0,
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": -237140.3161,
@@ -89,8 +86,7 @@
    "formula": "H+",
    "charge": 1,
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "standard_state_properties": {
     "G": 0,
@@ -114,8 +110,7 @@
     "H<+>": -2
    },
    "reference_conditions": {
-    "T": 298.15,
-    "P": 100000.0
+    "T": 298.15
    },
    "reaction_properties": {
     "logK": 18.1521067697791

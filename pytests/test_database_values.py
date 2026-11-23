@@ -37,7 +37,7 @@ def test_an_uncertainty_and_a_list_of_methods_are_set_as_python_objects():
     assert tf.ThermoEngine(database).thermoPropertiesSubstance(373.15, 1e8, "Calcite").gibbs_energy.err == pytest.approx(1500.0)
     database.set("/substances/H2O@/methods", [{"method": "WaterIAPWS95"}, {"method": "HelgesonKirkham74"}])
     assert [m["method"] for m in database.get("/substances/H2O@/methods")] == ["WaterIAPWS95", "HelgesonKirkham74"]
-    assert tf.ThermoEngine(database).calculationPath("H2O@")["methods"] == ["WaterIAPWS95", "HelgesonKirkham74"]
+    assert [m.method for m in tf.ThermoEngine(database).route("H2O@").methods] == ["WaterIAPWS95", "HelgesonKirkham74"]
 
 
 def test_the_uncertainty_of_a_value_written_as_a_number_is_set_alone():
@@ -121,3 +121,16 @@ def test_the_class_has_clearer_aliases_that_are_written_with_the_word_of_the_for
     assert database.get("/substances/M/class") == "component"
     assert database.get("/substances/W/class") == "water_solvent"
     assert not [d for d in database.loadDiagnostics().all() if d.code == "V2-VOC-001"]
+
+
+def test_a_value_is_removed_by_its_path():
+    database = tf.Database("examples/v2/mineral-methods.yaml")
+    assert database.get("/substances/Calcite/methods/1/method") == "LandauHP98"
+    database.remove("/substances/Calcite/methods/1")
+    assert [m["method"] for m in database.get("/substances/Calcite/methods")] == ["CpPolynomial", "MurnaghanHP98"]
+    database.remove("/substances/Calcite/standard_state_properties/V")
+    assert "V" not in database.get("/substances/Calcite/standard_state_properties")
+    with pytest.raises(ValueError, match="no value at"):
+        database.remove("/substances/Calcite/methods/7")
+    with pytest.raises(ValueError, match="names a whole record"):
+        database.remove("/substances/Calcite")
