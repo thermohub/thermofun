@@ -150,8 +150,7 @@ class Problem:
         return getattr(self.engine.thermoPropertiesReaction(T, P, symbol), REACTION_FIELDS[prop]).val
 
     def _derivatives(self, symbol, prop, T, P):
-        function = self.engine.parameterSensitivities if prop in SUBSTANCE_FIELDS else self.engine.reactionParameterSensitivities
-        d = function(T, P, symbol, self.keys)[prop]
+        d = self.engine.parameterSensitivities(T, P, symbol, self.keys)[prop]
         return [d[name] for name in self.names]
 
     def _calculate(self, o):

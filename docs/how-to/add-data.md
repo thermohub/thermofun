@@ -328,7 +328,7 @@ substances:
 ```python
 engine = tf.ThermoEngine("aqueous.yaml")
 ca = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
-print(engine.explain(373.15, 1e6, "Ca+2")[0]["method"])
+print(ca.info.route.methods[0].method)
 ```
 
 Output:
@@ -339,7 +339,7 @@ HKF88
 
 <!-- check
 ```python
-assert engine.explain(373.15, 1e6, "Ca+2")[0]["method"] == "HKF88"
+assert ca.info.route.methods[0].method == "HKF88"
 ```
 -->
 
@@ -494,7 +494,7 @@ reactions:
 ```python
 engine = tf.ThermoEngine("defined.yaml")
 b = engine.thermoPropertiesSubstance(298.15, 1e5, "B")
-print(engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"])
+print(b.info.route.by)
 ```
 
 Output:
@@ -506,7 +506,7 @@ reaction
 <!-- check
 ```python
 assert abs(b.gibbs_energy.val - (-1000 - 8.31451 * 298.15 * 2.302585093)) < 1
-assert engine.thermoPropertiesSubstanceDetailed(298.15, 1e5, "B")["source"] == "reaction"
+assert b.info.route.by == "reaction"
 ```
 -->
 
@@ -804,7 +804,7 @@ A substance and its defining reaction often have the same symbol. Each one keeps
 
 To get a substance from its methods and the reaction from its reactants, give `direct` and then `reactants`. To get a substance from its reaction and the reaction from its reactants, the reaction must not use that substance: ThermoFun raises an error that names the cycle.
 
-Derivatives and propagated errors use the same path as the values. To see the path of a result, use `thermoPropertiesSubstanceDetailed(T, P, symbol).source`.
+Derivatives and propagated errors use the same route as the values. The route of a result says where it came from: `result.info.route.by` (decision 0030).
 
 
 ```python
@@ -828,26 +828,29 @@ error with a hint.
 
 To use one implementation for all records, set `engine.preferences.method_implementation = {"HKF88": "gems"}`.
 
-To see the path that the engine takes for a record, without calculating:
+To see the route that the engine takes for a record, without calculating:
 
 ```python
 engine = tf.ThermoEngine("small.yaml")
-path = engine.calculationPath("Corundum")
-print(path["source"])
-print(path["methods"])
+print(engine.route("Corundum"))
 ```
 
 Output:
 
 ```text
-methods
-['ConstantCp', 'ConstantVolume']
+symbol: Corundum
+kind: substance
+by: methods
+methods:
+  - method: ConstantCp
+  - method: ConstantVolume
 ```
 
 <!-- check
 ```python
-assert path["source"] == "methods"
-assert path["methods"] == ["ConstantCp", "ConstantVolume"]
+route = engine.route("Corundum")
+assert route.by == "methods"
+assert [m.method for m in route.methods] == ["ConstantCp", "ConstantVolume"]
 ```
 -->
 

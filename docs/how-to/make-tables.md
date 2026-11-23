@@ -401,7 +401,7 @@ Settings at the top of a setup are the defaults of its tables.
 | `template` | A name or a list of names, under the other settings. |
 | `conditions` | `T` and `P`: a list, `{values, unit}` or `{from, to, step, unit}`. `saturation` is a value of `P`: the table then shows the saturation pressure that the calculation used, and a value is asked for with the word `saturation`. `pairs: true` goes through T and P together. `order: P_first` changes the order. |
 | `records`, `reactions` | Symbols, or a rule, or a list with rules in it. A reaction can be an equation. |
-| `columns` | A property, or `{property, show, unit, digits, format, label}`. A property is G, H, S, Cp, Cv, V, U, A (or logK, dG, ... for reactions), a property of water such as `density`, `epsilon` or `bornQ`, or a named output of a method such as `HKF88:born_G` (its value only). |
+| `columns` | A property, or `{property, show, unit, digits, format, label}`. A property is G, H, S, Cp, Cv, V, U, A (or logK, dG, ... for reactions), a property of water such as `density`, `epsilon` or `bornQ`, or a part of the route of a result: `contribution:<method>:<property>`, `terms:<method>:<name>`, `variables:<method>:<name>`, such as `terms:HKF88:born_G` (its value only). |
 | `show` | `val`, `err`, `ddt`, `ddp`, `status`. |
 | property | Substance: `G`, `H`, `S`, `Cp`, `Cv`, `V`, `U`, `A`. Reaction: `logK`, `lnK`, `dG`, `dH`, `dS`, `dCp`, `dCv`, `dV`, `dU`, `dA`. Water: `density`, `Alpha`, `Beta`, `dAldT`, `epsilon`, `bornZ`, `bornY`, `bornQ`, `bornX` and others. |
 | `layout` | `long`, `transposed`, `grid`. |

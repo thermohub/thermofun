@@ -9,6 +9,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed, read before you update
 
+- **Python keyword arguments of the engine: `T`, `P`, `symbol`** (were `temperature`, `pressure`, `symbol`; decision 0030, step 6).
+  The calls by object keep `substance`, `reaction`, `solvent`. `appendData(filename)` (was `record_json_string`).
+  `consistencyReport(T, P, options)` takes T and P as lists or single numbers (was a list of (T, P) pairs). C++ string arguments
+  are `const std::string&`.
 - **The GEMS water is two methods: `WaterLVS83` before `WaterHGK84` (implementation `gems`).** The equation of Levelt Sengers
   et al. (1983), which the code used near the critical point, is now the method `WaterLVS83`, used only in its region
   (decision 0028). `WaterHGK84` `gems` alone is the HGK equation everywhere. A GEMS record in the old format
@@ -165,20 +169,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A table at the saturation pressure writes the pressure that the calculation used, in the units of the conditions (before: the word
   `saturation`; the key `"saturation"` of `value()`, `scalar()` and `rows` is unchanged). A value that is calculated outside the range of
   its model (for example the HKF model outside 600-1400 kg/m3 of water) is listed in `problems` of the table, with the message.
-- **Named outputs of a method** (the terms and intermediate functions of a model): `ThermoEngine::auxiliaryOutputs(symbol, T, P)`
-  (Python `auxiliaryOutputs`) gives them as a table with the columns `<method>:<name>`, and `explain` has them for each method.
-  The catalog lists them (`auxiliary_outputs`, with unit and meaning) and the method page has a section. First method: `HKF88`
-  (`reaktoro` implementation) gives the g function, the effective radius, the Born coefficient, and the Born terms of G, H, S,
-  Cp and V. The terms agree with each other (S = -dG/dT, Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity
-  coefficient of the gas methods, the order parameter of Landau and the thermal pressure of Tait (CHECK-LATER item 38).
-  A table takes a named output as a column, `{property: HKF88:born_G, unit: kJ/mol}`; a record without the method gets an empty
-  cell and a problem.
+- **Terms and variables of a method** (the parts of a model): `ThermoEngine::routeTable(T, P, symbol, "terms")` and
+  `"variables"` give them as a table with the columns `<method>:<name>`, and the option `route_terms_and_variables` puts them on
+  the route of every result. The catalog lists them (`terms`, each with the property it is part of, and `variables`, with unit and
+  meaning) and the method page has a section for each. First method: `HKF88` gives the Born terms of G, H, S, Cp and V (terms),
+  and the g function, the effective radius and the Born coefficient (variables). The terms agree with each other (S = -dG/dT,
+  Cp = T dS/dT, V = dG/dP, H = G + T S). Not yet: the fugacity coefficient of the gas methods, the order parameter of Landau and
+  the thermal pressure of Tait (CHECK-LATER item 38). A table takes them as columns, `{property: terms:HKF88:born_G, unit: kJ/mol}`;
+  a record without the method gets an empty cell and a problem.
 - **A value outside the range of its model is marked:** `ThermoScalar.outside_range` (C++ `ThermoFun::outsideRange`). All methods
   write such messages with one function, which starts them with "Outside the range of the model:"; the status stays `calculated`.
   Tables list these values in `problems` by that mark, not by the words of the message.
 - `Table::pressureUsed` (Python `pressure_used(record, T, "saturation")`): the pressure that a row used.
 - `class` accepts `condensed_species` for `component` and `solvent` for `water_solvent`; the record is written with the word of the
-  format. The `gems` implementation of HKF88 gives the same named outputs, from its own g function and Born coefficient.
+  format. The `gems` implementation of HKF88 gives the same terms and variables, from its own g function and Born coefficient.
 - Test that every record of `psinagra-12-07` calculates without a crash. The released 0.6.x library crashed on it (segmentation
   fault at `Pd`: `cp_ft_equation` with T limits and no T intervals, the interval index -1 of the old Cp integration); v2 does not.
 - `python -m thermofun.validate` prints one line for each problem, with the file name as given, also the warnings of the
@@ -247,7 +251,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `tf.methods.physicalConstants(name)` gives a set. `R_CONSTANT` and the other 0.x names keep the CODATA 1986 values.
 - The dielectric models `HelgesonKirkham74` and `BradleyPitzer79` (issue 82). The HKF coefficients of Tanger and Helgeson (1988) now give their published volume and heat capacity.
 - Symbolic methods of substances and reactions, with the CMake option `TFUN_USE_SYMENGINE`, and `python -m thermofun.method_tool` with its source forms.
-- `ThermoEngine::calculationPath`: how a record is calculated. It calculates nothing.
+- **The route of a result** (decision 0030): every result, and each of its values, says how it was calculated, `x.info.route`
+  (`ThermoFun::Route`, `Common/Route.h`): where the values came from (`by`: methods, reaction, reactants, water, reference,
+  hydrogen_ion, hydrogen_electrode), each method with what it contributed to G, H, S, Cp and V, the other records it needed with
+  their routes (solvent, defining reaction, reactants), and the conversions after the methods (conventions, options of gases,
+  fallback, rounding). For each property the result is the sum of the contributions and the conversions. `ThermoEngine::route(symbol)`
+  gives the route without numbers, before calculating; `routeTable(T, P, symbol, part)` gives it at many points; a route prints
+  as YAML (`str(route)`, `toYaml`). It costs nothing measurable.
 - Derivatives by a built-in constant, also through the water into a solute.
 - `TableSetup` (C++ and Python): tables from a YAML setup or a template of the library, in the layouts long, transposed and grid, as CSV, Markdown or LaTeX. `python -m thermofun.tables`, and `tf.table` in Python.
 - Tutorials, how-to pages, a glossary, and reference and explanation pages in `docs/`.
@@ -388,8 +398,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   alone with no database and no engine, and gives its properties with the derivatives with respect to T, P and each
   parameter. First methods: `ConstantProperties`, `ConstantCp`, `CpPolynomial`.
 
-- `ThermoEngine` calculates a substance with method objects when all its methods have code. `engine.explain(T, P, symbol)`
-  gives the state after each method. The results are the same as before.
+- `ThermoEngine` calculates a substance with method objects when all its methods have code. The results are the same as before.
 - Water and its dielectric models are method objects too (`thermofun.methods.solventMethod`, `dielectricMethod`), and
   run alone. New option of `WaterZhangDuan05`: `dew_gibbs` gives the Gibbs energy of water of the DEW model.
 - The aqueous solute methods are method objects (`thermofun.methods.substanceMethod`): `HKF88`, `SoluteHP98`,
@@ -410,9 +419,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   method for that kind of record, for example `CTM_LGX` on a substance (`ValueError` in Python); before, the code was stored and
   did nothing. `setThermoParameters` raises an error that names the array and the position if an array with values misses a
   required parameter.
-- The engine runs every record through method objects: the old `switch` evaluation is gone. New:
-  `thermoPropertiesSubstanceDetailed` gives the result, its source, the methods in order and the conversions applied.
-  `explain` is built on it, so it now needs the defining reaction of a substance in the database.
+- The engine runs every record through method objects: the old `switch` evaluation is gone.
 - `Substance`, `Reaction` and `Element` hold only their record. The old parser is removed, with the C++ functions
   `parseSubstance`, `parseReaction`, `parseElement` and the header `Common/ParseJsonToData.h`: use the constructors. The Python
   functions stay. `readConventions` is in `Database.h`.

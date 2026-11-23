@@ -292,12 +292,17 @@ void testExecutionOrder()
         }
         CHECK(canBind(*record));
         const auto bound = bindSubstance(record);
-        std::vector<ExplainStep> steps;
+        std::vector<MethodStep> steps;
         const auto result = executeSubstance(*bound, 400.0, 1e5, {}, &steps);
         CHECK(steps.size() == 4);
         // base; the correction that sets with the lowest rank; the next one; the one that only adds
-        CHECK(steps[0].method == "ConstantProperties" && steps[1].method == "LandauHP98");
-        CHECK(steps[2].method == "VolumeBerman88" && steps[3].method == "MurnaghanHP98");
+        CHECK(bound->order[0]->spec().id == "ConstantProperties" && bound->order[1]->spec().id == "LandauHP98");
+        CHECK(bound->order[2]->spec().id == "VolumeBerman88" && bound->order[3]->spec().id == "MurnaghanHP98");
+        // the contributions of the steps add up to the result
+        double G = 0.0;
+        for (const auto& step : steps)
+            G += step.contribution.G;
+        CHECK(G == result.values.G.val);
         CHECK(result.values.G.val == 234.0);
     } while (std::next_permutation(ids.begin(), ids.end()));
 

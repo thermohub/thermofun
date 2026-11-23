@@ -182,12 +182,12 @@ def item(items, kind):
 
 
 def test_a_substance_that_its_reaction_reproduces_is_consistent():
-    c = item(two_ways().consistencyReport([(T0, P0)]), "substance_vs_reaction")
+    c = item(two_ways().consistencyReport(T0, P0), "substance_vs_reaction")
     assert c.flag == "consistent" and abs(c.delta_G) < 1e-6
 
 
 def test_a_shifted_log_k_is_inconsistent_by_rt_ln10():
-    items = two_ways(shift=0.1).consistencyReport([(T0, P0)])
+    items = two_ways(shift=0.1).consistencyReport(T0, P0)
     c = item(items, "substance_vs_reaction")
     assert c.flag == "inconsistent"
     assert abs(c.delta_G) == pytest.approx(R * T0 * math.log(10) * 0.1, rel=1e-6)
@@ -198,14 +198,14 @@ def test_a_shifted_log_k_is_inconsistent_by_rt_ln10():
 def test_the_threshold_is_an_option():
     options = tf.ConsistencyOptions()
     options.delta_G_threshold = 1e6
-    assert item(two_ways(shift=0.1).consistencyReport([(T0, P0)], options), "substance_vs_reaction").flag == "consistent"
+    assert item(two_ways(shift=0.1).consistencyReport(T0, P0, options), "substance_vs_reaction").flag == "consistent"
 
 
 def test_a_failed_calculation_stays_in_the_report():
     bad = species(-1.0, -1.0, 1.0)
     db = dict(HEAD, substances={"A": bad, "C": dict(species(-1.0, -1.0, 1.0), defining_reaction="R")},
               reactions={"R": {"stoichiometry": {"C": 1, "A": -1, "Missing": -1}, "reaction_properties": {"dG": 0.0, "logK": 0.0}, "methods": [{"method": "ConstantReactionProperties"}]}})
-    items = tf.ThermoEngine(tf.Database(json.dumps(db))).consistencyReport([(T0, P0)])
+    items = tf.ThermoEngine(tf.Database(json.dumps(db))).consistencyReport(T0, P0)
     assert any(i.flag == "not calculated" and i.message for i in items)
 
 

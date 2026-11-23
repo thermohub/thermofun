@@ -213,10 +213,12 @@ auto ThermoEngine::Impl::hydrogenGas() const -> std::string
     return *bound_cache->hydrogen_gas;
 }
 
-auto ThermoEngine::Impl::hydrogenElectrode(double T, double P, const std::string& gas) const -> ThermoPropertiesSubstance
+auto ThermoEngine::Impl::hydrogenElectrode(double T, double P, const std::string& gas, std::shared_ptr<const Route>* gasRoute) const -> ThermoPropertiesSubstance
 {
     double p0 = database.getSubstance(gas).record()->reference_conditions.P;   // p° of the gas
     const auto h2 = cachedSubstance(T, p0, gas);
+    if (gasRoute)
+        *gasRoute = h2.info.route;
     const auto half = [](Reaktoro_::ThermoProperty x) {
         x.val *= 0.5;
         x.ddt *= 0.5;
@@ -242,20 +244,18 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, std::str
     return thermoPropertiesSubstance(T, P, database.getSubstance(substance));
 }
 
-auto ThermoEngine::Impl::detailedSubstance(double T, double &P, const Substance &substance) const -> DetailedPropertiesSubstance
+/// The properties in the canonical convention, with their route (decision 0030). toOutput gives them in the convention that the user
+/// asks for; reactions use these.
+auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Substance &substance) const -> ThermoPropertiesSubstance
 {
-    DetailedPropertiesSubstance detailed;
-    detailed.properties = toOutput(thermoPropertiesSubstance(T, P, substance, &detailed), T, P, substance, &detailed);
-    return detailed;
-}
-
-/// The properties in the canonical convention. toOutput gives them in the convention that the user asks for; reactions use these.
-auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Substance &substance, DetailedPropertiesSubstance* detailed) const -> ThermoPropertiesSubstance
-{
-    // where the result came from, if it is asked for
-    std::string source;  // also on the result (decision 0029)
-    const auto cameFrom = [&](const char* from) { source = from; if (detailed) detailed->source = from; };
-    cameFrom("none");
+    auto route = std::make_shared<Route>();
+    route->symbol = substance.symbol();
+    route->kind = "substance";
+    route->T = T;
+    const auto finish = [&](ThermoPropertiesSubstance& result) {
+        route->P = P;
+        stampRoute(result, route);
+    };
     const SubstanceKind kind = kindOf(substance);
     ThermoPropertiesSubstance tps;
 
@@ -269,8 +269,8 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
         tps.heat_capacity_cp = 0.0;
         tps.heat_capacity_cv = 0.0;
         tps.helmholtz_energy = 0.0;
-        cameFrom("hydrogen_ion");
-        stampSource(tps, source);
+        route->by = "hydrogen_ion";
+        finish(tps);
         return tps;
     }
 
@@ -281,9 +281,12 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
                                  "no H2(g); its record has no values either. Add H2(g) to the database, or values to the record with energy_reference: {ions: none}.");
     if (!gas.empty())
     {
-        tps = hydrogenElectrode(T, P, gas);
-        cameFrom("hydrogen_electrode");
-        stampSource(tps, source);
+        std::shared_ptr<const Route> gasRoute;
+        tps = hydrogenElectrode(T, P, gas, &gasRoute);
+        route->by = "hydrogen_electrode";
+        route->contribution = routeValues(tps);
+        route->needs.push_back({"reactant", 0.5, gasRoute});
+        finish(tps);
         return tps;
     }
 
@@ -292,11 +295,9 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
     // without a reaction, a substance that should have one has its reference properties
     if (kind.isReacDC && !substance.reactionSymbol().empty())
     {
-        tps = reacDCthermoProperties(T, P, substance);
+        route->by = "reaction";
+        tps = reacDCthermoProperties(T, P, substance, *route);
         completeThermoProperties(tps, T, P, !isWater);
-        cameFrom("reaction");
-        if (detailed)
-            detailed->reaction = substance.reactionSymbol();
     }
     else
     {
@@ -305,7 +306,8 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
         if (kind.isReacDC)
         {
             tps = canonicalReference(substance);
-            cameFrom("reference");
+            route->by = "reference";
+            route->contribution = routeValues(tps);
         }
         else if (isWater)
         {
@@ -314,14 +316,26 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             {
                 tps = solvent->equation_of_state->substanceProperties(T, P, kind.state, model::toString(waterAnchorOf(*substance.record())));
                 water_g_contains_rt_ln_p = solvent->equation_of_state->gibbsEnergyContainsRTlnP();
-                cameFrom("water");
+                route->by = "water";
+                route->methods = waterMethods(*substance.record(), T, P);
+                for (auto& m : route->methods)
+                    if (const auto* spec = model::MethodCatalog::instance().find(m.method, model::OperatesOn::Substance); spec && spec->contributes_to.base)
+                    {
+                        m.contribution = routeValues(tps);  // the equation of state gives all
+                        break;
+                    }
             }
             else if (solvent->reference_values)
             {
                 tps = toThermoProperties(model::executeSubstance(*solvent->reference_values, T, P, substanceOptions()));
+                route->by = "reference";
+                route->contribution = routeValues(tps);
                 if (kind.isH2OSolvent && declaredConvention(*substance.record()).energy_reference.water == model::WaterReference::SteamTables)
+                {
+                    const auto before = routeValues(tps);
                     steamTablesShift(tps, T, 1.0, waterTripleOf(substance));
-                cameFrom("reference");
+                    route->conversions.push_back({"convention", "steam_tables to " + model::toString(waterAnchorOf(*substance.record())), routeValues(tps) - before});
+                }
             }
         }
         else if (const auto bound = boundMethods(substance))
@@ -331,16 +345,13 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             if (P == 0.0 && !bound->needs.solvent)
                 P = saturationPressure(T);
             const auto solvent = solventInputs(*bound, T, P);
-            std::vector<model::ExplainStep> steps;
-            tps = toThermoProperties(model::executeSubstance(*bound, T, P, substanceOptions(), detailed ? &steps : nullptr, solvent ? &*solvent : nullptr));
-            cameFrom("methods");
-            if (detailed)
-                for (std::size_t i = 0; i < bound->order.size(); ++i)
-                    if (!bound->to_canonical[i].identity())
-                        detailed->conversions.push_back(bound->order[i]->spec().id + " to canonical");
-            if (detailed)
-                for (const auto& step : steps)
-                    detailed->steps.push_back({step.method, step.values.G.val, step.values.H.val, step.values.S.val, step.values.Cp.val, step.values.V.val, step.auxiliary, step.notes});
+            std::vector<model::MethodStep> steps;
+            tps = toThermoProperties(model::executeSubstance(*bound, T, P, substanceOptions(), &steps, solvent ? &*solvent : nullptr,
+                                                             with_outputs || preferences.route_terms_and_variables));
+            route->by = "methods";
+            addMethodSteps(*route, *bound, steps);
+            if (bound->needs.solvent)
+                route->needs.push_back({"solvent", 1.0, staticRoute(solvent_in_use)});
         }
 
         // With the fugacity coefficient kept (switch false), G of steam is G(T, 1 bar) + RT ln(phi) like the other fluids: RT ln(P) that the
@@ -353,6 +364,7 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
             tps.gibbs_energy.val -= R * T * std::log(Pb);
             tps.gibbs_energy.ddt -= R * std::log(Pb);
             tps.gibbs_energy.ddp -= R * T / P;
+            route->conversions.push_back({"gas_options", "apply_pressure_correction_to_gas_props", RouteValues{-R * T * std::log(Pb), 0.0, 0.0, 0.0, 0.0}});
         }
 
         // the properties that follow from the others (U, A, Cv), in the convention of the models
@@ -360,12 +372,42 @@ auto ThermoEngine::Impl::thermoPropertiesSubstance(double T, double &P, const Su
     }
 
     // check properties
+    const auto beforeFallback = routeValues(tps);
     tps = fallbackThermoPropertiesSubstance(tps, substance);
+    if (const auto change = routeValues(tps) - beforeFallback; !change.isZero())
+        route->conversions.push_back({"fallback", "fallback_to_reference_properties", change});
     if (kind.isElectron)
         markOutsideRange(tps, Note{Note::Kind::Source, Note::Severity::Soft, "", "The electron from its record: the database has no H2(g) for the hydrogen electrode (ions: hydrogen_ion)", {}, {}});
 
-    stampSource(tps, source == "none" ? std::string() : source);
+    finish(tps);
     return tps;
+}
+
+/// The methods of a route from the steps of the executor: the contribution of each, and the conversion of its convention to the
+/// canonical one (a row of conversions)
+auto ThermoEngine::Impl::addMethodSteps(Route& route, const model::BoundSubstance& bound, const std::vector<model::MethodStep>& steps) const -> void
+{
+    route.methods.reserve(route.methods.size() + steps.size());
+    for (std::size_t i = 0; i < steps.size() && i < bound.order.size(); ++i)
+    {
+        const auto& spec = bound.order[i]->spec();
+        RouteMethod m;
+        m.method = spec.id;
+        for (const auto& a : bound.record->methods)
+            if (a.method == spec.id)
+            {
+                m.implementation = a.implementation;
+                break;
+            }
+        if (const auto chosen = preferences.method_implementation.find(spec.id); chosen != preferences.method_implementation.end())
+            m.implementation = chosen->second;
+        m.contribution = steps[i].contribution;
+        m.terms = steps[i].outputs.terms;
+        m.variables = steps[i].outputs.variables;
+        route.methods.push_back(std::move(m));
+        if (steps[i].converted)
+            route.conversions.push_back({"convention", spec.id + " to canonical", steps[i].conversion});
+    }
 }
 
 auto ThermoEngine::Impl::fallbackThermoPropertiesSubstance(ThermoPropertiesSubstance tps, Substance subst) const -> ThermoPropertiesSubstance
@@ -568,7 +610,7 @@ auto ThermoEngine::Impl::valuesOf(const ThermoPropertiesSubstance& tps) -> model
     return out;
 }
 
-auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance subst) const -> ThermoPropertiesSubstance
+auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance subst, Route& route) const -> ThermoPropertiesSubstance
 {
     ThermoPropertiesSubstance tps;
     ThermoPropertiesReaction tpr;
@@ -607,6 +649,10 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
 
     // the properties of the substance from the properties of the reaction and of the other reactants
     tps = model::substanceFromReaction(T, Pcalc, tpr, others, coeff);
+    route.contribution = routeValues(tps);
+    route.needs.push_back({"defining_reaction", 1.0, tpr.info.route});
+    for (std::size_t i = 0; i < others.size(); ++i)
+        route.needs.push_back({"reactant", others[i].second, others[i].first.info.route});
     // the notes of the reaction and of the other reactants, with the path (decision 0029), on the result that is returned
     Notes notes;
     inheritNotes(notes, tpr.info.notes, "the reaction " + reactionSymbol);
@@ -631,13 +677,27 @@ auto ThermoEngine::Impl::reacDCthermoProperties(double T, double &P, Substance s
     if (fromData)
         for (auto* field : fields(tps))
             field->ddp = 0.0;  // the values of the data do not change with P
+    const auto beforeFallback = routeValues(tps);
     tps = fallbackThermoPropertiesSubstance(tps, subst);
+    if (const auto change = routeValues(tps) - beforeFallback; !change.isZero())
+        route.conversions.push_back({"fallback", "fallback_to_reference_properties", change});
     if (hasMethod(subst.record()->methods, "ConstantVolume"))
+    {
+        const auto before = routeValues(tps);
         tps = model::constantVolumeCorrection(T, P, tps, subst.thermoReferenceProperties(), fromData ? Pdata : subst.referenceP());
+        RouteMethod m;
+        m.method = "ConstantVolume";
+        m.contribution = routeValues(tps) - before;
+        route.methods.push_back(std::move(m));
+    }
     if (const auto corrections = pressureCorrections(subst); corrections && !corrections->order.empty())
     {
         const auto solvent = solventInputs(*corrections, T, P);
-        const auto out = model::executeOn(valuesOf(tps), *corrections, T, P, substanceOptions(), solvent ? &*solvent : nullptr);
+        std::vector<model::MethodStep> steps;
+        const auto out = model::executeOn(valuesOf(tps), *corrections, T, P, substanceOptions(), solvent ? &*solvent : nullptr, &steps);
+        addMethodSteps(route, *corrections, steps);
+        if (corrections->needs.solvent)
+            route.needs.push_back({"solvent", 1.0, staticRoute(solvent_in_use)});
         auto keep = [](Reaktoro_::ThermoProperty& to, const model::PropertyValue& value, double factor = 1.0) {
             to.val = value.val * factor;
             to.ddt = value.ddt * factor;

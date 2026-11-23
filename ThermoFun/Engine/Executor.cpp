@@ -8,20 +8,6 @@ namespace ThermoFun::model {
 
 namespace {
 
-/// The notes of the properties of a result, each once.
-auto notesOf(const PropertiesInfo& info) -> Notes
-{
-    Notes out;
-    for (const auto* i : {&info.G, &info.H, &info.S, &info.Cp, &info.V})
-        for (const auto& note : i->notes)
-            addNote(out, note);
-    return out;
-}
-
-} // namespace
-
-namespace {
-
 auto toReal(const ReferenceValues& r) -> ReferenceState<TPReal>
 {
     ReferenceState<TPReal> out;
@@ -72,7 +58,13 @@ auto combine(const SubstanceState<TPReal>& wrtT, const SubstanceState<TPReal>& w
 
 } // namespace
 
-auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, std::vector<ExplainStep>* steps, const SolventInputs* solvent) -> SubstanceResult
+/// The values of a state (the pass with respect to T: values only)
+static auto valuesOf(const SubstanceState<TPReal>& s) -> RouteValues
+{
+    return {static_cast<double>(s.G[0]), static_cast<double>(s.H[0]), static_cast<double>(s.S[0]), static_cast<double>(s.Cp[0]), static_cast<double>(s.V[0])};
+}
+
+auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, std::vector<MethodStep>* steps, const SolventInputs* solvent, bool withOutputs) -> SubstanceResult
 {
     const auto reference = toReal(bound.reference);
     TPReal Tt(T), Pp(P);
@@ -96,32 +88,39 @@ auto executeSubstance(const BoundSubstance& bound, double T, double P, const Sub
 
     SubstanceState<TPReal> a, b;
     SubstanceResult result;
+    if (steps)
+        steps->reserve(steps->size() + bound.order.size());
     for (std::size_t i = 0; i < bound.order.size(); ++i)
     {
         const auto& method = bound.order[i];
+        const RouteValues before = steps ? valuesOf(a) : RouteValues{};
         method->apply(a, wrtT);
         method->apply(b, wrtP);
-        if (i < bound.to_canonical.size() && !bound.to_canonical[i].identity())
-        {
-            convert(a, bound.to_canonical[i], wrtT);
-            convert(b, bound.to_canonical[i], wrtP);
-        }
-        const auto before = notesOf(result.info);
-        method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, bound.reference.V.value_or(0.0) * 1e5, a.outside_range, options, solvent});
+        MethodStep step;
         if (steps)
         {
-            Notes added;
-            for (const auto& note : notesOf(result.info))
-                if (std::find(before.begin(), before.end(), note) == before.end())
-                    added.push_back(note);
-            steps->push_back({method->spec().id, combine(a, b), method->auxiliary(wrtT), added});
+            step.contribution = valuesOf(a) - before;
+            if (withOutputs)
+                step.outputs = method->outputs(wrtT);
         }
+        if (i < bound.to_canonical.size() && !bound.to_canonical[i].identity())
+        {
+            const RouteValues after = steps ? valuesOf(a) : RouteValues{};
+            convert(a, bound.to_canonical[i], wrtT);
+            convert(b, bound.to_canonical[i], wrtP);
+            step.converted = true;
+            if (steps)
+                step.conversion = valuesOf(a) - after;
+        }
+        method->info(result.info, bound.reference_info, InfoInputs{T, P, bound.reference.T, bound.reference.P, bound.reference.V.value_or(0.0) * 1e5, a.outside_range, options, solvent});
+        if (steps)
+            steps->push_back(std::move(step));
     }
     result.values = combine(a, b);
     return result;
 }
 
-auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, const SolventInputs* solvent) -> MethodResult
+auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double T, double P, const SubstanceOptions& options, const SolventInputs* solvent, std::vector<MethodStep>* steps) -> MethodResult
 {
     auto start = [&](bool wrtT) {
         auto one = [&](const PropertyValue& v) {
@@ -158,8 +157,15 @@ auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double 
     auto a = start(true), b = start(false);
     for (const auto& method : bound.order)
     {
+        const RouteValues before = steps ? valuesOf(a) : RouteValues{};
         method->apply(a, wrtT);
         method->apply(b, wrtP);
+        if (steps)
+        {
+            MethodStep step;
+            step.contribution = valuesOf(a) - before;
+            steps->push_back(std::move(step));
+        }
     }
     return combine(a, b);
 }

@@ -78,20 +78,25 @@ The solvent of your engine is the record that you changed.
 ```python
 engine = tf.ThermoEngine("examples/v2/minimal.yaml")
 print(engine.solventSymbol())
-print(engine.calculationPath("Na+")["steps"][0]["methods"])
+print(engine.route("Na+").needs[0].route)
 ```
 
 Output:
 
 ```text
 H2O@
-['WaterIAPWS95', 'JohnsonNorton91']
+symbol: "H2O@"
+kind: substance
+by: water
+methods:
+  - method: WaterIAPWS95
+  - method: JohnsonNorton91
 ```
 
 <!-- check
 ```python
 assert engine.solventSymbol() == "H2O@"
-assert engine.calculationPath("Na+")["steps"][0]["methods"] == ["WaterIAPWS95", "JohnsonNorton91"]
+assert [m.method for m in engine.route("Na+").needs[0].route.methods] == ["WaterIAPWS95", "JohnsonNorton91"]
 ```
 -->
 

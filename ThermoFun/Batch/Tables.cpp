@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <limits>
+#include <optional>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -133,21 +135,50 @@ auto electroScalar(const ElectroPropertiesSolvent& x, const std::string& n) -> c
     return nullptr;
 }
 
-enum class Where { Thermo, Solvent, Electro, Auxiliary };
+enum class Where { Thermo, Solvent, Electro, Route };
 
-/// The catalog entry of a named output "<method>:<name>" of a substance method; nullptr if there is none.
-auto auxiliaryOutput(const std::string& name) -> const model::AuxiliaryOutputSpec*
+auto unitOf(std::string text) -> std::string;
+
+/// A column of the route of a result (decision 0030): "contribution:<method>:<property>", "terms:<method>:<name>",
+/// "variables:<method>:<name>"
+struct RouteColumn
 {
-    const auto colon = name.find(':');
-    if (colon == std::string::npos)
-        return nullptr;
-    const auto* spec = model::MethodCatalog::instance().find(name.substr(0, colon), model::OperatesOn::Substance);
+    std::string part;     ///< contribution, terms, variables
+    std::string column;   ///< the column of routeTable: "<method>:<name>"
+    std::string si_unit;
+};
+
+/// The route column of a property name; empty if the name is not one. An error for a name of the form that names nothing.
+auto routeColumn(const std::string& name) -> std::optional<RouteColumn>
+{
+    const auto first = name.find(':');
+    const auto last = name.rfind(':');
+    if (first == std::string::npos || first == last)
+        return std::nullopt;
+    const std::string part = name.substr(0, first), method = name.substr(first + 1, last - first - 1), what = name.substr(last + 1);
+    if (part != "contribution" && part != "terms" && part != "variables")
+        return std::nullopt;
+    static const std::map<std::string, std::string> units = {{"G", "J/mol"}, {"H", "J/mol"}, {"S", "J/K/mol"}, {"Cp", "J/K/mol"}, {"V", "m3/mol"}};
+    if (part == "contribution")
+    {
+        const auto unit = units.find(what);
+        if (unit == units.end())
+            fail("The property " + name + ": a contribution is to G, H, S, Cp or V, for example contribution:HKF88:G.");
+        return RouteColumn{part, method + ":" + what, unit->second};
+    }
+    const auto* spec = model::MethodCatalog::instance().find(method, model::OperatesOn::Substance);
     if (!spec)
-        return nullptr;
-    for (const auto& output : spec->auxiliary_outputs)
-        if (output.name == name.substr(colon + 1))
-            return &output;
-    return nullptr;
+        fail("The property " + name + ": there is no method " + method + ".");
+    if (part == "terms")
+        for (const auto& t : spec->terms)
+            if (t.name == what)
+                return RouteColumn{part, method + ":" + what, unitOf(t.si_unit)};
+    if (part == "variables")
+        for (const auto& v : spec->variables)
+            if (v.name == what)
+                return RouteColumn{part, method + ":" + what, unitOf(v.si_unit)};
+    fail("The method " + method + " has no " + (part == "terms" ? "term " : "variable ") + what + ". The terms and variables of a method are on its page, and in "
+         "thermofun.methods.catalog(id).");
 }
 
 /// Where a property comes from, and the name of its field.
@@ -159,19 +190,17 @@ auto fieldOf(bool reaction, const std::string& name) -> std::pair<Where, std::st
     for (const auto& item : names)
         if (item.second == name)
             return {Where::Thermo, name};
+    if (routeColumn(name))
+        return {Where::Route, name};
     if (reaction)
-        fail("A reaction has no property " + name + ". Use one of: logK, lnK, dG, dH, dS, dCp, dCv, dV, dU, dA.");
+        fail("A reaction has no property " + name + ". Use one of: logK, lnK, dG, dH, dS, dCp, dCv, dV, dU, dA, or a contribution such as contribution:LogKCp:G.");
     const PropertiesSolvent solvent{};
     if (solventScalar(solvent, name) || solventNumber(solvent, name))
         return {Where::Solvent, name};
     if (electroScalar(ElectroPropertiesSolvent{}, name))
         return {Where::Electro, name};
-    if (auxiliaryOutput(name))
-        return {Where::Auxiliary, name};
-    if (name.find(':') != std::string::npos)
-        fail("The method " + name.substr(0, name.find(':')) + " has no named output " + name.substr(name.find(':') + 1) +
-             ". The named outputs of a method are on its page, and in the catalog (auxiliary_outputs).");
-    fail("A substance has no property " + name + ". Use one of: G, H, S, Cp, Cv, V, U, A, a property of water such as density or epsilon, or a named output of a method such as HKF88:born_G.");
+    fail("A substance has no property " + name + ". Use one of: G, H, S, Cp, Cv, V, U, A, a property of water such as density or epsilon, or a part of the route "
+         "such as contribution:HKF88:G, terms:HKF88:born_G, variables:HKF88:g.");
 }
 
 /// J/(mol K) as the converter writes it: J/K/mol.
@@ -299,8 +328,8 @@ auto labelOf(const json& column, const std::string& field, const std::string& va
         {
             if (const auto it = baseUnits.find(field); it != baseUnits.end())
                 unit = it->second;
-            else if (const auto* output = auxiliaryOutput(field))
-                unit = output->si_unit;
+            else if (const auto route = routeColumn(field))
+                unit = route->si_unit;
         }
         if (show == "err") text += "_err";
         if (show == "ddt") text += "_ddT";
@@ -1347,20 +1376,21 @@ struct TableSetup::Impl
                             }
                             else if (where == Where::Electro)
                                 row.cells.push_back(cellOf(*electroScalar(engine.electroPropertiesSolvent(T, Pcall, record), field), field, column));
-                            else if (where == Where::Auxiliary)
+                            else if (where == Where::Route)
                             {
                                 if (column["show"] != "val")
-                                    fail("The column " + field + " is a named output of a method: it has a value only, not " + column["show"].get<std::string>() + ".");
-                                const auto outputs = engine.auxiliaryOutputs(record, {T}, {Pcall});
-                                const auto it = outputs.front().values.find(field);
-                                if (it == outputs.front().values.end())
-                                    throw std::runtime_error("The record " + record + " has no named output " + field +
-                                                             ": it does not use that method, or the implementation of the method gives none.");
-                                if (point.saturation && !row.P_used && outputs.front().P > 0.0)
-                                    row.P_used = convert(outputs.front().P, "Pa", axisP.unit);
+                                    fail("The column " + field + " is a part of the route of a result: it has a value only, not " + column["show"].get<std::string>() + ".");
+                                const auto route = *routeColumn(field);
+                                const auto table = engine.routeTable({T}, {Pcall}, record, route.part);
+                                const auto it = std::find(table.columns.begin(), table.columns.end(), route.column);
+                                const double value = it == table.columns.end() ? std::numeric_limits<double>::quiet_NaN() : table.values.front()[it - table.columns.begin()];
+                                if (it == table.columns.end() && route.part != "contribution")
+                                    throw std::runtime_error("The record " + record + " has no " + field + ": it does not use that method, or the implementation of the method gives none.");
+                                if (point.saturation && !row.P_used && table.P.front() > 0.0)
+                                    row.P_used = convert(table.P.front(), "Pa", axisP.unit);
                                 TableCell cell;
-                                cell.value = convert(it->second, auxiliaryOutput(field)->si_unit, stringOr(column, "unit", ""));
-                                cell.defined = std::isfinite(it->second);
+                                cell.value = std::isfinite(value) ? convert(value, route.si_unit, stringOr(column, "unit", "")) : 0.0;
+                                cell.defined = std::isfinite(value);
                                 row.cells.push_back(cell);
                             }
                             else if (reaction)
@@ -1715,8 +1745,8 @@ namespace {
 auto batchName(bool reaction, const std::string& property) -> std::string
 {
     const auto [where, field] = fieldOf(reaction, property);
-    if (where == Where::Auxiliary)
-        fail("A ThermoBatch does not calculate the named output " + property + " of a method: use a table.");
+    if (where == Where::Route)
+        fail("A ThermoBatch does not calculate the part " + property + " of a route: use a table.");
     if (where != Where::Thermo)
         fail("A ThermoBatch does not calculate the property " + property + " of water: use a table.");
     return field == "log_equilibrium_constant" ? "logKr" : field == "ln_equilibrium_constant" ? "lnKr" : field;

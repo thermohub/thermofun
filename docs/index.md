@@ -46,7 +46,7 @@ Calculate:
 - [Choose water models](how-to/choose-water-models.md)
 - [Choose conventions](how-to/choose-conventions.md)
 - [Propagate uncertainties](how-to/propagate-uncertainties.md)
-- [See what each method gives](how-to/get-per-method-results.md)
+- [See how a result is calculated](how-to/see-how-a-result-is-calculated.md)
 - [Use a method alone to calculate](how-to/use-a-method-alone.md)
 
 Data:

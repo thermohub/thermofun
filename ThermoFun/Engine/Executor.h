@@ -20,21 +20,25 @@ struct SubstanceResult
     PropertiesInfo info;
 };
 
-/// The state after one method, for `explain`.
-struct ExplainStep
+/// One method of a record on the route of a result (decision 0030): what it changed, and the change of the conversion of its
+/// convention to the canonical one. SI.
+struct MethodStep
 {
-    std::string method;
-    MethodResult values;
-    std::map<std::string, double> auxiliary;   ///< the named outputs of the method, SI
-    Notes notes;                               ///< the notes this method added (decision 0029)
+    RouteValues contribution;     ///< the state after the method minus the state before it, in the convention of the method
+    RouteValues conversion;       ///< the change of the conversion to the canonical convention after the method; zero if none
+    bool converted = false;       ///< the method has a conversion to the canonical convention
+    MethodOutputs outputs;        ///< terms and variables, if asked for
 };
 
-/// Run the bound methods of a record at T (K) and P (Pa). If steps is given, it gets the state after each method.
-/// solvent: the state of the solvent, if a method of the record needs it.
-auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, std::vector<ExplainStep>* steps = nullptr, const SolventInputs* solvent = nullptr) -> SubstanceResult;
+/// Run the bound methods of a record at T (K) and P (Pa). If steps is given, it gets one step for each method, with its terms and
+/// variables if withOutputs. solvent: the state of the solvent, if a method of the record needs it.
+auto executeSubstance(const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, std::vector<MethodStep>* steps = nullptr,
+                      const SolventInputs* solvent = nullptr, bool withOutputs = false) -> SubstanceResult;
 
 /// The methods of a record run on properties that come from elsewhere, from a defining reaction: initial, with its derivatives. SI.
-auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, const SolventInputs* solvent = nullptr) -> MethodResult;
+/// steps: as for executeSubstance (no conversions, no terms).
+auto executeOn(const MethodResult& initial, const BoundSubstance& bound, double T, double P, const SubstanceOptions& options = {}, const SolventInputs* solvent = nullptr,
+               std::vector<MethodStep>* steps = nullptr) -> MethodResult;
 
 /// The derivatives of the properties by one parameter. SI per unit of the parameter in SI.
 struct PropertyDerivatives

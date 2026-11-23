@@ -56,9 +56,21 @@ Source: Tanger and Helgeson (1988); Shock et al. (1992).
 
 Names: `eta`, `theta`, `psi`, `Tr`, `Pr`, `Zr`, `Yr`, `zeta`, `gr`, `ag1` to `ag3`, `bg1` to `bg3`, `af1` to `af3`, `Dmax`.
 
-## Named outputs
+## Terms
 
-Besides G, H, S, Cp and V, the method gives these terms and intermediate functions of the model, in SI units, on request: `engine.auxiliaryOutputs(symbol, T, P)` gives them as rows (the column is `HKF88:<name>`), a table setup takes them as columns with the same name, and `engine.explain` has them for each method.
+Named parts of the contribution of the method to one property, in SI units, on request (the route of a result, decision 0030): `engine.routeTable(T, P, symbol, "terms")` gives them as rows (the column is `HKF88:<name>`), the option `route_terms_and_variables` puts them on the route of every result, and a batch calculation takes them as properties `terms:HKF88:<name>`.
+
+| Name | Part of | SI unit | What it is |
+|---|---|---|---|
+| `born_G` | G | J/mol | the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr) |
+| `born_H` | H | J/mol | the Born term of H |
+| `born_S` | S | J/(mol.K) | the Born term of S |
+| `born_Cp` | Cp | J/(mol.K) | the Born term of Cp |
+| `born_V` | V | m3/mol | the Born term of V: -w Q - (Z + 1) dw/dP |
+
+## Variables
+
+Quantities of the model that the terms come from, not summed, in SI units, on request: `engine.routeTable(T, P, symbol, "variables")` (the column is `HKF88:<name>`), the option `route_terms_and_variables`, and the properties `variables:HKF88:<name>` of a batch calculation.
 
 | Name | SI unit | What it is |
 |---|---|---|
@@ -66,11 +78,6 @@ Besides G, H, S, Cp and V, the method gives these terms and intermediate functio
 | `re` | Ao | the effective electrostatic radius of the species at T and P (0 for a neutral species) |
 | `omega` | J/mol | the conventional Born coefficient at T and P |
 | `omega_reference` | J/mol | the Born coefficient at the reference T and P (the parameter omega) |
-| `born_G` | J/mol | the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr) |
-| `born_H` | J/mol | the Born term of H |
-| `born_S` | J/(mol.K) | the Born term of S |
-| `born_Cp` | J/(mol.K) | the Born term of Cp |
-| `born_V` | m3/mol | the Born term of V: -w Q - (Z + 1) dw/dP |
 
 ## Example
 

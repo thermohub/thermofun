@@ -47,7 +47,8 @@ struct Spec
     auto sameAs(const char* id) -> Spec& { s.same_as = id; return *this; }
     auto impl(std::vector<std::string> i) -> Spec& { s.implementations = std::move(i); return *this; }
     /// A named output beside the properties: a term or an intermediate function of the model, in SI.
-    auto output(std::string name, std::string unit, std::string description) -> Spec& { s.auxiliary_outputs.push_back({std::move(name), std::move(unit), std::move(description)}); return *this; }
+    auto term(std::string name, std::string property, std::string unit, std::string description) -> Spec& { s.terms.push_back({std::move(name), std::move(property), std::move(unit), std::move(description)}); return *this; }
+    auto variable(std::string name, std::string unit, std::string description) -> Spec& { s.variables.push_back({std::move(name), std::move(unit), std::move(description)}); return *this; }
     auto solvent(bool atReference = false) -> Spec&
     {
         s.needs.solvent = true;
@@ -306,15 +307,15 @@ auto substanceMethods() -> std::vector<MethodSpec>
     m.push_back(Spec("HKF88", "Revised HKF equation of state", "Calculates the properties of an aqueous species from the revised Helgeson-Kirkham-Flowers equation of state.",
                      "Tanger and Helgeson (1988); Shock et al. (1992)")
                     .alias({"HKFReaktoro", "HKFGems"}).base().classes(solutes).solvent().dielectric().impl({"reaktoro", "gems"}).add(hkfParameters())
-                    .output("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species); its term f only at 155-355 C below 1000 bar, as SUPCRT92; below 350 kg/m3 of water held at its value at 350 kg/m3")
-                    .output("re", "Ao", "the effective electrostatic radius of the species at T and P (0 for a neutral species)")
-                    .output("omega", "J/mol", "the conventional Born coefficient at T and P")
-                    .output("omega_reference", "J/mol", "the Born coefficient at the reference T and P (the parameter omega)")
-                    .output("born_G", "J/mol", "the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr)")
-                    .output("born_H", "J/mol", "the Born term of H")
-                    .output("born_S", "J/(mol.K)", "the Born term of S")
-                    .output("born_Cp", "J/(mol.K)", "the Born term of Cp")
-                    .output("born_V", "m3/mol", "the Born term of V: -w Q - (Z + 1) dw/dP")
+                    .variable("g", "Ao", "the g function of Shock et al. (1992): the shift of the effective electrostatic radius with T and P (0 for a neutral species); its term f only at 155-355 C below 1000 bar, as SUPCRT92; below 350 kg/m3 of water held at its value at 350 kg/m3")
+                    .variable("re", "Ao", "the effective electrostatic radius of the species at T and P (0 for a neutral species)")
+                    .variable("omega", "J/mol", "the conventional Born coefficient at T and P")
+                    .variable("omega_reference", "J/mol", "the Born coefficient at the reference T and P (the parameter omega)")
+                    .term("born_G", "G", "J/mol", "the Born (solvation) term of G: -w (Z + 1) + wr (Zr + 1) + wr Yr (T - Tr)")
+                    .term("born_H", "H", "J/mol", "the Born term of H")
+                    .term("born_S", "S", "J/(mol.K)", "the Born term of S")
+                    .term("born_Cp", "Cp", "J/(mol.K)", "the Born term of Cp")
+                    .term("born_V", "V", "m3/mol", "the Born term of V: -w Q - (Z + 1) dw/dP")
                     .add(modelParameters({{"eta", "parameter of the Born term, A cal/mol"}, {"theta", "characteristic T of the solvent, K"}, {"psi", "characteristic P of the solvent, bar"},
                                     {"Tr", "reference T, K"}, {"Pr", "reference P, bar"}, {"Zr", "Born function Z at the reference"}, {"Yr", "Born function Y at the reference"},
                                     {"zeta", "parameter of the effective radius, A"}, {"gr", "g function at the reference"},

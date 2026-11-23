@@ -165,18 +165,18 @@ def test_reactants_for_all_records_leaves_such_a_reaction_to_its_own_methods():
 
 def test_the_path_of_a_substance_from_its_reaction():
     engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
-    path = engine.calculationPath("Z")
-    assert path["source"] == "reaction"
-    assert [(s["role"], s["symbol"], s["source"]) for s in path["steps"]] == [("defining_reaction", "R3", "methods"), ("reactant", "Y", "reference")]
-    assert path["steps"][1]["coefficient"] == -1.0
-    assert path["steps"][0]["methods"] == ["LogKConstant"]
+    route = engine.route("Z")
+    assert route.by == "reaction"
+    assert [(n.role, n.route.symbol, n.route.by) for n in route.needs] == [("defining_reaction", "R3", "methods"), ("reactant", "Y", "reference")]
+    assert route.needs[1].coefficient == -1.0
+    assert [m.method for m in route.needs[0].route.methods] == ["LogKConstant"]
 
 
 def test_the_path_follows_the_source_and_shows_a_cycle_without_an_error():
     engine = tf.ThermoEngine(tf.Database(json.dumps(loop_of_one())))
     engine.setPropertySource("R3", "reactants")
-    assert "Z -> R3 -> Z" in engine.calculationPath("Z")["steps"][0]["problem"]
+    assert "Z -> R3 -> Z" in engine.route("Z").needs[0].route.notes[0].text
     engine.setPropertySource("R3", "record")
-    assert engine.calculationPath("R3")["source"] == "methods"
+    assert engine.route("R3").by == "methods"
     engine.setPropertySource("Z", "direct")
-    assert engine.calculationPath("Y")["source"] == "reference"
+    assert engine.route("Y").by == "reference"

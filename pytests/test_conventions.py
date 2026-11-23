@@ -271,10 +271,12 @@ def test_the_old_words_still_work():
     assert props(a) == props(b)
 
 
-def test_explain_says_what_was_converted():
+def test_the_route_says_what_was_converted():
     e = output(engine({"X": substance(formula="CO2", state="gas", cls="gas_fluid", methods=NASA)}), pressure="1atm")
-    conversions = e.thermoPropertiesSubstanceDetailed(500.0, Pr, "X")["conversions"]
-    assert "NASA9 to canonical" in conversions and "1atm" in conversions
+    result = e.thermoPropertiesSubstance(500.0, Pr, "X")
+    conversions = [(c.what, c.detail) for c in result.info.route.conversions]
+    assert ("convention", "NASA9 to canonical") in conversions and ("convention", "1atm") in conversions
+    assert result.info.route.total()["G"] == pytest.approx(result.gibbs_energy.val, rel=1e-12)
 
 
 # --- the hydrogen ion -----------------------------------------------------------------------------------------------

@@ -16,6 +16,7 @@ Generated. Do not edit by hand: run `python -m thermofun.docs generate docs/refe
 | propagate_parameter_errors | False |  | also propagate the uncertainties of the parameters of the methods, with those of the reference values and the covariances; without it, only the reference values True/False (default: False) |
 | property_source | Record | direct, reaction, reactants, record | where the properties of a record come from: PropertySource or the words record (default), direct, reaction, reactants |
 | round_to_uncertainty | False |  | round the values of the calculated properties to the decimals of their uncertainties (err) with the NEA TDB rules (default: False); derivatives are not rounded |
+| route_terms_and_variables | False |  | the route of a result also has the terms and variables of its methods (HKF88: the Born terms, the g function) True/False (default: False); they cost one more evaluation of the model. routeTable(T, P, symbol, 'terms') calculates them without it |
 | solventState | 0 |  | not read by the calculations (old API): the state of water comes from its record or from the state argument of propertiesSolvent, default 0 |
 | solventSymbol | 'H2O@' |  | symbol of solvent used in EoS of solute properties (e.g., H2O@ for HKF model), default H2O@ |
 | uncertainty_significant_digits | 2 |  | number of significant digits of the rounded uncertainties if round_to_uncertainty is True (default: 2): to the nearest, a half up (NEA TDB-3 sect. 4) |

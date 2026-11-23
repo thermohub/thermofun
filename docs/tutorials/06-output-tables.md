@@ -144,14 +144,14 @@ born = {
 print(tf.table(born)["born"].to_text("md"))
 ```
 
-The terms of a model are columns too. A named output of a method is written `<method>:<name>`; the names are on the [page of the method](../reference/methods/HKF88.md). Here the Born coefficient and the Born term of G of two ions:
+The parts of the route of a result are columns too (decision 0030): `contribution:<method>:<property>`, `terms:<method>:<name>` and `variables:<method>:<name>`; the names of the terms and variables are on the [page of the method](../reference/methods/HKF88.md). Here the Born coefficient (a variable) and the Born term of G (a term) of two ions:
 
 ```{code-cell} ipython3
 terms = {
     "database": AQ,
     "conditions": {"T": {"values": [25, 200, 300], "unit": "degC"}, "P": {"values": ["saturation"], "unit": "bar"}},
     "tables": [{"name": "terms", "records": ["Ca+2", "Na+"],
-                "columns": [{"property": "HKF88:omega", "unit": "kJ/mol", "digits": 2}, {"property": "HKF88:born_G", "unit": "kJ/mol", "digits": 3}]}],
+                "columns": [{"property": "variables:HKF88:omega", "unit": "kJ/mol", "digits": 2}, {"property": "terms:HKF88:born_G", "unit": "kJ/mol", "digits": 3}]}],
 }
 print(tf.table(terms)["terms"].to_text("md"))
 ```

@@ -249,8 +249,10 @@ def test_records_written_with_setters_run_on_the_method_objects():
     engine_file, engine_written = tf.ThermoEngine(from_file), tf.ThermoEngine(written)
     on_objects = 0
     for s in from_file.getSubstances():
-        steps = [step["method"] for step in engine_file.explain(373.15, 1e6, s.symbol())]
-        assert [step["method"] for step in engine_written.explain(373.15, 1e6, s.symbol())] == steps, s.symbol()
+        route = engine_file.thermoPropertiesSubstance(373.15, 1e6, s.symbol()).info.route
+        steps = [m.method for m in route.methods] if route.by == "methods" else []
+        written_route = engine_written.thermoPropertiesSubstance(373.15, 1e6, s.symbol()).info.route
+        assert ([m.method for m in written_route.methods] if written_route.by == "methods" else []) == steps, s.symbol()
         on_objects += bool(steps)
     assert on_objects > 100
 

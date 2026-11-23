@@ -57,7 +57,7 @@ import thermofun as tf
 
 engine = tf.ThermoEngine("aq17-thermofun.json")
 G = engine.thermoPropertiesSubstance(1373.15, 1e8, "Na+").gibbs_energy
-print(G.info.validity, G.info.source, G.info.pressure)
+print(G.info.validity, G.info.route.by, G.info.pressure)
 for note in G.info.notes:
     print(note)
 ```
@@ -74,9 +74,10 @@ Outside the range of the model: via the water: JohnsonNorton91: T = 1373.15 K, P
 The first note is of the HKF model itself; the other two come from the water, which is outside the range of its equation
 of state and of its dielectric model at 1100 degC.
 
-`engine.explain(T, P, symbol)` gives the notes that each method added, under `notes` of its step.
+Each note names its method and the records it came through (`via`). The route of the result (`G.info.route`, decision 0030)
+says how it was calculated; the notes are not in the route.
 
-In C++: `x.info` (`Reaktoro_::Info`: `notes`, `source`, `pressure`) of each `ThermoScalar`, `ThermoFun::validity(x)` and
+In C++: `x.info` (`Reaktoro_::Info`: `notes`, `route`, `pressure`) of each `ThermoScalar`, `ThermoFun::validity(x)` and
 `ThermoFun::errorState(x)` in `Common/OutsideRange.h`, and `info` of `ThermoPropertiesSubstance`,
 `ThermoPropertiesReaction`, `PropertiesSolvent` and `ElectroPropertiesSolvent`. The notes are `ThermoFun::Note` in
 `Common/Notes.h`.

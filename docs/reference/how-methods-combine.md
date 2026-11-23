@@ -17,7 +17,7 @@ A record has one base method and any number of increments. A base method gives a
 
 **A pressure method on a substance from a reaction.** If the reaction has no pressure dependence, the reaction and the species are at the pressure of the data, and the method of the substance adds the rest. If the reaction has it, the substance does not get it twice.
 
-`engine.calculationPath(symbol)` shows the path, and `engine.explain(T, P, symbol)` shows each step.
+`engine.route(symbol)` shows the route a record takes, and the route of a result (`result.info.route`) has what each method contributed: see [Results](results.md).
 
 ## Methods by region
 

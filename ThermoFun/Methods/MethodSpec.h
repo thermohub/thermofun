@@ -83,8 +83,19 @@ struct MethodNeeds
     bool element_entropies = false;     ///< the entropies of the elements, for a conversion of conventions
 };
 
-/// A named output of a method beside the standard properties, for example the density of water.
-struct AuxiliaryOutputSpec
+/// A term of a method (decision 0030): a named part of the contribution of the method to one property, for example the Born
+/// term of G of HKF88.
+struct TermSpec
+{
+    std::string name;
+    std::string property;   ///< the property it is part of: "G", "H", "S", "Cp", "V"
+    std::string si_unit;
+    std::string description;
+};
+
+/// A variable of a method (decision 0030): a quantity of the model that the terms come from, not summed, for example the g
+/// function of HKF88.
+struct VariableSpec
 {
     std::string name;
     std::string si_unit;
@@ -128,7 +139,8 @@ struct MethodSpec
     ModelRange range;                            ///< the published range of the model: a note outside of it (decision 0029)
     bool implemented = true;                     ///< false: the id is known, but there is no code
     std::vector<ParameterSpec> parameters;
-    std::vector<AuxiliaryOutputSpec> auxiliary_outputs;
+    std::vector<TermSpec> terms;
+    std::vector<VariableSpec> variables;
     std::vector<std::string> implementations;    ///< for example {"reaktoro", "gems"}; the first is the default
 };
 

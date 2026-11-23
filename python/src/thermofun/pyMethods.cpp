@@ -165,14 +165,22 @@ void exportMethods(py::module& parent)
             else
                 row["range"] = py::none();
             {
-                py::list outputs;
-                for (const auto& o : spec.auxiliary_outputs)
+                // decision 0030: terms (parts of the contribution to one property) and variables (quantities of the model)
+                py::list terms, variables;
+                for (const auto& t : spec.terms)
                 {
                     py::dict item;
-                    item["name"] = o.name; item["si_unit"] = o.si_unit; item["description"] = o.description;
-                    outputs.append(item);
+                    item["name"] = t.name; item["property"] = t.property; item["si_unit"] = t.si_unit; item["description"] = t.description;
+                    terms.append(item);
                 }
-                row["auxiliary_outputs"] = outputs;
+                for (const auto& v : spec.variables)
+                {
+                    py::dict item;
+                    item["name"] = v.name; item["si_unit"] = v.si_unit; item["description"] = v.description;
+                    variables.append(item);
+                }
+                row["terms"] = terms;
+                row["variables"] = variables;
             }
             row["needs_solvent"] = spec.needs.solvent;
             {

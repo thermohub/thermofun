@@ -52,8 +52,8 @@ assert derivatives["G"]["Qtz/S"] == -(500.0 - 298.15)
 ```
 -->
 
-The result has the properties first and the parameters second, so `pandas.DataFrame(derivatives)` gives a table. For a reaction, use
-`reactionParameterSensitivities`.
+The result has the properties first and the parameters second, so `pandas.DataFrame(derivatives)` gives a table. For a reaction, give
+its symbol: the results are then logK, lnK, dG, dH, dS, dCp and dV. A substance and a reaction with the same symbol: `kind="reaction"`.
 
 The derivatives follow the same path as the values: see [Choose where properties come from](add-data.md#10-choose-where-properties-come-from). A substance from its defining reaction
 has derivatives by the reaction and by the other species. A substance from its methods has none by them. An unknown parameter is an error, and not a derivative of 0.

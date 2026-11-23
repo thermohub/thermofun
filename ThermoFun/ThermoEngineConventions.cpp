@@ -145,18 +145,18 @@ auto ThermoEngine::Impl::convert(ThermoPropertiesSubstance &tps, const model::Co
 }
 
 /// The properties in the convention that the engine returns. Inside the engine all values are canonical.
-auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, double& P, const Substance& substance, DetailedPropertiesSubstance* detailed) const -> ThermoPropertiesSubstance
+auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, double& P, const Substance& substance) const -> ThermoPropertiesSubstance
 {
     if (outputConvention() == model::canonicalConvention())
         return tps;
     const auto record = substance.record();
-    const auto label = [&](const std::string& word) { if (detailed) detailed->conversions.push_back(word); };
+    const auto before = routeValues(tps);
     if (record->class_ == model::SubstanceClass::WaterSolvent)
     {
         if (outputConvention().energy_reference.water == model::WaterReference::SteamTables)
         {
             steamTablesShift(tps, T, -1.0, waterTripleOf(substance));
-            label("steam_tables");
+            addConversion(tps, before, "convention", "steam_tables");
         }
         return tps;
     }
@@ -165,12 +165,15 @@ auto ThermoEngine::Impl::toOutput(ThermoPropertiesSubstance tps, double T, doubl
     if (shift.identity())
         return tps;
     convert(tps, shift, T, P, record->symbol);
+    std::string words;
+    const auto label = [&](const std::string& word) { words += (words.empty() ? "" : ", ") + word; };
     if (out.energy_reference.elements != model::EnergyReference::BensonHelgeson)
         label(model::toString(*out.energy_reference.elements));
     if (subjectOf(*record).gas && out.standard_state.pressure != 1e5)
         label(model::standardPressureText(*out.standard_state.pressure));
     if (subjectOf(*record).solute && out.standard_state.concentration_scale != model::ConcentrationScale::Molality)
         label(model::toString(*out.standard_state.concentration_scale));
+    addConversion(tps, before, "convention", words);
     return tps;
 }
 
@@ -263,7 +266,17 @@ auto ThermoEngine::Impl::toOutput(ThermoPropertiesReaction tpr, double T, double
         return tpr;
     const auto shift = reactionShift(reaction, outputConvention(), false);
     if (!shift.identity())
+    {
+        const auto before = routeValues(tpr);
         convert(tpr, shift, T, P, reaction.symbol());
+        const auto out = outputConvention();
+        std::string words;
+        if (out.standard_state.pressure && *out.standard_state.pressure != 1e5)
+            words = model::standardPressureText(*out.standard_state.pressure);
+        if (out.standard_state.concentration_scale && *out.standard_state.concentration_scale != model::ConcentrationScale::Molality)
+            words += (words.empty() ? "" : ", ") + model::toString(*out.standard_state.concentration_scale);
+        addConversion(tpr, before, "convention", words);
+    }
     return tpr;
 }
 

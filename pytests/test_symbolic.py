@@ -167,12 +167,12 @@ def test_a_substance_from_a_reaction_with_an_expression():
     T, P = 500.0, 2e7
     e = reaction_engine()
     assert math.isfinite(e.thermoPropertiesSubstance(T, P, "Z").gibbs_energy.val)
-    assert e.calculationPath("Z")["steps"][0]["methods"] == ["LinearDG"]
+    assert [m.method for m in e.route("Z").needs[0].route.methods] == ["LinearDG"]
 
 
 def test_the_derivative_of_a_reaction_by_its_parameter():
     T, P = 500.0, 2e7
-    got = reaction_engine().reactionParameterSensitivities(T, P, "R", [("R", "LinearDG", "s")])
+    got = reaction_engine().parameterSensitivities(T, P, "R", [("R", "LinearDG", "s")])
     assert got["dG"]["R/LinearDG/s"] == pytest.approx(-T, rel=1e-12)
     assert got["dS"]["R/LinearDG/s"] == pytest.approx(1.0, rel=1e-12)
 

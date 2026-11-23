@@ -10,6 +10,7 @@ set(THERMOFUN_PUBLIC_HEADERS
     Common/Notes.h
     Common/PhysicalConstants.h
     Common/Real.hpp
+    Common/Route.h
     Common/ThermoProperties.h
     Common/ThermoProperty.hpp
     Common/ThermoScalar.hpp
@@ -17,7 +18,6 @@ set(THERMOFUN_PUBLIC_HEADERS
     Database.h
     Element.h
     Engine/Consistency.h
-    Engine/DetailedResult.h
     Engine/Sensitivity.h
     Engine/Snapshot.h
     GlobalVariables.h

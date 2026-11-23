@@ -17,10 +17,18 @@
 #include <ThermoFun/Common/Notes.h>
 #include <ThermoFun/Common/PhysicalConstants.h>
 #include <ThermoFun/Common/Real.hpp>
+#include <ThermoFun/Common/Route.h>
 #include <ThermoFun/Common/ThermoProperties.h>
 #include <ThermoFun/Methods/MethodSpec.h>
 
 namespace ThermoFun::model {
+
+/// The terms and variables of a method at one point (decision 0030), SI, in the order of the spec
+struct MethodOutputs
+{
+    std::vector<RouteNumber> terms;
+    std::vector<RouteNumber> variables;
+};
 
 /// The number type of a pass with derivatives: the derivative is with respect to T, to P or to one parameter.
 using TPReal = ThermoFun::real;
@@ -154,10 +162,10 @@ public:
     /// The status and the error of what the method gives. out holds those of the incoming properties.
     virtual auto info(PropertiesInfo& /*out*/, const PropertiesInfo& /*reference*/, const InfoInputs&) const -> void {}
 
-    /// Named outputs beside the properties (the terms and intermediate functions of the model), in SI, for the state of the inputs
-    /// (the pass with respect to T: the values only). The names are those of the spec (auxiliary_outputs). Calculated only on request,
-    /// by explain and the auxiliary outputs of the engine. Empty if the method has none.
-    virtual auto auxiliary(const SubstanceInputs<TPReal>&) const -> std::map<std::string, double> { return {}; }
+    /// The terms and variables of the method (decision 0030), in SI, for the state of the inputs (the pass with respect to T: the
+    /// values only). The names are those of the spec (terms, variables). Calculated only on request (the option
+    /// route_terms_and_variables, routeTable): they cost one more evaluation of the model. Empty if the method has none.
+    virtual auto outputs(const SubstanceInputs<TPReal>&) const -> MethodOutputs { return {}; }
 };
 
 } // namespace ThermoFun::model

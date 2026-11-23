@@ -119,7 +119,7 @@ void ThermoEngine::Impl::dropStaleResults()
     clearResults();
 }
 
-ThermoEngine::ThermoEngine(const std::string filename)
+ThermoEngine::ThermoEngine(const std::string& filename)
     : pimpl()
 {
     Database db(filename);
@@ -144,7 +144,7 @@ auto ThermoEngine::operator=(const ThermoEngine& other) -> ThermoEngine&
     return *this;
 }
 
-auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string substance) const -> ThermoPropertiesSubstance
+auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, const std::string& substance) const -> ThermoPropertiesSubstance
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
@@ -157,22 +157,22 @@ auto ThermoEngine::thermoPropertiesSubstance(double T, double &P, std::string su
     return tps;
 }
 
-auto ThermoEngine::electroPropertiesSolvent(double T, double &P, std::string solvent, int state) const -> ElectroPropertiesSolvent
+auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const std::string& solvent, int state) const -> ElectroPropertiesSolvent
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
     auto out = pimpl->cachedElectro(T, P, solvent, state);
-    stampSource(out, "water");
+    stampRoute(out, pimpl->staticRoute(solvent));
     stampPressure(out, P);
     return out;
 }
 
-auto ThermoEngine::propertiesSolvent(double T, double &P, std::string solvent, int state) const -> PropertiesSolvent
+auto ThermoEngine::propertiesSolvent(double T, double &P, const std::string& solvent, int state) const -> PropertiesSolvent
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
     auto out = pimpl->cachedSolvent(T, P, solvent, state);
-    stampSource(out, "water");
+    stampRoute(out, pimpl->staticRoute(solvent));
     stampPressure(out, P);
     return out;
 }
@@ -199,7 +199,7 @@ auto ThermoEngine::electroPropertiesSolvent(double T, double &P, const Substance
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
     auto out = pimpl->electroPropertiesSolvent(T, P, solvent, state);
-    stampSource(out, "water");
+    stampRoute(out, pimpl->staticRoute(solvent.symbol()));
     stampPressure(out, P);
     return out;
 }
@@ -209,13 +209,13 @@ auto ThermoEngine::propertiesSolvent(double T, double &P, const Substance&  solv
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
     auto out = pimpl->propertiesSolvent(T, P, solvent, state);
-    stampSource(out, "water");
+    stampRoute(out, pimpl->staticRoute(solvent.symbol()));
     stampPressure(out, P);
     return out;
 }
 
 // Reaction
-auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string reaction) const -> ThermoPropertiesReaction
+auto ThermoEngine::thermoPropertiesReaction(double T, double &P, const std::string& reaction) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
@@ -228,7 +228,7 @@ auto ThermoEngine::thermoPropertiesReaction(double T, double &P, std::string rea
     return tpr;
 }
 
-auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, std::string symbol) const -> ThermoPropertiesReaction
+auto ThermoEngine::thermoPropertiesReactionFromReactants(double T, double &P, const std::string& symbol) const -> ThermoPropertiesReaction
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
@@ -322,7 +322,7 @@ auto ThermoEngine::propertySource(const std::string& symbol) const -> model::Pro
     return pimpl->substance_sources.count(symbol) ? model::PropertySource::Direct : pimpl->preferences.property_source;
 }
 
-auto ThermoEngine::setSolventSymbol(const std::string solvent_symbol) -> void
+auto ThermoEngine::setSolventSymbol(const std::string& solvent_symbol) -> void
 {
     pimpl->preferences.solvent_symbol = solvent_symbol;
 }
@@ -352,76 +352,123 @@ auto ThermoEngine::database() const -> const Database &
     return pimpl->database;
 }
 
-auto ThermoEngine::appendData(std::string filename) -> void
+auto ThermoEngine::appendData(const std::string& filename) -> void
 {
     pimpl->database.appendData(filename);
 }
 
-auto ThermoEngine::appendData(std::vector<std::string> jsonRecords, std::string _label = "unknown label") -> void
+auto ThermoEngine::appendData(const std::vector<std::string>& jsonRecords, const std::string& _label) -> void
 {
     pimpl->database.appendData(jsonRecords, _label);
 }
 
-auto ThermoEngine::explain(double T, double P, std::string substance) const -> std::vector<ExplainStep>
+auto ThermoEngine::isReaction(const std::string& symbol, const std::string& kind) const -> bool
 {
-    return thermoPropertiesSubstanceDetailed(T, P, substance).steps;
+    if (kind != "" && kind != "substance" && kind != "reaction")
+        throw std::invalid_argument("The kind is \"" + kind + "\"; allowed: substance, reaction, or empty (the substance if there is one).");
+    const Database& db = pimpl->database;
+    return kind == "reaction" || (kind.empty() && !db.containsSubstance(symbol) && (db.containsReaction(symbol) || symbol.find('=') != std::string::npos));
 }
 
-auto ThermoEngine::contributions(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<MethodContributions>
-{
-    const size_t n = std::max(T.size(), P.size());
-    if (T.empty() || P.empty() || (T.size() != n && T.size() != 1) || (P.size() != n && P.size() != 1))
-        throw std::invalid_argument("contributions: T and P have " + std::to_string(T.size()) + " and " + std::to_string(P.size()) +
-                                    " values; give lists of the same length, or one value.");
-    std::vector<MethodContributions> out;
-    for (size_t i = 0; i < n; ++i)
-    {
-        MethodContributions c;
-        c.T = T.size() == 1 ? T[0] : T[i];
-        c.P = P.size() == 1 ? P[0] : P[i];
-        const auto detailed = thermoPropertiesSubstanceDetailed(c.T, c.P, substance);
-        const auto& r = detailed.properties;
-        c.total = {"", r.gibbs_energy.val, r.enthalpy.val, r.entropy.val, r.heat_capacity_cp.val, r.volume.val};
-        ExplainStep before;
-        for (const auto& step : detailed.steps)
-        {
-            c.methods.push_back({step.method, step.G - before.G, step.H - before.H, step.S - before.S, step.Cp - before.Cp, step.V - before.V});
-            before = step;
-        }
-        c.other = {"other", c.total.G - before.G, c.total.H - before.H, c.total.S - before.S, c.total.Cp - before.Cp, c.total.V - before.V};
-        out.push_back(std::move(c));
-    }
-    return out;
-}
-
-auto ThermoEngine::auxiliaryOutputs(const std::string& substance, const std::vector<double>& T, const std::vector<double>& P) const -> std::vector<AuxiliaryPoint>
-{
-    const size_t n = std::max(T.size(), P.size());
-    if (T.empty() || P.empty() || (T.size() != n && T.size() != 1) || (P.size() != n && P.size() != 1))
-        throw std::invalid_argument("auxiliaryOutputs: T and P have " + std::to_string(T.size()) + " and " + std::to_string(P.size()) +
-                                    " values; give lists of the same length, or one value.");
-    std::vector<AuxiliaryPoint> out;
-    for (size_t i = 0; i < n; ++i)
-    {
-        AuxiliaryPoint point;
-        point.T = T.size() == 1 ? T[0] : T[i];
-        point.P = P.size() == 1 ? P[0] : P[i];
-        const auto detailed = thermoPropertiesSubstanceDetailed(point.T, point.P, substance);
-        for (const auto& step : detailed.steps)
-            for (const auto& [name, value] : step.auxiliary)
-                point.values[step.method + ":" + name] = value;
-        out.push_back(std::move(point));
-    }
-    return out;
-}
-
-auto ThermoEngine::thermoPropertiesSubstanceDetailed(double T, double &P, const std::string& substance) const -> DetailedPropertiesSubstance
+auto ThermoEngine::route(const std::string& symbol, const std::string& kind) const -> std::shared_ptr<const Route>
 {
     pimpl->dropStaleResults();
-    Impl::checkStatePoint(T, P);
-    auto detailed = pimpl->detailedSubstance(T, P, pimpl->database.getSubstance(substance));
-    volumeToSI(detailed.properties.volume);
-    return detailed;
+    return pimpl->staticRoute(symbol, isReaction(symbol, kind));
+}
+
+namespace {
+
+/// One value of each list for each point: a list of one value goes with every value of the other
+auto broadcast(const char* function, const std::vector<double>& T, const std::vector<double>& P) -> std::size_t
+{
+    const std::size_t n = std::max(T.size(), P.size());
+    if (T.empty() || P.empty() || (T.size() != n && T.size() != 1) || (P.size() != n && P.size() != 1))
+        throw std::invalid_argument(std::string(function) + ": T and P have " + std::to_string(T.size()) + " and " + std::to_string(P.size()) +
+                                    " values; give lists of the same length, or one value.");
+    return n;
+}
+
+} // namespace
+
+auto ThermoEngine::routeTable(const std::vector<double>& T, const std::vector<double>& P, const std::string& symbol, const std::string& part, const std::string& kind) const -> RouteTable
+{
+    if (part != "contribution" && part != "terms" && part != "variables")
+        throw std::invalid_argument("routeTable: the part is \"" + part + "\"; allowed: contribution, terms, variables.");
+    const std::size_t n = broadcast("routeTable", T, P);
+    const Database& db = pimpl->database;
+    const bool reaction = isReaction(symbol, kind);
+    if (!reaction && !db.containsSubstance(symbol))
+        throw std::invalid_argument("routeTable: there is no substance or reaction " + symbol + ".");
+    // terms and variables are calculated for this call: without the cache, so the result of the symbol has them
+    struct Outputs
+    {
+        Impl& impl;
+        bool before;
+        ~Outputs() { impl.with_outputs = before; }
+    } restore{*pimpl, pimpl->with_outputs};
+    pimpl->with_outputs = part != "contribution";
+
+    RouteTable table;
+    std::map<std::string, std::size_t> index;
+    std::vector<std::map<std::size_t, double>> rows;
+    const auto put = [&](std::map<std::size_t, double>& row, const std::string& column, double value) {
+        auto [it, added] = index.try_emplace(column, table.columns.size());
+        if (added)
+            table.columns.push_back(column);
+        row[it->second] += value;   // a method twice in a record: one column
+    };
+    const auto putValues = [&](std::map<std::size_t, double>& row, const std::string& prefix, const RouteValues& v) {
+        put(row, prefix + "G", v.G);   // dG, ... of a reaction: the same names
+        put(row, prefix + "H", v.H);
+        put(row, prefix + "S", v.S);
+        put(row, prefix + "Cp", v.Cp);
+        put(row, prefix + "V", v.V);
+    };
+    for (std::size_t i = 0; i < n; ++i)
+    {
+        double t = T.size() == 1 ? T[0] : T[i];
+        double p = P.size() == 1 ? P[0] : P[i];
+        std::shared_ptr<const Route> r;
+        if (reaction)
+            r = thermoPropertiesReaction(t, p, symbol).info.route;
+        else if (part == "contribution")
+            r = thermoPropertiesSubstance(t, p, symbol).info.route;
+        else
+        {
+            pimpl->dropStaleResults();
+            Impl::checkStatePoint(t, p);
+            r = pimpl->thermoPropertiesSubstance(t, p, db.getSubstance(symbol)).info.route;  // the terms do not change with the conventions of the results
+        }
+        table.T.push_back(t);
+        table.P.push_back(r ? r->P : p);
+        std::map<std::size_t, double> row;
+        if (r)
+        {
+            if (part == "contribution")
+            {
+                putValues(row, "", r->total());
+                if (!r->contribution.isZero() || r->by != "methods")
+                    putValues(row, r->by + ":", r->contribution);
+                for (const auto& m : r->methods)
+                    putValues(row, m.method + ":", m.contribution);
+                for (const auto& c : r->conversions)
+                    putValues(row, c.what + "(" + c.detail + "):", c.change);
+            }
+            else
+                for (const auto& m : r->methods)
+                    for (const auto& x : part == "terms" ? m.terms : m.variables)
+                        put(row, m.method + ":" + x.name, x.value);
+        }
+        rows.push_back(std::move(row));
+    }
+    for (const auto& row : rows)
+    {
+        std::vector<double> values(table.columns.size(), std::numeric_limits<double>::quiet_NaN());
+        for (const auto& [k, v] : row)
+            values[k] = v;
+        table.values.push_back(std::move(values));
+    }
+    return table;
 }
 
 auto ThermoEngine::snapshot() const -> CalculationSnapshot
@@ -443,7 +490,8 @@ auto ThermoEngine::snapshot() const -> CalculationSnapshot
     if (const auto& water = pimpl->solvent_in_use; database.containsSubstance(water))
     {
         s.water_symbol = water;
-        s.water_methods = calculationPath(water).methods;
+        for (const auto& m : route(water)->methods)
+            s.water_methods.push_back(m.implementation.empty() ? m.method : m.method + "/" + m.implementation);
     }
     const EnginePreferences defaults;
     const auto word = [](bool value) { return std::string(value ? "true" : "false"); };
@@ -496,8 +544,12 @@ auto snapshotLines(const CalculationSnapshot& s) -> std::vector<std::string>
     return lines;
 }
 
-auto ThermoEngine::consistencyReport(const std::vector<std::pair<double, double>>& TP, const ConsistencyOptions& options) const -> std::vector<ConsistencyItem>
+auto ThermoEngine::consistencyReport(const std::vector<double>& T, const std::vector<double>& P, const ConsistencyOptions& options) const -> std::vector<ConsistencyItem>
 {
+    const std::size_t n = broadcast("consistencyReport", T, P);
+    std::vector<std::pair<double, double>> TP;
+    for (std::size_t i = 0; i < n; ++i)
+        TP.emplace_back(T.size() == 1 ? T[0] : T[i], P.size() == 1 ? P[0] : P[i]);
     pimpl->dropStaleResults();
     ThermoEngine direct(*this), derived(*this);
     EnginePreferences p = preferences();
@@ -556,7 +608,7 @@ auto ThermoEngine::consistencyReport(const std::vector<std::pair<double, double>
     return items;
 }
 
-auto ThermoEngine::parseSubstanceFormula(std::string formula) const -> std::map<Element, double>
+auto ThermoEngine::parseSubstanceFormula(const std::string& formula) const -> std::map<Element, double>
 {
     return pimpl->database.parseSubstanceFormula(formula);
 }

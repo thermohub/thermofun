@@ -63,7 +63,8 @@ def test_engine_runs_records_on_method_objects():
             names = {list(m["method"].values())[0].strip() for m in record.get("TPMethods") or []}
             base = {"cp_ft_equation", "standard_entropy_cp_integration", "solute_hkf88_gems", "solute_hkf88_reaktoro"} & names
             try:
-                steps = engine.explain(298.15, 1e5, record["symbol"])
+                route = engine.thermoPropertiesSubstance(298.15, 1e5, record["symbol"]).info.route
+                steps = route.methods if route.by == "methods" else []
             except RuntimeError:  # the record has invalid parameters: the old engine raises the same error
                 with pytest.raises(RuntimeError):
                     engine.thermoPropertiesSubstance(298.15, 1e5, record["symbol"])
@@ -84,31 +85,30 @@ def test_constant_volume_adds_the_error_of_the_volume():
     err_g = record["sm_gibbs_energy"]["errors"][0]
     err_v = record["sm_volume"]["errors"][0]  # J/bar
     engine = tf.ThermoEngine(path)
-    assert engine.explain(298.15, 1e5, "Fluorite")
+    assert engine.thermoPropertiesSubstance(298.15, 1e5, "Fluorite").info.route.methods
     tps = engine.thermoPropertiesSubstance(298.15, 1e5, "Fluorite")
     assert tps.gibbs_energy.err == pytest.approx(math.sqrt(err_g**2 + err_v**2), rel=1e-14)
     assert tps.gibbs_energy.err != err_g
 
 
-def test_explain_gives_the_state_after_each_method():
+def test_the_route_gives_the_contribution_of_each_method():
     here = os.path.dirname(os.path.abspath(__file__))
     engine = tf.ThermoEngine(os.path.join(here, "test-thermoengine-thermofun.json"))
-    steps = engine.explain(400.0, 1e7, "Quartz")
-    if steps:
-        assert steps[0]["method"] == "CpPolynomial"
-        assert steps[-1]["G"] == pytest.approx(engine.thermoPropertiesSubstance(400.0, 1e7, "Quartz").gibbs_energy.val, rel=1e-12)
+    route = engine.thermoPropertiesSubstance(400.0, 1e7, "Quartz").info.route
+    if route.methods:
+        assert route.methods[0].method == "CpPolynomial"
+        assert route.total()["G"] == pytest.approx(engine.thermoPropertiesSubstance(400.0, 1e7, "Quartz").gibbs_energy.val, rel=1e-12)
 
 
-def test_a_detailed_result_says_how_it_came():
+def test_the_route_of_a_result_says_how_it_came():
     engine = tf.ThermoEngine(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test-aq17-gem-lma-thermofun.json"))
     plain = engine.thermoPropertiesSubstance(373.15, 1e6, "Ca+2")
-    detailed = engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "Ca+2")
-    assert detailed["source"] == "methods"
-    assert [step["method"] for step in detailed["steps"]] == ["HKF88"]
-    assert detailed["properties"].gibbs_energy.val == plain.gibbs_energy.val
-    assert detailed["steps"][-1]["G"] == pytest.approx(plain.gibbs_energy.val)
-    assert detailed["conversions"] == []
-    assert engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "H+")["source"] == "hydrogen_ion"
-    assert engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "H2O@")["source"] == "water"
-    defined = engine.thermoPropertiesSubstanceDetailed(373.15, 1e6, "H4SiO4@")
-    assert defined["source"] == "reaction" and defined["reaction"] == "H4SiO4@" and defined["steps"] == []
+    route = plain.info.route
+    assert route.by == "methods"
+    assert [m.method for m in route.methods] == ["HKF88"]
+    assert route.methods[-1].contribution["G"] == pytest.approx(plain.gibbs_energy.val)
+    assert route.conversions == []
+    assert engine.thermoPropertiesSubstance(373.15, 1e6, "H+").info.route.by == "hydrogen_ion"
+    assert engine.thermoPropertiesSubstance(373.15, 1e6, "H2O@").info.route.by == "water"
+    defined = engine.thermoPropertiesSubstance(373.15, 1e6, "H4SiO4@").info.route
+    assert defined.by == "reaction" and defined.needs[0].role == "defining_reaction" and defined.needs[0].route.symbol == "H4SiO4@" and defined.methods == []

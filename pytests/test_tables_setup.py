@@ -328,11 +328,11 @@ def test_a_saved_setup_finds_its_database_from_another_folder(tmp_path, monkeypa
 
 def test_the_record_names_the_implementation_that_runs():
     engine = tf.ThermoEngine(AQ)
-    assert engine.calculationPath("Ca+2")["methods"] == ["HKF88/reaktoro"]
+    assert [(m.method, m.implementation) for m in engine.route("Ca+2").methods] == [("HKF88", "reaktoro")]
     preferences = engine.preferences
     preferences.method_implementation = {"HKF88": "gems"}
     engine.setPreferences(preferences)
-    assert engine.calculationPath("Ca+2")["methods"] == ["HKF88/gems"]
+    assert [(m.method, m.implementation) for m in engine.route("Ca+2").methods] == [("HKF88", "gems")]
     made = setup(options={"method_implementation": {"JohnsonNorton91": "gems"}})
     assert any("JohnsonNorton91/gems" in line for line in tf.table(made)["t"].provenance.lines())
 

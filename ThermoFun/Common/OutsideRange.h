@@ -58,7 +58,7 @@ inline auto errorState(const Reaktoro_::ThermoScalar& x) -> ErrorState
     for (const auto& note : x.info.notes)
         if (note.kind == Note::Kind::Uncertainty)
             return ErrorState::partial;
-    if (x.err == 0.0 && x.info.source != "hydrogen_ion")
+    if (x.err == 0.0 && !(x.info.route && x.info.route->by == "hydrogen_ion"))
         return ErrorState::unknown;
     return ErrorState::known;
 }
@@ -148,14 +148,12 @@ inline auto markOutsideRange(ThermoPropertiesSubstance& r, const Note& note) -> 
         detail::markValue(*x, note);
 }
 
-/// Set where the values of a result came from (decision 0029), on the result and on each value; empty: left as it is.
+/// Set how a result was calculated (decision 0030), on the result and on each value.
 template <class Result>
-auto stampSource(Result& r, const std::string& source) -> void
+auto stampRoute(Result& r, const std::shared_ptr<const Route>& route) -> void
 {
-    if (source.empty())
-        return;
-    r.info.source = source;
-    forEachValue(r, [&](Reaktoro_::ThermoScalar& x) { x.info.source = source; });
+    r.info.route = route;
+    forEachValue(r, [&](Reaktoro_::ThermoScalar& x) { x.info.route = route; });
 }
 
 /// Set the pressure that the calculation used, Pa (the saturation pressure at P = 0), on the result and on each value.

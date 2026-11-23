@@ -126,11 +126,12 @@ def test_a_reaction_from_its_species_says_where_its_values_come_from_and_what_is
     assert "H0 of component C" not in r.reaction_gibbs_energy.sta[1]
 
 
-def test_explain_gives_the_notes_of_each_method():
-    steps = engine("gems").explain(1274.0, 5e8, "Na+")
-    hkf = [s for s in steps if s["method"] == "HKF88"][0]
-    assert [n.method for n in hkf["notes"]] == ["JohnsonNorton91"] and hkf["notes"][0].via == ["the water"]
-    assert all("notes" not in s for s in engine("gems").explain(1273.15, 5e8, "Na+"))
+def test_a_note_says_its_method_and_the_route_it_came_through():
+    # decision 0030: notes are not in the route; each note has its method and via (the records it came through)
+    notes = engine("gems").thermoPropertiesSubstance(1274.0, 5e8, "Na+").info.notes
+    water = [n for n in notes if n.method == "JohnsonNorton91"]
+    assert water and water[0].via == ["the water"]
+    assert not [n for n in engine("gems").thermoPropertiesSubstance(1273.15, 5e8, "Na+").info.notes if n.method == "JohnsonNorton91"]
 
 
 def test_the_legacy_bounds_check_makes_a_note():
@@ -183,13 +184,13 @@ def test_info_says_where_a_value_came_from_and_the_pressure_used():
     T = 473.15
     Psat = e.saturationPressure(T)
     na = e.thermoPropertiesSubstance(T, 0.0, "Na+").gibbs_energy.info
-    assert na.source == "methods" and na.pressure == pytest.approx(Psat, rel=1e-12) and na.status == tf.Status.calculated
+    assert na.route.by == "methods" and na.pressure == pytest.approx(Psat, rel=1e-12) and na.status == tf.Status.calculated
     assert na.validity == tf.Validity.within and na.error == tf.ErrorState.unknown   # the test data give no uncertainties
-    assert e.thermoPropertiesSubstance(T, 1e7, "Z").gibbs_energy.info.source == "reaction"
-    assert e.thermoPropertiesReaction(T, 1e7, "RB").log_equilibrium_constant.info.source == "reactants"
-    assert e.thermoPropertiesReaction(T, 1e7, "RZ").log_equilibrium_constant.info.source == "methods"
+    assert e.thermoPropertiesSubstance(T, 1e7, "Z").gibbs_energy.info.route.by == "reaction"
+    assert e.thermoPropertiesReaction(T, 1e7, "RB").log_equilibrium_constant.info.route.by == "reactants"
+    assert e.thermoPropertiesReaction(T, 1e7, "RZ").log_equilibrium_constant.info.route.by == "methods"
     water = e.propertiesSolvent(T, 0.0, "H2O@").density.info
-    assert water.source == "water" and water.pressure == pytest.approx(Psat, rel=1e-12)
+    assert water.route.by == "water" and water.pressure == pytest.approx(Psat, rel=1e-12)
 
 
 def test_a_value_without_data_is_undefined():

@@ -13,7 +13,7 @@ Steps for one job. The guides are in four groups: using ThermoFun to calculate, 
 - [Choose water models](choose-water-models.md)
 - [Choose conventions](choose-conventions.md)
 - [Propagate uncertainties](propagate-uncertainties.md)
-- [See what each method gives](get-per-method-results.md)
+- [See how a result is calculated](see-how-a-result-is-calculated.md)
 - [Use a method alone to calculate](use-a-method-alone.md)
 
 ## Data
@@ -42,7 +42,7 @@ make-tables
 choose-water-models
 choose-conventions
 propagate-uncertainties
-get-per-method-results
+see-how-a-result-is-calculated
 use-a-method-alone
 ```
 

@@ -186,7 +186,8 @@ auto ThermoEngine::Impl::substanceDerivative(double T, double& P, const Substanc
 
     if (fromReaction)
     {
-        raw = reacDCthermoProperties(T, P, substance);
+        Route unused;
+        raw = reacDCthermoProperties(T, P, substance, unused);
         const Reaction reaction = database.getReaction(substance.reactionSymbol());
         const model::DefiningReactionGuard no_cycle(symbol);
         const bool ownTerm = pressureFromRecord(substance, reaction);
@@ -326,7 +327,15 @@ auto enginesAroundConstant(const ThermoEngine& engine, const ParameterRef& ref, 
 
 } // namespace
 
-auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult
+auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters, const std::string& kind) const -> SensitivityResult
+{
+    // a substance, else a reaction (also an equation), as engine.route decides
+    if (isReaction(symbol, kind))
+        return reactionSensitivities(T, P, symbol, parameters);
+    return substanceSensitivities(T, P, symbol, parameters);
+}
+
+auto ThermoEngine::substanceSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
@@ -365,7 +374,7 @@ auto ThermoEngine::parameterSensitivities(double T, double& P, const std::string
     return out;
 }
 
-auto ThermoEngine::reactionParameterSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult
+auto ThermoEngine::reactionSensitivities(double T, double& P, const std::string& symbol, const std::vector<ParameterRef>& parameters) const -> SensitivityResult
 {
     pimpl->dropStaleResults();
     Impl::checkStatePoint(T, P);
