@@ -79,9 +79,10 @@ dlogK/dlogK of the reaction 1.0
 
 The first is -RT ln 10 at 373.15 K: G of SiO2@ is G of Qtz minus RT ln 10 log K.
 
-The methods of log K (LogKVantHoff, LogKConstantCp, ...) calculate from dH and dS at Tr, and dCp. logK (or dG) is read only
-to give the one of dH and dS that the record lacks. A record that gives logK, dH and dS has derivatives by dH and dS, and 0
-by logK: give logK and dH, without dS, to fit logK.
+The methods of log K (LogKVantHoff, LogKConstantCp, ...) read logK (or dG without logK) and dH at Tr, and dCp. dS and dG are
+derived from them, also when the record gives them. So a reaction that gives logK, dH and dS has derivatives by logK and dH,
+and a derivative by its dS is an error that says so; `engine.parameters(symbol)` does not list dS. With the implementation
+`gems` of the method, the given dH and dS are read, as in GEMS, and logK only completes them.
 
 The derivatives follow the same path as the values: see [Choose where properties come from](add-data.md#10-choose-where-properties-come-from). A substance from its defining reaction
 has derivatives by the reaction and by the other species. A substance from its methods has none by them. An unknown parameter is an error, and not a derivative of 0.

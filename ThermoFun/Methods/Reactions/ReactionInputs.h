@@ -49,6 +49,8 @@ struct ReactionInputs
     std::vector<CoefficientUnit> coefficient_units, cp_coefficient_units;  ///< of the two lists; set if a record made them
     ReferenceSeed seed;                  ///< set only in a pass by a parameter
     double R = R_CONSTANT;               ///< the gas constant of the calculation, J/(mol K): of the engine option physical_constants
+    bool gems = false;                   ///< implementation gems of the log K methods: given dH and dS are read, log K or dG only
+                                         ///< completes them, and a given dG wins over log K (the rule of GEMS)
 };
 
 /// The forms of log K(T).

@@ -36,13 +36,19 @@ def test_the_sets():
 @pytest.mark.parametrize("T", [298.15, 373.15, 573.15])
 def test_log_k_and_dg_of_a_reaction_follow_r(T):
     old, new = engine(PSI), engine(PSI, "codata2018")
+    Tr = 298.15
     for reaction in tf.Database(PSI).getReactionsList()[:30]:
         a, b = old.thermoPropertiesReaction(T, 1e5, reaction), new.thermoPropertiesReaction(T, 1e5, reaction)
-        # one of the two is the stored value, the other follows from dG = -R T ln(10) log K
+        ar, br = old.thermoPropertiesReaction(Tr, 1e5, reaction), new.thermoPropertiesReaction(Tr, 1e5, reaction)
         lgK = a.log_equilibrium_constant.val, b.log_equilibrium_constant.val
         dG = a.reaction_gibbs_energy.val, b.reaction_gibbs_energy.val
         assert dG[1] / (-R2018 * T * 2.302585092994046 * lgK[1]) == pytest.approx(1.0, rel=1e-12) if lgK[1] != 0 else True, reaction
-        assert lgK[0] == pytest.approx(lgK[1], rel=1e-12) or dG[0] == pytest.approx(dG[1], rel=1e-12), reaction
+        # at Tr, one of the two is the stored value; at T, log K of a polynomial in T does not depend on R, and the methods that
+        # read log K and dH derive dS with R: dG(T)/T - dG(Tr)/Tr = dH (1/T - 1/Tr) + the dCp terms does not depend on R
+        assert ar.log_equilibrium_constant.val == pytest.approx(br.log_equilibrium_constant.val, rel=1e-12) or \
+            ar.reaction_gibbs_energy.val == pytest.approx(br.reaction_gibbs_energy.val, rel=1e-12), reaction
+        assert lgK[0] == pytest.approx(lgK[1], rel=1e-12) or \
+            dG[0] / T - ar.reaction_gibbs_energy.val / Tr == pytest.approx(dG[1] / T - br.reaction_gibbs_energy.val / Tr, rel=1e-9, abs=1e-9), reaction
 
 
 def test_the_ideal_gas_term_follows_r():

@@ -16,6 +16,10 @@ Gives dCp = a + b T + c/T2 + d/sqrt(T) + e T2; the log K methods use it.
 | Legacy names | `dr_heat_capacity_ft` |
 | Other names | `DrCpIntegration` |
 
+## Implementations
+
+`selected`, `gems`. The default is `selected`. Use another only to reproduce the results of that code.
+
 ## Parameters
 
 | Name | Unit of the source | SI unit | Required | Default | Description |

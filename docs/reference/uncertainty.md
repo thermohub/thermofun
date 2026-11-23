@@ -16,6 +16,7 @@ Every uncertainty is kept as a standard uncertainty u (k = 1): an expanded one i
 | Source | How it counts |
 |---|---|
 | Reference values | Always. G(T) = G(Tr) - S(Tr) (T - Tr) + ... has (T - Tr) u(S). With `propagate_parameter_errors`, they count together with the parameters and the `covariances`. |
+| A method of log K | From the reference values that it reads, with the exact derivatives of its formula: u(y)^2 is the sum of (dy/dx u(x))^2. A value that it derives (dS from log K and dH) is not an input, so it keeps its correlation: at Tr, log K has the uncertainty of the given log K. |
 | A reaction from reactants | The errors are weighted by the coefficients: u(dG)^2 is the sum of nu^2 u^2. u(ln K) = u(dG)/(R T), and u(log K) = u(ln K)/ln 10. |
 | Other properties | From U = H - P V, A = U - T S and S = (H - G)/T. |
 | Parameters of methods | Only with `propagate_parameter_errors`. The record gives an `errors` array or an `uncertainty` next to the value of the parameter. |

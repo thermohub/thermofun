@@ -179,6 +179,8 @@ auto diagnosticCatalog() -> const std::vector<DiagnosticInfo>&
          "Use the methods of the composite one by one."},
         {"V2-MTH-021", S::Warning, "A Method record of the dataset replaces a method of the project or a built-in one.",
          "Give the Method record another id if both are wanted."},
+        {"V2-MTH-029", S::Warning, "A reaction gives a dS or a dG that its method of log K derives from the other values, and the two differ: the given one is not read.",
+         "The method reads log K (or dG without log K) and dH, and derives dS and dG. Correct or remove the derived value; to read the given dH and dS, as GEMS does, choose the implementation gems."},
         {"V2-MTH-028", S::Warning, "A volume method has no parameters of a variable volume (MurnaghanHP98: alpha0 and kappa0; TaitHP11: kappa0), so it calculates a constant volume, the reference volume at every T and P.",
          "Give the thermal expansion and the bulk modulus, if the volume should change with T and P; the result has a note while they are missing."},
         {"V2-MTH-027", S::Error, "A region is given on a method of a kind that cannot be combined by region, or no method of its kind without a region follows it.",

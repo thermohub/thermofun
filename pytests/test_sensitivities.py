@@ -131,7 +131,8 @@ def bad_points_of(db, doc, only=None, one=None):
                     try:
                         derivatives = method(T, P, symbol, [ref])
                     except RuntimeError as error:
-                        if "Cannot derive" in str(error):
+                        # a value that the method of log K derives from the others is refused, by name (test_logk_reading.py)
+                        if "Cannot derive" in str(error) and "derived from the others, not read" not in str(error):
                             problems.append((symbol, ref, T, P, str(error)[:200]))
                         continue  # the model does not cover this point
                     exact = {k: v[label(ref)] for k, v in derivatives.items()}

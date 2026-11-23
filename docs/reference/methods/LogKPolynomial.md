@@ -2,7 +2,7 @@
 
 log K polynomial.
 
-Calculates log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T), and dH, dS and dCp from its derivatives. Without a0 to a6, it calculates them from the dCp coefficients a to e and the reference dH and dS: this equation is the integral of dCp = a + b T + c/T2 + d/sqrt(T) + e T2.
+Calculates log K = a0 + a1 T + a2/T + a3 ln T + a4/T2 + a5 T2 + a6/sqrt(T), and dH, dS and dCp from its derivatives. Without a0 to a6, it calculates them from the dCp coefficients a to e and the reference dH and dS: this equation is the integral of dCp = a + b T + c/T2 + d/sqrt(T) + e T2. Reads log K (or dG without log K) and dH at Tr, and derives dS from them; dS is read only without dH. Implementation gems: the given dH and dS are read, and log K or dG only completes them (the rule of GEMS).
 
 The id `LogKNordstromMunoz88` is the same method: the same calculation and parameters, under a name of the legacy files (`logk_nordstrom_munoz88`). It has no page of its own.
 
@@ -19,6 +19,10 @@ Source: Nordstrom and Munoz (1988); Anderson and Crerar (1993).
 | Has code | yes |
 | Legacy names | `logk_fpt_function` |
 | Other names | `LogKAnalytic` |
+
+## Implementations
+
+`selected`, `gems`. The default is `selected`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

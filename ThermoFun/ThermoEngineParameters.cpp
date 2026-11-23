@@ -182,6 +182,8 @@ auto ThermoEngine::parameters(const std::string& symbol) -> std::vector<Paramete
     std::vector<ParameterHandle> out;
     for (const auto& value : values)
     {
+        if (!pimpl->logKValueNotRead(value.ref).empty())
+            continue;  // a value that the method of log K derives from the others: not one to fit
         if (!value.ref.method.empty())
         {
             const auto* spec = model::MethodCatalog::instance().find(value.ref.method);

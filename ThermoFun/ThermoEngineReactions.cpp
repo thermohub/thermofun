@@ -19,7 +19,7 @@ auto ThermoEngine::Impl::boundReaction(const Reaction& reaction) const -> std::s
     const auto it = bound_cache->reactions.find(record.get());
     if (it != bound_cache->reactions.end())
         return it->second;
-    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(model::withParameterSets(record, database.parameterSets()), &database.methods(), physics().R) : nullptr;
+    auto bound = model::canBindReaction(*record, &database.methods()) ? model::bindReaction(withImplementations(record), &database.methods(), physics().R) : nullptr;
     bound_cache->reactions[record.get()] = bound;
     bound_cache->reaction_records.push_back(record);
     return bound;

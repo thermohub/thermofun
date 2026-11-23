@@ -171,6 +171,7 @@ MethodRegistry::MethodRegistry()
             auto in = reactionInputs(a, r, R, {{"a0", 1}, {"a1", 1}, {"a2", 1}, {"a3", 1}, {"a4", 1}, {"a5", 1}, {"a6", 1}});
             in.cp_coefficients = coefficients(a, {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}});
             in.cp_coefficient_units = {{"a", 1}, {"b", 1}, {"c", 1}, {"d", 1}, {"e", 1}};
+            in.gems = a.implementation == "gems";
             return makeLogK(id, form, std::move(in));
         };
     };
@@ -336,6 +337,16 @@ auto MethodRegistry::implementations(const std::string& id) const -> std::vector
     addFrom(substance_);
     addFrom(solvent_);
     addFrom(dielectric_);
+    // a method of a reaction has one factory, which reads the implementation of the application (the log K methods: gems)
+    if (reaction_.count(id))
+        if (const auto* spec = MethodCatalog::instance().find(id, OperatesOn::Reaction))
+        {
+            std::vector<std::string> names = {""};
+            names.insert(names.end(), spec->implementations.begin(), spec->implementations.end());
+            for (const auto& i : names)
+                if (std::find(out.begin(), out.end(), i) == out.end())
+                    out.push_back(i);
+        }
     return out;
 }
 

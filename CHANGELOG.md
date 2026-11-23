@@ -119,6 +119,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   G of a fluid does not change (the exact pi of CORK moves it by less than 1e-9), except CORK H2O between 673 and 695 K. G of the
   HP98 minerals and of their reactions changes by 2-10 J/mol. A code that must keep the numbers of GEMS sets
   `method_implementation` to `gems` for these methods.
+- **The methods of log K read log K (or dG without log K) and dH, and derive dS** (and dG from log K), also when the record
+  gives them. Before, a given dS was read and log K only completed a missing dH or dS: most legacy reactions give log K, dH
+  and dS (psinagra 439 of 440, PSI 2020 70 of 131), so a change of log K did nothing and the derivative by log K was 0, although
+  log K and dH are the selected values (NEA TDB) and dS is derived. Values change by the rounding of the given dS (PSI 2020 3e-5
+  in log K, cemdata18 3e-7, psinagra `(UO2)3(CO3)6-6` 0.0014), more where log K, dH and dS do not agree; `validate` reports a
+  given dS or dG that differs from the derived one (V2-MTH-029). The implementation `gems` of `LogKConstant`, `LogKZeroEntropy`,
+  `LogKVantHoff`, `LogKConstantCp`, `LogKPolynomial` and `ReactionCpPolynomial` keeps the rule of GEMS (the golden references
+  are reproduced exactly with it, apart from the uncertainties); `selected` is the default. `method_implementation` of the
+  engine now reaches the methods of reactions too. `parameterSensitivities` refuses a value that is derived, with the reason,
+  and `engine.parameters(symbol)` does not list it. `LogKConstant` with dG and no log K gives log K from dG.
 - **The solvent is chosen once.** If the database has no `H2O@` (for example PSI-TDB, `H2O(l)`), the engine chose the
   solvent at the first aqueous species it calculated, and results before that took the log K data at 1 bar: AgCl(cr) at 573 K and 1 kbar
   was -116386 J/mol first and -117860 J/mol after Cl-. The engine now chooses it when it is made or a setting changes, and
@@ -288,6 +298,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **The uncertainty of log K of the methods of log K** was the raw sum of the uncertainties of dH and dS, in J/mol: PSI 2020
+  FeOH+2 gave log K -2.2 +- 600 (the record: +- 0.02), and dG +- 3.4e6 J/mol. It now comes from the reference values that the
+  method reads, with the exact derivatives of its formula (a pass by each value): u(y)^2 is the sum of (dy/dx u(x))^2. A value
+  it derives (dS from log K and dH) is not an input, so at Tr log K has the uncertainty of the given log K (FeOH+2: 0.02;
+  0.029 at 100 degC, with that of dH).
 - **`JohnsonNorton91` `gems` above 1000 degC or 5 kbar** returned 0 for the dielectric constant and the Born functions, as
   SUPCRT92 and GEMS did: the solutes changed by tens of kJ/mol there (Na+ G by 20 kJ/mol at 1274 K) without a word. They are
   now calculated, and marked outside the range of the model; the solutes get the note.

@@ -2,7 +2,7 @@
 
 log K with constant heat capacity of reaction.
 
-Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. Reads log K or dG, dH or dS, and dCp at Tr; without dCp it is van 't Hoff, without dH and dS a constant log K. It is LogKPolynomial with three terms: a0 = (dS - dCp (1 + ln Tr)) / (R ln 10), a2 = -(dH - dCp Tr) / (R ln 10), a3 = dCp / (R ln 10).
+Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dCp that does not change with T. Reads log K (or dG without log K) and dH at Tr, and derives dS from them; dS is read only without dH. Implementation gems: the given dH and dS are read, and log K or dG only completes them (the rule of GEMS). It reads dCp too: without dCp it is van 't Hoff, without dH and dS a constant log K. It is LogKPolynomial with three terms: a0 = (dS - dCp (1 + ln Tr)) / (R ln 10), a2 = -(dH - dCp Tr) / (R ln 10), a3 = dCp / (R ln 10).
 
 | | |
 |---|---|
@@ -15,6 +15,10 @@ Calculates log K = (dS - dH/T - dCp (1 - Tr/T - ln(T/Tr))) / (R ln 10) with a dC
 | Has code | yes |
 | Legacy names | `logk_3_term_extrap` |
 | Other names | `LogKExtrap3T` |
+
+## Implementations
+
+`selected`, `gems`. The default is `selected`. Use another only to reproduce the results of that code.
 
 ## Parameters
 

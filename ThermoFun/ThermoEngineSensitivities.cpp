@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "ThermoEngineImpl.h"
+#include <ThermoFun/Methods/Reactions/LogK_function_of_T.h>
 
 namespace ThermoFun
 {
@@ -28,6 +29,14 @@ auto toSI(ThermoPropertiesReaction d) -> ThermoPropertiesReaction
     return d;
 }
 
+/// The methods of log K that always read the reference values of the record by logKReading (a polynomial reads them only
+/// without its coefficients a0 to a6)
+auto isLogKMethod(const std::string& id) -> bool
+{
+    static const char* const ids[] = {"LogKConstant", "LogKZeroEntropy", "LogKVantHoff", "LogKConstantCp"};
+    return std::find(std::begin(ids), std::end(ids), id) != std::end(ids);
+}
+
 auto joined(const std::vector<std::string>& names) -> std::string
 {
     std::string out;
@@ -44,6 +53,32 @@ auto indexOf(const std::vector<std::string>& names, const std::string& name) -> 
 }
 
 } // namespace
+
+/// Why a reference value of a reaction is not read by its method of log K, which derives it from the others (logKReading):
+/// a derivative by it would be 0. dS when log K (or dG) and dH are given, dG when log K is given. Empty: it is read, or the
+/// method is not one of these.
+auto ThermoEngine::Impl::logKValueNotRead(const ParameterRef& ref) const -> std::string
+{
+    if (!ref.method.empty() || !database.containsReaction(ref.symbol) || !(ref.parameter == "logK" || ref.parameter == "dG" || ref.parameter == "dH" || ref.parameter == "dS"))
+        return {};
+    const auto bound = boundReaction(database.getReaction(ref.symbol));
+    if (!bound || !bound->base || !isLogKMethod(bound->base->spec().id))
+        return {};
+    const auto& properties = bound->record->reaction_properties;
+    using N = model::ReactionPropertyName;
+    const auto has = [&](N name) { return properties.count(name) > 0; };
+    bool gems = false;
+    for (const auto& a : bound->record->methods)
+        if (a.method == bound->base->spec().id)
+            gems = a.implementation == "gems";
+    const auto read = logKReading(LogKReading{has(N::logK), has(N::dG), has(N::dH), has(N::dS)}, gems);
+    const bool given = has(ref.parameter == "logK" ? N::logK : ref.parameter == "dG" ? N::dG : ref.parameter == "dH" ? N::dH : N::dS);
+    const bool isRead = ref.parameter == "logK" ? read.logK : ref.parameter == "dG" ? read.dG : ref.parameter == "dH" ? read.dH : read.dS;
+    if (!given || isRead)
+        return {};
+    return "The method " + bound->base->spec().id + (gems ? " (implementation gems) reads the given dG, dH and dS" : " reads log K (or dG without log K) and dH, and derives dS")
+           + ": the " + ref.parameter + " of the record is derived from the others, not read. Derive by the values it reads.";
+}
 
 /// The parameter must be in the record: else a derivative of 0 would look like a result.
 auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
@@ -64,6 +99,8 @@ auto ThermoEngine::Impl::checkParameter(const ParameterRef& ref) const -> void
         {
             if (!database.containsReaction(ref.symbol))
                 fail("The database has no reaction with this symbol.");
+            if (const auto why = logKValueNotRead(ref); !why.empty())
+                fail(why);
         }
         else
             fail("A reference value is one of G, H, S, Cp, V of a substance, or logK, dG, dH, dS, dCp, dV of a reaction.");
